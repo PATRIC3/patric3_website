@@ -1,0 +1,236 @@
+html, body { 
+	height: 100%; 
+	width: 100%; 
+	padding: 0; 
+	margin: 0; 
+	background-color: #f4f4f4; 
+	font-family: Verdana;
+}
+
+
+
+/******************************************/
+/* primary page layout                    */
+/******************************************/
+
+.col {
+	padding: 0px;
+	margin: 0px;
+	float: left;
+	margin-top: 206px;
+}
+
+#col1 {
+	width: 27%;
+	padding-right: 10px;
+	height: 97%;
+}
+
+#col2 {
+	width: 69%;
+	height: 97%;
+}
+
+.app { 
+	float: left; 
+	padding: 0px; 
+	margin: 10px 5px; 
+	background-color: transparent; 
+}
+
+.grid {
+}
+
+
+/******************************************/
+/* summary grid                           */
+/******************************************/
+
+#patric-summary {
+	width: 95%; 
+	height: 35%;
+	background-color: transparent; 
+	border: 0px; 
+	overflow: auto;
+}
+
+#patric-summary-grid { 
+	width: 100%; /*height: 100%;*/ 
+}
+
+
+/******************************************/
+/* graph                                  */
+/******************************************/
+
+#patric-idvgraph {
+	width: 95%; 
+	height: 60%;
+	border: 1px solid #83ace2;
+	background-color: #ffffff; 
+	margin-bottom: 0px;
+}
+
+#patric-idvgraph-graph { 
+	width: 100%; height: 94%; 
+	background-color: #ffffff; 
+	padding: 0px;
+	margin:  0px;
+	border-bottom: 1px solid #83ace2;
+	float: left;
+}
+
+
+/******************************************/
+/* IOI map                                */
+/******************************************/
+
+#patric-ioimap {
+	width: 95%; 
+	height: 37%;
+	border: 1px solid #83ace2;
+	background-color: transparent; 
+	margin-bottom: 4px;
+}
+
+#patric-ioimap-gmap { 
+	width: 100%; height: 93%; 
+	background-color: #ffffff;
+	padding: 0px;
+	margin:  0px;
+	border-bottom: 1px solid #83ace2;
+}
+
+
+/******************************************/
+/* app headers & footers                  */
+/******************************************/
+
+.app-header-box {
+	background-color: #b5ceed;
+	padding: 2px;
+	border-bottom: 1px solid #83ace2;
+	margin-bottom: 0px; 
+	height: 18px;
+}
+
+.app-header {
+	background-color: #b5ceed;
+	padding: 0px;
+	margin: 0px;
+	font-size: 11px;
+	width: 100%;
+}
+
+#patric-idvgraph-hdr-title {
+	float: left;
+	font-size: 11px;
+	color: #003278;
+	font-weight: bold;
+}
+
+
+.app-footer-box {
+	background-color: transparent;
+	padding: 2px;
+	/*border-bottom: 1px solid #83ace2;*/
+	margin-bottom: 0px; 
+	height: 18px;
+}
+
+.app-footer {
+	background-color: transparent;
+	padding: 0px;
+	margin: 0px;
+	font-size: 11px;
+	width: 100%;
+}
+
+
+#patric-idvgraph-controls {
+	font-size: 10px;
+	color: #000000;
+	font-weight: normal;
+}
+
+
+
+
+/******************************************/
+/* popup boxes								            */
+/******************************************/
+
+.idv-info {
+	background-color: #ffffff;
+	border:  1px solid #83ace2;
+}
+
+.idv-info-header-box {
+	background-color: #ffffff;
+	padding: 0px;
+	border-bottom: 1px solid #83ace2;
+	margin: 0px; 
+	height: 14px;
+}
+
+.idv-info-header {
+	background-color: #b5ceed;
+	padding: 0px;
+	margin: 0px;
+	font-size: 10px;
+	width: 100%;
+	color: #003278;
+	font-weight: bold;
+}
+
+.idv-info-header-r  {
+	float: right;
+}
+
+.idv-info-body {
+	padding: 1px;
+	margin:  0px;
+	border:  1px solid #83ace2;
+}
+
+table.idv-info-body {
+	padding: 0px;
+	margin:  0px;
+	/*border:  1px solid #83ace2;*/
+	vertical-align: top;
+}
+
+.idv-info .row {
+	padding: 0px;
+	background-color: #ffffff;
+}
+
+.idv-info .row-alt {
+	padding: 0px;
+	background-color: #ffffff;
+}
+
+.idv-info .label {
+	font-size: 9px;
+	padding: 0px;
+	padding-right: 2px;
+	font-style: italic;
+}
+
+.idv-info .value {
+	font-size: 10px;
+	padding: 0px;
+}
+
+
+.app-error-msg {
+	background-color: #b5ceed;
+	border:  1px solid #83ace2;
+	font-style: italic;
+	color: #003278;
+	padding: 5px;
+	margin-left: 28%;
+	margin-top: 20%;
+	width: 40%;
+	text-align: center;
+}

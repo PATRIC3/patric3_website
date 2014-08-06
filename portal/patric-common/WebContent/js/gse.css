@@ -1,0 +1,90 @@
+#gse {
+	min-height: 600px;
+}
+#gse-venndiagram {
+	height: 500px;
+	width: 500px;
+	font-size: 10px;
+}
+
+#gse-venndiagram .venn_circle {
+	fill: #d2d2d2;
+	fill-opacity: 1;
+}
+
+#gse-venndiagram .venn_circle_stroke {
+	stroke: #34698e;
+	stroke-width: 2px;
+	fill-opacity: 0;
+}
+
+#gse-venndiagram .venn_circle_color1 {
+	fill: blue;
+	fill-opacity: 0.6;
+}
+
+#gse-venndiagram .venn_circle_color2 {
+	fill: yellow;
+	fill-opacity: 0.6;
+}
+
+#gse-venndiagram .venn_circle_color3 {
+	fill: lime;
+	fill-opacity: 0.6;
+}
+
+#gse-venndiagram .venn_circle_stroke_color {
+	stroke: black;
+	stroke-width: 1px;
+	fill-opacity: 0;
+}
+
+#gse-venndiagram .venn_region {
+	fill-opacity: 0;
+}
+
+#gse-venndiagram .venn_region.active {
+	fill: #DBE8EE;
+	fill-opacity: 1;
+}
+
+#gse-venndiagram .venn_panel {
+	border: 1px solid #dbe3e5;
+}
+
+#gse-members {
+	position: absolute;
+	margin-left: 510px;
+	width: 600px;
+	height: 500px;
+	overflow: auto;
+}
+
+#gse-members-tbl th {
+	border: 1px solid #dbe3e5;
+	font-weight: bold;
+	padding: 5px;
+}
+
+#gse-members-tbl .tr, td {
+	border: 1px solid #dbe3e5;
+	padding: 5px;
+}
+
+#gse-members-tbl tbody tr:nth-child(odd) {
+	background-color: #e5ecf9;
+}
+
+#gse-members-tbl table.tablesorter thead tr .header {
+	background-repeat: no-repeat;
+	background-position: center right;
+	cursor: pointer;
+}
+
+#gse-members-tbl table.tablesorter thead tr .headerSortUp {
+	background-image: url(/patric/images/arrow-slate-e-up.png);
+}
+
+#gse-members-tbl table.tablesorter thead tr .headerSortDown {
+	background-image: url(/patric/images/arrow-slate-e-down.png);
+}

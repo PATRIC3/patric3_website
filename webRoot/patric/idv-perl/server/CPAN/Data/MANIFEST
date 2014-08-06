@@ -1,0 +1,16 @@
+Changes
+Makefile.PL
+MANIFEST
+README
+Table.pm
+test.pl
+aaa.csv
+aaa.tsv
+bbb.csv
+ccc.csv
+t_dos.csv
+t_dos2.csv
+t_unix.csv
+t_unix_noheader.csv
+t_mac.csv
+colon.csv

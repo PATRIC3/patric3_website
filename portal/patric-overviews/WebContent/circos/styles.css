@@ -1,0 +1,16 @@
+#circosGraph {
+  display: inline-block;
+  min-width: 100%;
+  min-height: 600px;
+}
+
+#circosLegend {
+	float: left;
+	padding: 7px;
+	width: 80%;
+}
+
+#circosGraph button {
+	float: right;
+	margin-right: 20px;
+}

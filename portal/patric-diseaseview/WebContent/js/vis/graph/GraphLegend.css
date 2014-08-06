@@ -1,0 +1,37 @@
+.patric-graph-legend-block-left {
+	float: left;
+	border: 1px #9EBEC8 solid;
+	padding: 5px;
+	margin:  2px;
+}
+
+.patric-graph-legend-title {
+	font-weight: bold;
+	font-size: 1.2em;
+	color: #0E4771;
+	padding-bottom: 6px;
+}
+
+.patric-graph-legend-entry-title {
+	padding-bottom: 2px;
+	font-style: italic;
+}
+
+.patric-graph-legend-entry-left {
+	margin-left: 8px;
+	padding-bottom: 15px;
+	line-height: 22px;
+	font-size: 1.0em;
+}
+
+.patric-graph-legend-symbol-left img {
+	height: 20px;
+	width:  20px;
+	padding-right: 4px;
+	vertical-align: middle;
+}
+
+.patric-graph-legend-label-left {
+	vertical-align: middle;
+}
+

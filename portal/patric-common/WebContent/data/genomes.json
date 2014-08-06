@@ -1,0 +1,635 @@
+{
+	"top5_2": {
+		"chart_desc": "Top 5 Isolation Countries",
+		"data": [{
+			"reported": 992,
+			"icon": "\/patric\/images\/flags\/United-States.png",
+			"m_label": "usa",
+			"value": 6069,
+			"label": "USA"
+		}, {
+			"icon": "\/patric\/images\/flags\/South-Africa.png",
+			"m_label": "south_africa",
+			"value": 661,
+			"label": "South Africa"
+		}, {
+			"icon": "\/patric\/images\/flags\/India.png",
+			"m_label": "india",
+			"value": 452,
+			"label": "India"
+		}, {
+			"icon": "\/patric\/images\/flags\/Denmark.png",
+			"m_label": "denmark",
+			"value": 448,
+			"label": "Denmark"
+		}, {
+			"icon": "\/patric\/images\/flags\/China.png",
+			"m_label": "china",
+			"value": 441,
+			"label": "China"
+		}],
+		"tab_title": "Isolation Country",
+		"chart_title": "Isolation Country"
+	},
+	"process": {
+		"content": "",
+		"tools": [],
+		"title": "DLP-Genomes-Process",
+		"workflows": [],
+		"subtitle": "How Do We Process and Clean Up Our Data?",
+		"image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2013\/11\/final_genomes1.jpg",
+		"tab_title": ""
+	},
+	"top5_1": {
+		"chart_desc": "Top 5 Bacterial Hosts",
+		"data": [{
+			"reported": 299,
+			"icon": "\/patric\/images\/hosts\/human.png",
+			"m_label": "human,_homo_sapiens",
+			"value": 10580,
+			"label": "Human, Homo sapiens"
+		}, {
+			"icon": "\/patric\/images\/hosts\/cow.png",
+			"m_label": "cattle,_bos_sp.",
+			"value": 199,
+			"label": "Cattle, Bos sp."
+		}, {
+			"icon": "\/patric\/images\/hosts\/cow.png",
+			"m_label": "cattle,_bos_taurus",
+			"value": 183,
+			"label": "Cattle, Bos taurus"
+		}, {
+			"icon": "\/patric\/images\/hosts\/cow.png",
+			"m_label": "bovine",
+			"value": 96,
+			"label": "Bovine"
+		}, {
+			"icon": "\/patric\/images\/hosts\/cow.png",
+			"m_label": "cow,_bos_taurus",
+			"value": 89,
+			"label": "Cow, Bos taurus"
+		}],
+		"tab_title": "Host",
+		"chart_title": "Bacterial Host"
+	},
+	"numberGenomes": {
+		"data": [{
+			"wgs": 1571,
+			"complete": 1333,
+			"year": 2010
+		}, {
+			"wgs": 2846,
+			"complete": 1711,
+			"year": 2011
+		}, {
+			"wgs": 6137,
+			"complete": 2114,
+			"year": 2012
+		}, {
+			"wgs": 13083,
+			"complete": 2553,
+			"year": 2013
+		}, {
+			"wgs": 18344,
+			"complete": 2659,
+			"year": 2014
+		}],
+		"chart_title": "Number of Bacterial Genomes"
+	},
+	"tools": {
+		"content": "",
+		"tools": [{
+			"content": "<p>Allows exploration of phylogenetic relationships using species- and genus-level coloring schemes. PATRIC&#8217;s phylogeny viewer also supports custom creation of genome groups, to be used as a basis for analysis in other PATRIC tools.<\/p>\n",
+			"category": "Visual Browsers",
+			"title": "Phylogeny Viewer",
+			"subtitle": "",
+			"image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2012\/05\/PhylogeneticTree_170sq.jpg",
+			"url": "Phylogeny?cType=taxon&cId=2"
+		}, {
+			"content": "<p>Locates bacterial genomes within PATRIC based on genome names and\/or associated genome metadata such as host name, isolation country, collection date and more.<\/p>\n",
+			"category": "Specialized Searches",
+			"title": "Genome Finder",
+			"subtitle": "",
+			"image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2012\/05\/GenomeFinder-170x170-01.png",
+			"url": "GenomeFinder?cType=taxon&cId=&dm="
+		}, {
+			"content": "<p>Supports searching for and locating genomes of interest based on various combinations of 61 different metadata fields. For instance, all genomes that have been isolated from humans, genomes related by phylogeny, or genomes related by lifestyle.<\/p>\n",
+			"category": "Comparative Analyses",
+			"title": "Genome Metadata",
+			"subtitle": "",
+			"image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2012\/03\/collage-170x170-05.png",
+			"url": "GenomeList?cType=taxon&cId=2&dataSource=&displayMode=&pk="
+		}, {
+			"content": "<p>Affords a graphical understanding of the alignment of genes and other genomic data (i.e., genome features) depicted along a central horizontal axis of genome coordinates. PATRIC&#8217;s genome browser supports comparison of genome annotations from multiple sources (e.g., PATRIC, RefSeq, etc.). <em><strong>Note:<\/strong> Links to genomic region around RNA polymerase sigma factor RpoD (VBIMycTub87468_3014 \/ Rv2703) in Mycobacterium tuberculosis H37Rv.<\/em><\/p>\n",
+			"category": "Visual Browsers",
+			"title": "Genome Browser",
+			"subtitle": "",
+			"image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2012\/05\/GenomeBrowser_170sq2.jpg",
+			"url": "http:\/\/patricbrc.org\/portal\/portal\/patric\/GenomeBrowser?cType=feature&cId=18154601&loc=sid%7C576%7Caccn%7CNC_000962%3A3016830..3020422&tracks=DNA%2CPATRICGenes%2CRefSeqGenes&highlight= "
+		}, {
+			"content": "<p>Allows comparison of genomic regions around a gene of interest across closely related genomes. Detect differences in translation start sites, potential frame shifts, or missing genes; visually identify group proteins with similar functions. <em><strong>Note:<\/strong> Links to RNA polymerase sigma factor RpoD (VBIMycTub87468_3014 \/ Rv2703) in Mycobacterium tuberculosis H37Rv and closely related genomes.<\/em><\/p>\n",
+			"category": "Visual Browsers",
+			"title": "Compare Region Viewer",
+			"subtitle": "",
+			"image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2012\/05\/CompareRegionViewer_170sq.jpg",
+			"url": "http:\/\/patricbrc.org\/portal\/portal\/patric\/CompareRegionViewer?cType=feature&cId=18154601&regions=40&window=10000&loc=1..10000"
+		}, {
+			"content": "<p>RAST (Rapid Annotation using Subsystem Technology) is a fully-automated service for annotating bacterial and archaeal genomes. It provides high quality genome annotations for these genomes across all bacteria.<\/p>\n",
+			"category": "Annotation Pipelines",
+			"title": "RAST",
+			"subtitle": "",
+			"image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2012\/05\/RAST_170sq.jpg",
+			"url": "RAST"
+		}, {
+			"content": "<p>MG-RAST (the Metagenomics RAST) server is an automated analysis platform for metagenomes providing quantitative insights into microbial populations based on sequence data. The server provides web based upload, quality control, automated annotation and analysis for samples up to 10GBp.<\/p>\n",
+			"category": "Annotation Pipelines",
+			"title": "MG-RAST",
+			"subtitle": "",
+			"image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2014\/01\/MGRAST_170sq.png",
+			"url": "MGRAST"
+		}],
+		"title": "DLP-Genomes-Tools",
+		"workflows": [{
+			"summary": null,
+			"headline": null,
+			"content": "<p>Data in PATRIC is organized in a similar fashion at various taxonomic levels throughout the website.  Follow along in this <i>Mycobacterium<\/i> example and see what data is available and where to find it for your favorite organisms\/genomes\/genes.<\/p>\n",
+			"title": "PATRIC Data Organization Overview",
+			"bottom_right_headline": null,
+			"bottom_left_headline": null,
+			"subtitle": "",
+			"image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2013\/07\/data-orgnaization-overview-thumbnail.png",
+			"url": "patric-data-organization-overview-2"
+		}, {
+			"summary": null,
+			"headline": null,
+			"content": "<p>As a result of the foodborne illness outbreak in Europe in 2011, numerous new <i>E. coli<\/i> genomes were sequenced and found to have acquired the genes necessary to produce Shiga toxins, which are believed to play a role in the strains&#8217; high virulence. See how to identify and collect these genomes and the full set of Shiga toxins associated with them for further analysis.<\/p>\n",
+			"title": "Identifying the Shiga Toxin Proteins from 2011 Outbreak",
+			"bottom_right_headline": null,
+			"bottom_left_headline": null,
+			"subtitle": "",
+			"image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2013\/07\/Shigatoxin_outbreak_thumbnail_overlay.jpg",
+			"url": "identifying-the-shiga-toxin-proteins-from-2011-outbreak"
+		}, {
+			"summary": null,
+			"headline": null,
+			"content": "<p>This downloadable pdf contains screenshots and detailed step-wise instructions for locating data of interest, such as finding a particular gene, finding the pan-proteome for all <em>Mycobacterium<\/em> genomes using the Protein Family Sorter and Heatmap, and examining pathways across <em>Mycobacterium<\/em> using the Comparative Pathway Tool and Heatmap.<\/p>\n",
+			"title": "PATRIC for the Novice User:  <i>Mycobacterium<\/i>",
+			"bottom_right_headline": null,
+			"bottom_left_headline": null,
+			"subtitle": "",
+			"image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2013\/09\/step-by-step-pdf_mycobacterium_Thumbnail.jpg",
+			"url": "patric-for-the-novice-user-mycobacterium"
+		}, {
+			"summary": null,
+			"headline": null,
+			"content": "<p>See how to use PATRIC tables and the Table Toolbar including sorting, downloading, analysis tools, creating persistent column customization, and saving items to your workspace.<\/p>\n",
+			"title": "Using PATRIC Tables",
+			"bottom_right_headline": null,
+			"bottom_left_headline": null,
+			"subtitle": "",
+			"image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2013\/07\/PATRIC-tables-thumbnail.png",
+			"url": "using-patric-tables"
+		}, {
+			"summary": null,
+			"headline": null,
+			"content": "<p>Between the spring of 2011 and June of 2012, twenty-seven new E. coli genomes were sequenced as a result of a European E. coli outbreak. Learn how we identify areas of these genomes that are different (e.g., missing or unique proteins) when compared to their closest phylogenetically-related E. coli genomes and then search for evidence of lateral transfer in cases where unique proteins were found in new virulent strains.<\/p>\n",
+			"title": "Finding Potential Genomic Islands in Emergent E. coli Strains",
+			"bottom_right_headline": null,
+			"bottom_left_headline": null,
+			"subtitle": "",
+			"image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2013\/07\/Genomic_islands_workflow_thumbnail_overlay.jpg",
+			"url": "finding-potential-genomic-islands-in-emergent-e-coli-strains"
+		}, {
+			"summary": null,
+			"headline": null,
+			"content": "<p>This downloadable pdf contains screenshots and detailed step-wise instructions for locating data of interest, such as finding a particular gene, finding the pan-proteome for all <i>Brucella<\/i> genomes using the Protein Family Sorter and Heatmap, and examining pathways across <i>Brucella<\/i> using the Comparative Pathway Tool and Heatmap.<\/p>\n",
+			"title": "PATRIC for the Novice User:  <i>Brucella<\/i>",
+			"bottom_right_headline": null,
+			"bottom_left_headline": null,
+			"subtitle": "",
+			"image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2013\/09\/step-by-step-pdf_Brucella_Thumbnail.jpg",
+			"url": "patric-for-the-novice-user-brucella-2"
+		}, {
+			"summary": null,
+			"headline": null,
+			"content": "<p>Find out more about PATRIC data, analysis tools, and functionality in our Frequently Asked Questions.<\/p>\n",
+			"title": "Frequently Asked Questions",
+			"bottom_right_headline": null,
+			"bottom_left_headline": null,
+			"subtitle": "",
+			"image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2014\/01\/FAQs_Thumbnail.jpg",
+			"url": "frequently-asked-questions"
+		}],
+		"subtitle": "Find and Analyze Genomes with PATRIC Tools",
+		"tab_title": ""
+	},
+	"data": {
+		"content": "<p>Genomes are received on a regular basis from a multitude of sources (GenBank, RefSeq, Collaborator Request, etc.). Our signature PATRIC annotation is generated via the RAST (Rapid Annotation Subsystems Technologies) Pipeline, resulting in a consistently annotated set of genomes in which meaningful comparisons can be made within and across taxonomic boundaries. We also maintain the original annotations from GenBank to allow users to explore and compare annotation differences. In addition, we automatically gather, parse, and curate over 60 various associated metadata attributes, such as isolation source, geographic location, and host. Find out how to search for genomes of interest in our <a href=\"http:\/\/enews.patricbrc.org\/faqs\/genome-finder-faqs\/\" >Genome Finder FAQs<\/a>.<\/p>\n",
+		"tools": [],
+		"title": "DLP-Genomes-Data",
+		"workflows": [],
+		"subtitle": "PATRIC Offers Over 16,000 Assembled Bacterial Genomes Sequences",
+		"tab_title": "Testing Data sub-tab Title field"
+	},
+	"download": {
+		"content": "",
+		"tools": [],
+		"title": "DLP-Genomes-Download",
+		"workflows": [],
+		"subtitle": "Download Data",
+		"tab_title": ""
+	},
+	"popularGenomes": {
+		"popularTitle": "Select Genomes",
+		"popularList": [{
+			"popularData": [{
+				"picture": "\/patric\/images\/icon-popular-feature.png",
+				"description": "Features",
+				"link": "FeatureTable?cType=genome&cId=87468&featuretype=&annotation=PATRIC&filtertype=",
+				"data": 4367
+			}, {
+				"picture": "\/patric\/images\/icon-popular-pathway.png",
+				"description": "Pathways",
+				"link": "CompPathwayTable?cType=genome&cId=87468&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId={pId}&pClass=&ecN=",
+				"data": 138
+			}, {
+				"picture": "\/patric\/images\/icon-popular-experiment.png",
+				"description": "Transcriptomic Experiments",
+				"link": "ExperimentList?cType=genome&cId=87468&kw={kw}",
+				"data": 43
+			}, {
+				"picture": "\/patric\/images\/icon-popular-proteinfamily.png",
+				"description": "Protein Families",
+				"link": "FIGfam?cType=genome&cId=87468&dm=result&bm=",
+				"data": 4290
+			}],
+			"gb_link": "GenomeBrowser?cType=genome&cId=87468&loc=0..10000&tracks=",
+			"link": "Genome?cType=genome&cId=87468",
+			"metadata": {
+				"genome_status": "Complete",
+				"chromosomes": 1,
+				"plasmids": 0,
+				"genome_length": 4411532,
+				"collection_date": "",
+				"completion_date": "1998-06-20",
+				"disease": "Tuberculosis",
+				"host_name": "Human, Homo sapiens",
+				"contigs": 0,
+				"isolation_country": ""
+			},
+			"popularName": "Mycobacterium tuberculosis H37Rv"
+		}, {
+			"popularData": [{
+				"picture": "\/patric\/images\/icon-popular-feature.png",
+				"description": "Features",
+				"link": "FeatureTable?cType=genome&cId=129921&featuretype=&annotation=PATRIC&filtertype=",
+				"data": 4549
+			}, {
+				"picture": "\/patric\/images\/icon-popular-pathway.png",
+				"description": "Pathways",
+				"link": "CompPathwayTable?cType=genome&cId=129921&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId={pId}&pClass=&ecN=",
+				"data": 133
+			}, {
+				"picture": "\/patric\/images\/icon-popular-experiment.png",
+				"description": "Transcriptomic Experiments",
+				"link": "ExperimentList?cType=genome&cId=129921&kw={kw}",
+				"data": 207
+			}, {
+				"picture": "\/patric\/images\/icon-popular-proteinfamily.png",
+				"description": "Protein Families",
+				"link": "FIGfam?cType=genome&cId=129921&dm=result&bm=",
+				"data": 4413
+			}],
+			"gb_link": "GenomeBrowser?cType=genome&cId=129921&loc=0..10000&tracks=",
+			"link": "Genome?cType=genome&cId=129921",
+			"metadata": {
+				"genome_status": "Complete",
+				"chromosomes": 1,
+				"plasmids": 0,
+				"genome_length": 4639675,
+				"collection_date": "1922",
+				"completion_date": "1997-09-05",
+				"disease": "",
+				"host_name": "",
+				"contigs": 0,
+				"isolation_country": ""
+			},
+			"popularName": "Escherichia coli str. K-12 substr. MG1655"
+		}, {
+			"popularData": [{
+				"picture": "\/patric\/images\/icon-popular-feature.png",
+				"description": "Features",
+				"link": "FeatureTable?cType=genome&cId=20916&featuretype=&annotation=PATRIC&filtertype=",
+				"data": 4972
+			}, {
+				"picture": "\/patric\/images\/icon-popular-pathway.png",
+				"description": "Pathways",
+				"link": "CompPathwayTable?cType=genome&cId=20916&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId={pId}&pClass=&ecN=",
+				"data": 133
+			}, {
+				"picture": "\/patric\/images\/icon-popular-experiment.png",
+				"description": "Transcriptomic Experiments",
+				"link": "ExperimentList?cType=genome&cId=20916&kw={kw}",
+				"data": 39
+			}, {
+				"picture": "\/patric\/images\/icon-popular-proteinfamily.png",
+				"description": "Protein Families",
+				"link": "FIGfam?cType=genome&cId=20916&dm=result&bm=",
+				"data": 4910
+			}],
+			"gb_link": "GenomeBrowser?cType=genome&cId=20916&loc=0..10000&tracks=",
+			"link": "Genome?cType=genome&cId=20916",
+			"metadata": {
+				"genome_status": "Complete",
+				"chromosomes": 1,
+				"plasmids": 1,
+				"genome_length": 4951371,
+				"collection_date": "1940",
+				"completion_date": "2001-10-26",
+				"disease": "Gastroenteritis",
+				"host_name": "",
+				"contigs": 0,
+				"isolation_country": ""
+			},
+			"popularName": "Salmonella enterica subsp. enterica serovar Typhimurium str. LT2"
+		}, {
+			"popularData": [{
+				"picture": "\/patric\/images\/icon-popular-feature.png",
+				"description": "Features",
+				"link": "FeatureTable?cType=genome&cId=31049&featuretype=&annotation=PATRIC&filtertype=",
+				"data": 5131
+			}, {
+				"picture": "\/patric\/images\/icon-popular-pathway.png",
+				"description": "Pathways",
+				"link": "CompPathwayTable?cType=genome&cId=31049&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId={pId}&pClass=&ecN=",
+				"data": 133
+			}, {
+				"picture": "\/patric\/images\/icon-popular-experiment.png",
+				"description": "Transcriptomic Experiments",
+				"link": "ExperimentList?cType=genome&cId=31049&kw={kw}",
+				"data": 1
+			}, {
+				"picture": "\/patric\/images\/icon-popular-proteinfamily.png",
+				"description": "Protein Families",
+				"link": "FIGfam?cType=genome&cId=31049&dm=result&bm=",
+				"data": 4956
+			}],
+			"gb_link": "GenomeBrowser?cType=genome&cId=31049&loc=0..10000&tracks=",
+			"link": "Genome?cType=genome&cId=31049",
+			"metadata": {
+				"genome_status": "Complete",
+				"chromosomes": 1,
+				"plasmids": 0,
+				"genome_length": 4599354,
+				"collection_date": "",
+				"completion_date": "2003-04-22",
+				"disease": "Dysentery",
+				"host_name": "",
+				"contigs": 0,
+				"isolation_country": ""
+			},
+			"popularName": "Shigella flexneri 2a str. 2457T"
+		}, {
+			"popularData": [{
+				"picture": "\/patric\/images\/icon-popular-feature.png",
+				"description": "Features",
+				"link": "FeatureTable?cType=genome&cId=7843&featuretype=&annotation=PATRIC&filtertype=",
+				"data": 4666
+			}, {
+				"picture": "\/patric\/images\/icon-popular-pathway.png",
+				"description": "Pathways",
+				"link": "CompPathwayTable?cType=genome&cId=7843&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId={pId}&pClass=&ecN=",
+				"data": 132
+			}, {
+				"picture": "\/patric\/images\/icon-popular-experiment.png",
+				"description": "Transcriptomic Experiments",
+				"link": "ExperimentList?cType=genome&cId=7843&kw={kw}",
+				"data": 6
+			}, {
+				"picture": "\/patric\/images\/icon-popular-proteinfamily.png",
+				"description": "Protein Families",
+				"link": "FIGfam?cType=genome&cId=7843&dm=result&bm=",
+				"data": 4513
+			}],
+			"gb_link": "GenomeBrowser?cType=genome&cId=7843&loc=0..10000&tracks=",
+			"link": "Genome?cType=genome&cId=7843",
+			"metadata": {
+				"genome_status": "Complete",
+				"chromosomes": 1,
+				"plasmids": 3,
+				"genome_length": 4829855,
+				"collection_date": "",
+				"completion_date": "2001-10-05",
+				"disease": "Bubonic plague",
+				"host_name": "Human, Homo sapiens",
+				"contigs": 0,
+				"isolation_country": "USA"
+			},
+			"popularName": "Yersinia pestis CO92"
+		}, {
+			"popularData": [{
+				"picture": "\/patric\/images\/icon-popular-feature.png",
+				"description": "Features",
+				"link": "FeatureTable?cType=genome&cId=69206&featuretype=&annotation=PATRIC&filtertype=",
+				"data": 2927
+			}, {
+				"picture": "\/patric\/images\/icon-popular-pathway.png",
+				"description": "Pathways",
+				"link": "CompPathwayTable?cType=genome&cId=69206&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId={pId}&pClass=&ecN=",
+				"data": 128
+			}, {
+				"picture": "\/patric\/images\/icon-popular-experiment.png",
+				"description": "Transcriptomic Experiments",
+				"link": "ExperimentList?cType=genome&cId=69206&kw={kw}",
+				"data": 30
+			}, {
+				"picture": "\/patric\/images\/icon-popular-proteinfamily.png",
+				"description": "Protein Families",
+				"link": "FIGfam?cType=genome&cId=69206&dm=result&bm=",
+				"data": 2906
+			}],
+			"gb_link": "GenomeBrowser?cType=genome&cId=69206&loc=0..10000&tracks=",
+			"link": "Genome?cType=genome&cId=69206",
+			"metadata": {
+				"genome_status": "Complete",
+				"chromosomes": 1,
+				"plasmids": 0,
+				"genome_length": 2944528,
+				"collection_date": "",
+				"completion_date": "2001-10-27",
+				"disease": "Listeriosis",
+				"host_name": "",
+				"contigs": 0,
+				"isolation_country": ""
+			},
+			"popularName": "Listeria monocytogenes EGD-e"
+		}, {
+			"popularData": [{
+				"picture": "\/patric\/images\/icon-popular-feature.png",
+				"description": "Features",
+				"link": "FeatureTable?cType=genome&cId=116463&featuretype=&annotation=PATRIC&filtertype=",
+				"data": 2734
+			}, {
+				"picture": "\/patric\/images\/icon-popular-pathway.png",
+				"description": "Pathways",
+				"link": "CompPathwayTable?cType=genome&cId=116463&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId={pId}&pClass=&ecN=",
+				"data": 132
+			}, {
+				"picture": "\/patric\/images\/icon-popular-experiment.png",
+				"description": "Transcriptomic Experiments",
+				"link": "ExperimentList?cType=genome&cId=116463&kw={kw}",
+				"data": 14
+			}, {
+				"picture": "\/patric\/images\/icon-popular-proteinfamily.png",
+				"description": "Protein Families",
+				"link": "FIGfam?cType=genome&cId=116463&dm=result&bm=",
+				"data": 2700
+			}],
+			"gb_link": "GenomeBrowser?cType=genome&cId=116463&loc=0..10000&tracks=",
+			"link": "Genome?cType=genome&cId=116463",
+			"metadata": {
+				"genome_status": "Complete",
+				"chromosomes": 1,
+				"plasmids": 1,
+				"genome_length": 2839469,
+				"collection_date": "1982",
+				"completion_date": "2001-06-22",
+				"disease": "Toxic shock syndrome",
+				"host_name": "Human, Homo sapiens",
+				"contigs": 0,
+				"isolation_country": ""
+			},
+			"popularName": "Staphylococcus aureus subsp. aureus N315"
+		}, {
+			"popularData": [{
+				"picture": "\/patric\/images\/icon-popular-feature.png",
+				"description": "Features",
+				"link": "FeatureTable?cType=genome&cId=27904&featuretype=&annotation=PATRIC&filtertype=",
+				"data": 2205
+			}, {
+				"picture": "\/patric\/images\/icon-popular-pathway.png",
+				"description": "Pathways",
+				"link": "CompPathwayTable?cType=genome&cId=27904&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId={pId}&pClass=&ecN=",
+				"data": 124
+			}, {
+				"picture": "\/patric\/images\/icon-popular-experiment.png",
+				"description": "Transcriptomic Experiments",
+				"link": "ExperimentList?cType=genome&cId=27904&kw={kw}",
+				"data": 15
+			}, {
+				"picture": "\/patric\/images\/icon-popular-proteinfamily.png",
+				"description": "Protein Families",
+				"link": "FIGfam?cType=genome&cId=27904&dm=result&bm=",
+				"data": 2159
+			}],
+			"gb_link": "GenomeBrowser?cType=genome&cId=27904&loc=0..10000&tracks=",
+			"link": "Genome?cType=genome&cId=27904",
+			"metadata": {
+				"genome_status": "Complete",
+				"chromosomes": 1,
+				"plasmids": 1,
+				"genome_length": 2049276,
+				"collection_date": "",
+				"completion_date": "2006-10-12",
+				"disease": "Pneumonia",
+				"host_name": "",
+				"contigs": 0,
+				"isolation_country": ""
+			},
+			"popularName": "Streptococcus pneumoniae D39"
+		}, {
+			"popularData": [{
+				"picture": "\/patric\/images\/icon-popular-feature.png",
+				"description": "Features",
+				"link": "FeatureTable?cType=genome&cId=92729&featuretype=&annotation=PATRIC&filtertype=",
+				"data": 3499
+			}, {
+				"picture": "\/patric\/images\/icon-popular-pathway.png",
+				"description": "Pathways",
+				"link": "CompPathwayTable?cType=genome&cId=92729&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId={pId}&pClass=&ecN=",
+				"data": 131
+			}, {
+				"picture": "\/patric\/images\/icon-popular-experiment.png",
+				"description": "Transcriptomic Experiments",
+				"link": "ExperimentList?cType=genome&cId=92729&kw={kw}",
+				"data": 5
+			}, {
+				"picture": "\/patric\/images\/icon-popular-proteinfamily.png",
+				"description": "Protein Families",
+				"link": "FIGfam?cType=genome&cId=92729&dm=result&bm=",
+				"data": 3444
+			}],
+			"gb_link": "GenomeBrowser?cType=genome&cId=92729&loc=0..10000&tracks=",
+			"link": "Genome?cType=genome&cId=92729",
+			"metadata": {
+				"genome_status": "Complete",
+				"chromosomes": 2,
+				"plasmids": 0,
+				"genome_length": 3294931,
+				"collection_date": "",
+				"completion_date": "2002-01-05",
+				"disease": "Brucellosis",
+				"host_name": "Human, Homo sapiens",
+				"contigs": 0,
+				"isolation_country": ""
+			},
+			"popularName": "Brucella melitensis bv. 1 str. 16M"
+		}, {
+			"popularData": [{
+				"picture": "\/patric\/images\/icon-popular-feature.png",
+				"description": "Features",
+				"link": "FeatureTable?cType=genome&cId=33062&featuretype=&annotation=PATRIC&filtertype=",
+				"data": 1674
+			}, {
+				"picture": "\/patric\/images\/icon-popular-pathway.png",
+				"description": "Pathways",
+				"link": "CompPathwayTable?cType=genome&cId=33062&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId={pId}&pClass=&ecN=",
+				"data": 123
+			}, {
+				"picture": "\/patric\/images\/icon-popular-experiment.png",
+				"description": "Transcriptomic Experiments",
+				"link": "ExperimentList?cType=genome&cId=33062&kw={kw}",
+				"data": 10
+			}, {
+				"picture": "\/patric\/images\/icon-popular-proteinfamily.png",
+				"description": "Protein Families",
+				"link": "FIGfam?cType=genome&cId=33062&dm=result&bm=",
+				"data": 1624
+			}],
+			"gb_link": "GenomeBrowser?cType=genome&cId=33062&loc=0..10000&tracks=",
+			"link": "Genome?cType=genome&cId=33062",
+			"metadata": {
+				"genome_status": "Complete",
+				"chromosomes": 1,
+				"plasmids": 0,
+				"genome_length": 1667867,
+				"collection_date": "",
+				"completion_date": "1997-08-07",
+				"disease": "Gastritis",
+				"host_name": "Human, Homo sapiens",
+				"contigs": 0,
+				"isolation_country": "United Kingdom"
+			},
+			"popularName": "Helicobacter pylori 26695"
+		}]
+	},
+	"genomeStatus": {
+		"data": [{
+			"reported": "86%",
+			"m_label": "gsc_shotgun_sequence",
+			"value": 86,
+			"label": "Whole Genome Shotgun"
+		}, {
+			"reported": "12%",
+			"m_label": "gsc_complete",
+			"value": 12,
+			"label": "Complete"
+		}, {
+			"reported": "2%",
+			"m_label": "gsc_plasmid",
+			"value": 2,
+			"label": "Plasmid"
+		}],
+		"chart_title": "Genome Status"
+	}
+}

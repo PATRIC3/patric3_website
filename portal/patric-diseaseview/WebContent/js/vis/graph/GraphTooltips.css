@@ -1,0 +1,23 @@
+.patric-graph-tooltip table {
+	border: 0;
+	padding: 2px;
+	margin:  0;
+}
+
+.patric-graph-tooltip td {
+	padding: 3px;
+	padding-right: 8px;
+	vertical-align: top;
+}
+
+.patric-graph-tooltip-key {
+	font-weight: bold;
+	/*text-decoration: underline;*/
+	font-size: 1.0em;
+	color: #0E4771;
+}
+
+.patric-graph-tooltip-val {
+	font-size: 1.0em;
+}
+

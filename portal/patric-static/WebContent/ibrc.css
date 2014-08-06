@@ -1,0 +1,28 @@
+#fp {
+	margin: 0px;
+	padding: 10px;
+	min-height: 580px;
+	background-color: #fff;
+}
+
+#fp h2 {
+	color: #bb881f;
+	font-weight: normal;
+	font-size: 1.6em;
+	line-height: 1.3em;
+	margin: 17px 0 0;
+	padding: 0;
+}
+
+#fp p {
+	font-size: 1em;
+	line-height: 1.6em;
+	margin: 5px 0px 9px;
+	padding: 0px;
+}
+
+.clear {
+	height: 0px;
+	overflow: hidden;
+	clear: both;
+}

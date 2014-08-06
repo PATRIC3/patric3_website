@@ -1,0 +1,65 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>edu.vt.vbi.patric</groupId>
+	<artifactId>patric</artifactId>
+	<version>5.0-201012</version>
+	<packaging>pom</packaging>
+	<description>Parent POM for PATRICBRC project</description>
+	<url>http://patricbrc.org</url>
+	<organization>
+		<name>Virginia Bioinformatics Institute</name>
+		<url>http://vbi.vt.edu</url>
+	</organization>
+	<properties>
+		<java.version>1.7</java.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+	</properties>
+	<modules>
+		<module>patric-libs</module>
+		<module>patric-common</module>
+		<module>patric-jbrowse</module>
+		<module>patric-mashup</module>
+		<module>patric-overviews</module>
+		<module>patric-pathways</module>
+		<module>patric-phylogeny</module>
+		<module>patric-searches-and-tools</module>
+		<module>patric-diseaseview</module>
+		<module>patric-hpi</module>
+		<module>patric-static</module>
+		<module>patric-transcriptomics</module>
+		<module>patric-proteinfamily</module>
+		<module>patricbrc</module>
+		<!-- jboss-libraries 
+		<module>patric-theme-lib</module>
+		<module>patric-core-lib</module>
+		<module>patric-identity-lib</module>
+		<module>patric-core-identity-ui-lib</module>
+		end of jboss-libs -->
+	</modules>
+	<repositories>
+		<repository>
+			<id>patric</id>
+			<layout>default</layout>
+			<url>http://dev.patricbrc.org/maven-repo/</url>
+		</repository>
+		<repository>
+			<id>centeral</id>
+			<layout>default</layout>
+			<url>https://repository.jboss.org/nexus/content/repositories/central/</url>
+		</repository>
+		<repository>
+			<id>JBoss-public</id>
+			<name>JBoss Maven Repository</name>
+			<layout>default</layout>
+			<url>https://repository.jboss.org/nexus/content/groups/public-jboss/</url>
+		</repository>
+		<!--<repository>
+			<id>java.net-m2</id>
+			<layout>default</layout>
+			<url>https://repository.jboss.org/nexus/content/repositories/java.net-m2/</url>
+		</repository>-->
+	</repositories>
+</project>

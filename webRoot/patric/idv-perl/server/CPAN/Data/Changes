@@ -1,0 +1,244 @@
+Revision history for Perl extension Data::Table.
+
+1.54 Sun Feb 10 21:35:02 PST 2008
+  Modify fromFileGetTopLines method, remove dependency on bytes
+  bytes::substr causes infinite loop in some older version of perl
+
+1.53 Thu Jan  3 21:13:40 PST 2008
+  add "use bytes" to Table.pm
+  Just patched test.pl, because some OS cannot open in-memory file.
+
+1.52 Fri Dec 14 11:48:42 PST 2007
+1.51 Wed Dec 12 15:36:22 PST 2007
+  1. Add a class methods Data::Table::fromFile(file_name), which can
+  guess the file format and call fromCSV/fromTSV internally.
+  
+  fromFile relies on the following new methods
+    fromFileGuessOS(file_name)
+    fromFileGetTopLines($file_name, $OS, $lineNumber)
+    fromFileIsHeader($string)
+    fromFileGuessDelimiter($arrayRefToLines)
+  to figure out if the input file is from UNIX/PC/MAC, whether its first
+  row contains column headers, and whether it uses ",", "\t" or ":" as
+  field delimiters.
+  It then calls either fromCSV or fromTSV to return the table object.
+
+  $t = Data::Table::fromFile("myFileName_CSVorTSV_HeaderOrNoHeader_UNIXorPCorMAC");
+    
+  Please refers to the updated document for details.
+
+  2. When fromFile/fromCSV/fromTSV reads from an empty file, it returns
+  an undef object, rather than quit.
+
+  3. Provide more informative error message, when invalid column header is found.
+
+  4. fixed a bug in 1.51 where fromFileGuessOS failed in Windows
+  Thanks to patches provided by "whitebell".
+
+1.50 Thu Sep 28 07:21:38 PDT 2006
+  Small modifications to sort subroutine example in the document, no bug.
+
+  join method, if $cols2 is undefined, defaults @$cols2 to @$cols1
+  Update fromCSV, fromTSV, csv methods to be able to deal with certain delimiters correctly.
+    (When the delimiter is a special symbol for regexp, it should be escaped, e.g., set delimiter to '\|' for pipe symbol).
+  Thanks to suggestions from Michael Slaven.
+
+  update fromCSV, fromTSV to take additional arguments: skip_lines and skip_pattern
+  skip_lines lets user skip several lines in the beginning of the input file
+  skip_pattern lets user skip all lines that match a regular expression
+  Please read documents under fromCSV and fromTSV for details.
+  Thanks to suggestions from Wenbin Ye.
+
+1.49 Wed Aug 30 09:29:51 PDT 2006
+  Add %Data::Table::DEFAULTS to store the default settings for OS, CSV_DELIMITER and CSV_QUALIFIER
+  Thanks to suggestions from Roman Filippov
+
+  Patch sort method to deal with undef table element. undef value is considered to be
+  larger than any other value, two undef values are considered equal during sorting.
+
+1.48 Thu Jun  8 13:25:54 PDT 2006
+  Update fromCSV, parseCSV to enable user-specified delimiter and qualifier,
+  see document and examples under fromCSV.
+  csvEscape is modified accordingly.
+  Thanks to help from Roman Filippov
+
+1.47 Sun May 21 15:03:14 PDT 2006
+  Upload the wrong code in 1.46, re-upload
+
+1.46 Sat May 13 05:44:09 PDT 2006
+  fromCSV, fromTSV, csv, tsv can all take either a file hander or a file name
+  Notice: to leave rooms for future development, file handler is not closed by Data::Table.
+          It's caller's responsibility to close it afterwards, if no longer used.
+  table::sort code is replaced, the old sort method is renamed to sort_v0 and is deprecated.
+  The new sort method allow user-defined sorting operators, please read manual on table::sort
+  The new sort method also runs faster in some benchmark tests.
+  A big thank to Wenbin Ye for suggestions, as well as contributing
+    both the new sort code and test examples
+
+1.45 Mon May  1 09:08:20 PDT 2006
+  Fix a bug in fromTSV
+  last column name is truncated by one character (introduced in 1.44)
+  Thanks to Albert V. Smith
+
+1.44 Sat Apr 15 04:27:28 PDT 2006
+  Fix a bug in join (type=2 and 3)
+  When right or full join, key fields are undef for right-only entries.
+
+  modify fromCSV, fromTSV, tsv, csv subroutines to support read/write PC, Mac and UNIX files.
+  csv and tsv can take a file name and directly writes to it.
+
+1.43 Tue Nov  9 10:23:44 PST 2004
+  Patch html so that valid XHTML code is generated
+  Several mispelled words were corrected
+  Thanks all to Wolfgang Dautermann
+
+1.42 Fri Oct  8 11:56:41 PDT 2004
+  Minor changes to group and pivot, not a bug
+
+1.41 Thu Oct  7 14:04:17 CDT 2004
+  Add two useful methods: group and pivot
+  group can make the records unique based on given key columns
+  pivot is handy to transfer database table into a more user readable format
+  group+pivot make accounting operations easy, please read the document for details.
+
+  Due to the spam, please use the following for email contact
+    easydatabase at gmail dot com
+
+1.40 Wed Oct 15 12:11:11 CDT 2003
+  Patch colMap, as suggested by Jeff Janes
+
+1.39 Wed Mar 26 09:33:01 CST 2003
+  Fix a bug in match_pattern, match_string and row_mask;
+  When a new table was created by these methods, deleting columns had a
+  side effect of the original parent table.
+
+1.38 Sun Jan 19 18:26:23 CST 2003
+  Change die to croak as suggested by Jeff Janes.
+
+1.37 Tue Sep 17 17:53:55 CDT 2002
+  Add $countOnly to match_string and match_pattern, thanks to Serge Batalov.
+
+1.36 Thu Sep 12 14:47:59 CDT 2002
+  Add close() to both fromTSV and fromCSV, thanks to Brian Coon.
+
+1.35 Mon Jul  1 13:04:43 PDT 2002
+  Optimization in parseCSV, thanks to Jeff Janes.
+
+1.34 Wed May  1 12:13:33 CDT 2002
+  Fix a bug in colMerge
+
+1.33 Wed Jan 16 17:55:34 CST 2002
+  Small patches to join method. Not a bug.
+  Thanks to Xiao-Jun Ma
+
+1.32 Sun Sep 30 16:21:02 CDT 2001
+  No change, just update Table.html (forgot in version 1.31)
+
+1.31 Wed Sep 20 21:22:22 PDT 2001
+  add colsMap($fun), which does more than colMap can;
+  Unlike colMap, $fun here have access to multiple columns.
+  Read document for details.
+
+1.30 Wed Sep 19 20:02:52 PDT 2001
+  Improve header method, which can now take a new header argument.
+  Improve fromTSV and fromCSV, which now can take the 3rd argument --
+  if header is supplied, it will always be used (despite the 2nd argument).
+  Read document for details.
+  Fix a bug in adding a new column to a empty table.
+  Thanks to Serge Batalov.
+
+1.29  Mon Sep 17 18:18:13 CDT 2001
+  a bug fixed in fromTSV
+  The first line was skipped when header==0 is specified in fromTSV.
+
+1.28  Wed Sep  5 17:59:36 CDT 2001
+  a bug fixed in fromCSV, where \c or \\ apears in the file.
+  Fix provided by Jeff Janes.
+
+1.27  Mon Jul  9 00:04:54 PDT 2001
+  accept more formatting parameters for html, combine html2 with html.
+
+1.26  Mon May 21 09:35:41 PDT 2001
+  A typo bug in swap fixed
+  Thanks to Jeff Janes
+
+1.25  Thu May  3 00:50:03 PDT 2001
+  add BEGIN, check perl version, update README.
+  We realize Table.pm requires 5.005 at least.
+  See README for the patch for older perl.
+  Thanks to Jeffery Cann
+
+1.24  Sat Apr 21 20:30:18 PDT 2001
+  a bug in match_pattern fixed (important!)
+  Thanks to Robson Francisco de Souza
+
+1.23  Thu Apr 12 14:36:45 PDT 2001
+  a bug in html, html2 fixed, where table element "" displayed ugly
+  introduced in version 1.21
+
+1.22  Sat Mar 25 14:30:06 PST 2001
+  join method added
+  support four join types: inner, left outer, right outer, and full outer.
+
+  a small bug in html2 fixed, thanks to Fred Lovine
+
+1.21  Fri Mar  9 21:04:30 PST 2001
+  rowMask method added
+
+  A bug in html, html2 fixed, where table element 0 is not displayed
+  Thanks to Sven Neuhaus
+
+1.20  Wed Feb 28 12:38:53 PST 2001
+  A bug in match_string is fixed.
+  This will affect results if you change your "string" value in the program;
+  Also add a caseIgnore control argument to match_string method.
+  Thanks to Bryan Coon.
+
+1.19  Sat Feb 24 23:23:37 PST 2001
+  A bug in fromSQL is fixed (caused by typo)
+    This happens when user use the third argument (a reference to an array).
+    The old package will show an error message in some cases.
+
+  Add $header option for csv and tsv, output header or not
+
+  Add the following instant methods
+    fromSQLi
+    fromCSVi
+    fromTSVi
+  so that these methods can be inherited.
+  Thanks to Michael Schlueter
+
+  Update new method, so that it can be used as an instant method as well.
+
+  Add method
+    rowHashRef
+  which returns a copy of a table row in hash reference.
+
+  Officially support TSV format via the following three methods
+    Data::Table::fromTSV
+    fromTSVi
+    tsv
+  Read "TSV FORMAT" section for details.
+
+1.18
+  Fix the problem in Data::Table::fromCSV caused by null trailing fields.
+  E.g., a line "a,b,," in a csv file was split into two fields before.
+  Thanks to Karsten
+
+  Fix the warning message in Data::Table::match_string, when table contains
+  an undef element.
+
+  Add Data::Table::fromTSV and Data::Table:tsv
+  TSV - tab-deliminated file format. TSV preserves NULL element and line-break
+  chars in a table.
+    \0, \\, \r, \b, \n, \t are slash-escaped.
+    undef is escaped into \N.
+  This is based on MySQL specification.
+
+1.16  Fri Sep 29 22:18:06 PDT 2000
+  Package name changed from Table to Data::Table, due to
+  name collision with PerlQt
+  first official release version
+
+1.15  Tue Sep 26 18:32:52 PDT 2000
+  submitted to CPAN

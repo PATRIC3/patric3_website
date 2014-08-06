@@ -1,0 +1,573 @@
+=pod
+
+=head1 NAME
+
+Graph - module for creating and manipulating undirected graphs and hypergraphs
+
+
+=head1 SYNOPSIS
+
+Use HPI::Graph::Graph;
+my $graph = HPI::Graph::Graph("prop1"=>val1, "prop2"=>val2, ...);
+
+	
+	
+=head1 DESCRIPTION
+
+=head2 Description
+
+A module for creating and manipulating undirected graphs and hypergraphs. This 
+module uses HPI::Graph::Element as its base. All methods in this module assume 
+the graph is undirected. HPI::Graph::DirectedGraph uses this module as its base, 
+overriding methods or adding new methods as necessary.
+
+As with all modules that inherit from HPI::Graph::Element, you can add prop=val 
+pairs, or string tags, or both. (prop=val pairs can be passed as arguments to 
+the constructor, or set using the setprop method. tags must be added after 
+instantiation. see HPI::Graph::Element for more info.)
+
+
+=head2 Routines
+
+=item fill($nodetable, $edgetable)
+
+Uses the given $nodetable and $edgetable to fill the graph. Any existing 
+nodes, edges, properties, etc. are deleted before adding the new content.
+
+
+=item empty
+
+Clears all data from this graph, except the id. That includes the links to 
+any children of this graph. (if a child is linked somewhere else, though, it 
+is not destroyed - only the parent-child relationship to this graph object.)
+
+
+=item directed
+
+Returns 0 to indicate this graph is undirected.
+
+
+=item is_tree
+
+Returns true if this graph can be treated as a tree according to graph theory 
+principles: it is fully connected and it has no cycles. Note this is not 
+the same as a tree in data structures, which requires the graph be directed. 
+(In that sense, of course, an undirected graph can not be a tree.)
+
+
+=item is_forest
+
+Returns true if this graph can be treated as a forest according to graph theory 
+principles: none of its components contain a cycle. (Note: A tree is a forest 
+with a single component.)
+
+
+=item has_cycle
+
+Returns true if this graph has at least one cycle. This method examines each 
+component of the graph via a depth-first search. If the dfs removes at least 
+one edge from the component, the component must contain a cycle. If any 
+component of the graph contains a cycle, the graph must contain a cycle. Note 
+this method does not count or identify the cycle(s); it only tests for the 
+presence.
+
+
+=head2 Node and Node-related Routines
+
+=item nodecount
+
+Returns the total number of nodes.
+
+
+=item indx_from_id($id)
+
+Returns the index of the node with the given $id. Indices are used internally 
+to optimize various techniques. As such, they may be changed without notice. 
+IDs should always be used to identify a node to the wider world. This routine 
+is not private, but it should be used with extreme caution by external modules.
+
+
+=item id_from_indx($indx)
+
+Returns the id of the node with the given $indx. Indices are used internally 
+to optimize various techniques. As such, they may be changed without notice. 
+IDs should always be used to identify a node to the wider world. This routine 
+is not private, but it should be used with extreme caution by external modules.
+
+
+=item has_node($id)
+
+Returns 1 if a node with $id exists; returns 0 if not.
+
+
+=item >get_node($id)
+
+Returns a ref to the HPI::Graph::Node object associated with $id. If no 
+object was stored, returns undef.
+
+
+=item set_node($id, $node)
+
+If $graph contains a node with id $nid, stores $n associated with that node and 
+returns 1. Usually, a HyperGraph::Node object is passed, but this is not a 
+requirement. Note this method will overwrite any existing node object for $n. 
+If $n is not a node in $graph, this method does nothing and returns 0.
+
+
+=item add_node($id, $node)
+
+Adds a node with id $id. If $node is defined, it is stored as the object 
+referenced by $id. (this provides a convenient way to store metadata about 
+the node). If $id already exists, this method will not add it again. 
+Regardless, this method returns the internal index of $id.
+
+=item add_nodes($nodes)
+
+Adds multiple nodes. This method will not add a node if one with the same id 
+already exists in the graph. This method returns the number of nodes after 
+it completes.
+
+
+=item get_nids($filter)
+
+If $filter is undefined, this method simply returns an array of all node ids. 
+
+If $filter (a hash of prop=val pairs) is defined, it partitions the nodes into 
+an 'ingroup' (nodes that match all of the $filter conditions) and an 'outgroup' 
+(nodes that fail any of the $filter conditions), and returns both arrays as a 
+hash. Note that $filter is applied to properties of the graph only, not tags.
+
+
+=item maxdeg
+
+Returns the degree of the node with the largest degree.
+
+
+=item get_nids_by_degree($k, $comp)
+
+If $comp is undefined, this method returns an array of node ids where the 
+degree of each node in the array equals $k. If $comp is defined, and is one of 
+['eq', 'ne', 'lt', 'le', 'gt', 'ge'], then the returned array contains nodes 
+that match $k according to $comp.
+
+
+=item sort_nids_by_degree($order, $limit)
+
+Sorts graph nodes by degree (k) and returns the sorted nodes as a two-column 
+Table (node id, k). This method requires a sort order $order, either 
+a|u|up|ascending or d|down|descending. It also accepts an (optional) limit 
+$limit on the number of nodes to return, as an int between 2 and the total 
+number of nodes in the graph (default), 
+
+NOTE: All nodes are sorted, regardless of any set limit. $limit only applies to 
+how many nodes are returned.
+
+NOTE: multiple nodes with the same degree are randomly ordered.
+
+
+=item get_node_degree_dist
+
+Calculates the distribution of node degrees (k) and returns the 
+distribution as a two-column Table (k, count).
+
+
+=item deg($id)
+
+Returns the degree of the node with the given $id (k, or how may edges are 
+incident on the node).
+
+
+=item intersection($nids)
+
+Finds the set of common neighbors (the intersection of n subgraphs) shared by 
+all nodes with ids in the given list of $nids. Returns the set as a hash of 
+HPI::Graph::Node objects keyed by node id.
+
+
+=head2 Edge and Edge-related Routines
+
+=item edgecount
+
+Returns the total number of edges. In some graph analyses, an undirected edge 
+is considered as two directed edges. This routine considers each undirected 
+edge as a single edge only.
+
+
+=item has_edge($sid, $tid)
+
+Returns 1 if an edge between a node with id $sid and a node with id $tid 
+exists; otherwise, returns 0.
+
+
+=item get_edge($sid, $tid)
+
+Returns a ref to the object associated with the s-t edge. If no object was 
+stored, or if either $sid or $tid do not exist, returns undef.
+
+
+=item get_edges($id)
+
+If $id is defined, this method finds all nodes joined by an edge to the node 
+with id $id. If $id is not defined, this method finds all pairs of nodes 
+joined by an edge. (In the latter case, this is equivalent to the get_nids 
+method. Since edges are stored as pairs of node ids, and not given unique ids 
+of their own, the return structure is necessarily more complex.) Returns the 
+node pairs as a hash (source node id) of hashes (target node ids). The hash 
+values contain the actual edge objects (or undef, if no edge object for an edge 
+exists).
+
+
+=item set_edge($sid, $tid, $edge)
+
+If an s-t edge exists, stores $edge associated with that edge and 
+returns 1. Usually a HPI::Graph::Edge object is stored, but this is not a 
+requirement. Note this method will overwrite any existing edge object for 
+s-t. If an s-t edge does not exist, this method does nothing and returns 0.
+
+
+=item set_edge_wt($sid, $tid, $wt)
+
+Sets the weight of the s-t edge to $wt. Edge weights are stored via edge 
+objects, usually HPI::Graph::Edge objects (though this is not a requirement). 
+If an edge object exists for the s-t edge, it is updated with the new weight. 
+If no edge object exists, a new one is created and stored.
+
+If the new weight is different from the old, any shortest paths that have been 
+calculated on the graph are cleared and must be recalculated.
+
+
+=item add_edge($sid, $tid, $snode, $tnode, $edge)
+
+Adds a new s-t edge. If either node id $sid or $tid does not exist, it is 
+added first. If an s-t edge already exists, this method will not add it again. 
+Optional arguments $snode, $tnode, and $edge can be used to store objects for 
+nodes $sid and $tid, and the s-t edge, respectively.
+
+This method returns 1 if the edge was added successfully; 0 if it was not.
+
+(Note: this method adds entries to the AM for both s-t and for t-s.)
+
+
+=item del_edge($sid, $tid)
+
+Deletes the s-t edge from the graph and updates the adjacency lists for both 
+$sid and $tid.
+
+
+=item get_edge_wts
+
+Returns the weights of all edges in the graph, as an array hashes. Each hash 
+represents an edge, with a source node id ("source"), target node id 
+("target"), and an edge weight ("weight").
+
+
+=item sort_edges_by_wt($order, $limit)
+
+Sorts the graph edges by weight and returns the sorted edges as a three-column 
+Table (source node id, target node id, weight). This method accepts a sort 
+order $order, either d|down|descending (default) or a|u|up|ascending. It also 
+accepts a limit $limit on the number of edges to return, as an int 
+between 2 and the total number of edges in the graph (default).
+
+NOTE: All edges are sorted, regardless of any set limit. $limit only applies 
+to how many edges are returned.
+
+NOTE: multiple edges with the same weight are randomly ordered.
+
+
+=item get_neighbors($id)
+
+Returns an array of ids of all neighboring nodes of the node with id $id. In 
+this sense, two nodes are neighbors if they share an edge.
+
+
+=item get_neighbors_as_hash($id)
+
+Same as the get_neighbors($id) method, but returns the neighbors as a hash 
+keyed by node id rather than an array of node ids.
+
+
+=head2 Graph Analysis and Related Routines
+
+=item are_connected($sid, $tid)
+
+Returns 1 if there is a path between $sid and $tid in the graph (i.e., both 
+nodes are in the same component). Returns 0 if there is no such path.
+
+
+=item get_component($id)
+
+Finds the (connected) component that contains the node with id $id, and 
+returns it as a new HPI::Graph::Graph object. This method works by running a 
+breadth-first search from the node with the given $id, then computes the 
+subgraph on the node set of the resulting tree.
+
+
+=item get_all_components
+
+Finds all components in the current graph and returns them as an arrayref of 
+HPI::Graph::Graph objects. (In other terms, this method fully partitions the 
+current graph.)
+
+
+=item merge($g2)
+
+Merges the graph $g2 with the current one. Nodes with the same id are 
+considered equivalent, and they not duplicated. Likewise, edges with the same 
+source-target pair of node ids are considered equvalent, and they are not 
+duplicated. IMPORTANT: This is an in-place modification of the graph upon 
+which it is called. It does not create a new graph. This method returns 0 if no 
+changes were mage to the original graph; otherwise it returns a hash 
+of statistics on the update:
+
+	"nodes_before_merge"
+	"edges_before_merge"
+	"nodes_in_ingraph"
+	"edges_in_ingraph"
+	"nodes_after_merge"
+	"edges_after_merge"
+
+
+=item cut($nodeset)
+
+Accetps a list of node ids. Computes the cut set (all edges that only join 
+nodes in the given $nodeset). Returns a hash of Graph::Edge objects keyed 
+by source node id and target node id.
+
+
+=item subgraph($nodeset)
+
+Related to the cut($nodeset) method, except this method returns the entire 
+subgraph based on $nodeset (edges and nodes) as a new HPI::Graph::Graph object.
+
+
+=item bfs($id)
+
+Starting from the node with id $id, this method runs a breadth-first search of 
+the graph. It returns the resulting tree as a new HPI::Graph::Graph.
+
+
+=item dfs($id)
+
+Starting from the node with id $id, this method runs a depth-first search of 
+the graph. It returns the resulting tree as a new HPI::Graph::Graph.
+
+
+=item mst
+
+Calculates a minimum spanning tree on the graph using Kruskal's Algorithm, and 
+returns it as a new HPI::Graph::Graph object. If the graph is not fully 
+connected, this method will return a minimum spanning forest instead (the set 
+of MSTs on all components of the graph, including singleton nodes).
+
+
+=item shortest_path($sid, $tid)
+
+Finds the shortest path between $sid and $tid. Returns a hash, keyed 
+by $tid, containing the length of the shortest path ("length") and the node ids 
+along that path from s to t ("path"). If $tid is defined, the return hash will 
+contain a single (length, path) entry (this is the canonical "single-pair 
+shortest path" problem). If $tid is not defined, the return hash will contain 
+all shortest paths from $sid to every other node in the graph (the 
+"single-source shortest path" problem).
+
+This method is an implementation of Dijkstra's Algorithm, so it requires 
+non-negative edge weights.
+
+If $sid is not a node in the graph, this method returns undef. If $tid is 
+defined, but $sid and $tid are not in the same component, this method also 
+returns undef. If the graph is not fully connected, this method uses the 
+connected component that contains $sid instead. In this case, the return hash 
+will contain all nodes in the component, which may not be all of the nodes in 
+the graph.
+
+This method is optimized to solve the single-pair and single-source shortest 
+path problems, and so requires at least one node id $sid. To find all shortest 
+paths between all pairs of nodes in a graph, use the shortest_paths routine 
+instead.
+
+
+=item shortest_paths
+
+Finds all shortest paths between all pairs of nodes in the graph, and stores 
+the results for subsequent access via the ancillary methods 
+reconstruct_shortest_path and get_shortest_path_length. If the paths already 
+exist in the internal data structure, this method simply returns 1. Actually 
+calculating all of the shortest paths and their lengths takes O(V^3) time (this 
+method is an implementation of the Floyd-Warshall Algorithm) so we store them 
+for as long as possible to speed up access. Any time the edge structure of 
+the graph changes, though, the cache of shortest paths is deleted and this 
+method re-calculates them.
+
+
+=item reconstruct_shortest_paths($sid, $tid)
+
+Finds all shortest paths between $sid and $tid and returns them as an arrayref 
+of arrayrefs of node ids (each array is a single shortest path). This method 
+calls shortest_paths if it has not run previously, which runs in O(V^3) time. 
+It returns undef if no path exists between s and t. It returns an empty arrayref 
+if the shortest path is an edge between $sid and $tid. Otherwise, it 
+returns an arryref containg the node ids in order from $sid to $tid (not 
+including $sid or $tid).
+
+
+=item get_shortest_paths($sid, $tid)
+
+Finds all of the shortest paths between $sid and $tid and returns them as an 
+arrayref of arrayrefs. This method uses the recursive method 
+reconstruct_shortest_paths for the heavy lifting, then appends $sid and $tid 
+onto each result and returns them to the caller. Returns undef if no s-t path 
+exists in the graph.
+
+
+=item get_shortest_path_length($sid, $tid)
+
+Finds the length of the shortest path between $sid and $tid. This method runs 
+in constant time if the shortest paths are stored already. Otherwise, it calls 
+shortest_paths first, which runs in O(V^3) time. If no s-t or t-s path exists, 
+returns infinity (inf). (Note there may be multiple shortest s-t paths, but all 
+will have the same length by definition.)
+
+
+=item k_centrality($v)
+
+Calculates the degree (k-) centrality of a given node $v. If $v is not 
+defined, calculates the k-centrality of the entire graph. The larger the value 
+of k-centrality, the more important the node.
+
+The k-centrality of a single node v in a graph with n total nodes is: 
+	
+	 k(v)
+	-----
+	(n-1)
+
+The k-centrality of an entire graph with n total nodes is: 
+
+	sum(n)[k(vstar) - k(v)]
+	-----------------------
+	        (n-2)
+	
+where k(vstar) is the degree of the most highly connected node in the graph. 
+
+
+=item closeness($v)
+
+Calculates the closeness centrality for a given node $v. Closeness is 
+defined as the mean shortest path length from $v to all other connected nodes 
+in the graph:
+
+	sum(t)[d(v,t)]
+	--------------
+	    (n-1)
+
+This method returns the reciprical of the closeness, so larger values 
+correspond to higher importance.
+
+Note: this centrality is based on the connected component that contains $v. 
+So, it more accurately reflects the importance of $v to its component, which 
+(for unconnected graphs) may not be accurate for the entire graph.
+
+
+=item betweenness($v)
+
+Calculates the betweenness centrality for a given node $v. Nodes that are found 
+on more shortest s-t paths in a graph have higher betweenness values than those 
+found on fewer shortest paths:
+
+					  sigma(s,t)v
+sum(s,t,v)[ ----------- ]
+					  sigma(s,t)
+
+where sigma(s,t)v is the number of s-t shortest paths that pass through v, and 
+sigma(s,t) is the total number of s-t shortest paths. For undirected graphs, 
+the shortest s-t path is also the shortest t-s path, so we divide the 
+betweenness value by two to account for this characteristic.
+
+Larger values of betweenness correspond to higher importance.
+
+
+=item eigenvector_centrality($v)
+
+Returns the eigenvalue centrality for a given node $v. Bonacich (1972) defined 
+centrality as the principal value of the eigenvector of the adjacency 
+matrix. Eigenvector centrality is based on the premise that the centrality 
+(importance) of a node v is proportional to the centrality of the direct 
+neighbors of v. In this sense, it is a (recursive) variant of simple degree 
+centrality, taking into account not only the direct neighbors, but also 
+neighbors of neighbors, and so on.
+
+This method is responsible only for looking up the entry for $v in the 
+eigenvector. If the eigenvector for the graph has not been calculated yet, this 
+method first calls set_eigenvector to do that.
+
+
+=item set_eigenvector
+
+Calculates the eigenvector of the adjacency matrix, using the power iteration 
+algorithm. In short, we start wth an arbitrary (non-zero) vector b. Multiplying 
+b by the adjacency matrix A will scale b in the direction of each eigenvector 
+of A by the corresponding eigenvalue for that eigenvector. Since the dominant 
+eigenvalue is larger than all others, with successive iterations, b will 
+eventually converge on the dominant eigenvector.
+
+This method accepts a threshold parameter (between 0 and 1) to determine when 
+this method should stop converging and return the result. (the default 
+threshold is 0.01.) The threshold is intepreted as a percentage: as soon as 
+every entry in the result vector changes less than the threshold, the 
+algorithm exits.
+
+
+=item get_nodetable, get_edgetable
+
+set up node and edge tables for graphs. we use generic field names to allow 
+consistency across graphs.it is up to the visualization to assign specific 
+labels.
+
+note: these tables follow a standard HPI scheme:
+
+	1. the first row contains the data types for each column (see 
+     HPI::Tools::format_type)
+	2. the table is tab-delimited and exactly rectangular (i.e., no missing fields)
+	3. a cell with an undefined or empty value will contain the empty string
+
+note: if you print an HPI table, the first row in the file will contain the 
+column names. this is consistent with the format used by Data::Table. if you 
+read in an HPI table file using Data::Table->fromFile($file), the first row is 
+used as the column names and all subsequent rows shift down. the take-home message 
+is that row 0 of a Data::Table object created from an HPI table file will contain 
+the data types, NOT actual data.
+
+nodes are created by defining at minimum an id. this may be any data format, 
+including string. to make graph manipulations as efficient as possible, HPI::Graph 
+uses internal integer indices as unique node ids. these integers are included 
+as the field 'id' in the node table. the 'source' and 'target' fields in the edge 
+table correspond to these integer ids. the user-supplied ids are saved as a separate 
+property of the graph object, called the 'uid.'
+
+
+=item graphml($outf)
+
+Builds a graphml representation of the current graph. If $outf is a valid path 
+to a file, the graphml is written to $outf. Otherwise, this method returns the 
+graphml as an array of lines.
+
+
+=head2 Private routines
+
+=item _rmdups($table, $idcols)
+
+Removes duplicate rows from $table, using the column name(s) in the list 
+$idcols as a basis for comparison. Returns a new Data::Table containing the 
+pruned rows.
+
+
+=head1 AUTHOR AND COPYRIGHT
+
+Timothy Driscoll <driscoll451@gmail.com>
+
+
+=head1 LICENSE
+
+This module is licensed under the same terms as Perl itself.
+
+=cut

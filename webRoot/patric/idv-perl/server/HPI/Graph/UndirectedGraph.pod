@@ -1,0 +1,33 @@
+
+=pod
+
+=head1 NAME
+
+UndirectedGraph - module for creating and manipulating undirected graphs and 
+hypergraphs
+
+
+=head1 SYNOPSIS
+
+Use HPI::Graph::UndirectedGraph;
+my $graph = HPI::Graph::UndirectedGraph("prop1"=>val1, "prop2"=>val2, ...);
+
+=head1 DESCRIPTION
+
+=head2 Description
+
+A module for creating and manipuating undirected graphs and hypergraphs. This 
+module is merely a convenient wrapper for its base class HPI::Graph::Graph, 
+and all routines can be found in the base class.
+
+
+=head1 AUTHOR AND COPYRIGHT
+
+Timothy Driscoll <driscoll451@gmail.com>
+
+
+=head1 LICENSE
+
+This module is licensed under the same terms as Perl itself.
+
+=cut

@@ -1,0 +1,103 @@
+=pod
+
+=head1 NAME
+
+DirectedGraph - module for creating and manipulating directed graphs
+
+
+=head1 SYNOPSIS
+
+Use HPI::Graph::DirectedGraph;
+my $graph = HPI::Graph::DirectedGraph("prop1"=>val1, "prop2"=>val2, ...);
+	
+	
+=head1 DESCRIPTION
+
+=head2 Description
+
+A module for creating and manipuating directed graphs and hypergraphs. This 
+module uses HPI::Graph::Graph as its base. Directedness-independent methods can 
+be found in HPI::Graph::Graph.
+
+As with all modules that inherit from HPI::Graph::Element, you can add prop=val 
+pairs, or string tags, or both. (prop=val pairs can be passed as arguments to 
+the constructor, or set using the setprop method. tags must be added after 
+instantiation. see HPI::Graph::Element for more info.)
+
+
+=head2 Routines
+
+=item empty
+
+Clears all data from this graph, except the id. That includes the links to 
+any children of this graph. (if a child is linked somewhere else, though, it 
+is not destroyed - only the parent-child relationship to this graph object.) 
+Overrides the routine in the base class in order to reset data specific to 
+directed graphs (e.g., MAXINDEGREE, MAXOUTDEGREE, etc.).
+
+
+=item directed
+
+Returns 1 to indicate this graph is directed.
+
+
+=item is_tree
+
+Returns 1 if this graph can be considered a polytree: a directed acyclic graph 
+in which there are no undirected cycles as well. Otherwise, returns 0.
+
+
+=item is_dag
+
+Returns 1 if this graph is a directed acyclic graph with a single connected 
+component. Otherwise, returns 0.
+
+
+=item deg($id)
+
+Returns the degree of the node with the given $id (k, or how may edges are 
+incident on the node).
+
+
+=item outdeg($sid)
+
+Returns the number of edges that originate from a given node $sid. Note: this 
+is equivalent to the simple degree of a node in an undirected graph. This 
+method runs in constant time; it simply finds the length of the adjacency 
+list for the given node $sid.
+
+
+=item indeg
+
+Returns the number of edges incident upon a given node $sid; in other words, 
+directed edges that end in $sid.
+
+
+=item sources
+
+Returns an array of source node ids for this graph. Source nodes have no 
+incoming edges (indegree = 0). This method runs in O(m+n) time. It first 
+queries all edges in the graph for their target node, counting the number of 
+times each node acts as a target. Then it queries all nodes for those that are 
+never targets.
+
+
+=item sinks
+
+Returns an array of sink node ids for this graph. Sink nodes have no exiting 
+edges (outdegree = 0). This method runs in O(n) time. It simply examines the 
+length of the adjacency list for each node in the graph, and returns the nodes 
+that have empty adjacency lists.
+
+
+
+=head1 AUTHOR AND COPYRIGHT
+
+Timothy Driscoll <driscoll451@gmail.com>
+
+
+=head1 LICENSE
+
+This module is licensed under the same terms as Perl itself.
+
+=cut

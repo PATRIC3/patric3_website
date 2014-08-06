@@ -1,0 +1,10 @@
+<HTML>
+<TITLE>BLAST Search Results</TITLE>
+<BODY BGCOLOR="#FFFFFF" LINK="#0000FF" VLINK="#660099" ALINK="#660099">
+<map name=img_map0>
+<area shape=rect coords=2,1,48,21 href="http://www.ncbi.nlm.nih.gov">
+<area shape=rect coords=385,1,435,21 href="../blast/index.html">
+<area shape=rect coords=436,1,486,21 href="http://www.ncbi.nlm.nih.gov/Entrez/">
+<area shape=rect coords=487,1,508,21 href="../blast/docs/blast_help.html">
+</map>
+<IMG USEMAP=#img_map0 WIDTH=509 HEIGHT=22 SRC="../blast/images/blast_results.gif" ISMAP> 

@@ -1,0 +1,35 @@
+{
+	"process": {
+		"content": "<p>It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using &#8216;Content here, content here&#8217;, making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for &#8216;lorem ipsum&#8217; will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).<\/p>\n",
+		"tools": [],
+		"title": "DLP-Proteomics-Process",
+		"workflows": [],
+		"subtitle": "How Do We Process and Clean Up Our Data?",
+		"image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2012\/08\/flowchart-process.png",
+		"tab_title": ""
+	},
+	"tools": {
+		"content": "",
+		"tools": [],
+		"title": "DLP-Proteomics-Tools",
+		"workflows": [],
+		"subtitle": "",
+		"tab_title": ""
+	},
+	"data": {
+		"content": "",
+		"tools": [],
+		"title": "DLP-Proteomics-Data",
+		"workflows": [],
+		"subtitle": "",
+		"tab_title": ""
+	},
+	"download": {
+		"content": "",
+		"tools": [],
+		"title": "DLP-Proteomics-Download",
+		"workflows": [],
+		"subtitle": "",
+		"tab_title": ""
+	}
+}

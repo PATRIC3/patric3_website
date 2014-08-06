@@ -1,0 +1,1067 @@
+{
+	"process": {
+		"content": "",
+		"tools": [],
+		"title": "DLP-Pathways-Process",
+		"workflows": [],
+		"subtitle": "How Do We Process and Clean Up Our Data?",
+		"image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2013\/11\/final_pathways.jpg",
+		"tab_title": ""
+	},
+	"tools": {
+		"content": "",
+		"tools": [{
+			"content": "<p>Supports comparison of consistently annotated metabolic pathways across closely related or diverse groups of genomes and visualizes them using interactive KEGG maps and heatmaps. The heatmap view is an interactive visualization tool that provides an overview of the distribution of genomes across the set of EC numbers within a selected pathway.<\/p>\n",
+			"category": "Comparative Analyses",
+			"title": "Comparative Pathway Tool",
+			"subtitle": "",
+			"image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2012\/03\/Pathways_170sq.jpg",
+			"url": "PathwayFinder?cType=taxon&cId=&dm="
+		}, {
+			"content": "<p>Searches for proteins based on Enzyme Commission (EC) number, a numerical classification scheme for enzymes based on the chemical reactions they catalyze. Enter a keyword, a known EC number, and\/or a recognized EC name to view all proteins with that specific annotation.<\/p>\n",
+			"category": "Specialized Searches",
+			"title": "EC Search",
+			"subtitle": "",
+			"image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2012\/05\/EC-170x170-01.png",
+			"url": "ECSearch?cType=taxon&cId=&dm="
+		}, {
+			"content": "<p>Allows exploration of phylogenetic relationships using species- and genus-level coloring schemes. PATRIC&#8217;s phylogeny viewer also supports custom creation of genome groups, to be used as a basis for analysis in other PATRIC tools.<\/p>\n",
+			"category": "Visual Browsers",
+			"title": "Phylogeny Viewer",
+			"subtitle": "",
+			"image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2012\/05\/PhylogeneticTree_170sq.jpg",
+			"url": "Phylogeny?cType=taxon&cId=2"
+		}, {
+			"content": "<p>Locates bacterial genomes within PATRIC based on genome names and\/or associated genome metadata such as host name, isolation country, collection date and more.<\/p>\n",
+			"category": "Specialized Searches",
+			"title": "Genome Finder",
+			"subtitle": "",
+			"image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2012\/05\/GenomeFinder-170x170-01.png",
+			"url": "GenomeFinder?cType=taxon&cId=&dm="
+		}, {
+			"content": "<p>Supports searching for and locating genomes of interest based on various combinations of 61 different metadata fields. For instance, all genomes that have been isolated from humans, genomes related by phylogeny, or genomes related by lifestyle.<\/p>\n",
+			"category": "Comparative Analyses",
+			"title": "Genome Metadata",
+			"subtitle": "",
+			"image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2012\/03\/collage-170x170-05.png",
+			"url": "GenomeList?cType=taxon&cId=2&dataSource=&displayMode=&pk="
+		}],
+		"title": "DLP-Pathways-Tools",
+		"workflows": [{
+			"summary": null,
+			"headline": null,
+			"content": "<p>Some species of <i>Mycobacterium<\/i> have been documented to be undergoing widespread gene loss as they adapt to an intracellular lifestyle.\u2028 See how we use PATRIC to highlight regions of genome loss or conservation and ultimately look for changes within the context of functional pathways.<\/p>\n",
+			"title": "Comparing Diverse Pathways",
+			"bottom_right_headline": null,
+			"bottom_left_headline": null,
+			"subtitle": "",
+			"image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2013\/07\/Diverse_pathways_thumbnail_overlay.jpg",
+			"url": "comparing-diverse-pathways"
+		}, {
+			"summary": null,
+			"headline": null,
+			"content": "<p>Data in PATRIC is organized in a similar fashion at various taxonomic levels throughout the website.  Follow along in this <i>Mycobacterium<\/i> example and see what data is available and where to find it for your favorite organisms\/genomes\/genes.<\/p>\n",
+			"title": "PATRIC Data Organization Overview",
+			"bottom_right_headline": null,
+			"bottom_left_headline": null,
+			"subtitle": "",
+			"image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2013\/07\/data-orgnaization-overview-thumbnail.png",
+			"url": "patric-data-organization-overview-2"
+		}, {
+			"summary": null,
+			"headline": null,
+			"content": "<p>This downloadable pdf contains screenshots and detailed step-wise instructions for locating data of interest, such as finding a particular gene, finding the pan-proteome for all <em>Mycobacterium<\/em> genomes using the Protein Family Sorter and Heatmap, and examining pathways across <em>Mycobacterium<\/em> using the Comparative Pathway Tool and Heatmap.<\/p>\n",
+			"title": "PATRIC for the Novice User:  <i>Mycobacterium<\/i>",
+			"bottom_right_headline": null,
+			"bottom_left_headline": null,
+			"subtitle": "",
+			"image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2013\/09\/step-by-step-pdf_mycobacterium_Thumbnail.jpg",
+			"url": "patric-for-the-novice-user-mycobacterium"
+		}, {
+			"summary": null,
+			"headline": null,
+			"content": "<p>This downloadable pdf contains screenshots and detailed step-wise instructions for locating data of interest, such as finding a particular gene, finding the pan-proteome for all <i>Brucella<\/i> genomes using the Protein Family Sorter and Heatmap, and examining pathways across <i>Brucella<\/i> using the Comparative Pathway Tool and Heatmap.<\/p>\n",
+			"title": "PATRIC for the Novice User:  <i>Brucella<\/i>",
+			"bottom_right_headline": null,
+			"bottom_left_headline": null,
+			"subtitle": "",
+			"image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2013\/09\/step-by-step-pdf_Brucella_Thumbnail.jpg",
+			"url": "patric-for-the-novice-user-brucella-2"
+		}, {
+			"summary": null,
+			"headline": null,
+			"content": "<p>See how to use PATRIC tables and the Table Toolbar including sorting, downloading, analysis tools, creating persistent column customization, and saving items to your workspace.<\/p>\n",
+			"title": "Using PATRIC Tables",
+			"bottom_right_headline": null,
+			"bottom_left_headline": null,
+			"subtitle": "",
+			"image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2013\/07\/PATRIC-tables-thumbnail.png",
+			"url": "using-patric-tables"
+		}, {
+			"summary": null,
+			"headline": null,
+			"content": "<p>Find out more about PATRIC data, analysis tools, and functionality in our Frequently Asked Questions.<\/p>\n",
+			"title": "Frequently Asked Questions",
+			"bottom_right_headline": null,
+			"bottom_left_headline": null,
+			"subtitle": "",
+			"image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2014\/01\/FAQs_Thumbnail.jpg",
+			"url": "frequently-asked-questions"
+		}],
+		"subtitle": "Find and Analyze Pathways with PATRIC Tools",
+		"tab_title": ""
+	},
+	"conservation": {
+		"chart_desc": "The graph below shows conservation of metabolic pathways across percentage of total genomes in each pathogenic genus.",
+		"data": [{
+			"total": 140,
+			"pathogen": "Bacillus",
+			"dist": [29, 54, 45, 9, 3]
+		}, {
+			"total": 130,
+			"pathogen": "Bartonella",
+			"dist": [60, 31, 24, 7, 8]
+		}, {
+			"total": 112,
+			"pathogen": "Borrelia",
+			"dist": [59, 23, 18, 1, 11]
+		}, {
+			"total": 134,
+			"pathogen": "Brucella",
+			"dist": [120, 7, 3, 1, 3]
+		}, {
+			"total": 143,
+			"pathogen": "Burkholderia",
+			"dist": [39, 71, 19, 10, 4]
+		}, {
+			"total": 133,
+			"pathogen": "Campylobacter",
+			"dist": [46, 35, 33, 9, 10]
+		}, {
+			"total": 103,
+			"pathogen": "Chlamydophila",
+			"dist": [85, 10, 1, 7, 0]
+		}, {
+			"total": 142,
+			"pathogen": "Clostridium",
+			"dist": [17, 31, 56, 23, 15]
+		}, {
+			"total": 127,
+			"pathogen": "Coxiella",
+			"dist": [122, 3, 2, 0, 0]
+		}, {
+			"total": 106,
+			"pathogen": "Ehrlichia",
+			"dist": [104, 2, 0, 0, 0]
+		}, {
+			"total": 139,
+			"pathogen": "Escherichia",
+			"dist": [86, 33, 11, 3, 6]
+		}, {
+			"total": 131,
+			"pathogen": "Francisella",
+			"dist": [109, 14, 5, 2, 1]
+		}, {
+			"total": 132,
+			"pathogen": "Helicobacter",
+			"dist": [38, 33, 36, 12, 13]
+		}, {
+			"total": 135,
+			"pathogen": "Listeria",
+			"dist": [71, 32, 17, 8, 7]
+		}, {
+			"total": 141,
+			"pathogen": "Mycobacterium",
+			"dist": [36, 47, 42, 10, 6]
+		}, {
+			"total": 123,
+			"pathogen": "Rickettsia",
+			"dist": [104, 12, 4, 2, 1]
+		}, {
+			"total": 136,
+			"pathogen": "Salmonella",
+			"dist": [111, 18, 3, 1, 3]
+		}, {
+			"total": 135,
+			"pathogen": "Shigella",
+			"dist": [100, 28, 3, 2, 2]
+		}, {
+			"total": 136,
+			"pathogen": "Staphylococcus",
+			"dist": [64, 42, 23, 3, 4]
+		}, {
+			"total": 139,
+			"pathogen": "Streptococcus",
+			"dist": [19, 34, 39, 28, 19]
+		}, {
+			"total": 139,
+			"pathogen": "Vibrio",
+			"dist": [45, 42, 38, 9, 5]
+		}, {
+			"total": 139,
+			"pathogen": "Yersinia",
+			"dist": [95, 30, 6, 1, 7]
+		}],
+		"chart_title": "Pathway Conservation in Pathogenic Bacteria"
+	},
+	"data": {
+		"content": "<p>Our analysis tools and interactive visualizations allow users to highlight regions of genome loss or conservation and ultimately look for changes within the context of functional pathways. Pathways of interest can be identified using the <a href=\"http:\/\/enews.patricbrc.org\/faqs\/comparative-pathway-tool-faqs\/\" >Comparative Pathway Tool<\/a> and then analyzed individually, or in selected sets, via the Comparative Pathway Heatmap and KEGG Map.<\/p>\n",
+		"tools": [],
+		"title": "DLP-Pathways-Data",
+		"workflows": [],
+		"subtitle": "PATRIC Data is Linked to Associated Biochemical Pathways ",
+		"tab_title": "Testing Data sub-tab Title field"
+	},
+	"download": {
+		"content": "",
+		"tools": [],
+		"title": "DLP-Pathways-Download",
+		"workflows": [],
+		"subtitle": "Download Data",
+		"tab_title": ""
+	},
+	"popularGenomes": {
+		"popularTitle": "Select Genomes",
+		"popularList": [{
+			"popularData": [{
+				"gene_count": "81",
+				"name_link": "CompPathwayTable?cType=genome&cId=87468&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00230&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=87468&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00230&pClass=&ecN=",
+				"name": "Purine metabolism",
+				"class": "Nucleotide Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=87468&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00230&pClass=&ecN=",
+				"ec_count": "43"
+			}, {
+				"gene_count": "50",
+				"name_link": "CompPathwayTable?cType=genome&cId=87468&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00330&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=87468&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00330&pClass=&ecN=",
+				"name": "Arginine and proline metabolism",
+				"class": "Amino Acid Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=87468&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00330&pClass=&ecN=",
+				"ec_count": "31"
+			}, {
+				"gene_count": "52",
+				"name_link": "CompPathwayTable?cType=genome&cId=87468&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00240&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=87468&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00240&pClass=&ecN=",
+				"name": "Pyrimidine metabolism",
+				"class": "Nucleotide Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=87468&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00240&pClass=&ecN=",
+				"ec_count": "26"
+			}, {
+				"gene_count": "41",
+				"name_link": "CompPathwayTable?cType=genome&cId=87468&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00260&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=87468&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00260&pClass=&ecN=",
+				"name": "Glycine, serine and threonine metabolism",
+				"class": "Amino Acid Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=87468&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00260&pClass=&ecN=",
+				"ec_count": "26"
+			}, {
+				"gene_count": "38",
+				"name_link": "CompPathwayTable?cType=genome&cId=87468&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00620&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=87468&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00620&pClass=&ecN=",
+				"name": "Pyruvate metabolism",
+				"class": "Carbohydrate Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=87468&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00620&pClass=&ecN=",
+				"ec_count": "25"
+			}, {
+				"gene_count": "29",
+				"name_link": "CompPathwayTable?cType=genome&cId=87468&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00270&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=87468&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00270&pClass=&ecN=",
+				"name": "Cysteine and methionine metabolism",
+				"class": "Amino Acid Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=87468&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00270&pClass=&ecN=",
+				"ec_count": "24"
+			}, {
+				"gene_count": "59",
+				"name_link": "CompPathwayTable?cType=genome&cId=87468&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00860&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=87468&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00860&pClass=&ecN=",
+				"name": "Porphyrin and chlorophyll metabolism",
+				"class": "Metabolism of Cofactors and Vitamins",
+				"ec_link": "CompPathwayTable?cType=genome&cId=87468&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00860&pClass=&ecN=",
+				"ec_count": "24"
+			}, {
+				"gene_count": "46",
+				"name_link": "CompPathwayTable?cType=genome&cId=87468&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00720&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=87468&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00720&pClass=&ecN=",
+				"name": "Reductive carboxylate cycle (CO2 fixation)",
+				"class": "Energy Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=87468&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00720&pClass=&ecN=",
+				"ec_count": "23"
+			}, {
+				"gene_count": "23",
+				"name_link": "CompPathwayTable?cType=genome&cId=87468&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00970&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=87468&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00970&pClass=&ecN=",
+				"name": "Aminoacyl-tRNA biosynthesis",
+				"class": "Translation",
+				"ec_link": "CompPathwayTable?cType=genome&cId=87468&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00970&pClass=&ecN=",
+				"ec_count": "23"
+			}, {
+				"gene_count": "25",
+				"name_link": "CompPathwayTable?cType=genome&cId=87468&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00250&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=87468&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00250&pClass=&ecN=",
+				"name": "Alanine, aspartate and glutamate metabolism",
+				"class": "Amino Acid Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=87468&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00250&pClass=&ecN=",
+				"ec_count": "22"
+			}],
+			"link": "CompPathwayTable?cType=genome&cId=87468&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=&pClass=&ecN=",
+			"popularName": "Mycobacterium tuberculosis H37Rv"
+		}, {
+			"popularData": [{
+				"gene_count": "108",
+				"name_link": "CompPathwayTable?cType=genome&cId=129921&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00230&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=129921&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00230&pClass=&ecN=",
+				"name": "Purine metabolism",
+				"class": "Nucleotide Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=129921&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00230&pClass=&ecN=",
+				"ec_count": "61"
+			}, {
+				"gene_count": "63",
+				"name_link": "CompPathwayTable?cType=genome&cId=129921&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00330&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=129921&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00330&pClass=&ecN=",
+				"name": "Arginine and proline metabolism",
+				"class": "Amino Acid Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=129921&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00330&pClass=&ecN=",
+				"ec_count": "42"
+			}, {
+				"gene_count": "71",
+				"name_link": "CompPathwayTable?cType=genome&cId=129921&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00240&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=129921&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00240&pClass=&ecN=",
+				"name": "Pyrimidine metabolism",
+				"class": "Nucleotide Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=129921&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00240&pClass=&ecN=",
+				"ec_count": "35"
+			}, {
+				"gene_count": "84",
+				"name_link": "CompPathwayTable?cType=genome&cId=129921&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00520&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=129921&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00520&pClass=&ecN=",
+				"name": "Amino sugar and nucleotide sugar metabolism",
+				"class": "Carbohydrate Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=129921&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00520&pClass=&ecN=",
+				"ec_count": "35"
+			}, {
+				"gene_count": "49",
+				"name_link": "CompPathwayTable?cType=genome&cId=129921&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00260&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=129921&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00260&pClass=&ecN=",
+				"name": "Glycine, serine and threonine metabolism",
+				"class": "Amino Acid Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=129921&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00260&pClass=&ecN=",
+				"ec_count": "31"
+			}, {
+				"gene_count": "49",
+				"name_link": "CompPathwayTable?cType=genome&cId=129921&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00620&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=129921&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00620&pClass=&ecN=",
+				"name": "Pyruvate metabolism",
+				"class": "Carbohydrate Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=129921&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00620&pClass=&ecN=",
+				"ec_count": "31"
+			}, {
+				"gene_count": "79",
+				"name_link": "CompPathwayTable?cType=genome&cId=129921&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00500&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=129921&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00500&pClass=&ecN=",
+				"name": "Starch and sucrose metabolism",
+				"class": "Carbohydrate Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=129921&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00500&pClass=&ecN=",
+				"ec_count": "29"
+			}, {
+				"gene_count": "42",
+				"name_link": "CompPathwayTable?cType=genome&cId=129921&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00040&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=129921&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00040&pClass=&ecN=",
+				"name": "Pentose and glucuronate interconversions",
+				"class": "Carbohydrate Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=129921&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00040&pClass=&ecN=",
+				"ec_count": "27"
+			}, {
+				"gene_count": "84",
+				"name_link": "CompPathwayTable?cType=genome&cId=129921&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00051&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=129921&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00051&pClass=&ecN=",
+				"name": "Fructose and mannose metabolism",
+				"class": "Carbohydrate Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=129921&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00051&pClass=&ecN=",
+				"ec_count": "27"
+			}, {
+				"gene_count": "44",
+				"name_link": "CompPathwayTable?cType=genome&cId=129921&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00630&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=129921&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00630&pClass=&ecN=",
+				"name": "Glyoxylate and dicarboxylate metabolism",
+				"class": "Carbohydrate Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=129921&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00630&pClass=&ecN=",
+				"ec_count": "25"
+			}],
+			"link": "CompPathwayTable?cType=genome&cId=129921&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=&pClass=&ecN=",
+			"popularName": "Escherichia coli str. K-12 substr. MG1655"
+		}, {
+			"popularData": [{
+				"gene_count": "105",
+				"name_link": "CompPathwayTable?cType=genome&cId=20916&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00230&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=20916&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00230&pClass=&ecN=",
+				"name": "Purine metabolism",
+				"class": "Nucleotide Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=20916&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00230&pClass=&ecN=",
+				"ec_count": "58"
+			}, {
+				"gene_count": "79",
+				"name_link": "CompPathwayTable?cType=genome&cId=20916&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00330&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=20916&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00330&pClass=&ecN=",
+				"name": "Arginine and proline metabolism",
+				"class": "Amino Acid Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=20916&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00330&pClass=&ecN=",
+				"ec_count": "43"
+			}, {
+				"gene_count": "99",
+				"name_link": "CompPathwayTable?cType=genome&cId=20916&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00520&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=20916&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00520&pClass=&ecN=",
+				"name": "Amino sugar and nucleotide sugar metabolism",
+				"class": "Carbohydrate Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=20916&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00520&pClass=&ecN=",
+				"ec_count": "37"
+			}, {
+				"gene_count": "71",
+				"name_link": "CompPathwayTable?cType=genome&cId=20916&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00240&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=20916&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00240&pClass=&ecN=",
+				"name": "Pyrimidine metabolism",
+				"class": "Nucleotide Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=20916&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00240&pClass=&ecN=",
+				"ec_count": "34"
+			}, {
+				"gene_count": "61",
+				"name_link": "CompPathwayTable?cType=genome&cId=20916&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00620&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=20916&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00620&pClass=&ecN=",
+				"name": "Pyruvate metabolism",
+				"class": "Carbohydrate Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=20916&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00620&pClass=&ecN=",
+				"ec_count": "33"
+			}, {
+				"gene_count": "59",
+				"name_link": "CompPathwayTable?cType=genome&cId=20916&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00860&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=20916&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00860&pClass=&ecN=",
+				"name": "Porphyrin and chlorophyll metabolism",
+				"class": "Metabolism of Cofactors and Vitamins",
+				"ec_link": "CompPathwayTable?cType=genome&cId=20916&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00860&pClass=&ecN=",
+				"ec_count": "29"
+			}, {
+				"gene_count": "98",
+				"name_link": "CompPathwayTable?cType=genome&cId=20916&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00051&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=20916&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00051&pClass=&ecN=",
+				"name": "Fructose and mannose metabolism",
+				"class": "Carbohydrate Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=20916&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00051&pClass=&ecN=",
+				"ec_count": "27"
+			}, {
+				"gene_count": "45",
+				"name_link": "CompPathwayTable?cType=genome&cId=20916&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00260&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=20916&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00260&pClass=&ecN=",
+				"name": "Glycine, serine and threonine metabolism",
+				"class": "Amino Acid Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=20916&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00260&pClass=&ecN=",
+				"ec_count": "27"
+			}, {
+				"gene_count": "42",
+				"name_link": "CompPathwayTable?cType=genome&cId=20916&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00040&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=20916&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00040&pClass=&ecN=",
+				"name": "Pentose and glucuronate interconversions",
+				"class": "Carbohydrate Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=20916&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00040&pClass=&ecN=",
+				"ec_count": "25"
+			}, {
+				"gene_count": "38",
+				"name_link": "CompPathwayTable?cType=genome&cId=20916&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00250&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=20916&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00250&pClass=&ecN=",
+				"name": "Alanine, aspartate and glutamate metabolism",
+				"class": "Amino Acid Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=20916&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00250&pClass=&ecN=",
+				"ec_count": "25"
+			}],
+			"link": "CompPathwayTable?cType=genome&cId=20916&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=&pClass=&ecN=",
+			"popularName": "Salmonella enterica subsp. enterica serovar Typhimurium str. LT2"
+		}, {
+			"popularData": [{
+				"gene_count": "109",
+				"name_link": "CompPathwayTable?cType=genome&cId=31049&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00230&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=31049&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00230&pClass=&ecN=",
+				"name": "Purine metabolism",
+				"class": "Nucleotide Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=31049&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00230&pClass=&ecN=",
+				"ec_count": "58"
+			}, {
+				"gene_count": "62",
+				"name_link": "CompPathwayTable?cType=genome&cId=31049&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00330&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=31049&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00330&pClass=&ecN=",
+				"name": "Arginine and proline metabolism",
+				"class": "Amino Acid Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=31049&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00330&pClass=&ecN=",
+				"ec_count": "38"
+			}, {
+				"gene_count": "70",
+				"name_link": "CompPathwayTable?cType=genome&cId=31049&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00240&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=31049&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00240&pClass=&ecN=",
+				"name": "Pyrimidine metabolism",
+				"class": "Nucleotide Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=31049&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00240&pClass=&ecN=",
+				"ec_count": "34"
+			}, {
+				"gene_count": "84",
+				"name_link": "CompPathwayTable?cType=genome&cId=31049&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00520&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=31049&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00520&pClass=&ecN=",
+				"name": "Amino sugar and nucleotide sugar metabolism",
+				"class": "Carbohydrate Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=31049&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00520&pClass=&ecN=",
+				"ec_count": "32"
+			}, {
+				"gene_count": "51",
+				"name_link": "CompPathwayTable?cType=genome&cId=31049&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00620&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=31049&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00620&pClass=&ecN=",
+				"name": "Pyruvate metabolism",
+				"class": "Carbohydrate Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=31049&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00620&pClass=&ecN=",
+				"ec_count": "32"
+			}, {
+				"gene_count": "84",
+				"name_link": "CompPathwayTable?cType=genome&cId=31049&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00500&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=31049&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00500&pClass=&ecN=",
+				"name": "Starch and sucrose metabolism",
+				"class": "Carbohydrate Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=31049&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00500&pClass=&ecN=",
+				"ec_count": "29"
+			}, {
+				"gene_count": "43",
+				"name_link": "CompPathwayTable?cType=genome&cId=31049&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00260&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=31049&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00260&pClass=&ecN=",
+				"name": "Glycine, serine and threonine metabolism",
+				"class": "Amino Acid Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=31049&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00260&pClass=&ecN=",
+				"ec_count": "28"
+			}, {
+				"gene_count": "39",
+				"name_link": "CompPathwayTable?cType=genome&cId=31049&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00040&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=31049&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00040&pClass=&ecN=",
+				"name": "Pentose and glucuronate interconversions",
+				"class": "Carbohydrate Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=31049&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00040&pClass=&ecN=",
+				"ec_count": "26"
+			}, {
+				"gene_count": "92",
+				"name_link": "CompPathwayTable?cType=genome&cId=31049&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00051&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=31049&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00051&pClass=&ecN=",
+				"name": "Fructose and mannose metabolism",
+				"class": "Carbohydrate Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=31049&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00051&pClass=&ecN=",
+				"ec_count": "26"
+			}, {
+				"gene_count": "35",
+				"name_link": "CompPathwayTable?cType=genome&cId=31049&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00030&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=31049&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00030&pClass=&ecN=",
+				"name": "Pentose phosphate pathway",
+				"class": "Carbohydrate Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=31049&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00030&pClass=&ecN=",
+				"ec_count": "24"
+			}],
+			"link": "CompPathwayTable?cType=genome&cId=31049&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=&pClass=&ecN=",
+			"popularName": "Shigella flexneri 2a str. 2457T"
+		}, {
+			"popularData": [{
+				"gene_count": "103",
+				"name_link": "CompPathwayTable?cType=genome&cId=7843&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00230&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=7843&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00230&pClass=&ecN=",
+				"name": "Purine metabolism",
+				"class": "Nucleotide Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=7843&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00230&pClass=&ecN=",
+				"ec_count": "52"
+			}, {
+				"gene_count": "57",
+				"name_link": "CompPathwayTable?cType=genome&cId=7843&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00330&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=7843&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00330&pClass=&ecN=",
+				"name": "Arginine and proline metabolism",
+				"class": "Amino Acid Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=7843&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00330&pClass=&ecN=",
+				"ec_count": "39"
+			}, {
+				"gene_count": "65",
+				"name_link": "CompPathwayTable?cType=genome&cId=7843&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00520&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=7843&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00520&pClass=&ecN=",
+				"name": "Amino sugar and nucleotide sugar metabolism",
+				"class": "Carbohydrate Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=7843&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00520&pClass=&ecN=",
+				"ec_count": "33"
+			}, {
+				"gene_count": "70",
+				"name_link": "CompPathwayTable?cType=genome&cId=7843&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00240&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=7843&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00240&pClass=&ecN=",
+				"name": "Pyrimidine metabolism",
+				"class": "Nucleotide Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=7843&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00240&pClass=&ecN=",
+				"ec_count": "32"
+			}, {
+				"gene_count": "43",
+				"name_link": "CompPathwayTable?cType=genome&cId=7843&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00260&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=7843&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00260&pClass=&ecN=",
+				"name": "Glycine, serine and threonine metabolism",
+				"class": "Amino Acid Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=7843&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00260&pClass=&ecN=",
+				"ec_count": "31"
+			}, {
+				"gene_count": "40",
+				"name_link": "CompPathwayTable?cType=genome&cId=7843&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00620&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=7843&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00620&pClass=&ecN=",
+				"name": "Pyruvate metabolism",
+				"class": "Carbohydrate Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=7843&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00620&pClass=&ecN=",
+				"ec_count": "31"
+			}, {
+				"gene_count": "42",
+				"name_link": "CompPathwayTable?cType=genome&cId=7843&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00040&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=7843&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00040&pClass=&ecN=",
+				"name": "Pentose and glucuronate interconversions",
+				"class": "Carbohydrate Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=7843&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00040&pClass=&ecN=",
+				"ec_count": "30"
+			}, {
+				"gene_count": "33",
+				"name_link": "CompPathwayTable?cType=genome&cId=7843&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00250&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=7843&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00250&pClass=&ecN=",
+				"name": "Alanine, aspartate and glutamate metabolism",
+				"class": "Amino Acid Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=7843&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00250&pClass=&ecN=",
+				"ec_count": "23"
+			}, {
+				"gene_count": "52",
+				"name_link": "CompPathwayTable?cType=genome&cId=7843&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00680&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=7843&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00680&pClass=&ecN=",
+				"name": "Methane metabolism",
+				"class": "Energy Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=7843&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00680&pClass=&ecN=",
+				"ec_count": "23"
+			}, {
+				"gene_count": "49",
+				"name_link": "CompPathwayTable?cType=genome&cId=7843&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00010&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=7843&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00010&pClass=&ecN=",
+				"name": "Glycolysis \/ Gluconeogenesis",
+				"class": "Carbohydrate Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=7843&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00010&pClass=&ecN=",
+				"ec_count": "22"
+			}],
+			"link": "CompPathwayTable?cType=genome&cId=7843&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=&pClass=&ecN=",
+			"popularName": "Yersinia pestis CO92"
+		}, {
+			"popularData": [{
+				"gene_count": "62",
+				"name_link": "CompPathwayTable?cType=genome&cId=69206&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00230&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=69206&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00230&pClass=&ecN=",
+				"name": "Purine metabolism",
+				"class": "Nucleotide Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=69206&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00230&pClass=&ecN=",
+				"ec_count": "39"
+			}, {
+				"gene_count": "52",
+				"name_link": "CompPathwayTable?cType=genome&cId=69206&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00240&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=69206&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00240&pClass=&ecN=",
+				"name": "Pyrimidine metabolism",
+				"class": "Nucleotide Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=69206&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00240&pClass=&ecN=",
+				"ec_count": "30"
+			}, {
+				"gene_count": "31",
+				"name_link": "CompPathwayTable?cType=genome&cId=69206&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00330&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=69206&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00330&pClass=&ecN=",
+				"name": "Arginine and proline metabolism",
+				"class": "Amino Acid Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=69206&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00330&pClass=&ecN=",
+				"ec_count": "26"
+			}, {
+				"gene_count": "41",
+				"name_link": "CompPathwayTable?cType=genome&cId=69206&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00860&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=69206&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00860&pClass=&ecN=",
+				"name": "Porphyrin and chlorophyll metabolism",
+				"class": "Metabolism of Cofactors and Vitamins",
+				"ec_link": "CompPathwayTable?cType=genome&cId=69206&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00860&pClass=&ecN=",
+				"ec_count": "26"
+			}, {
+				"gene_count": "112",
+				"name_link": "CompPathwayTable?cType=genome&cId=69206&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00520&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=69206&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00520&pClass=&ecN=",
+				"name": "Amino sugar and nucleotide sugar metabolism",
+				"class": "Carbohydrate Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=69206&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00520&pClass=&ecN=",
+				"ec_count": "24"
+			}, {
+				"gene_count": "35",
+				"name_link": "CompPathwayTable?cType=genome&cId=69206&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00260&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=69206&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00260&pClass=&ecN=",
+				"name": "Glycine, serine and threonine metabolism",
+				"class": "Amino Acid Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=69206&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00260&pClass=&ecN=",
+				"ec_count": "23"
+			}, {
+				"gene_count": "25",
+				"name_link": "CompPathwayTable?cType=genome&cId=69206&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00970&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=69206&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00970&pClass=&ecN=",
+				"name": "Aminoacyl-tRNA biosynthesis",
+				"class": "Translation",
+				"ec_link": "CompPathwayTable?cType=genome&cId=69206&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00970&pClass=&ecN=",
+				"ec_count": "23"
+			}, {
+				"gene_count": "26",
+				"name_link": "CompPathwayTable?cType=genome&cId=69206&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00270&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=69206&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00270&pClass=&ecN=",
+				"name": "Cysteine and methionine metabolism",
+				"class": "Amino Acid Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=69206&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00270&pClass=&ecN=",
+				"ec_count": "20"
+			}, {
+				"gene_count": "28",
+				"name_link": "CompPathwayTable?cType=genome&cId=69206&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00620&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=69206&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00620&pClass=&ecN=",
+				"name": "Pyruvate metabolism",
+				"class": "Carbohydrate Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=69206&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00620&pClass=&ecN=",
+				"ec_count": "20"
+			}, {
+				"gene_count": "114",
+				"name_link": "CompPathwayTable?cType=genome&cId=69206&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00010&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=69206&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00010&pClass=&ecN=",
+				"name": "Glycolysis \/ Gluconeogenesis",
+				"class": "Carbohydrate Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=69206&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00010&pClass=&ecN=",
+				"ec_count": "19"
+			}],
+			"link": "CompPathwayTable?cType=genome&cId=69206&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=&pClass=&ecN=",
+			"popularName": "Listeria monocytogenes EGD-e"
+		}, {
+			"popularData": [{
+				"gene_count": "74",
+				"name_link": "CompPathwayTable?cType=genome&cId=116463&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00230&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=116463&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00230&pClass=&ecN=",
+				"name": "Purine metabolism",
+				"class": "Nucleotide Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=116463&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00230&pClass=&ecN=",
+				"ec_count": "43"
+			}, {
+				"gene_count": "56",
+				"name_link": "CompPathwayTable?cType=genome&cId=116463&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00240&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=116463&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00240&pClass=&ecN=",
+				"name": "Pyrimidine metabolism",
+				"class": "Nucleotide Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=116463&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00240&pClass=&ecN=",
+				"ec_count": "30"
+			}, {
+				"gene_count": "41",
+				"name_link": "CompPathwayTable?cType=genome&cId=116463&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00260&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=116463&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00260&pClass=&ecN=",
+				"name": "Glycine, serine and threonine metabolism",
+				"class": "Amino Acid Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=116463&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00260&pClass=&ecN=",
+				"ec_count": "28"
+			}, {
+				"gene_count": "42",
+				"name_link": "CompPathwayTable?cType=genome&cId=116463&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00330&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=116463&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00330&pClass=&ecN=",
+				"name": "Arginine and proline metabolism",
+				"class": "Amino Acid Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=116463&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00330&pClass=&ecN=",
+				"ec_count": "27"
+			}, {
+				"gene_count": "33",
+				"name_link": "CompPathwayTable?cType=genome&cId=116463&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00620&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=116463&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00620&pClass=&ecN=",
+				"name": "Pyruvate metabolism",
+				"class": "Carbohydrate Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=116463&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00620&pClass=&ecN=",
+				"ec_count": "24"
+			}, {
+				"gene_count": "53",
+				"name_link": "CompPathwayTable?cType=genome&cId=116463&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00010&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=116463&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00010&pClass=&ecN=",
+				"name": "Glycolysis \/ Gluconeogenesis",
+				"class": "Carbohydrate Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=116463&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00010&pClass=&ecN=",
+				"ec_count": "23"
+			}, {
+				"gene_count": "24",
+				"name_link": "CompPathwayTable?cType=genome&cId=116463&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00970&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=116463&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00970&pClass=&ecN=",
+				"name": "Aminoacyl-tRNA biosynthesis",
+				"class": "Translation",
+				"ec_link": "CompPathwayTable?cType=genome&cId=116463&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00970&pClass=&ecN=",
+				"ec_count": "23"
+			}, {
+				"gene_count": "24",
+				"name_link": "CompPathwayTable?cType=genome&cId=116463&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00270&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=116463&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00270&pClass=&ecN=",
+				"name": "Cysteine and methionine metabolism",
+				"class": "Amino Acid Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=116463&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00270&pClass=&ecN=",
+				"ec_count": "21"
+			}, {
+				"gene_count": "46",
+				"name_link": "CompPathwayTable?cType=genome&cId=116463&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00520&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=116463&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00520&pClass=&ecN=",
+				"name": "Amino sugar and nucleotide sugar metabolism",
+				"class": "Carbohydrate Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=116463&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00520&pClass=&ecN=",
+				"ec_count": "21"
+			}, {
+				"gene_count": "31",
+				"name_link": "CompPathwayTable?cType=genome&cId=116463&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00860&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=116463&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00860&pClass=&ecN=",
+				"name": "Porphyrin and chlorophyll metabolism",
+				"class": "Metabolism of Cofactors and Vitamins",
+				"ec_link": "CompPathwayTable?cType=genome&cId=116463&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00860&pClass=&ecN=",
+				"ec_count": "19"
+			}],
+			"link": "CompPathwayTable?cType=genome&cId=116463&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=&pClass=&ecN=",
+			"popularName": "Staphylococcus aureus subsp. aureus N315"
+		}, {
+			"popularData": [{
+				"gene_count": "59",
+				"name_link": "CompPathwayTable?cType=genome&cId=27904&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00230&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=27904&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00230&pClass=&ecN=",
+				"name": "Purine metabolism",
+				"class": "Nucleotide Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=27904&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00230&pClass=&ecN=",
+				"ec_count": "37"
+			}, {
+				"gene_count": "83",
+				"name_link": "CompPathwayTable?cType=genome&cId=27904&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00520&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=27904&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00520&pClass=&ecN=",
+				"name": "Amino sugar and nucleotide sugar metabolism",
+				"class": "Carbohydrate Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=27904&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00520&pClass=&ecN=",
+				"ec_count": "29"
+			}, {
+				"gene_count": "54",
+				"name_link": "CompPathwayTable?cType=genome&cId=27904&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00240&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=27904&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00240&pClass=&ecN=",
+				"name": "Pyrimidine metabolism",
+				"class": "Nucleotide Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=27904&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00240&pClass=&ecN=",
+				"ec_count": "28"
+			}, {
+				"gene_count": "25",
+				"name_link": "CompPathwayTable?cType=genome&cId=27904&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00970&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=27904&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00970&pClass=&ecN=",
+				"name": "Aminoacyl-tRNA biosynthesis",
+				"class": "Translation",
+				"ec_link": "CompPathwayTable?cType=genome&cId=27904&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00970&pClass=&ecN=",
+				"ec_count": "23"
+			}, {
+				"gene_count": "23",
+				"name_link": "CompPathwayTable?cType=genome&cId=27904&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00270&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=27904&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00270&pClass=&ecN=",
+				"name": "Cysteine and methionine metabolism",
+				"class": "Amino Acid Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=27904&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00270&pClass=&ecN=",
+				"ec_count": "20"
+			}, {
+				"gene_count": "37",
+				"name_link": "CompPathwayTable?cType=genome&cId=27904&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00330&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=27904&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00330&pClass=&ecN=",
+				"name": "Arginine and proline metabolism",
+				"class": "Amino Acid Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=27904&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00330&pClass=&ecN=",
+				"ec_count": "19"
+			}, {
+				"gene_count": "67",
+				"name_link": "CompPathwayTable?cType=genome&cId=27904&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00010&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=27904&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00010&pClass=&ecN=",
+				"name": "Glycolysis \/ Gluconeogenesis",
+				"class": "Carbohydrate Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=27904&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00010&pClass=&ecN=",
+				"ec_count": "18"
+			}, {
+				"gene_count": "64",
+				"name_link": "CompPathwayTable?cType=genome&cId=27904&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00500&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=27904&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00500&pClass=&ecN=",
+				"name": "Starch and sucrose metabolism",
+				"class": "Carbohydrate Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=27904&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00500&pClass=&ecN=",
+				"ec_count": "18"
+			}, {
+				"gene_count": "69",
+				"name_link": "CompPathwayTable?cType=genome&cId=27904&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00052&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=27904&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00052&pClass=&ecN=",
+				"name": "Galactose metabolism",
+				"class": "Carbohydrate Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=27904&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00052&pClass=&ecN=",
+				"ec_count": "18"
+			}, {
+				"gene_count": "27",
+				"name_link": "CompPathwayTable?cType=genome&cId=27904&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00260&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=27904&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00260&pClass=&ecN=",
+				"name": "Glycine, serine and threonine metabolism",
+				"class": "Amino Acid Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=27904&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00260&pClass=&ecN=",
+				"ec_count": "17"
+			}],
+			"link": "CompPathwayTable?cType=genome&cId=27904&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=&pClass=&ecN=",
+			"popularName": "Streptococcus pneumoniae D39"
+		}, {
+			"popularData": [{
+				"gene_count": "76",
+				"name_link": "CompPathwayTable?cType=genome&cId=92729&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00230&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=92729&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00230&pClass=&ecN=",
+				"name": "Purine metabolism",
+				"class": "Nucleotide Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=92729&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00230&pClass=&ecN=",
+				"ec_count": "47"
+			}, {
+				"gene_count": "62",
+				"name_link": "CompPathwayTable?cType=genome&cId=92729&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00330&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=92729&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00330&pClass=&ecN=",
+				"name": "Arginine and proline metabolism",
+				"class": "Amino Acid Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=92729&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00330&pClass=&ecN=",
+				"ec_count": "36"
+			}, {
+				"gene_count": "57",
+				"name_link": "CompPathwayTable?cType=genome&cId=92729&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00240&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=92729&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00240&pClass=&ecN=",
+				"name": "Pyrimidine metabolism",
+				"class": "Nucleotide Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=92729&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00240&pClass=&ecN=",
+				"ec_count": "28"
+			}, {
+				"gene_count": "58",
+				"name_link": "CompPathwayTable?cType=genome&cId=92729&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00620&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=92729&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00620&pClass=&ecN=",
+				"name": "Pyruvate metabolism",
+				"class": "Carbohydrate Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=92729&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00620&pClass=&ecN=",
+				"ec_count": "28"
+			}, {
+				"gene_count": "60",
+				"name_link": "CompPathwayTable?cType=genome&cId=92729&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00260&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=92729&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00260&pClass=&ecN=",
+				"name": "Glycine, serine and threonine metabolism",
+				"class": "Amino Acid Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=92729&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00260&pClass=&ecN=",
+				"ec_count": "27"
+			}, {
+				"gene_count": "43",
+				"name_link": "CompPathwayTable?cType=genome&cId=92729&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00860&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=92729&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00860&pClass=&ecN=",
+				"name": "Porphyrin and chlorophyll metabolism",
+				"class": "Metabolism of Cofactors and Vitamins",
+				"ec_link": "CompPathwayTable?cType=genome&cId=92729&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00860&pClass=&ecN=",
+				"ec_count": "27"
+			}, {
+				"gene_count": "39",
+				"name_link": "CompPathwayTable?cType=genome&cId=92729&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00520&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=92729&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00520&pClass=&ecN=",
+				"name": "Amino sugar and nucleotide sugar metabolism",
+				"class": "Carbohydrate Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=92729&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00520&pClass=&ecN=",
+				"ec_count": "26"
+			}, {
+				"gene_count": "32",
+				"name_link": "CompPathwayTable?cType=genome&cId=92729&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00630&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=92729&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00630&pClass=&ecN=",
+				"name": "Glyoxylate and dicarboxylate metabolism",
+				"class": "Carbohydrate Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=92729&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00630&pClass=&ecN=",
+				"ec_count": "24"
+			}, {
+				"gene_count": "25",
+				"name_link": "CompPathwayTable?cType=genome&cId=92729&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00970&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=92729&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00970&pClass=&ecN=",
+				"name": "Aminoacyl-tRNA biosynthesis",
+				"class": "Translation",
+				"ec_link": "CompPathwayTable?cType=genome&cId=92729&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00970&pClass=&ecN=",
+				"ec_count": "23"
+			}, {
+				"gene_count": "31",
+				"name_link": "CompPathwayTable?cType=genome&cId=92729&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00250&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=92729&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00250&pClass=&ecN=",
+				"name": "Alanine, aspartate and glutamate metabolism",
+				"class": "Amino Acid Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=92729&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00250&pClass=&ecN=",
+				"ec_count": "20"
+			}],
+			"link": "CompPathwayTable?cType=genome&cId=92729&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=&pClass=&ecN=",
+			"popularName": "Brucella melitensis bv. 1 str. 16M"
+		}, {
+			"popularData": [{
+				"gene_count": "35",
+				"name_link": "CompPathwayTable?cType=genome&cId=33062&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00230&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=33062&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00230&pClass=&ecN=",
+				"name": "Purine metabolism",
+				"class": "Nucleotide Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=33062&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00230&pClass=&ecN=",
+				"ec_count": "26"
+			}, {
+				"gene_count": "25",
+				"name_link": "CompPathwayTable?cType=genome&cId=33062&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00970&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=33062&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00970&pClass=&ecN=",
+				"name": "Aminoacyl-tRNA biosynthesis",
+				"class": "Translation",
+				"ec_link": "CompPathwayTable?cType=genome&cId=33062&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00970&pClass=&ecN=",
+				"ec_count": "23"
+			}, {
+				"gene_count": "34",
+				"name_link": "CompPathwayTable?cType=genome&cId=33062&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00240&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=33062&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00240&pClass=&ecN=",
+				"name": "Pyrimidine metabolism",
+				"class": "Nucleotide Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=33062&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00240&pClass=&ecN=",
+				"ec_count": "21"
+			}, {
+				"gene_count": "20",
+				"name_link": "CompPathwayTable?cType=genome&cId=33062&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00260&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=33062&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00260&pClass=&ecN=",
+				"name": "Glycine, serine and threonine metabolism",
+				"class": "Amino Acid Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=33062&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00260&pClass=&ecN=",
+				"ec_count": "18"
+			}, {
+				"gene_count": "15",
+				"name_link": "CompPathwayTable?cType=genome&cId=33062&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00520&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=33062&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00520&pClass=&ecN=",
+				"name": "Amino sugar and nucleotide sugar metabolism",
+				"class": "Carbohydrate Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=33062&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00520&pClass=&ecN=",
+				"ec_count": "17"
+			}, {
+				"gene_count": "18",
+				"name_link": "CompPathwayTable?cType=genome&cId=33062&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00330&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=33062&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00330&pClass=&ecN=",
+				"name": "Arginine and proline metabolism",
+				"class": "Amino Acid Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=33062&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00330&pClass=&ecN=",
+				"ec_count": "16"
+			}, {
+				"gene_count": "36",
+				"name_link": "CompPathwayTable?cType=genome&cId=33062&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00680&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=33062&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00680&pClass=&ecN=",
+				"name": "Methane metabolism",
+				"class": "Energy Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=33062&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00680&pClass=&ecN=",
+				"ec_count": "16"
+			}, {
+				"gene_count": "16",
+				"name_link": "CompPathwayTable?cType=genome&cId=33062&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00400&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=33062&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00400&pClass=&ecN=",
+				"name": "Phenylalanine, tyrosine and tryptophan biosynthesis",
+				"class": "Amino Acid Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=33062&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00400&pClass=&ecN=",
+				"ec_count": "15"
+			}, {
+				"gene_count": "26",
+				"name_link": "CompPathwayTable?cType=genome&cId=33062&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00720&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=33062&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00720&pClass=&ecN=",
+				"name": "Reductive carboxylate cycle (CO2 fixation)",
+				"class": "Energy Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=33062&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00720&pClass=&ecN=",
+				"ec_count": "15"
+			}, {
+				"gene_count": "14",
+				"name_link": "CompPathwayTable?cType=genome&cId=33062&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=00030&pClass=&ecN=",
+				"gene_link": "CompPathwayTable?cType=genome&cId=33062&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId=00030&pClass=&ecN=",
+				"name": "Pentose phosphate pathway",
+				"class": "Carbohydrate Metabolism",
+				"ec_link": "CompPathwayTable?cType=genome&cId=33062&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId=00030&pClass=&ecN=",
+				"ec_count": "14"
+			}],
+			"link": "CompPathwayTable?cType=genome&cId=33062&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId=&pClass=&ecN=",
+			"popularName": "Helicobacter pylori 26695"
+		}]
+	}
+}

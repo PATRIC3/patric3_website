@@ -1,0 +1,28 @@
+# $Id: blast.rc,v 1.2 2002/12/02 21:22:32 dondosha Exp $
+#
+#================================================================
+#
+#     This is dynamic configuration file for WWW BLAST service
+#              All lines started from '#' are ignored.
+#           "//" string considered as start of comments
+#
+#     Author Sergei B. Shavirin
+#
+# $Revision: 1.2 $
+#
+#
+##################################################################
+#
+#
+# Number of CPUs to use for a single request
+#
+NumCpuToUse    8 
+#
+# Here are list of combinations program/database, 
+# that allowed by BLAST service. Format: <program> <db> <db> ...
+#
+blastn refseq_cds refseq_rna brc_cds brc_rna patric_cds patric_rna genome_seq plasmid_seq
+blastp refseq_protein brc_protein patric_protein patric_protein_plasmid refseq_protein_plasmid patric_protein_transcriptomics
+blastx refseq_protein brc_protein patric_protein patric_protein_plasmid refseq_protein_plasmid patric_protein_transcriptomics
+tblastn refseq_cds refseq_rna brc_cds brc_rna patric_cds patric_rna genome_seq plasmid_seq
+tblastx refseq_cds refseq_rna brc_cds brc_rna patric_cds patric_rna genome_seq plasmid_seq
