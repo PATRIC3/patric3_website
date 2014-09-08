@@ -28,13 +28,15 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 
 import edu.vt.vbi.ci.util.CommandResults;
 import edu.vt.vbi.ci.util.ExecUtilities;
 import edu.vt.vbi.patric.proteinfamily.Newick;
-import edu.vt.vbi.patric.msa.SequenceData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Aligner {
 	private final static String[] gBlocksDrops = { "</head>", "<h2>Gblocks", "<pre>", "<title>", "<body bgcolor", "Processed file:" };
@@ -60,6 +62,8 @@ public class Aligner {
 	private int[] aaRange = { Integer.MAX_VALUE, 0 };
 
 	private int genomeCount = 1;
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(Aligner.class);
 
 	public Aligner(String newickText, String locusNames, String genomeNames) {
 		treeLines = new String[1];
@@ -137,7 +141,7 @@ public class Aligner {
 					BufferedReader checker = new BufferedReader(new FileReader(trimAligned));
 					boolean empty = true;
 					String line = checker.readLine();
-					ArrayList<String> locusList = new ArrayList<String>();
+					ArrayList<String> locusList = new ArrayList<>();
 					while (line != null) {
 						line = line.trim();
 						if (0 == line.length()) {
@@ -169,7 +173,7 @@ public class Aligner {
 				}
 			}
 			catch (IOException e) {
-				e.printStackTrace();
+				LOGGER.error(e.getMessage(), e);
 			}
 		}
 	}
@@ -180,7 +184,7 @@ public class Aligner {
 			tmpFaa = File.createTempFile("msa", ".faa");
 		}
 		catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 		prefix = tmpFaa.getAbsolutePath();
 		int pAt = prefix.lastIndexOf('.');
@@ -198,7 +202,7 @@ public class Aligner {
 				treeLines = treeHold.getStdout();
 			}
 
-			System.out.println("runFastTree::" + treeLines.length);
+			LOGGER.debug("runFastTree:: {}", treeLines);//.length);
 		}
 	}
 
@@ -218,9 +222,8 @@ public class Aligner {
 		writer.write("" + sequences.length);
 		writer.write("\t" + genomeCount);
 		writer.write("\t" + aaRange[0] + "\t" + aaRange[1] + "\t");
-		for (int i = 0; i < treeLines.length; i++) {
-			writer.write(treeLines[i]);
-			// System.out.print(treeLines[i]);
+		for (String treeLine : treeLines) {
+			writer.write(treeLine);
 		}
 
 		BufferedReader msaRead = new BufferedReader(new FileReader(rawAligned));
@@ -243,8 +246,8 @@ public class Aligner {
 				}
 				else {
 					String[] parts = msaLine.split("\\s");
-					for (int i = 0; i < parts.length; i++) {
-						sequence.append(parts[i]);
+					for (String part : parts) {
+						sequence.append(part);
 					}
 				}
 				msaLine = msaRead.readLine();
@@ -267,9 +270,9 @@ public class Aligner {
 			rawAligned.delete();
 			rawAligned = null;
 		}
-		StringBuffer sb = new StringBuffer();
-		for (int i = 0; i < treeLines.length; i++) {
-			sb.append(treeLines[i]);
+		StringBuilder sb = new StringBuilder();
+		for (String treeLine : treeLines) {
+			sb.append(treeLine);
 		}
 		Newick treeForm = new Newick(sb.toString());
 		treeForm.setGenomeNames(sequences);
@@ -293,21 +296,21 @@ public class Aligner {
 		try {
 			ImageIO.write(gGetter, "PNG", pngFile);
 		}
-		catch (IOException err) {
-			err.printStackTrace();
+		catch (IOException e) {
+			LOGGER.error(e.getMessage(), e);
 		}
 
 		g2d.dispose();
 		writer.write(prefix + "png");
 		String[] nameOrder = new String[sequences.length];
 
-		for (int i = 0; i < sequences.length; i++) {
-			int at = treeForm.getTipIndex((sequences[i]).locus);
-			nameOrder[at] = (sequences[i]).getLongName();
+		for (SequenceData sequence : sequences) {
+			int at = treeForm.getTipIndex((sequence).locus);
+			nameOrder[at] = (sequence).getLongName();
 		}
 
-		for (int i = 0; i < nameOrder.length; i++) {
-			writer.write("\t" + nameOrder[i]);
+		for (String aNameOrder : nameOrder) {
+			writer.write("\t" + aNameOrder);
 		}
 		if (trimAligned != null) {
 			trimAligned.delete();
@@ -326,8 +329,8 @@ public class Aligner {
 			rawAligned = new File(prefix + "aga");
 			if (!rawAligned.exists()) {
 				BufferedWriter aWrite = new BufferedWriter(new FileWriter(rawAligned));
-				for (int i = 0; i < sequences.length; i++) {
-					(sequences[i]).writeToFasta(aWrite);
+				for (SequenceData sequence : sequences) {
+					(sequence).writeToFasta(aWrite);
 				}
 				aWrite.close();
 			}
@@ -369,8 +372,8 @@ public class Aligner {
 	private void adjustAlignHtml(boolean genomeTags, String description, File alignmentFile, PrintWriter writer) throws IOException {
 		SequenceData[] sortSave = sequences;
 		sequences = new SequenceData[sequences.length];
-		for (int i = 0; i < sortSave.length; i++) {
-			sequences[(sortSave[i]).fastaOrder] = sortSave[i];
+		for (SequenceData aSortSave : sortSave) {
+			sequences[(aSortSave).fastaOrder] = aSortSave;
 		}
 		String[] expander = new String[sequences.length];
 		int maxLeft = 0;
@@ -400,10 +403,10 @@ public class Aligner {
 		line = reader.readLine();
 		boolean prePre = true;
 		boolean postPre = false;
-		ArrayList<String> leftSide = new ArrayList<String>();
+		List<String> leftSide = new ArrayList<>();
 		String equalSkip = null;
 		int skipCount = 0;
-		ArrayList<String> rightSide = new ArrayList<String>();
+		List<String> rightSide = new ArrayList<>();
 		int expCheck = 0;
 		while (line != null) {
 			if (prePre) {
@@ -439,7 +442,7 @@ public class Aligner {
 				}
 			}
 			else if (postPre) {
-				for (int i = 0; i < sequences.length; i++)
+				for (SequenceData sequence : sequences) {
 					if (line.startsWith("New number of positions")) {
 						int keepAt = line.indexOf("<b>");
 						line = line.substring(keepAt);
@@ -448,6 +451,7 @@ public class Aligner {
 					else if (line.startsWith("</body>")) {
 						line = "</div></div></div></div>" + line;
 					}
+				}
 				writer.write(line + "\n");
 			}
 			else {
@@ -469,8 +473,8 @@ public class Aligner {
 						writer.write(next + "\n");
 					}
 					postPre = true;
-					for (int i = 0; i < sequences.length; i++) {
-						(sequences[i]).writeLongName(writer);
+					for (SequenceData sequence : sequences) {
+						(sequence).writeLongName(writer);
 					}
 				}
 				else {

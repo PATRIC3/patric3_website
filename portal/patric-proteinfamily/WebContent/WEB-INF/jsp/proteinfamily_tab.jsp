@@ -51,9 +51,6 @@ if (key == null) {
 }else{
 	keyword = key.get("keyword");
 }
-
-//System.out.print("main.jsp"+keyword);
-
 %>
 
 <script type="text/javascript" src="<%=nameSpaceAids%>"></script>

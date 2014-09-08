@@ -26,8 +26,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-
-//import javax.portlet.PortletSession;
 import javax.portlet.ResourceRequest;
 
 import org.apache.commons.io.IOUtils;
@@ -53,20 +51,22 @@ import edu.vt.vbi.patric.msa.Aligner;
 import edu.vt.vbi.patric.msa.SequenceData;
 import edu.vt.vbi.patric.common.SolrCore;
 import edu.vt.vbi.patric.common.SolrInterface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FIGfamData {
 
-	public final static int FIGFAM_COUNT = 0;
-
-	public final static int SPECIES_COUNT = 1;
-
-	public final static int MIN_AA = 2;
-
-	public final static int MAX_AA = 3;
-
-	public final static int FEATURE_COUNT = 4;
-
-	public final static int DETAILS_STATS_ROOM = 5;
+//	public final static int FIGFAM_COUNT = 0;
+//
+//	public final static int SPECIES_COUNT = 1;
+//
+//	public final static int MIN_AA = 2;
+//
+//	public final static int MAX_AA = 3;
+//
+//	public final static int FEATURE_COUNT = 4;
+//
+//	public final static int DETAILS_STATS_ROOM = 5;
 
 	public final static String FIGFAM_ID = "figfamId";
 
@@ -104,6 +104,8 @@ public class FIGfamData {
 			+ "from sres.figfaminfo fi, dots.figfamassociation fa, app.dnafeature nf where nf.na_feature_id = fa.na_feature_id "
 			+ "and fa.figfam_info_id = fi.figfam_info_id and nf.name = 'CDS'";
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(FIGfamData.class);
+
 	private SolrInterface solr = new SolrInterface();
 
 	private Object[] replaceNulls(Object[] objs) {
@@ -132,8 +134,8 @@ public class FIGfamData {
 			try {
 				solr.setCurrentInstance(SolrCore.FEATURE);
 			}
-			catch (MalformedURLException e1) {
-				e1.printStackTrace();
+			catch (MalformedURLException e) {
+				LOGGER.error(e.getMessage(), e);
 			}
 
 			long end_ms, start_ms = System.currentTimeMillis();
@@ -156,26 +158,25 @@ public class FIGfamData {
 				solr_query.addSort("locus_tag", SolrQuery.ORDER.asc);
 			}
 			catch (SolrServerException e) {
-				e.printStackTrace();
+				LOGGER.error(e.getMessage(), e);
 			}
 
-			System.out.println("FIGfam:getSyntonyOrder() " + solr_query.toString());
+			LOGGER.debug("getSyntonyOrder() {}", solr_query.toString());
 
 			int orderSet = 0;
-			ArrayList<SyntonyOrder> collect = new ArrayList<SyntonyOrder>();
+			List<SyntonyOrder> collect = new ArrayList<>();
 			try {
 				qr = server.query(solr_query, SolrRequest.METHOD.POST);
 				sdl = qr.getResults();
 
 				end_ms = System.currentTimeMillis();
 
-				System.out.println("Genome anchoring query time - " + (end_ms - start_ms));
+				LOGGER.debug("Genome anchoring query time - {}", (end_ms - start_ms));
 
 				start_ms = System.currentTimeMillis();
 				for (SolrDocument d : sdl) {
-					for (Iterator<Map.Entry<String, Object>> i = d.iterator(); i.hasNext();) {
-						Map.Entry<String, Object> el = i.next();
-						if (el.getKey().toString().equals("figfam_id")) {
+					for (Map.Entry<String, Object> el : d) {
+						if (el.getKey().equals("figfam_id")) {
 							collect.add(new SyntonyOrder(el.getValue().toString(), orderSet));
 							++orderSet;
 						}
@@ -184,7 +185,7 @@ public class FIGfamData {
 
 			}
 			catch (SolrServerException e) {
-				e.printStackTrace();
+				LOGGER.error(e.getMessage(), e);
 			}
 
 			if (0 < collect.size()) {
@@ -200,18 +201,18 @@ public class FIGfamData {
 					start = start.mergeSameId(toSort[i]);// set syntonyAt -1 to those objects which occur multiple times
 				}
 				orderSet = 0;
-				for (int i = 0; i < orderSave.length; i++) {
-					orderSet = (orderSave[i]).compressAt(orderSet); // adjusts the syntonyAt number to get the correct
-																	// column based on replicon with -1's removed
+				for (SyntonyOrder anOrderSave : orderSave) {
+					orderSet = (anOrderSave).compressAt(orderSet); // adjusts the syntonyAt number to get the correct
+					// column based on replicon with -1's removed
 				}
-				for (int i = 0; i < toSort.length; i++) {// writes all those that don't have -1's
-					(toSort[i]).write(json_arr);
+				for (SyntonyOrder aToSort : toSort) {// writes all those that don't have -1's
+					(aToSort).write(json_arr);
 				}
 			}
 
 			end_ms = System.currentTimeMillis();
 
-			System.out.println("Genome anchoring post processing time - " + (end_ms - start_ms));
+			LOGGER.debug("Genome anchoring post processing time - {} ms", (end_ms - start_ms));
 		}
 
 		return json_arr;
@@ -224,8 +225,8 @@ public class FIGfamData {
 		try {
 			solr.setCurrentInstance(SolrCore.FEATURE);
 		}
-		catch (MalformedURLException e1) {
-			e1.printStackTrace();
+		catch (MalformedURLException e) {
+			LOGGER.error(e.getMessage(), e);
 		}
 
 		SolrQuery solr_query = new SolrQuery();
@@ -234,7 +235,7 @@ public class FIGfamData {
 		solr_query.addField("locus_tag");
 		solr_query.setRows(150000);
 
-		System.out.println("FIGfamData:getLocusTags() " + solr_query.toString());
+		LOGGER.debug("getLocusTags() {}", solr_query.toString());
 
 		QueryResponse qr;
 		SolrDocumentList sdl;
@@ -244,14 +245,13 @@ public class FIGfamData {
 			sdl = qr.getResults();
 
 			for (SolrDocument d : sdl) {
-				for (Iterator<Map.Entry<String, Object>> i = d.iterator(); i.hasNext();) {
-					Map.Entry<String, Object> el = i.next();
+				for (Map.Entry<String, Object> el : d) {
 					arr.add(el.getValue());
 				}
 			}
 		}
 		catch (SolrServerException e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 
 		JSONObject data = new JSONObject();
@@ -260,7 +260,7 @@ public class FIGfamData {
 			data.writeJSONString(writer);
 		}
 		catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 	}
 
@@ -273,7 +273,7 @@ public class FIGfamData {
 			solr.setCurrentInstance(SolrCore.FEATURE);
 		}
 		catch (MalformedURLException e1) {
-			e1.printStackTrace();
+			LOGGER.error(e1.getMessage(), e1);
 		}
 
 		SolrQuery solr_query = new SolrQuery();
@@ -282,7 +282,7 @@ public class FIGfamData {
 		solr_query.setFilterQueries("annotation:PATRIC AND feature_type:CDS");
 		solr_query.setRows(1500000);
 
-		System.out.println("FIGfamData:getDetails() " + solr_query.toString());
+		LOGGER.debug("getDetails() {}", solr_query.toString());
 
 		QueryResponse qr;
 		SolrDocumentList sdl;
@@ -293,15 +293,14 @@ public class FIGfamData {
 
 			for (SolrDocument d : sdl) {
 				JSONObject values = new JSONObject();
-				for (Iterator<Map.Entry<String, Object>> i = d.iterator(); i.hasNext();) {
-					Map.Entry<String, Object> el = i.next();
+				for (Map.Entry<String, Object> el : d) {
 					values.put(el.getKey(), el.getValue());
 				}
 				arr.add(values);
 			}
 		}
 		catch (SolrServerException e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 		return arr;
 	}
@@ -314,7 +313,7 @@ public class FIGfamData {
 			result = new Aligner(needHtml, groupID, sequences);
 		}
 		catch (SQLException e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 		return result;
 	}
@@ -326,21 +325,18 @@ public class FIGfamData {
 			result = new Aligner(needHtml, req.getParameter(FIGFAM_ID), sequences);
 		}
 		catch (SQLException e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 		return result;
 	}
 
 	public static File getOrthoPath(String subDir) {
-		File result = null;
 		Map<?, ?> check = System.getenv();
 		String homeDir = (String) (check.get(ORTHO_ENV_NAME));
 		if (homeDir == null) {
 			homeDir = "/tmp";
 		}
-		if (homeDir != null) {
-			result = new File(homeDir + File.separator + subDir);
-		}
+		File result = new File(homeDir + File.separator + subDir);
 		return result;
 	}
 
@@ -353,7 +349,6 @@ public class FIGfamData {
 		}
 
 		return ret;
-
 	}
 
 	public String getGenomeIdsForTaxon(String taxon) {
@@ -364,7 +359,7 @@ public class FIGfamData {
 		query.setRows(500000);
 		QueryResponse qr;
 		
-		System.out.println("FIGfamData:getGenomeIdsForTaxon() " + query.toString());
+		LOGGER.debug("getGenomeIdsForTaxon() {}", query.toString());
 		
 		try {
 			solr.setCurrentInstance(SolrCore.GENOME);
@@ -372,11 +367,8 @@ public class FIGfamData {
 			List<String> listGenomeId = qr.getBeans(String.class);
 			genomeIds = StringUtils.join(listGenomeId, ",");
 		}
-		catch (SolrServerException e) {
-			e.printStackTrace();
-		}
-		catch (MalformedURLException e) {
-			e.printStackTrace();
+		catch (SolrServerException | MalformedURLException e) {
+			LOGGER.error(e.getMessage(), e);
 		}
 		return genomeIds;
 	}
@@ -408,7 +400,7 @@ public class FIGfamData {
 	}
 
 	private SequenceData[] getFeatureSequences(int[] featureIds) {
-		ArrayList<SequenceData> collect = new ArrayList<SequenceData>();
+		List<SequenceData> collect = new ArrayList<>();
 		StringBuilder query = new StringBuilder(0x1000);
 		query.append(GET_ALIGN_START);
 		query.append(" and ");
@@ -441,7 +433,7 @@ public class FIGfamData {
 
 	public String[] getFastaLines(ResourceRequest req) {
 		String featureCount = req.getParameter("featureCount");
-		ArrayList<String> lines = new ArrayList<String>();
+		List<String> lines = new ArrayList<>();
 		if (featureCount != null) {
 			int[] featureIds = new int[Integer.parseInt(featureCount)];
 			for (int i = 0; i < featureIds.length; i++) {
@@ -468,8 +460,8 @@ public class FIGfamData {
 					String strSeq = IOUtils.toString(clobSeq.getAsciiStream(), "UTF-8");
 					lines.add(strSeq);
 				}
-				catch (Exception ex) {
-					System.out.println(ex.toString());
+				catch (Exception e) {
+					LOGGER.error(e.getMessage(), e);
 				}
 
 			}
@@ -500,11 +492,11 @@ public class FIGfamData {
 		while (iter.hasNext()) {
 			Object[] line = replaceNulls((Object[]) iter.next());
 			output.append("<tr>");
-			output.append("<td>" + line[0] + "</td>");
-			output.append("<td>" + line[1] + "</td>");
-			output.append("<td>" + line[2] + "</td>");
-			output.append("<td>" + line[3] + "</td>");
-			output.append("<td>" + line[4] + "</td>");
+			output.append("<td>").append(line[0]).append("</td>");
+			output.append("<td>").append(line[1]).append("</td>");
+			output.append("<td>").append(line[2]).append("</td>");
+			output.append("<td>").append(line[3]).append("</td>");
+			output.append("<td>").append(line[4]).append("</td>");
 			output.append("</tr>");
 		}
 	}
@@ -522,27 +514,27 @@ public class FIGfamData {
 			Iterator<?> it = textNumbers.iterator();
 			String value = (String) (it.next());
 			if (count == 1) {
-				toBuild.append(restricted + " = " + value);
+				toBuild.append(restricted).append(" = ").append(value);
 			}
 			else if (count <= IN_MAX) {
-				toBuild.append(restricted + " in (" + value);
+				toBuild.append(restricted).append(" in (").append(value);
 				while (it.hasNext()) {
 					value = (String) (it.next());
-					toBuild.append(", " + value);
+					toBuild.append(", ").append(value);
 				}
 				toBuild.append(")");
 			}
 			else {
-				toBuild.append("((" + restricted + " in (" + value);
+				toBuild.append("((").append(restricted).append(" in (").append(value);
 				int at = 1;
 				int nextBreak = IN_MAX;
 				while (it.hasNext()) {
 					value = (String) (it.next());
 					if (at <= nextBreak) {
-						toBuild.append(", " + value);
+						toBuild.append(", ").append(value);
 					}
 					else {
-						toBuild.append(")) or (" + restricted + " in (" + value);
+						toBuild.append(")) or (").append(restricted).append(" in (").append(value);
 						nextBreak += IN_MAX;
 					}
 					++at;
@@ -631,8 +623,8 @@ public class FIGfamData {
 		try {
 			solr.setCurrentInstance(SolrCore.FEATURE);
 		}
-		catch (MalformedURLException e1) {
-			e1.printStackTrace();
+		catch (MalformedURLException e) {
+			LOGGER.error(e.getMessage(), e);
 		}
 
 		SolrQuery solr_query = new SolrQuery();
@@ -642,7 +634,7 @@ public class FIGfamData {
 
 		QueryResponse qr;
 		SolrDocumentList sdl;
-		long rows = 0;
+		long rows;
 		String ret = "";
 		try {
 			qr = solr.getServer().query(solr_query, SolrRequest.METHOD.POST);
@@ -653,8 +645,7 @@ public class FIGfamData {
 			sdl = qr.getResults();
 
 			for (SolrDocument d : sdl) {
-				for (Iterator<Map.Entry<String, Object>> i = d.iterator(); i.hasNext();) {
-					Map.Entry<String, Object> el = i.next();
+				for (Map.Entry<String, Object> el : d) {
 					if (el.getKey().equals("na_feature_id")) {
 						ret += el.getValue().toString() + ",";
 					}
@@ -664,28 +655,13 @@ public class FIGfamData {
 			writer.write(ret.substring(0, ret.length() - 1));
 		}
 		catch (SolrServerException e) {
-			e.printStackTrace();
+			LOGGER.debug(e.getMessage(), e);
 		}
 	}
 
 	@SuppressWarnings("unchecked")
 	public void getGenomeDetails(ResourceRequest req, PrintWriter writer) throws IOException {
 		solr.setCurrentInstance(SolrCore.GENOME);
-
-		// ResultType key = new ResultType();
-		// key.put("keyword", req.getParameter("keyword"));
-		//
-		// String keyword = req.getParameter("keyword");
-		// if (keyword != null && !keyword.equals("")) {
-		// key.put("keyword", req.getParameter("keyword"));
-		// }
-		// String fields = req.getParameter("fields");
-		// if (fields != null && !fields.equals("")) {
-		// key.put("fields", fields);
-		// }
-		// JSONObject object = solr.getData(key, null, null, 0, -1, false, false, false);
-
-		// System.out.println(req.getParameterMap().toString());
 
 		String cType = req.getParameter("context_type");
 		String cId = req.getParameter("context_id");
@@ -705,14 +681,14 @@ public class FIGfamData {
 		}
 		query.setRows(500000);
 
-		System.out.println("FIGfamData:getGenomeDetails() " + query.toString());
+		LOGGER.debug("getGenomeDetails() {}", query.toString());
 		JSONObject object = null;
 		try {
 			object = solr.ConverttoJSON(solr.getServer(), query, false, false);
 		}
-		catch (Exception ex) {
-			System.out.println(ex.getMessage());
-			System.out.println("params: " +req.getParameterMap().toString());
+		catch (Exception e) {
+			LOGGER.error(e.getMessage(), e);
+			LOGGER.debug("params: {}", req.getParameterMap().toString());
 		}
 
 		JSONObject obj = (JSONObject) object.get("response");
@@ -731,7 +707,7 @@ public class FIGfamData {
 		// long start_ms, end_ms;
 		JSONObject figfams = new JSONObject();
 		String figfam_ids = "";
-		String[] genomeIds = req.getParameter("genomeIds").toString().split(",");
+		String[] genomeIds = req.getParameter("genomeIds").split(",");
 		String[] genomeIdsStr = new String[genomeIds.length];
 		List<String> genomeIdsArr = Arrays.asList(genomeIds);
 
@@ -746,14 +722,10 @@ public class FIGfamData {
 		solr_query.setFacetLimit(-1);
 		solr_query.setSort("figfam_id", SolrQuery.ORDER.asc);
 
-		System.out.println("FIGfam:getStroupStats() 1/3 " + solr_query.toString());
+		LOGGER.debug("getStroupStats() 1/3 " + solr_query.toString());
 
 		try {
-			// long start_ms = System.currentTimeMillis();
-			QueryResponse qr = solr.getServer().query(solr_query);// , SolrRequest.METHOD.POST);
-			// long end_ms = System.currentTimeMillis();
-			// System.out.println("Query time - 1st - " + (end_ms - start_ms));
-			// start_ms = System.currentTimeMillis();
+			QueryResponse qr = solr.getServer().query(solr_query);
 
 			NamedList<List<PivotField>> pivots = qr.getFacetPivot();
 
@@ -770,7 +742,6 @@ public class FIGfamData {
 						Arrays.fill(genomeIdsStr, "00");
 
 						for (PivotField pivotGenome : pivotGenomes) {
-							// index = Arrays.asList(genomeIds).indexOf(pivotGenome.getValue().toString());
 							index = genomeIdsArr.indexOf(pivotGenome.getValue().toString());
 							hex = Integer.toHexString(pivotGenome.getCount());
 							genomeIdsStr[index] = hex.length() < 2 ? "0" + hex : hex;
@@ -790,15 +761,10 @@ public class FIGfamData {
 					}
 				}
 			}
-			// end_ms = System.currentTimeMillis();
-			// System.out.println("Procesing time - 1st - " + (end_ms - start_ms));
-
-			// System.out.println(figfams.toJSONString());
 		}
 		catch (Exception e) {
-			// e.printStackTrace();
-			System.out.println(e.getMessage());
-			System.out.println("params: " +req.getParameterMap().toString());
+			LOGGER.error(e.getMessage(), e);
+			LOGGER.debug("params: {}", req.getParameterMap().toString());
 		}
 
 		// getting distribution of aa length in each proteim family (dnafeature: need to modify the type of figfam_id column)
@@ -810,14 +776,8 @@ public class FIGfamData {
 		solr_query.set("stats.field", "aa_length");
 		solr_query.set("stats.facet", "figfam_id");
 
-		// System.out.println("FIGfam:getStroupStats() 2/3 " + solr_query.toString());
-
 		try {
-			// start_ms = System.currentTimeMillis();
 			QueryResponse qr = solr.getServer().query(solr_query, SolrRequest.METHOD.POST);
-			// end_ms = System.currentTimeMillis();
-			// System.out.println("Query time - 2nd - "+ (end_ms - start_ms));
-			// start_ms = System.currentTimeMillis();
 			Map<?, ?> stats_map = qr.getFieldStatsInfo();
 
 			if (stats_map != null) {
@@ -839,15 +799,12 @@ public class FIGfamData {
 						obj.put("stats", obj2);
 						figfams.put(fieldStat.getName(), obj);
 					}
-					// end_ms = System.currentTimeMillis();
-					// System.out.println("Processing time - 2nd - " + (end_ms-start_ms));
 				}
 			}
-			// System.out.println(figfams.toJSONString());
 		}
 		catch (Exception e) {
-			System.out.println(e.getMessage());
-			System.out.println("params: " +req.getParameterMap().toString());
+			LOGGER.error(e.getMessage(), e);
+			LOGGER.debug("params: {}", req.getParameterMap().toString());
 		}
 
 		// getting distinct figfam_product
@@ -861,21 +818,14 @@ public class FIGfamData {
 			solr_query.addField("figfam_id, figfam_product");
 			solr_query.setRows(figfams.size());
 
-			// System.out.println("FIGfam:getStroupStats() 3/3 " + solr_query.toString());
-
 			try {
-				// start_ms = System.currentTimeMillis();
 				QueryResponse qr = solr.getServer().query(solr_query, SolrRequest.METHOD.POST);
-				// end_ms = System.currentTimeMillis();
-				// System.out.println("Query time - 3rd - "+ (end_ms - start_ms));
-				// start_ms = System.currentTimeMillis();
 				SolrDocumentList sdl = qr.getResults();
 
 				for (SolrDocument d : sdl) {
-					JSONObject obj = null;
+					JSONObject obj;
 					String k = "", description = "";
-					for (Iterator<Map.Entry<String, Object>> i = d.iterator(); i.hasNext();) {
-						Map.Entry<String, Object> el = i.next();
+					for (Map.Entry<String, Object> el : d) {
 						if (el.getKey().equals("figfam_id")) {
 							k = el.getValue().toString();
 							if (!description.equals("")) {
@@ -884,7 +834,6 @@ public class FIGfamData {
 								figfams.put(k, obj);
 							}
 						}
-						// System.out.println(el.getValue().toString());
 
 						if (el.getKey().equals("figfam_product")) {
 							if (!k.equals("")) {
@@ -898,17 +847,12 @@ public class FIGfamData {
 						}
 					}
 				}
-				// end_ms = System.currentTimeMillis();
-				// System.out.println("Processing time - 3rd - " + (end_ms-start_ms));
 			}
 			catch (Exception e) {
-				System.out.println(e.getMessage());
-				System.out.println("params: " +req.getParameterMap().toString());
+				LOGGER.error(e.getMessage(), e);
+				LOGGER.debug("params: {}", req.getParameterMap().toString());
 			}
-			// start_ms = System.currentTimeMillis();
 			figfams.writeJSONString(writer);
-			// end_ms = System.currentTimeMillis();
-			// System.out.println("Writing to response - "+ (end_ms - start_ms));
 		}
 	}
 
@@ -925,8 +869,8 @@ public class FIGfamData {
 			try {
 				result = IOUtils.toString(clobSeq.getAsciiStream(), "UTF-8");
 			}
-			catch (Exception ex) {
-				System.out.println(ex.toString());
+			catch (Exception e) {
+				LOGGER.error(e.getMessage(), e);
 			}
 		}
 		return result;

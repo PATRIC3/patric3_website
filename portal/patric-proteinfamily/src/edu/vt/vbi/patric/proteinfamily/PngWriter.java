@@ -15,16 +15,34 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.proteinfamily;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import javax.portlet.ResourceResponse;
 
 public class PngWriter {
+	private static final Logger LOGGER = LoggerFactory.getLogger(PngWriter.class);
+
 	public static void returnPng(String pngPath, ResourceResponse resp) {
-		try {
+
+		final BufferedReader reader;
+		final Path src = Paths.get(pngPath);
+		String line;
+
+		try (
+			PrintWriter writer = resp.getWriter();
+		) {
+			reader = Files.newBufferedReader(src, StandardCharsets.UTF_8);
+			while ((line = reader.readLine()) != null) {
+				writer.write(line);
+			}
+			/*
 			File f = new File(pngPath);
 			if (f.exists() && f.isFile()) {
 				resp.setContentType("image/png");
@@ -32,16 +50,16 @@ public class PngWriter {
 
 				PrintWriter out = resp.getWriter();
 
-				int i = 0;
+				int i;
 				while ((i = fis.read()) != -1) {
 					out.write(i);
 				}
 				fis.close();
 				out.close();
-			}
+			}*/
 		}
 		catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.debug(e.getMessage(), e);
 		}
 
 	}

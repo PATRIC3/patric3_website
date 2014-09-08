@@ -30,7 +30,6 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
-import javax.portlet.UnavailableException;
 
 import edu.vt.vbi.patric.msa.Aligner;
 import edu.vt.vbi.patric.proteinfamily.PngWriter;
@@ -38,7 +37,7 @@ import edu.vt.vbi.patric.proteinfamily.PngWriter;
 import edu.vt.vbi.patric.proteinfamily.FIGfamData;
 
 public class MultipleSequenceAlignment extends GenericPortlet {
-	public void init(PortletConfig portletConfig) throws UnavailableException, PortletException {
+	public void init(PortletConfig portletConfig) throws PortletException {
 		super.init(portletConfig);
 	}
 
@@ -101,12 +100,11 @@ public class MultipleSequenceAlignment extends GenericPortlet {
 			String path = req.getParameter("path");
 
 			BufferedReader br = new BufferedReader(new FileReader(new File(path)));
-			String nextLine = "";
+			String nextLine;
 			String lineSep = System.getProperty("line.separator");
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			while ((nextLine = br.readLine()) != null) {
-				sb.append(nextLine);
-				sb.append(lineSep);
+				sb.append(nextLine).append(lineSep);
 			}
 			br.close();
 

@@ -33,7 +33,6 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
-import javax.portlet.UnavailableException;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -44,10 +43,14 @@ import edu.vt.vbi.patric.common.SiteHelper;
 import edu.vt.vbi.patric.dao.HibernateHelper;
 import edu.vt.vbi.patric.dao.ResultType;
 import edu.vt.vbi.patric.proteinfamily.FIGfamData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FIGfam extends GenericPortlet {
 
-	public void init(PortletConfig portletConfig) throws UnavailableException, PortletException {
+	private static final Logger LOGGER = LoggerFactory.getLogger(FIGfam.class);
+
+	public void init(PortletConfig portletConfig) throws PortletException {
 		super.init(portletConfig);
 		String k = "PATRIC_DB.cfg.xml";
 		HibernateHelper.buildSessionFactory(k, k);
@@ -61,7 +64,7 @@ public class FIGfam extends GenericPortlet {
 
 		new SiteHelper().setHtmlMetaElements(request, response, "Protein Families");
 
-		PortletRequestDispatcher prd = null;
+		PortletRequestDispatcher prd;
 		if ((mode != null) && (mode.equals("result"))) {
 			prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/proteinfamily_tab.jsp");
 		}
@@ -125,7 +128,6 @@ public class FIGfam extends GenericPortlet {
 		resp.setContentType("text/html");
 		String callType = req.getParameter("callType");
 
-		// System.out.println(callType);
 		if (callType != null) {
 			if (callType.equals("toSorter")) {
 				ResultType key = new ResultType();
@@ -285,8 +287,8 @@ public class FIGfam extends GenericPortlet {
 					out.write(data);
 					out.close();
 				}
-				catch (Exception es) {// Catch exception if any
-					System.err.println("Error: " + es.getMessage());
+				catch (Exception es) {
+					LOGGER.error(es.getMessage(), es);
 				}
 
 				if (action.equals("Run"))
@@ -298,10 +300,8 @@ public class FIGfam extends GenericPortlet {
 				PrintWriter writer = resp.getWriter();
 				FIGfamData access = new FIGfamData();
 				JSONArray json = access.getSyntonyOrder(req);
-				long start_ms = System.currentTimeMillis();
 				json.writeJSONString(writer);
-				long end_ms = System.currentTimeMillis();
-				System.out.println("ProteinFamily::getSyntonyOrder::Writing response time - " + (end_ms - start_ms));
+				writer.close();
 			}
 			else {
 				PrintWriter writer = resp.getWriter();
@@ -320,14 +320,14 @@ public class FIGfam extends GenericPortlet {
 		String exec = "sh /opt/jboss-patric/runMicroArrayClustering.sh " + filename + " " + outputfilename + " " + ((g.equals("1")) ? ge : "0") + " "
 				+ ((e.equals("1")) ? ge : "0") + " " + m;
 
-		System.out.print(exec);
+		LOGGER.debug("doClustering() {}", exec);
 
 		CommandResults callClustering = ExecUtilities.exec(exec);
 
-		if (callClustering.getStdout()[0].toString().equals("done")) {
+		if (callClustering.getStdout()[0].equals("done")) {
 
 			BufferedReader in = new BufferedReader(new FileReader(outputfilename + ".cdt"));
-			String strLine = "";
+			String strLine;
 			int count = 0;
 			JSONArray rows = new JSONArray();
 			while ((strLine = in.readLine()) != null) {
@@ -350,7 +350,7 @@ public class FIGfam extends GenericPortlet {
 
 		if (remove) {
 			exec = "rm " + filename + " " + outputfilename;
-			callClustering = ExecUtilities.exec(exec);
+			ExecUtilities.exec(exec);
 		}
 
 		return output;

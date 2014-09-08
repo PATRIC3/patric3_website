@@ -24,6 +24,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 import edu.vt.vbi.patric.msa.SequenceData;
 
@@ -59,8 +60,8 @@ public class Newick {
 
 	public Newick(String nexus) {
 		this.nexus = nexus;
-		ArrayList<Stem> tipList = new ArrayList<Stem>();
-		ArrayList<Stem> stemList = new ArrayList<Stem>();
+		List<Stem> tipList = new ArrayList<>();
+		List<Stem> stemList = new ArrayList<>();
 		char[] nexChars = nexus.toCharArray();
 		int nextEnd = nexChars.length;
 		int at = nexus.indexOf('(');
@@ -140,11 +141,9 @@ public class Newick {
 		for (int i = tipCount - 1; 0 <= i; i--) {
 			tips[i] = it.next();
 		}
-		tipList = null;
 
 		stems = new Stem[stemList.size()];
 		stemList.toArray(stems);
-		stemList = null;
 		Arrays.sort(stems);
 
 		// depths at level 0 are known
@@ -206,10 +205,10 @@ public class Newick {
 	}
 
 	public void setGenomeNames(SequenceData[] full) {
-		for (int i = 0; i < full.length; i++) {
-			int at = Arrays.binarySearch(nameSearch, new TipFinder(0, (full[i]).getLocusTag()));
+		for (SequenceData aFull : full) {
+			int at = Arrays.binarySearch(nameSearch, new TipFinder(0, (aFull).getLocusTag()));
 			if (0 <= at) {
-				(tips[(nameSearch[at]).tipAt]).genome = (full[i]).getTaxonName();
+				(tips[(nameSearch[at]).tipAt]).genome = (aFull).getTaxonName();
 			}
 		}
 	}
@@ -245,8 +244,8 @@ public class Newick {
 		}
 		int textDrop = fm.getHeight() / 2 - fm.getDescent();
 
-		for (int i = 0; i < stems.length; i++) {
-			(stems[i]).paint(xExpand, yExpand, textDrop, textGap, g);
+		for (Stem stem : stems) {
+			(stem).paint(xExpand, yExpand, textDrop, textGap, g);
 		}
 		return g;
 	}

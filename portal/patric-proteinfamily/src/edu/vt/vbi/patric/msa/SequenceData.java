@@ -22,6 +22,8 @@ import java.sql.SQLException;
 
 import org.apache.commons.io.IOUtils;
 import org.hibernate.lob.SerializableClob;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SequenceData implements Comparable<SequenceData> {
 	String taxonName = null;
@@ -31,6 +33,8 @@ public class SequenceData implements Comparable<SequenceData> {
 	String aminos;
 
 	int fastaOrder = 0;
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(SequenceData.class);
 
 	SequenceData(String locus) {
 		this.locus = locus;
@@ -50,11 +54,8 @@ public class SequenceData implements Comparable<SequenceData> {
 		try {
 			aminos = IOUtils.toString(clobSeq.getAsciiStream(), "UTF-8");
 		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-		catch (SQLException e) {
-			e.printStackTrace();
+		catch (IOException | SQLException e) {
+			LOGGER.error(e.getMessage(), e);
 		}
 	}
 

@@ -16,11 +16,9 @@ String ncbi_taxon_id = null;
 String cType = request.getParameter("context_type");
 String cId = request.getParameter("context_id");
 
-//System.out.print(resourceURL);
 String expander = "";
 String taxonName = "";
 ArrayList<ResultType> ids = null;
-//System.out.println("cId->"+cId);
 
 if (cType!=null && cId!=null && cType.equals("taxon")) {
 	ncbi_taxon_id = (cId.equals(""))?"2":cId;
