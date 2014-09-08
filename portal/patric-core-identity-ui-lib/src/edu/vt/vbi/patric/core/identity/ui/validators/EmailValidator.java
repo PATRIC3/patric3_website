@@ -43,7 +43,6 @@ public class EmailValidator implements Validator {
 				throw new IllegalArgumentException("The value must be a String");
 			}
 
-			//System.out.println("PATRIC version EmailValidator");
 			// check database
 			PortletContext portletContext = (PortletContext)context.getExternalContext().getContext();
 			userModule = (UserModule)portletContext.getAttribute("UserModule");

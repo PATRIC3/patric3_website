@@ -30,7 +30,6 @@ import org.jboss.portal.core.identity.ui.IdentityUIUser;
  * 
  */
 public class CreateUserAction extends org.jboss.portal.core.identity.ui.actions.CreateUserAction {
-	private boolean debug_on = false;
 
 	private IdentityUIUser uiUser;
 
@@ -40,9 +39,6 @@ public class CreateUserAction extends org.jboss.portal.core.identity.ui.actions.
 		super.register(ev);
 		super.setUiUser(uiUser);
 
-		if (debug_on) {
-			System.out.println("*** edu.vt.vbi.patric.core.identity.ui.actions.CreateUserAction is running ");
-		}
 		// We does not need to override this class, since we do not use alfresco anymore
 	}
 }

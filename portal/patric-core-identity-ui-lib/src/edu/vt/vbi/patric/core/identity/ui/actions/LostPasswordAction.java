@@ -62,7 +62,6 @@ public class LostPasswordAction extends org.jboss.portal.core.identity.ui.action
 	}
 
 	public String doomed() {
-		//System.out.println("Hey, you are using Harry's customized LostPasswordAction.doomed() " + email);
 
 		User user = null;
 		ResourceBundle bundle = ResourceBundle.getBundle("conf.bundles.Identity", FacesContext.getCurrentInstance()
