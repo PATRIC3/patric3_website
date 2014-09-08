@@ -17,6 +17,8 @@ package edu.vt.vbi.patric.mashup.xmlHandler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -24,7 +26,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 public class PDBLigandHandler extends DefaultHandler {
 
-	private ArrayList<HashMap<String, String>> result;
+	private List<Map<String, String>> result;
 
 	private String currentElement = "";
 
@@ -39,20 +41,20 @@ public class PDBLigandHandler extends DefaultHandler {
 	public PDBLigandHandler() {
 	}
 
-	public ArrayList<HashMap<String, String>> getParsedData() {
+	public List<Map<String, String>> getParsedData() {
 		return result;
 	}
 
 	@Override
 	public void startDocument() throws SAXException {
-		result = new ArrayList<HashMap<String, String>>();
+		result = new ArrayList<>();
 	}
 
 	@Override
 	public void startElement(String namespaceURI, String localName, String qName, Attributes atts) throws SAXException {
 
 		if (qName.equalsIgnoreCase("ligand")) {
-			ligand = new HashMap<String, String>();
+			ligand = new HashMap<>();
 			sbChemicalName = new StringBuffer();
 			sbFormula = new StringBuffer();
 			sbSmiles = new StringBuffer();

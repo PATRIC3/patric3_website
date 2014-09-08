@@ -31,6 +31,9 @@ import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.omg.PortableInterceptor.LOCATION_FORWARD;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("unchecked")
 public class KLEIOInterface {
@@ -50,6 +53,8 @@ public class KLEIOInterface {
 
 	private Map<String, String> hash = new HashMap<String, String>();
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(KLEIOInterface.class);
+
 	public KLEIOInterface() {
 		try {
 
@@ -65,7 +70,7 @@ public class KLEIOInterface {
 
 		}
 		catch (AxisFault e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 	}
 
@@ -124,7 +129,6 @@ public class KLEIOInterface {
 			OMElement rtrn = res.getFirstElement();
 
 			OMElement totalHits = rtrn.getFirstChildWithName(qnTotal);
-			System.out.println(totalHits.getText());
 			r.put("total", totalHits.getText());
 
 			if (rtrn.getFirstChildWithName(qnCitations) != null) {
@@ -170,7 +174,7 @@ public class KLEIOInterface {
 			r.put("result", articles);
 		}
 		catch (AxisFault e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 
 		return r;
@@ -332,7 +336,7 @@ public class KLEIOInterface {
 			}
 		}
 		catch (AxisFault e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 		return r;
 	}
@@ -366,7 +370,6 @@ public class KLEIOInterface {
 
 	private OMElement getQueryNodes(String query) {
 
-		System.out.print("KLEIO query" + query);
 		String[] splitted = query.split(" AND | OR ");
 		if (splitted.length > 1) {
 			for (int i = 0; i < splitted.length; i++) {
@@ -473,7 +476,6 @@ public class KLEIOInterface {
 		}
 
 		e.addChild(eall);
-		// System.out.print(e.toString());
 		return e;
 	}
 
@@ -509,7 +511,6 @@ public class KLEIOInterface {
 			r.put("abstract", article.getFirstChildWithName(qnAbstract).getText());
 
 			String title = article.getFirstChildWithName(qnTitle).getText();
-			// System.out.print("title"+title);
 			StringBuffer z = new StringBuffer();
 
 			for (int i = 0; i < title.length(); i++) {
@@ -539,7 +540,7 @@ public class KLEIOInterface {
 			r.put("mesh", mesh);
 		}
 		catch (AxisFault e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 		return r;
 	}
@@ -559,7 +560,7 @@ public class KLEIOInterface {
 			}
 		}
 		catch (AxisFault e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 		return r;
 	}
@@ -631,7 +632,7 @@ public class KLEIOInterface {
 			r.put("result", results);
 		}
 		catch (AxisFault e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 		return r;
 	}
@@ -642,7 +643,7 @@ public class KLEIOInterface {
 			client.cleanupTransport();
 		}
 		catch (AxisFault e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 
 	}

@@ -158,7 +158,6 @@ public class PeptidomeHandler extends DefaultHandler {
 		}
 		else if (currentElement.equals("int") || currentElement.equals("Title")) {
 			// skip
-			// System.out.println(currentElement+":"+tmpVal);
 		}
 		else if (!currentElement.equals("")) {
 			item.put(currentElement, tmpVal);

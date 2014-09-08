@@ -25,8 +25,7 @@
 	
 	String kwUrl = "";
 	String qKeyword = request.getParameter("keyword");
-	//System.out.print("keyword -- "+qKeyword);
-	
+
 	if (qKeyword!=null) {
 		kwUrl = "&amp;kw="+qKeyword;
 	} else {

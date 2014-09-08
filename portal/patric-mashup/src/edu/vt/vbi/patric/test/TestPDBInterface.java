@@ -15,20 +15,24 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.test;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import junit.framework.TestCase;
 import edu.vt.vbi.patric.mashup.PDBInterface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestPDBInterface extends TestCase {
 
 	private boolean testmode = false;
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(PDBInterface.class);
+
 	public void testGetResult() {
 		if (testmode == true) {
 			PDBInterface api = new PDBInterface();
-			ArrayList<HashMap<String, String>> result = null;
+			List<Map<String, String>> result = null;
 			// HashMap<String,String> result = null;
 			// ArrayList<String> result = null;
 
@@ -41,10 +45,10 @@ public class TestPDBInterface extends TestCase {
 				// result = api.getPolymers("3op9"); // return arraylist<string>
 			}
 			catch (Exception ex) {
-				ex.printStackTrace();
+				LOGGER.error(ex.getMessage(), ex);
 			}
-			// System.out.println("total:"+result.size());
-			System.out.println(result.toString());
+			// LOGGER.info(result.size());
+			LOGGER.info(result.toString());
 		}
 	}
 

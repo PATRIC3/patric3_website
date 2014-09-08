@@ -19,10 +19,14 @@ import org.json.simple.JSONObject;
 
 import edu.vt.vbi.patric.mashup.ArrayExpressInterface;
 import junit.framework.TestCase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestArrayExpressInterface extends TestCase {
 
 	private boolean testmode = false;
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(ArrayExpressInterface.class);
 
 	public void testGetResult() {
 		if (testmode == true) {
@@ -33,9 +37,9 @@ public class TestArrayExpressInterface extends TestCase {
 				// result = aei.getResults("Mycobacterium tuberculosis", "");
 			}
 			catch (Exception ex) {
-				ex.printStackTrace();
+				LOGGER.error(ex.getMessage(), ex);
 			}
-			System.out.println(result.toString());
+			LOGGER.info(result.toString());
 		}
 	}
 

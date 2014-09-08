@@ -19,9 +19,13 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.xml.parsers.SAXParserFactory;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
@@ -49,21 +53,24 @@ public class PDBInterface {
 
 	private XMLReader xmlReader = null;
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(PDBInterface.class);
+
 	public PDBInterface() {
 		try {
 			SAXParserFactory spf = SAXParserFactory.newInstance();
 			xmlReader = spf.newSAXParser().getXMLReader();
 		}
 		catch (Exception ex) {
-			System.out.print(ex);
+			LOGGER.error(ex.getMessage(), ex);
 		}
 	}
 
-	public HashMap<String, String> getDescription(String pdbIDs) throws java.rmi.RemoteException {
+	public Map<String, String> getDescription(String pdbIDs) throws java.rmi.RemoteException {
 		PDBDescriptionHandler handler = new PDBDescriptionHandler();
 		try {
 			String url = baseUrlDescription + "?structureId=" + pdbIDs;
-			// System.out.println(url);
+			LOGGER.debug(url);
+
 			URL u = new URL(url);
 			URLConnection c = u.openConnection();
 			c.setConnectTimeout(EutilInterface.TIMEOUT_CONN);
@@ -72,18 +79,18 @@ public class PDBInterface {
 			xmlReader.parse(new InputSource(c.getInputStream()));
 		}
 		catch (Exception ex) {
-			// ex.printStackTrace();
-			System.out.println("no data available");
+			LOGGER.error(ex.getMessage(), ex);
 			return null;
 		}
 		return handler.getParsedData();
 	}
 
-	public ArrayList<HashMap<String, String>> getLigands(String pdbID) throws java.rmi.RemoteException {
+	public List<Map<String, String>> getLigands(String pdbID) throws java.rmi.RemoteException {
 		PDBLigandHandler handler = new PDBLigandHandler();
 		try {
 			String url = baseUrlLigand + "?structureId=" + pdbID;
-			// System.out.println(url);
+			LOGGER.debug(url);
+
 			URL u = new URL(url);
 			URLConnection c = u.openConnection();
 			c.setConnectTimeout(EutilInterface.TIMEOUT_CONN);
@@ -92,16 +99,18 @@ public class PDBInterface {
 			xmlReader.parse(new InputSource(c.getInputStream()));
 		}
 		catch (Exception ex) {
-			ex.printStackTrace();
+			LOGGER.error(ex.getMessage(), ex);
+			return null;
 		}
 		return handler.getParsedData();
 	}
 
-	public ArrayList<HashMap<String, String>> getGOTerms(String pdbID) throws java.rmi.RemoteException {
+	public List<Map<String, String>> getGOTerms(String pdbID) throws java.rmi.RemoteException {
 		PDBGOTermsHandler handler = new PDBGOTermsHandler();
 		try {
 			String url = baseUrlGOTerm + "?structureId=" + pdbID;
-			// System.out.println(url);
+			LOGGER.debug(url);
+
 			URL u = new URL(url);
 			URLConnection c = u.openConnection();
 			c.setConnectTimeout(EutilInterface.TIMEOUT_CONN);
@@ -110,7 +119,8 @@ public class PDBInterface {
 			xmlReader.parse(new InputSource(c.getInputStream()));
 		}
 		catch (Exception ex) {
-			ex.printStackTrace();
+			LOGGER.error(ex.getMessage(), ex);
+			return null;
 		}
 		return handler.getParsedData();
 	}
@@ -119,7 +129,8 @@ public class PDBInterface {
 		PDBSequenceClusterHandler handler = new PDBSequenceClusterHandler();
 		try {
 			String url = baseUrlCluster + "?structureId=" + pdbID + "&cluster=" + cluster;
-			// System.out.println(url);
+			LOGGER.debug(url);
+
 			URL u = new URL(url);
 			URLConnection c = u.openConnection();
 			c.setConnectTimeout(EutilInterface.TIMEOUT_CONN);
@@ -128,17 +139,18 @@ public class PDBInterface {
 			xmlReader.parse(new InputSource(c.getInputStream()));
 		}
 		catch (Exception ex) {
-			ex.printStackTrace();
+			LOGGER.error(ex.getMessage(), ex);
+			return null;
 		}
 		return handler.getParsedData();
 	}
 
-	public ArrayList<HashMap<String, String>> getAnnotations(String pdbID) throws java.rmi.RemoteException {
+	public List<Map<String, String>> getAnnotations(String pdbID) throws java.rmi.RemoteException {
 		PDBAnnotationsHandler handler = new PDBAnnotationsHandler();
 		PDBAnnotationsResolver resolver = new PDBAnnotationsResolver();
 		try {
 			String url = baseUrlAnnotations + "?segment=" + pdbID;
-			// System.out.println(url);
+			LOGGER.debug(url);
 
 			URL u = new URL(url);
 			URLConnection c = u.openConnection();
@@ -150,16 +162,18 @@ public class PDBInterface {
 			xmlReader.parse(new InputSource(c.getInputStream()));
 		}
 		catch (Exception ex) {
-			ex.printStackTrace();
+			LOGGER.error(ex.getMessage(), ex);
+			return null;
 		}
 		return handler.getParsedData();
 	}
 
-	public ArrayList<String> getPolymers(String pdbID) throws java.rmi.RemoteException {
+	public List<String> getPolymers(String pdbID) throws java.rmi.RemoteException {
 		PDBPolymersHandler handler = new PDBPolymersHandler();
 		try {
 			String url = baseUrlPolymers + "?structureId=" + pdbID;
-			// System.out.println(url);
+			LOGGER.debug(url);
+
 			URL u = new URL(url);
 			URLConnection c = u.openConnection();
 			c.setConnectTimeout(EutilInterface.TIMEOUT_CONN);
@@ -168,7 +182,8 @@ public class PDBInterface {
 			xmlReader.parse(new InputSource(c.getInputStream()));
 		}
 		catch (Exception ex) {
-			ex.printStackTrace();
+			LOGGER.error(ex.getMessage(), ex);
+			return null;
 		}
 		return handler.getParsedData();
 	}

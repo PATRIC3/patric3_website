@@ -18,22 +18,27 @@ package edu.vt.vbi.patric.test;
 import org.json.simple.JSONObject;
 import edu.vt.vbi.patric.mashup.PSICQUICInterface;
 import junit.framework.TestCase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestPSICQUICInterface extends TestCase {
 
 	boolean testmode = false;
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(PSICQUICInterface.class);
 
 	public void testGetResult() {
 		if (testmode == true) {
 			PSICQUICInterface eui = new PSICQUICInterface();
 			try {
 				String count = eui.getCounts("intact", "species:2");
-				System.out.println("count=" + count);
+				LOGGER.info("count={}", count);
+
 				JSONObject result = eui.getResults("intact", "species:63363", 0, 5);
-				System.out.println(result.toString());
+				LOGGER.info(result.toString());
 			}
 			catch (Exception ex) {
-				ex.printStackTrace();
+				LOGGER.error(ex.getMessage(), ex);
 			}
 		}
 	}

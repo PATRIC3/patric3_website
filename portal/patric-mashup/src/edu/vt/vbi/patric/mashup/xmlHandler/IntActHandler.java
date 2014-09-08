@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import edu.vt.vbi.patric.mashup.PRIDEInterface;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -27,6 +28,8 @@ import org.json.simple.JSONObject;
 //import psidev.psi.mi.xml.xmlindex.InteractionIterator;
 //import psidev.psi.mi.xml.xmlindex.InteractorIterator;
 //import psidev.psi.mi.xml.xml.PsimiXmlPullReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import psidev.psi.mi.xml.PsimiXmlReader;
 import psidev.psi.mi.xml.model.Entry;
 import psidev.psi.mi.xml.model.EntrySet;
@@ -47,6 +50,8 @@ public class IntActHandler {
 	private Iterator<Interaction> intrnItr = null;
 
 	private Iterator<Interactor> intrrItr = null;
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(PRIDEInterface.class);
 
 	public IntActHandler(String url) {
 		list = new JSONArray();
@@ -172,7 +177,7 @@ public class IntActHandler {
 			}
 		}
 		catch (Exception ex) {
-			ex.printStackTrace();
+			LOGGER.error(ex.getMessage(), ex);
 		}
 	}
 

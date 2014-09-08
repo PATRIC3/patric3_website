@@ -17,6 +17,8 @@ package edu.vt.vbi.patric.mashup.xmlHandler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -24,20 +26,20 @@ import org.xml.sax.helpers.DefaultHandler;
 
 public class PDBGOTermsHandler extends DefaultHandler {
 
-	private ArrayList<HashMap<String, String>> result;
+	private List<Map<String, String>> result;
 
 	private HashMap<String, String> goTerm;
 
 	public PDBGOTermsHandler() {
 	}
 
-	public ArrayList<HashMap<String, String>> getParsedData() {
+	public List<Map<String, String>> getParsedData() {
 		return result;
 	}
 
 	@Override
 	public void startDocument() throws SAXException {
-		result = new ArrayList<HashMap<String, String>>();
+		result = new ArrayList<>();
 	}
 
 	@Override

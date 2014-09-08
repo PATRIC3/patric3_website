@@ -20,10 +20,14 @@ import junit.framework.TestCase;
 import org.json.simple.JSONObject;
 
 import edu.vt.vbi.patric.mashup.KLEIOInterface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestKLEIOInterface extends TestCase {
 
 	private boolean testmode = false;
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(KLEIOInterface.class);
 
 	public void testGetResult() {
 		if (testmode == true) {
@@ -37,9 +41,9 @@ public class TestKLEIOInterface extends TestCase {
 				result = api.getDocument("15807277");
 			}
 			catch (Exception ex) {
-				ex.printStackTrace();
+				LOGGER.error(ex.getMessage(), ex);
 			}
-			System.out.println(result.toJSONString());
+			LOGGER.info(result.toJSONString());
 		}
 	}
 

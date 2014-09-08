@@ -15,14 +15,19 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.test;
 
+import edu.vt.vbi.patric.mashup.ArrayExpressInterface;
 import org.json.simple.JSONObject;
 
 import edu.vt.vbi.patric.mashup.EutilInterface;
 import junit.framework.TestCase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestEutilInterface extends TestCase {
 
 	private boolean testmode = false;
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(EutilInterface.class);
 
 	public void testGetResult() {
 		if (testmode == true) {
@@ -36,9 +41,9 @@ public class TestEutilInterface extends TestCase {
 				// result = eui.getResults("structure", "txid262[Organism:exp]", "", "", 1, 20);
 			}
 			catch (Exception ex) {
-				// ex.printStackTrace();
+				LOGGER.error(ex.getMessage(), ex);
 			}
-			System.out.println(result.toString());
+			LOGGER.info(result.toString());
 		}
 	}
 

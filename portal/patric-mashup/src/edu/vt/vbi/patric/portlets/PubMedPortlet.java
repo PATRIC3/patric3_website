@@ -104,12 +104,9 @@ public class PubMedPortlet extends GenericPortlet {
 			key.put("context", cType);
 
 			String strPubmedQuery = PubMedHelper.getPubmedQueryString(key);
-			// System.out.println("pubmedQuery: " + strPubmedQuery);
 
-			// PubMedInterface pubmed_api = new PubMedInterface();
 			EutilInterface eutil_api = new EutilInterface();
 
-			// JSONObject jsonResult = pubmed_api.getResults(strPubmedQuery, start, limit);
 			jsonResult = eutil_api.getResults("pubmed", strPubmedQuery, "&sort=pub+date", "&sort=pub+date&retmode=xml", start, limit);
 		}
 		else {

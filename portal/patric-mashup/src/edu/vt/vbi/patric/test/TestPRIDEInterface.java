@@ -19,10 +19,14 @@ import org.json.simple.JSONObject;
 
 import edu.vt.vbi.patric.mashup.PRIDEInterface;
 import junit.framework.TestCase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestPRIDEInterface extends TestCase {
 
 	private boolean testmode = false;
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(PRIDEInterface.class);
 
 	public void testGetResult() {
 		if (testmode == true) {
@@ -32,9 +36,9 @@ public class TestPRIDEInterface extends TestCase {
 				result = i.getResults("Salmonella typhimurium");
 			}
 			catch (Exception ex) {
-				ex.printStackTrace();
+				LOGGER.error(ex.getMessage(), ex);
 			}
-			System.out.println(result.toString());
+			LOGGER.info(result.toString());
 		}
 	}
 

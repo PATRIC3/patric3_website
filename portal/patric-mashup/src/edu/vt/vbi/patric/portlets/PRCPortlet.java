@@ -36,15 +36,14 @@ import org.json.simple.parser.ParseException;
 import edu.vt.vbi.patric.dao.DBPRC;
 import edu.vt.vbi.patric.dao.DBShared;
 import edu.vt.vbi.patric.dao.ResultType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("unchecked")
 public class PRCPortlet extends GenericPortlet {
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.portlet.GenericPortlet#doView(javax.portlet.RenderRequest, javax.portlet.RenderResponse)
-	 */
+	private static final Logger LOGGER = LoggerFactory.getLogger(PRCPortlet.class);
+
 	@Override
 	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException, UnavailableException {
 		response.setContentType("text/html");
@@ -95,10 +94,9 @@ public class PRCPortlet extends GenericPortlet {
 				for (int i = 1; i < sorter.size(); i++) {
 					sort_field += "," + ((JSONObject) sorter.get(i)).get("property").toString();
 				}
-				System.out.println(sort_field);
 			}
 			catch (ParseException e) {
-				e.printStackTrace();
+				LOGGER.error(e.getMessage(), e);
 			}
 		}
 
@@ -113,24 +111,19 @@ public class PRCPortlet extends GenericPortlet {
 			items = conn_prc.getPRCData(taxonid, filter, start, end, sort_field, sort_dir);
 		}
 
-		try {
-			jsonResult.put("total", count_total);
+		jsonResult.put("total", count_total);
 
-			for (int i = 0; i < items.size(); i++) {
+		for (int i = 0; i < items.size(); i++) {
 
-				ResultType g = (ResultType) items.get(i);
+			ResultType g = (ResultType) items.get(i);
 
-				JSONObject obj = new JSONObject();
-				obj.putAll(g);
+			JSONObject obj = new JSONObject();
+			obj.putAll(g);
 
-				results.add(obj);
-			}
-
-			jsonResult.put("results", results);
+			results.add(obj);
 		}
-		catch (Exception ex) {
-			ex.printStackTrace();
-		}
+
+		jsonResult.put("results", results);
 
 		PrintWriter writer = response.getWriter();
 		jsonResult.writeJSONString(writer);

@@ -112,7 +112,6 @@ public class PubMedHelper {
 
 				title += ")";
 			}
-			// System.out.println("qScore="+qScope+", title="+title);
 			// end of Solr query
 		}
 		return title;

@@ -23,6 +23,8 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import edu.vt.vbi.patric.mashup.xmlHandler.IntActHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PSICQUICInterface {
 
@@ -33,6 +35,8 @@ public class PSICQUICInterface {
 	// http://www.ebi.ac.uk/Tools/webservices/psicquic/intact/webservices/current/search/query/species:356?format=count
 	// http://www.ebi.ac.uk/Tools/webservices/psicquic/intact/webservices/current/search/query/species:356?format=xml25
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(PSICQUICInterface.class);
+
 	public PSICQUICInterface() {
 	}
 
@@ -40,14 +44,14 @@ public class PSICQUICInterface {
 		String result = "-1";
 		try {
 			String url = baseURL + db + baseURLQuery + term + "?format=count";
-			// System.out.println("psicquic-count-url:" + url);
+			LOGGER.debug("psicquic-count-url:{}", url);
 
 			StringWriter writer = new StringWriter();
 			IOUtils.copy((new URL(url)).openStream(), writer);
 			result = writer.toString();
 		}
-		catch (Exception ex) {
-			ex.printStackTrace();
+		catch (Exception e) {
+			LOGGER.error(e.getMessage(), e);
 		}
 		return result;
 	}
@@ -59,7 +63,7 @@ public class PSICQUICInterface {
 			String search_count = getCounts(db, term);
 			String url = baseURL + db + baseURLQuery + term + "?format=xml25&firstResult=" + startAt + "&maxResults=" + count;
 
-			// System.out.println("psicquic-fetch-url:" + url);
+			LOGGER.debug("psicquic-fetch-url:{}", url);
 
 			JSONArray subList = null;
 
@@ -72,7 +76,7 @@ public class PSICQUICInterface {
 			result.put("total", search_count);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 
 		return result;

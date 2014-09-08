@@ -23,6 +23,8 @@ import javax.xml.parsers.SAXParserFactory;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
@@ -36,6 +38,8 @@ public class ArrayExpressInterface {
 
 	private ArrayExpressHandler handler = null;
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(ArrayExpressInterface.class);
+
 	public ArrayExpressInterface() {
 		try {
 			SAXParserFactory spf = SAXParserFactory.newInstance();
@@ -44,7 +48,7 @@ public class ArrayExpressInterface {
 			xmlReader.setContentHandler(handler);
 		}
 		catch (Exception ex) {
-			System.out.print(ex);
+			LOGGER.error(ex.getMessage(), ex);
 		}
 	}
 
@@ -65,20 +69,18 @@ public class ArrayExpressInterface {
 			c.setConnectTimeout(EutilInterface.TIMEOUT_CONN);
 			c.setReadTimeout(EutilInterface.TIMEOUT_READ);
 
-			// System.out.println("ArrayExpress-url:" + url.toString());
+			LOGGER.debug("ArrayExpress-url:{}", url.toString());
 
-			JSONArray subList = null;
-			// ArrayExpressHandler handler = new ArrayExpressHandler();
-			// xmlReader.setContentHandler(handler);
 			xmlReader.parse(new InputSource(c.getInputStream()));
-			subList = handler.getParsedJSON();
+			JSONArray subList = handler.getParsedJSON();
 
 			result.put("results", subList);
 			result.put("total", subList.size());
 			result.put("hasData", true);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
+			return null;
 		}
 		return result;
 	}

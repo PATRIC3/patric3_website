@@ -1121,6 +1121,7 @@ public class DBSummary {
 	 * 
 	 * @param key filtering condition such as accession, feature type, and annotation
 	 * @return list of feature level data (na_feature_id, locus_tag, p_start, p_end, is_reversed, name, debug, product, gene)
+	 * @deprecated
 	 */
 	public ArrayList<ResultType> getFeatures(HashMap<String, String> key) {
 
@@ -1170,9 +1171,13 @@ public class DBSummary {
 		query.setFilterQueries(fq);
 
 		return getGenomicFeaturesFromSolrBean(query);
-		// return getGenomicFeaturesFromSolrBeanBatch(query);
 	}
 
+	/**
+	 * @deprecated
+	 * @param query
+	 * @return
+	 */
 	public ArrayList<ResultType> streamResponse(SolrQuery query) {
 		ArrayList<ResultType> results = new ArrayList<ResultType>();
 		SolrInterface solr = new SolrInterface();
@@ -1204,6 +1209,11 @@ public class DBSummary {
 		return results;
 	}
 
+	/**
+	 * @deprecated
+	 * @param query
+	 * @return
+	 */
 	public ArrayList<ResultType> getGenomicFeaturesFromSolrBatch(SolrQuery query) {
 		ArrayList<ResultType> results = new ArrayList<ResultType>();
 		SolrInterface solr = new SolrInterface();
@@ -1253,6 +1263,11 @@ public class DBSummary {
 		return results;
 	}
 
+	/**
+	 * @deprecated
+	 * @param query
+	 * @return
+	 */
 	public List<DNAFeature> getGenomicFeaturesFromSolrBeanBatch(SolrQuery query) {
 		List<DNAFeature> beans = new ArrayList<DNAFeature>();
 		SolrInterface solr = new SolrInterface();
@@ -1299,6 +1314,11 @@ public class DBSummary {
 		return beans;
 	}
 
+	/**
+	 * @deprecated
+	 * @param query
+	 * @return
+	 */
 	public ArrayList<ResultType> getGenomicFeaturesFromSolrStream(SolrQuery query) {
 		query.setRows(10000);
 		query.setSort("start_max", SolrQuery.ORDER.asc);
@@ -1348,6 +1368,12 @@ public class DBSummary {
 		return beans;
 	}
 
+	/**
+	 *
+	 * @param query
+	 * @return
+	 * @deprecated
+	 */
 	public ArrayList<ResultType> getGenomicFeaturesFromSolr(SolrQuery query) {
 		ArrayList<ResultType> results = new ArrayList<ResultType>();
 		SolrInterface solr = new SolrInterface();

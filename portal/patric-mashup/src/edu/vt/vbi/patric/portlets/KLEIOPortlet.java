@@ -30,8 +30,12 @@ import javax.portlet.UnavailableException;
 import org.json.simple.JSONObject;
 
 import edu.vt.vbi.patric.mashup.KLEIOInterface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class KLEIOPortlet extends GenericPortlet {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(KLEIOInterface.class);
 
 	/*
 	 * (non-Javadoc)
@@ -60,8 +64,6 @@ public class KLEIOPortlet extends GenericPortlet {
 		String qKeyword = "";
 		String type = request.getParameter("type");
 
-		System.out.print(type);
-
 		KLEIOInterface api = new KLEIOInterface();
 		JSONObject temp = null;
 		String jsonResult = "";
@@ -88,7 +90,7 @@ public class KLEIOPortlet extends GenericPortlet {
 			}
 		}
 		catch (Exception ex) {
-			ex.printStackTrace();
+			LOGGER.error(ex.getMessage(), ex);
 		}
 
 		PrintWriter writer = response.getWriter();

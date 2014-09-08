@@ -23,12 +23,16 @@ import java.net.URLConnection;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PRIDEInterface {
 
 	private String baseURL = "http://www.ebi.ac.uk/pride/biomart/martservice";
 
 	private StringBuffer xmlQueryString = null;
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(PRIDEInterface.class);
 
 	public PRIDEInterface() {
 		xmlQueryString = new StringBuffer();
@@ -53,7 +57,8 @@ public class PRIDEInterface {
 		JSONObject result = new JSONObject();
 		result.put("hasData", false);
 		if (species.equals("")) {
-			// System.out.println("PRIDE-query:No species name was given");
+			LOGGER.debug("PRIDE-query:No species name was given");
+
 			JSONArray subList = new JSONArray();
 			result.put("results", subList);
 			result.put("total", subList.size());
@@ -62,9 +67,8 @@ public class PRIDEInterface {
 		else {
 			try {
 				setQueryString(species);
-				// setQueryString("Salmonella typhimurium");
 				String param = "query=" + xmlQueryString.toString();
-				// System.out.println("PRIDE-query:" + xmlQueryString.toString());
+				LOGGER.debug("PRIDE-query:{}", xmlQueryString.toString());
 
 				URL url = new URL(baseURL);
 				URLConnection conn = url.openConnection();
@@ -105,7 +109,7 @@ public class PRIDEInterface {
 				result.put("hasData", true);
 			}
 			catch (Exception e) {
-				e.printStackTrace();
+				LOGGER.error(e.getMessage(), e);
 			}
 			finally {
 			}

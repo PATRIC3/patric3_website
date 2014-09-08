@@ -166,7 +166,6 @@ public class ArrayExpressHandler extends DefaultHandler {
 		}
 		else if (currentElement.equals("name") || currentElement.equals("accession") || currentElement.equals("id")) {
 			// skip
-			// System.out.println(currentElement+":"+tmpVal);
 		}
 		else if (!currentElement.equals("")) {
 			exp.put(currentElement, tmpVal);
