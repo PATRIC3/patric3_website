@@ -19,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -31,36 +30,21 @@ public class PngWriter {
 
 	public static void returnPng(String pngPath, ResourceResponse resp) {
 
-		final BufferedReader reader;
 		final Path src = Paths.get(pngPath);
-		String line;
+		int line;
 
 		try (
 			PrintWriter writer = resp.getWriter();
+			BufferedInputStream inputStream = new BufferedInputStream(Files.newInputStream(src))
 		) {
-			reader = Files.newBufferedReader(src, StandardCharsets.UTF_8);
-			while ((line = reader.readLine()) != null) {
+			resp.setContentType("image/png");
+
+			while ((line = inputStream.read()) != -1) {
 				writer.write(line);
 			}
-			/*
-			File f = new File(pngPath);
-			if (f.exists() && f.isFile()) {
-				resp.setContentType("image/png");
-				FileInputStream fis = new FileInputStream(f);
-
-				PrintWriter out = resp.getWriter();
-
-				int i;
-				while ((i = fis.read()) != -1) {
-					out.write(i);
-				}
-				fis.close();
-				out.close();
-			}*/
 		}
 		catch (IOException e) {
 			LOGGER.debug(e.getMessage(), e);
 		}
-
 	}
 }
