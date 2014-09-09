@@ -30,7 +30,6 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
-import javax.portlet.UnavailableException;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -39,20 +38,19 @@ import org.json.simple.parser.ParseException;
 
 import edu.vt.vbi.patric.dao.DBPathways;
 import edu.vt.vbi.patric.dao.ResultType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PathwayTableSingle extends GenericPortlet {
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.portlet.GenericPortlet#doView(javax.portlet.RenderRequest, javax.portlet.RenderResponse)
-	 */
+	private static final Logger LOGGER = LoggerFactory.getLogger(PathwayTableSingle.class);
+
 	@Override
-	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException, UnavailableException {
+	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 		response.setContentType("text/html");
-		PortletRequestDispatcher prd = null;
 		response.setTitle("Pathway Table");
-		prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/single_pathway_table.jsp");
+
+		PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/single_pathway_table.jsp");
 		prd.include(request, response);
 	}
 
@@ -123,7 +121,7 @@ public class PathwayTableSingle extends GenericPortlet {
 				String sort_field = "";
 				String sort_dir = "";
 				try {
-					sorter = (JSONArray) a.parse(request.getParameter("sort").toString());
+					sorter = (JSONArray) a.parse(request.getParameter("sort"));
 					sort_field += ((JSONObject) sorter.get(0)).get("property").toString();
 					sort_dir += ((JSONObject) sorter.get(0)).get("direction").toString();
 					for (int i = 1; i < sorter.size(); i++) {
@@ -131,10 +129,10 @@ public class PathwayTableSingle extends GenericPortlet {
 					}
 				}
 				catch (ParseException e) {
-					e.printStackTrace();
+					LOGGER.error(e.getMessage(), e);
 				}
 
-				sort = new HashMap<String, String>();
+				sort = new HashMap<>();
 
 				if (!sort_field.equals("") && !sort_dir.equals("")) {
 					sort.put("field", sort_field);
@@ -148,23 +146,22 @@ public class PathwayTableSingle extends GenericPortlet {
 			int end = start + Integer.parseInt(request.getParameter("limit"));
 			int count_total = conn_pathways.getCompPathwayFeatureCount(key.toHashMap());
 
-			List<ResultType> items = new ArrayList<ResultType>();
+			List<ResultType> items = new ArrayList<>();
 
 			if (count_total > 0)
 				items = conn_pathways.getCompPathwayFeatureList(key_clone.toHashMap(), sort, start, end);
 
 			try {
 				jsonResult.put("total", count_total);
-				for (int i = 0; i < items.size(); i++) {
-					ResultType g = (ResultType) items.get(i);
+				for (ResultType item : items) {
 					JSONObject obj = new JSONObject();
-					obj.putAll(g);
+					obj.putAll(item);
 					results.add(obj);
 				}
 				jsonResult.put("results", results);
 			}
 			catch (Exception ex) {
-				ex.printStackTrace();
+				LOGGER.error(ex.getMessage(), ex);
 			}
 
 			PrintWriter writer = response.getWriter();

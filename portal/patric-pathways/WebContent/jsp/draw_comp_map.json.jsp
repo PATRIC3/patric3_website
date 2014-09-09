@@ -4,19 +4,15 @@
 <%@ page import="org.json.simple.JSONObject" %>
 <%@ page import="org.json.simple.parser.JSONParser" %>
 <%
-	HashMap<String, String> key = new HashMap<String, String>();
+	Map<String, String> key = new HashMap<String, String>();
 	DBPathways conn_pathways = new DBPathways();
 	JSONObject ret = new JSONObject();	
 	JSONParser a = new JSONParser();
 	JSONObject val = (JSONObject) a.parse(request.getParameter("val").toString());
 	
-	
-	ArrayList<ResultType> items = null;
+	List<ResultType> items = null;
 	
 	String need = val.get("need").toString();
-	
-	//System.out.println(need);
-	
 	
 	if(need.equals("all")){
 		if(val.get("genomeId") != null)
@@ -39,13 +35,10 @@
 		}
 		
 	}else{
-		
-		//System.out.println(val.get("value").toString());
-		
+
 		key.put("map", val.get("map").toString());
 		key.put(need, val.get("value").toString());
-		
-		
+
 		try {
 			if(need.equals("ec_number"))
 				items = conn_pathways.getCompPathwayEcCoordinates(key, 0, -1);
@@ -56,6 +49,6 @@
 		} catch (NullPointerException nex) {
 		}		
 	}
-		
-	out.println(ret.toString());
+
+    ret.writeJSONString(out);
 %>

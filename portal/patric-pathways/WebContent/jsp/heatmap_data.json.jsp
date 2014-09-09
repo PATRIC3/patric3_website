@@ -18,13 +18,10 @@
 	algorithm = request.getParameter("algorithm");
 	
 	if (taxonId !=null && !taxonId.equals(""))  {
-	
 		key.put("taxonId", taxonId);
-		
-	}else if (genomeId !=null && !genomeId.equals(""))  {
-		
+	}
+	else if (genomeId !=null && !genomeId.equals("")) {
 		key.put("genomeId", genomeId);
-		
 	}
 
 	key.put("algorithm", algorithm);
@@ -33,27 +30,18 @@
 	JSONObject json = new JSONObject();
 
 	ArrayList<ResultType> items;
-	
-	
-	//System.out.print("hm"+genomeId);
-	//System.out.print("hm"+taxonId);
-	//System.out.print("hm"+algorithm);
 
 	try {
 		
 		items = conn_pathways.getHeatMapData(key, 0, -1);
-		
 		json.put("data", items);
 		
 		key.remove("map");
-		
 		items = conn_pathways.getGenomeNames(key, 0, -1);
-
 		json.put("genomes", items);
 		
 	} catch (NullPointerException nex) {
 	}
 
-	out.println(json.toString());	
-	
+	json.writeJSONString(out);
 %>

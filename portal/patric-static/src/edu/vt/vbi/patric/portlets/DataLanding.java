@@ -33,7 +33,6 @@ public class DataLanding extends GenericPortlet {
 		String windowID = request.getWindowID();
 		PortletRequestDispatcher prd = null;
 
-		// System.out.println("WindowID:"+windowID);
 		if (windowID.indexOf("Genomes") >= 1) {
 			response.setTitle("Genomes");
 			prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/data_landing/Genomes.jsp");

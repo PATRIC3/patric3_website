@@ -21,7 +21,7 @@
 	response.setHeader("Content-Disposition", "attachment; filename=\""+filename+"\"");
 	response.setHeader("Cache-Control", "cache");
 	
-	for(i = 0; i < div_split.length - 1; i++ ){
+	for(i = 0; i < div_split.length - 1; i++ ) {
 		
 		String[] div_split_split = div_split[i].split(";");
 		flag = 0;
@@ -30,55 +30,38 @@
 			String[] insider = div_split_split[j].split(":");
 			
 			
-			for(k=0; k<insider.length-1; k++){
-				
-			//	System.out.println(insider[k].trim());
+			for (k=0; k<insider.length-1; k++) {
+
 				insider[k] = insider[k].trim();
 				
 				if(insider[k].equals("left")){
-
 					left = Integer.parseInt(insider[k+1].trim());
-					
 				}
 				if(insider[k].equals("top")){
-					
 					top = Integer.parseInt(insider[k+1].trim());
-					
 				}
 				if(insider[k].equals("width")){
-										
 					width = Integer.parseInt(insider[k+1].trim());
-	
 				}
 				if(insider[k].equals("height")){
-					
 					height = Integer.parseInt(insider[k+1].trim());
-					
 				}
 				if(insider[k].equals("color")){
-					
 					color = insider[k+1].trim();
-					
 				}
 				if(insider[k].equals("innerHTML")){
-					
 					flag = 1;
-					
 					html = insider[k+1].trim();
-					
 				}
-			
 			}
-			
-			
 		}
-		if (flag == 1){
+		if (flag == 1) {
 			color = "0,0,0";
 			img.drawonImage("text", html, left, top, -1, -1, color);
-		}else {
+		}
+		else {
 			img.drawonImage("fill", "", left, top, height, width, color);
 		}
-	
 	}
 	
 	byte[] bytes = img.getByteArray();
@@ -86,9 +69,6 @@
 	response.setContentLength(bytes.length);
 
 	ServletOutputStream outs = response.getOutputStream();
-
 	outs.write(bytes);
-
 	outs.flush();
-
 %>

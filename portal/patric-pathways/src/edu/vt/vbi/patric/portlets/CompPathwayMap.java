@@ -27,7 +27,6 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
-import javax.portlet.UnavailableException;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -35,16 +34,15 @@ import org.json.simple.JSONObject;
 import edu.vt.vbi.patric.common.SiteHelper;
 import edu.vt.vbi.patric.dao.DBPathways;
 import edu.vt.vbi.patric.dao.ResultType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CompPathwayMap extends GenericPortlet {
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.portlet.GenericPortlet#doView(javax.portlet.RenderRequest, javax.portlet.RenderResponse)
-	 */
+	private static final Logger LOGGER = LoggerFactory.getLogger(CompPathwayMap.class);
+
 	@Override
-	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException, UnavailableException {
+	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 		response.setContentType("text/html");
 
 		new SiteHelper().setHtmlMetaElements(request, response, "Comparative Pathway Map");
@@ -65,7 +63,7 @@ public class CompPathwayMap extends GenericPortlet {
 		HashMap<String, String> sort = null;
 
 		if (sort_field != null && sort_dir != null) {
-			sort = new HashMap<String, String>();
+			sort = new HashMap<>();
 			sort.put("field", sort_field);
 			sort.put("direction", sort_dir);
 		}
@@ -79,7 +77,7 @@ public class CompPathwayMap extends GenericPortlet {
 		HashMap<String, String> key = null;
 
 		if (cType.equals("taxon") && taxonId != null && !taxonId.equals("")) {
-			key = new HashMap<String, String>();
+			key = new HashMap<>();
 
 			key.put("taxonId", taxonId);
 			key.put("map", map);
@@ -87,7 +85,7 @@ public class CompPathwayMap extends GenericPortlet {
 		}
 		else if (cType.equals("genome") && genomeId != null && !genomeId.equals("")) {
 
-			key = new HashMap<String, String>();
+			key = new HashMap<>();
 
 			key.put("genomeId", genomeId);
 			key.put("map", map);
@@ -106,33 +104,32 @@ public class CompPathwayMap extends GenericPortlet {
 			}
 		}
 
-		int count_total = 0;
+		int count_total;
 
 		DBPathways conn_pathways = new DBPathways();
-		ArrayList<ResultType> items = conn_pathways.getCompPathwayMapGridList(key, sort, 0, -1);
+		List<ResultType> items = conn_pathways.getCompPathwayMapGridList(key, sort, 0, -1);
 		count_total = conn_pathways.getCompPathwayMapGridCount(key);
 		JSONObject jsonResult = new JSONObject();
 
-		if (algorithm.equals("RAST") || algorithm.equals("PATRIC"))
-			algorithm = "RAST";
-		else if (algorithm.equals("Curation") || algorithm.equals("Legacy BRC"))
-			algorithm = "Curation";
+//		if (algorithm.equals("RAST") || algorithm.equals("PATRIC"))
+//			algorithm = "RAST";
+//		else if (algorithm.equals("Curation") || algorithm.equals("Legacy BRC"))
+//			algorithm = "Curation";
 
 		try {
 			jsonResult.put("total", count_total);
 			JSONArray results = new JSONArray();
 
-			for (int i = 0; i < items.size(); i++) {
-				ResultType g = (ResultType) items.get(i);
+			for (ResultType item : items) {
 				JSONObject obj = new JSONObject();
-				obj.putAll(g);
+				obj.putAll(item);
 				results.add(obj);
 			}
 
 			jsonResult.put("results", results);
 		}
 		catch (Exception ex) {
-			ex.printStackTrace();
+			LOGGER.error(ex.getMessage(), ex);
 		}
 
 		PrintWriter writer = response.getWriter();

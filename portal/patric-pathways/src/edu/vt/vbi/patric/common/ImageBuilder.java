@@ -15,6 +15,9 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.common;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
@@ -38,6 +41,8 @@ public class ImageBuilder {
 
 	final String MAP_FILE_ROOT_PROD = "/opt/jboss-home/jboss-patric/deploy/jboss-web.deployer/ROOT.war/patric/images/pathways";
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(ImageBuilder.class);
+
 	public ImageBuilder(String map_id) {
 
 		try {
@@ -56,7 +61,7 @@ public class ImageBuilder {
 			}
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 
 		this.w = image.getWidth();
@@ -65,7 +70,7 @@ public class ImageBuilder {
 
 	public void drawonImage(String type, String text, int left, int top, int height, int width, String color) {
 
-		g2d = (Graphics2D) image.createGraphics();
+		g2d = image.createGraphics();
 
 		String[] colors = color.split(",");
 		g2d.setColor(new Color(Float.parseFloat(colors[0].trim()) / 255, Float.parseFloat(colors[1].trim()) / 255,
