@@ -317,7 +317,7 @@ public class FIGfam extends GenericPortlet {
 		boolean remove = true;
 		JSONObject output = new JSONObject();
 
-		String exec = "sh /opt/jboss-patric/runMicroArrayClustering.sh " + filename + " " + outputfilename + " " + ((g.equals("1")) ? ge : "0") + " "
+		String exec = "runMicroArrayClustering.sh " + filename + " " + outputfilename + " " + ((g.equals("1")) ? ge : "0") + " "
 				+ ((e.equals("1")) ? ge : "0") + " " + m;
 
 		LOGGER.debug("doClustering() {}", exec);
