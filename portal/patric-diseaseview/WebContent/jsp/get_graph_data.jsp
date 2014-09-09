@@ -11,18 +11,22 @@
 <%@ page import="edu.vt.vbi.patric.dao.DBDisease" %>
 <%@ page import="edu.vt.vbi.patric.dao.ResultType" %>
 <%@ page import="edu.vt.vbi.patric.common.StringHelper"%>
+<%@ page import="org.slf4j.Logger" %>
+<%@ page import="org.slf4j.LoggerFactory" %>
+<%@ page import="edu.vt.vbi.patric.portlets.DiseaseOverview" %>
 <%@ page import="org.json.simple.*" %>
 <%
 	String tmpDir = System.getProperty("java.io.tmpdir", "/tmp");
 	boolean remove = true;
 	String fileDiseases = null, fileGenes = null, fileVFS = null;
-	
+    final Logger LOGGER = LoggerFactory.getLogger(DiseaseOverview.class);
+
 	String path = "";
 	String machine = "";
-	
-	Random generator = new Random();
-	int key = generator.nextInt(10000) + 1;
-	
+
+    Random generator = new Random();
+    int key = generator.nextInt(10000) + 1;
+
 	if ((new File("/opt/jboss/jboss-epp-4.3/jboss-as/server/jboss-patric/deploy/jboss-web.deployer/ROOT.war/patric/idv-perl/server/idv-gidi.pl")).exists())
 	{
 		path = "/opt/jboss/jboss-epp-4.3/jboss-as/server/jboss-patric/deploy/jboss-web.deployer/ROOT.war/patric/idv-perl";
@@ -34,9 +38,6 @@
 		machine = "production";
 	}
 
-	//System.out.print("diseaseview on " + machine);
-	//System.out.print("diseaseview on " + path);
-	
 	String cId = request.getParameter("cId");
 
 	DBDisease conn_disease = new DBDisease();
@@ -49,42 +50,39 @@
 		_tbl_header.addAll(Arrays.asList("taxon_id", "organism_name", "organism_rank", "parent_id", "mesh_disease_id", "mesh_disease_name", "mesh_tree_node", "parent_tree_node", "description"));
 		_tbl_field.addAll(Arrays.asList("taxon_id","organism_name","organism_rank", "parent_id", "mesh_disease_id", "mesh_disease_name", "mesh_tree_node", "parent_tree_node", "description"));
 		
-		String output = "";
+		StringBuilder output = new StringBuilder();
 		int i;
-		
+
 		for (i=0; i<_tbl_header.size()-1;i++) {
-			output += _tbl_header.get(i)+"\t";
+			output.append(_tbl_header.get(i)).append("\t");
 		}
-		output += _tbl_header.get(i)+"\r\n";
-		
-		Iterator<ResultType> itr = mesh_terms.iterator();
-		
-		while (itr.hasNext()) {
-			ResultType datarow = itr.next();
+		output.append(_tbl_header.get(i)).append("\r\n");
+
+		for (ResultType datarow: mesh_terms) {
 			String _f = "";
 			for (i=0;i<_tbl_field.size()-1;i++) {
 				_f = _tbl_field.get(i);
 				if (datarow.get(_f)!=null) {
-					output += StringHelper.strip_html_tag(datarow.get(_f))+"\t";
+					output.append(StringHelper.strip_html_tag(datarow.get(_f))).append("\t");
 				} else {
-					output += "\t";
+					output.append("\t");
 				}
 			}
 			_f = _tbl_field.get(i);
-			output += datarow.get(_f)+"\r\n";
+			output.append(datarow.get(_f)).append("\r\n");
 		}
 		
 		try {
-			fileDiseases = tmpDir + "/_"+key+"_diseases.txt";
-			BufferedWriter fileout = new BufferedWriter(new FileWriter(fileDiseases));
-			fileout.write(output);
-			fileout.close();
+			fileDiseases = tmpDir + "/_" + key + "_diseases.txt";
+			BufferedWriter writer = new BufferedWriter(new FileWriter(fileDiseases));
+			writer.write(output.toString());
+			writer.close();
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 	}
 	catch (NullPointerException nex) {
-		nex.printStackTrace();
+		LOGGER.error(nex.getMessage(), nex);
 	}
 	
 	// PROCESS gene info
@@ -96,42 +94,39 @@
 		_tbl_header.addAll(Arrays.asList("gene_symbol", "gene_name", "disease_id", "evidence", "pubmed"));
 		_tbl_field.addAll(Arrays.asList("gene_sym","gene_name","disease_id", "evidence", "pubmed"));
 		
-		String output = "";
+		StringBuilder output = new StringBuilder();
 		int i;
-		
+
 		for (i=0; i<_tbl_header.size()-1;i++) {
-			output += _tbl_header.get(i)+"\t";
+			output.append(_tbl_header.get(i)).append("\t");
 		}
-		output += _tbl_header.get(i)+"\r\n";
-		
-		Iterator<ResultType> itr = ctd_gad.iterator();
-		
-		while (itr.hasNext()) {
-			ResultType datarow = itr.next();
+		output.append(_tbl_header.get(i)).append("\r\n");
+
+	    for (ResultType datarow: ctd_gad) {
 			String _f = "";
 			for (i=0;i<_tbl_field.size()-1;i++) {
 				_f = _tbl_field.get(i);
 				if (datarow.get(_f)!=null) {
-					output += StringHelper.strip_html_tag(datarow.get(_f))+"\t";
+					output.append(StringHelper.strip_html_tag(datarow.get(_f))).append("\t");
 				} else {
-					output += "\t";
+					output.append("\t");
 				}
 			}
 			_f = _tbl_field.get(i);
-			output += datarow.get(_f)+"\r\n";
+			output.append(datarow.get(_f)).append("\r\n");
 		}
 		
 		try {
-			fileGenes = tmpDir + "/_"+key+"_genes.txt";
-			BufferedWriter fileout = new BufferedWriter(new FileWriter(fileGenes));
-			fileout.write(output);
-			fileout.close();
+			fileGenes = tmpDir + "/_" + key + "_genes.txt";
+			BufferedWriter writer = new BufferedWriter(new FileWriter(fileGenes));
+			writer.write(output.toString());
+			writer.close();
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 	}
 	catch (NullPointerException nex) {
-		nex.printStackTrace();
+		LOGGER.error(nex.getMessage(), nex);
 	}
 	
 	try {
@@ -143,48 +138,43 @@
 		_tbl_header.addAll(Arrays.asList("ncbi_tax_id", "rank", "parent_id", "genome_name", "accession", "na_feature_id", "source_id", "product", "vfg_id", "vf_id", "gene_name"));
 		_tbl_field.addAll(Arrays.asList("ncbi_tax_id","rank","parent_id", "genome_name", "accession", "na_feature_id", "source_id", "product", "vfg_id", "vf_id", "gene_name"));
 	
-		String output = "";
+		StringBuilder output = new StringBuilder();
 		int i;
 		
 		for (i=0; i<_tbl_header.size()-1;i++) {
-			output += _tbl_header.get(i)+"\t";
+			output.append(_tbl_header.get(i)).append("\t");
 		}
-		output += _tbl_header.get(i)+"\r\n";
-		
-		Iterator<ResultType> itr = vfdb.iterator();
-		
-		while (itr.hasNext()) {
-			ResultType datarow = itr.next();
+		output.append(_tbl_header.get(i)).append("\r\n");
+
+		for (ResultType datarow: vfdb) {
 			String _f = "";
 			for (i=0;i<_tbl_field.size()-1;i++) {
 				_f = _tbl_field.get(i);
 				if (datarow.get(_f)!=null) {
-					output += StringHelper.strip_html_tag(datarow.get(_f).replaceAll("[\'\"]", ""))+"\t";
+					output.append(StringHelper.strip_html_tag(datarow.get(_f).replaceAll("[\'\"]", ""))).append("\t");
 				} else {
-					output += "\t";
+					output.append("\t");
 				}
 			}
 			_f = _tbl_field.get(i);
-			output += datarow.get(_f)+"\r\n";
+			output.append(datarow.get(_f)).append("\r\n");
 		}
 		
 		try {
-			fileVFS = tmpDir + "/_"+key+"_vfs.txt";
-			BufferedWriter fileout = new BufferedWriter(new FileWriter(fileVFS));
-			fileout.write(output);
-			fileout.close();
+			fileVFS = tmpDir + "/_" + key + "_vfs.txt";
+			BufferedWriter writer = new BufferedWriter(new FileWriter(fileVFS));
+			writer.write(output.toString());
+			writer.close();
 		} catch (Exception e){
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 	}
 	catch (NullPointerException nex) {
-		nex.printStackTrace();
+		LOGGER.error(nex.getMessage(), nex);
 	}
 
 	String exec = "perl " + path + "/server/idv-gidi.pl " + machine+ " " + cId +" "+ fileDiseases + " " + fileGenes + " " + fileVFS; 
-	
-	//System.out.println(exec);
-	
+
 	CommandResults callperl = ExecUtilities.exec(exec);
 	
 	String[] output = callperl.getStdout();

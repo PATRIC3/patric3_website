@@ -26,7 +26,6 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
-import javax.portlet.UnavailableException;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -34,24 +33,22 @@ import org.json.simple.JSONObject;
 import edu.vt.vbi.patric.common.SiteHelper;
 import edu.vt.vbi.patric.dao.DBDisease;
 import edu.vt.vbi.patric.dao.ResultType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DiseaseOverview extends GenericPortlet {
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.portlet.GenericPortlet#doView(javax.portlet.RenderRequest, javax.portlet.RenderResponse)
-	 */
+	private static final Logger LOGGER = LoggerFactory.getLogger(DiseaseOverview.class);
+
 	@Override
-	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException, UnavailableException {
+	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 
 		new SiteHelper().setHtmlMetaElements(request, response, "Disease Overview");
 
 		response.setContentType("text/html");
 		response.setTitle("Disease Overview");
 
-		PortletRequestDispatcher prd = null;
-		prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/disease_overview.jsp");
+		PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/disease_overview.jsp");
 		prd.include(request, response);
 	}
 
@@ -64,7 +61,7 @@ public class DiseaseOverview extends GenericPortlet {
 		String cId = request.getParameter("cId");
 
 		DBDisease conn_disease = new DBDisease();
-		int count_total = 0;
+		int count_total;
 		JSONArray results = new JSONArray();
 		PrintWriter writer = response.getWriter();
 
@@ -92,11 +89,11 @@ public class DiseaseOverview extends GenericPortlet {
 			jsonResult.put("total", count_total);
 
 			JSONObject obj = new JSONObject();
-			obj.put("rownum", (Object) "1");
-			obj.put("pathogen", (Object) "Pathogen");
-			obj.put("disease", (Object) "Disease");
-			obj.put("incidence", (Object) "10");
-			obj.put("infection", (Object) "5");
+			obj.put("rownum", "1");
+			obj.put("pathogen", "Pathogen");
+			obj.put("disease", "Disease");
+			obj.put("incidence", "10");
+			obj.put("infection", "5");
 
 			results.add(obj);
 			jsonResult.put("results", results);
@@ -110,11 +107,10 @@ public class DiseaseOverview extends GenericPortlet {
 			List<ResultType> items = conn_disease.getMeshHierarchy(cId, tree_node);
 
 			if (items.size() > 0) {
-				int min = Integer.parseInt((String) items.get(0).get("lvl"));
+				int min = Integer.parseInt(items.get(0).get("lvl"));
 				try {
-					for (int i = 0; i < items.size(); i++) {
-						ResultType item = items.get(i);
-						if (min == Integer.parseInt((String) items.get(i).get("lvl"))) {
+					for (ResultType item : items) {
+						if (min == Integer.parseInt(item.get("lvl"))) {
 
 							boolean flag = false;
 							JSONObject obj = DiseaseOverview.encodeNodeJSONObject(item);
@@ -127,30 +123,28 @@ public class DiseaseOverview extends GenericPortlet {
 
 								if (temp.get("tree_node").equals(mesh_id)) {
 									flag = true;
-									temp.put("pathogen", (String) temp.get("pathogen") + "<br>" + obj.get("pathogen"));
-									temp.put("genome", (String) temp.get("genome") + "<br>" + obj.get("genome"));
-									temp.put("vfdb", (String) temp.get("vfdb") + "<br>" + obj.get("vfdb"));
-									temp.put("gad", (String) temp.get("gad") + "<br>" + obj.get("gad"));
-									temp.put("ctd", (String) temp.get("ctd") + "<br>" + obj.get("ctd"));
-									temp.put("taxon_id", (String) temp.get("taxon_id") + "<br>" + obj.get("taxon_id"));
+									temp.put("pathogen", temp.get("pathogen") + "<br>" + obj.get("pathogen"));
+									temp.put("genome", temp.get("genome") + "<br>" + obj.get("genome"));
+									temp.put("vfdb", temp.get("vfdb") + "<br>" + obj.get("vfdb"));
+									temp.put("gad", temp.get("gad") + "<br>" + obj.get("gad"));
+									temp.put("ctd", temp.get("ctd") + "<br>" + obj.get("ctd"));
+									temp.put("taxon_id", temp.get("taxon_id") + "<br>" + obj.get("taxon_id"));
 
 									jsonResult.set(j, temp);
 								}
 							}
-							if (flag == false) {
+							if (!flag) {
 								jsonResult.add(obj);
 							}
 						}
 					}
 				}
 				catch (Exception ex) {
-					ex.printStackTrace();
+					LOGGER.error(ex.getMessage(), ex);
 				}
 			}
-
 			jsonResult.writeJSONString(writer);
 		}
-
 		writer.close();
 	}
 

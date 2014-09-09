@@ -28,7 +28,6 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
-import javax.portlet.UnavailableException;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -38,16 +37,15 @@ import org.json.simple.parser.ParseException;
 import edu.vt.vbi.patric.common.SiteHelper;
 import edu.vt.vbi.patric.dao.DBDisease;
 import edu.vt.vbi.patric.dao.ResultType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DiseaseTable extends GenericPortlet {
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.portlet.GenericPortlet#doView(javax.portlet.RenderRequest, javax.portlet.RenderResponse)
-	 */
+	private static final Logger LOGGER = LoggerFactory.getLogger(DiseaseTable.class);
+
 	@Override
-	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException, UnavailableException {
+	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 
 		new SiteHelper().setHtmlMetaElements(request, response, "Disease Table");
 
@@ -56,16 +54,18 @@ public class DiseaseTable extends GenericPortlet {
 
 		String type = request.getParameter("type").split("/")[0];
 
-		PortletRequestDispatcher prd = null;
+		PortletRequestDispatcher prd;
 
-		if (type.equals("vfdb")) {
+		switch (type) {
+		case "vfdb":
 			prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/disease_table_vfdb.jsp");
-		}
-		else if (type.equals("ctd")) {
+			break;
+		case "ctd":
 			prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/disease_table_ctd.jsp");
-		}
-		else {
+			break;
+		default:
 			prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/disease_table_gad.jsp");
+			break;
 		}
 		prd.include(request, response);
 	}
@@ -92,7 +92,7 @@ public class DiseaseTable extends GenericPortlet {
 			String sort_field = "";
 			String sort_dir = "";
 			try {
-				sorter = (JSONArray) a.parse(request.getParameter("sort").toString());
+				sorter = (JSONArray) a.parse(request.getParameter("sort"));
 				sort_field += ((JSONObject) sorter.get(0)).get("property").toString();
 				sort_dir += ((JSONObject) sorter.get(0)).get("direction").toString();
 				for (int i = 1; i < sorter.size(); i++) {
@@ -100,10 +100,10 @@ public class DiseaseTable extends GenericPortlet {
 				}
 			}
 			catch (ParseException e) {
-				e.printStackTrace();
+				LOGGER.error(e.getMessage(), e);
 			}
 
-			sort = new HashMap<String, String>();
+			sort = new HashMap<>();
 
 			if (!sort_field.equals("") && !sort_dir.equals("")) {
 				sort.put("field", sort_field);
@@ -116,15 +116,17 @@ public class DiseaseTable extends GenericPortlet {
 		int count_total = 0;
 		List<ResultType> items = null;
 
-		if (type.equals("0")) {
+		switch (type) {
+		case "0": {
 
 			String cId = request.getParameter("cId");
 			key.put("cId", cId);
 
 			count_total = conn_disease.getVFDBCount(key);
 			items = conn_disease.getVFDBList(key, sort, start, end);
+			break;
 		}
-		if (type.equals("1")) {
+		case "1": {
 
 			String cId = request.getParameter("cId");
 			String vfgId = request.getParameter("vfgId");
@@ -136,38 +138,44 @@ public class DiseaseTable extends GenericPortlet {
 
 			count_total = conn_disease.getVFDBFeatureCount(key);
 			items = conn_disease.getVFDBFeatureList(key, sort, start, end);
+			break;
 		}
-		else if (type.equals("ctd")) {
+		case "ctd": {
 
 			String name = request.getParameter("name");
 			key.put("name", name);
 
 			count_total = conn_disease.getCTDCount(key);
 			items = conn_disease.getCTDList(key, sort, start, end);
+			break;
 		}
-		else if (type.equals("gad")) {
+		case "gad": {
 
 			String name = request.getParameter("name");
 			key.put("name", name);
 
 			count_total = conn_disease.getGADCount(key);
 			items = conn_disease.getGADList(key, sort, start, end);
+			break;
 		}
-		else if (type.equals("gadgraph")) {
+		case "gadgraph": {
 
 			String name = request.getParameter("name");
 			key.put("name", name);
 
 			count_total = conn_disease.getGADGraphCount(key);
 			items = conn_disease.getGADGraphList(key, sort, start, end);
+			break;
 		}
-		else if (type.equals("ctdgraph")) {
+		case "ctdgraph": {
 
 			String name = request.getParameter("name");
 			key.put("name", name);
 
 			count_total = conn_disease.getCTDGraphCount(key);
 			items = conn_disease.getCTDGraphList(key, sort, start, end);
+			break;
+		}
 		}
 
 		JSONObject jsonResult = new JSONObject();
@@ -177,8 +185,8 @@ public class DiseaseTable extends GenericPortlet {
 
 			JSONArray results = new JSONArray();
 
-			for (int i = 0; i < items.size(); i++) {
-				ResultType g = items.get(i);
+			assert items != null;
+			for (ResultType g : items) {
 				JSONObject obj = new JSONObject();
 				obj.putAll(g);
 				results.add(obj);
@@ -186,7 +194,7 @@ public class DiseaseTable extends GenericPortlet {
 			jsonResult.put("results", results);
 		}
 		catch (Exception ex) {
-			ex.printStackTrace();
+			LOGGER.error(ex.getMessage(), ex);
 		}
 
 		PrintWriter writer = response.getWriter();
