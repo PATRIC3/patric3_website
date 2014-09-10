@@ -28,7 +28,6 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
-import javax.portlet.UnavailableException;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.json.simple.JSONArray;
@@ -40,15 +39,11 @@ import edu.vt.vbi.patric.common.ExpressionDataGene;
 import edu.vt.vbi.patric.common.PolyomicHandler;
 import edu.vt.vbi.patric.common.SolrInterface;
 import edu.vt.vbi.patric.dao.DBTranscriptomics;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("unchecked")
 public class TestFileUploader extends GenericPortlet {
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.portlet.GenericPortlet#doView(javax.portlet.RenderRequest, javax.portlet.RenderResponse)
-	 */
 
 	private final String collectionId = "9beeee5d-585a-4f26-88ec-749e568553c9";
 
@@ -56,15 +51,15 @@ public class TestFileUploader extends GenericPortlet {
 
 	private ExpressionDataFileReader reader;
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(TestFileUploader.class);
+
 	@Override
-	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException, UnavailableException {
+	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 
 		response.setContentType("text/html");
 		response.setTitle("Test File Uploader");
 
-		PortletRequestDispatcher prd = null;
-		prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/TestFileUploader.jsp");
-
+		PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/TestFileUploader.jsp");
 		prd.include(request, response);
 	}
 
@@ -79,14 +74,14 @@ public class TestFileUploader extends GenericPortlet {
 		PolyomicHandler polyomic = new PolyomicHandler();
 		polyomic.setAuthenticationToken(token);
 
-		System.out.print(callType);
+		LOGGER.debug(callType);
 
 		if (callType.equals("first")) {
 
 			JSONObject config = polyomic.getExpressionDataFileReaderConfig(collectionId);
 			config.put("idMappingType", "refseq_source_id");
 
-			System.out.println("testfilereader");
+			LOGGER.debug("testfilereader");
 
 			/*
 			 * JSONObject config = new JSONObject();
@@ -97,7 +92,7 @@ public class TestFileUploader extends GenericPortlet {
 			 * config.put("idMappingType", "refseq_source_id"); config.put("collectionID", collectionId);
 			 */
 
-			System.out.println(config.toString());
+			LOGGER.debug(config.toString());
 			/*
 			 * JSONObject json = new JSONObject(); String idx = ""; for (int i=0; i<8000; i++) { idx +=
 			 * "[1234567890!@#$%^&*()abcdefghijklmnopqrstuvwxyz]"; } json.put("string", idx);
@@ -114,7 +109,7 @@ public class TestFileUploader extends GenericPortlet {
 					IDMap();
 				}
 				catch (InvalidFormatException e) {
-					e.printStackTrace();
+					LOGGER.error(e.getMessage(), e);
 				}
 
 				polyomic.saveJSONFilesToCollection(collectionId, reader);
@@ -199,19 +194,19 @@ public class TestFileUploader extends GenericPortlet {
 
 		JSONArray results = new JSONArray();
 
-		HashMap<String, ExpressionDataGene> genes = new HashMap<String, ExpressionDataGene>();
-		HashMap<String, String> sample = new HashMap<String, String>();
+		HashMap<String, ExpressionDataGene> genes = new HashMap<>();
+		HashMap<String, String> sample = new HashMap<>();
 
-		for (int i = 0; i < sample_data.size(); i++) {
-			JSONObject a = (JSONObject) sample_data.get(i);
+		for (Object aSample_data : sample_data) {
+			JSONObject a = (JSONObject) aSample_data;
 			sample.put(a.get("pid").toString(), a.get("expname").toString());
 		}
 
-		for (int i = 0; i < data.size(); i++) {
+		for (Object aData : data) {
 
-			JSONObject a = (JSONObject) data.get(i);
+			JSONObject a = (JSONObject) aData;
 			String id = a.get("na_feature_id").toString();
-			ExpressionDataGene b = null;
+			ExpressionDataGene b;
 
 			if (genes.containsKey(id)) {
 				b = genes.get(id);
@@ -245,8 +240,6 @@ public class TestFileUploader extends GenericPortlet {
 			temp.put(value.getNAFeatureID(), a);
 		}
 
-		// System.out.println(idList.split(",").length);
-
 		/*
 		 * Solr Call to get Feature attributes-----------------------------------
 		 */
@@ -260,8 +253,8 @@ public class TestFileUploader extends GenericPortlet {
 
 		JSONObject a, b;
 
-		for (int i = 0; i < obj_array.size(); i++) {
-			a = (JSONObject) obj_array.get(i);
+		for (Object anObj_array : obj_array) {
+			a = (JSONObject) anObj_array;
 			b = (JSONObject) temp.get(a.get("na_feature_id").toString());
 			b.put("strand", a.get("strand"));
 			b.put("patric_product", a.get("product"));

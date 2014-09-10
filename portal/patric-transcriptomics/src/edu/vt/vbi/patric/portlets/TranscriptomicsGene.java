@@ -21,10 +21,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 import javax.portlet.GenericPortlet;
 import javax.portlet.PortletException;
@@ -46,17 +43,15 @@ import edu.vt.vbi.patric.common.ExpressionDataGene;
 import edu.vt.vbi.patric.common.PolyomicHandler;
 import edu.vt.vbi.patric.common.SiteHelper;
 import edu.vt.vbi.patric.common.SolrInterface;
-//import edu.vt.vbi.patric.dao.DBTranscriptomics;
 import edu.vt.vbi.patric.dao.ResultType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("unchecked")
 public class TranscriptomicsGene extends GenericPortlet {
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.portlet.GenericPortlet#doView(javax.portlet.RenderRequest, javax.portlet.RenderResponse)
-	 */
+	private static final Logger LOGGER = LoggerFactory.getLogger(TranscriptomicsGene.class);
+
 	@Override
 	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException, UnavailableException {
 
@@ -65,9 +60,7 @@ public class TranscriptomicsGene extends GenericPortlet {
 		response.setContentType("text/html");
 
 		String mode = request.getParameter("display_mode");
-		// String cType = request.getParameter("context_type");
-		// String cId = request.getParameter("context_id");
-		PortletRequestDispatcher prd = null;
+		PortletRequestDispatcher prd;
 
 		if (mode != null && mode.equals("result")) {
 			prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/TranscriptomicsGene.jsp");
@@ -144,21 +137,14 @@ public class TranscriptomicsGene extends GenericPortlet {
 				String keyword = req.getParameter("keyword");
 				SolrInterface solr = new SolrInterface();
 
-				JSONObject sample_obj = new JSONObject();
+				JSONObject sample_obj;
 				JSONArray sample = new JSONArray();
 
 				if ((sampleId != null && !sampleId.equals("")) || (expId != null && !expId.equals(""))) {
 					sample_obj = solr
 							.getTranscriptomicsSamples(sampleId, expId, "pid,expname,expmean,timepoint,mutant,strain,condition", 0, -1, null);
 					sample = (JSONArray) sample_obj.get("data");
-					/*
-					 * if(experimental != null && experimental.equals("true") || Boolean.parseBoolean(experimental) == true){ sample =
-					 * solr.getTranscriptomicsSamples(sampleId, expId, "pid,expname,expmean,timepoint,mutant,strain,condition"); }else{ sample =
-					 * dbomics.getSamples(sampleId, expId); }
-					 */
 				}
-
-				// System.out.println(sample.toString());
 
 				// Read from JSON if collection parameter is there
 				ExpressionDataCollection parser = null;
@@ -173,8 +159,6 @@ public class TranscriptomicsGene extends GenericPortlet {
 					sample = parser.append(sample, ExpressionDataCollection.CONTENT_SAMPLE);
 				}
 
-				// System.out.println(sample.toJSONString());
-
 				String sampleList = "";
 				sampleList += ((JSONObject) sample.get(0)).get("pid");
 
@@ -188,10 +172,6 @@ public class TranscriptomicsGene extends GenericPortlet {
 
 				if ((sampleId != null && !sampleId.equals("")) || (expId != null && !expId.equals(""))) {
 					expression = solr.getTranscriptomicsGenes(sampleId, expId, keyword);
-					/*
-					 * if(experimental != null && experimental.equals("true") || Boolean.parseBoolean(experimental) == true){ expression =
-					 * solr.getTranscriptomicsGenes(sampleId, expId); }else{ expression = dbomics.getGenes(sampleId, expId); }
-					 */
 				}
 
 				if (colId != null && !colId.equals("") && token != null) {
@@ -208,7 +188,6 @@ public class TranscriptomicsGene extends GenericPortlet {
 				jsonResult.put(ExpressionDataCollection.CONTENT_EXPRESSION + "Total", stats.size());
 				jsonResult.put(ExpressionDataCollection.CONTENT_EXPRESSION, stats);
 
-				// writer.write(jsonResult.toString());
 				resp.setContentType("application/json");
 				jsonResult.writeJSONString(writer);
 				writer.close();
@@ -234,8 +213,8 @@ public class TranscriptomicsGene extends GenericPortlet {
 					out.close();
 
 				}
-				catch (Exception es) {// Catch exception if any
-					System.err.println("Error: " + es.getMessage());
+				catch (Exception es) {
+					LOGGER.error(es.getMessage(), es);
 				}
 
 				if (action.equals("Run"))
@@ -320,7 +299,6 @@ public class TranscriptomicsGene extends GenericPortlet {
 						a.put("filterOffset", key.get("filterOffset"));
 					}
 					results.add(a);
-					// writer.write(results.toString());
 					resp.setContentType("application/json");
 					results.writeJSONString(writer);
 					writer.close();
@@ -334,25 +312,25 @@ public class TranscriptomicsGene extends GenericPortlet {
 		boolean remove = true;
 		JSONObject output = new JSONObject();
 
-		String exec = "sh /opt/jboss-patric/runMicroArrayClustering.sh " + filename + " " + outputfilename + " " + ((g.equals("1")) ? ge : "0") + " "
+		String exec = "runMicroArrayClustering.sh " + filename + " " + outputfilename + " " + ((g.equals("1")) ? ge : "0") + " "
 				+ ((e.equals("1")) ? ge : "0") + " " + m;
-		System.out.print(exec);
+
+		LOGGER.debug(exec);
 
 		CommandResults callClustering = ExecUtilities.exec(exec);
 
-		if (callClustering.getStdout()[0].toString().equals("done")) {
+		if (callClustering.getStdout()[0].equals("done")) {
 
 			BufferedReader in = new BufferedReader(new FileReader(outputfilename + ".cdt"));
-			String strLine = "";
+			String strLine;
 			int count = 0;
 			JSONArray rows = new JSONArray();
 			while ((strLine = in.readLine()) != null) {
 				String[] tabs = strLine.split("\t");
 				if (count == 0) {
 					JSONArray columns = new JSONArray();
-					for (int i = 4; i < tabs.length; i++) {
-						columns.add(tabs[i]);
-					}
+					// copy from 4th column to all
+					columns.addAll(Arrays.asList(tabs).subList(4, tabs.length));
 					output.put("columns", columns);
 				}
 				if (count >= 3) {
@@ -385,8 +363,6 @@ public class TranscriptomicsGene extends GenericPortlet {
 			JSONObject a = (JSONObject) sample_data.get(i);
 			sample.put(a.get("pid").toString(), a.get("expname").toString());
 		}
-
-		// System.out.println(data.toJSONString());
 
 		for (int i = 0; i < data.size(); i++) {
 
@@ -429,8 +405,6 @@ public class TranscriptomicsGene extends GenericPortlet {
 			temp.put(value.getNAFeatureID(), a);
 		}
 
-		// System.out.println(idList);
-
 		/*
 		 * Solr Call to get Feature attributes-----------------------------------
 		 */
@@ -442,10 +416,6 @@ public class TranscriptomicsGene extends GenericPortlet {
 		/**/
 
 		JSONObject a, b;
-		// long start, end;
-
-		// System.out.print(obj_array.size());
-		// start = System.currentTimeMillis();
 		for (int i = 0; i < obj_array.size(); i++) {
 			a = (JSONObject) obj_array.get(i);
 			b = (JSONObject) temp.get(a.get("na_feature_id").toString());
@@ -459,8 +429,6 @@ public class TranscriptomicsGene extends GenericPortlet {
 			b.put("gene", a.get("gene"));
 			results.add(b);
 		}
-		// end = System.currentTimeMillis();
-		// System.out.println("Processing time for getting feature attributes - "+(end-start));
 
 		return results;
 	}

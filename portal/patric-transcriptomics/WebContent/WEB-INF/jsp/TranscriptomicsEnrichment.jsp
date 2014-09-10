@@ -12,7 +12,6 @@ HashMap<String, String> key = (HashMap<String, String>) portletSession.getAttrib
 String cType = request.getParameter("context_type");
 String cId = request.getParameter("context_id");
 String featureList = key.get("feature_info_id");
-//System.out.println("jsp page"+featureList);
 
 int featureList_length = featureList.split(",").length;
 

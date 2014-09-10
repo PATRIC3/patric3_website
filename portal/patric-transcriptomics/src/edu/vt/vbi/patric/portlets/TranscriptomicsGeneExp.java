@@ -27,7 +27,6 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
-import javax.portlet.UnavailableException;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -37,24 +36,22 @@ import org.json.simple.parser.ParseException;
 import edu.vt.vbi.patric.common.SiteHelper;
 import edu.vt.vbi.patric.dao.DBTranscriptomics;
 import edu.vt.vbi.patric.dao.ResultType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TranscriptomicsGeneExp extends GenericPortlet {
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.portlet.GenericPortlet#doView(javax.portlet.RenderRequest, javax.portlet.RenderResponse)
-	 */
+	private static final Logger LOGGER = LoggerFactory.getLogger(TranscriptomicsGeneExp.class);
+
 	@Override
-	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException, UnavailableException {
+	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 
 		response.setContentType("text/html");
 		response.setTitle("Transcriptomics Feature");
 
 		new SiteHelper().setHtmlMetaElements(request, response, "Transcriptomics Feature");
 
-		PortletRequestDispatcher prd = null;
-		prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/GeneExpression.jsp");
+		PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/GeneExpression.jsp");
 		prd.include(request, response);
 	}
 
@@ -88,13 +85,12 @@ public class TranscriptomicsGeneExp extends GenericPortlet {
 				}
 			}
 			catch (ParseException e) {
-				e.printStackTrace();
+				LOGGER.error(e.getMessage(), e);
 			}
 		}
-		// System.out.println("paramFeatureId=" + paramFeatureId + ",paramSampleId=" + paramSampleId + ",paramStoreType=" + paramStoreType);
 
-		HashMap<String, String> key = new HashMap<String, String>();
-		HashMap<String, String> sort = new HashMap<String, String>();
+		HashMap<String, String> key = new HashMap<>();
+		HashMap<String, String> sort = new HashMap<>();
 		DBTranscriptomics conn_transcriptopics = new DBTranscriptomics();
 		if (paramFeatureId != null && !paramFeatureId.equals("")) {
 			key.put("na_feature_id", paramFeatureId);
@@ -116,7 +112,7 @@ public class TranscriptomicsGeneExp extends GenericPortlet {
 			sort.put("direction", sort_dir);
 		}
 
-		ArrayList<ResultType> items = null;
+		ArrayList<ResultType> items;
 		JSONObject jsonResult = new JSONObject();
 
 		if (paramStoreType.equals("features")) {
@@ -126,16 +122,15 @@ public class TranscriptomicsGeneExp extends GenericPortlet {
 				jsonResult.put("total", items.size());
 				JSONArray results = new JSONArray();
 
-				for (int i = 0; i < items.size(); i++) {
-					ResultType g = (ResultType) items.get(i);
+				for (ResultType item : items) {
 					JSONObject obj = new JSONObject();
-					obj.putAll(g);
+					obj.putAll(item);
 					results.add(obj);
 				}
 				jsonResult.put("results", results);
 			}
 			catch (Exception ex) {
-				ex.printStackTrace();
+				LOGGER.error(ex.getMessage(), ex);
 			}
 		}
 		else if (paramStoreType.equals("strain") || paramStoreType.equals("mutant") || paramStoreType.equals("condition")) {
@@ -144,16 +139,15 @@ public class TranscriptomicsGeneExp extends GenericPortlet {
 			try {
 				JSONArray results = new JSONArray();
 
-				for (int i = 0; i < items.size(); i++) {
-					ResultType g = (ResultType) items.get(i);
+				for (ResultType item : items) {
 					JSONObject obj = new JSONObject();
-					obj.putAll(g);
+					obj.putAll(item);
 					results.add(obj);
 				}
 				jsonResult.put("exp_stat", results);
 			}
 			catch (Exception ex) {
-				ex.printStackTrace();
+				LOGGER.error(ex.getMessage(), ex);
 			}
 		}
 		else if (paramStoreType.equals("log_ratio") || paramStoreType.equals("z_score")) {
@@ -162,16 +156,15 @@ public class TranscriptomicsGeneExp extends GenericPortlet {
 			try {
 				JSONArray results = new JSONArray();
 
-				for (int i = 0; i < items.size(); i++) {
-					ResultType g = (ResultType) items.get(i);
+				for (ResultType item : items) {
 					JSONObject obj = new JSONObject();
-					obj.putAll(g);
+					obj.putAll(item);
 					results.add(obj);
 				}
 				jsonResult.put("exp_stat", results);
 			}
 			catch (Exception ex) {
-				ex.printStackTrace();
+				LOGGER.error(ex.getMessage(), ex);
 			}
 		}
 		else if (paramStoreType.equals("correlation")) {
@@ -195,21 +188,20 @@ public class TranscriptomicsGeneExp extends GenericPortlet {
 				jsonResult.put("total", count_total);
 				JSONArray results = new JSONArray();
 
-				for (int i = 0; i < items.size(); i++) {
-					ResultType g = (ResultType) items.get(i);
+				for (ResultType item : items) {
 					JSONObject obj = new JSONObject();
-					obj.putAll(g);
+					obj.putAll(item);
 					results.add(obj);
 				}
 				jsonResult.put("results", results);
 			}
 			catch (Exception ex) {
-				ex.printStackTrace();
+				LOGGER.error(ex.getMessage(), ex);
 			}
 		}
 
 		PrintWriter writer = resp.getWriter();
-		writer.write(jsonResult.toString());
+		jsonResult.writeJSONString(writer);
 		writer.close();
 	}
 }

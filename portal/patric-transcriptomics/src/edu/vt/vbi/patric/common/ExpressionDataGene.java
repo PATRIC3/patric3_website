@@ -18,6 +18,8 @@ package edu.vt.vbi.patric.common;
 import java.util.HashMap;
 
 import org.json.simple.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ExpressionDataGene {
 
@@ -32,6 +34,8 @@ public class ExpressionDataGene {
 	int down = 0;
 
 	String na_feature_id = null;
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(ExpressionDataGene.class);
 
 	public ExpressionDataGene(JSONObject data) {
 		this.refseq_locus_tag = (data.get("refseq_locus_tag") != null) ? data.get("refseq_locus_tag").toString() : data.get("exp_locus_tag")
@@ -51,7 +55,7 @@ public class ExpressionDataGene {
 			log_ratio = gene_data.get("log_ratio").toString();
 		}
 		else {
-			// System.out.println(gene_data.get("na_feature_id"));
+			LOGGER.trace(gene_data.get("na_feature_id").toString());
 		}
 
 		if (!this.IsSamplePushed(sample)) {
@@ -63,10 +67,10 @@ public class ExpressionDataGene {
 
 			this.samples.put(sample, a);
 
-			if ((log_ratio != null && log_ratio != "") && Double.parseDouble(log_ratio) > Double.parseDouble("0")) {
+			if ((log_ratio != null && !log_ratio.equals("")) && Double.parseDouble(log_ratio) > Double.parseDouble("0")) {
 				this.up++;
 			}
-			else if ((log_ratio != null && log_ratio != "") && Double.parseDouble(log_ratio) < Double.parseDouble("0")) {
+			else if ((log_ratio != null && !log_ratio.equals("")) && Double.parseDouble(log_ratio) < Double.parseDouble("0")) {
 				this.down++;
 			}
 		}
@@ -86,11 +90,11 @@ public class ExpressionDataGene {
 	public void setSampleBinary(String samples) {
 
 		String binary_order = "";
-		String[] samp_array = samples.split(",");
-		for (int i = 0; i < samp_array.length; i++) {
+
+		for (String sample : samples.split(",")) {
 			boolean flag = false;
 			for (int j = 0; j < this.samples.size(); j++) {
-				JSONObject a = (JSONObject) this.samples.get(samp_array[i]);
+				JSONObject a = (JSONObject) this.samples.get(sample);
 				if (a != null && a.get("log_ratio") != null) {
 					flag = true;
 					break;

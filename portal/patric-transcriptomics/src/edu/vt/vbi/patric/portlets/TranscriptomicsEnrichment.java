@@ -27,7 +27,6 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
-import javax.portlet.UnavailableException;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -37,16 +36,15 @@ import org.json.simple.parser.ParseException;
 import edu.vt.vbi.patric.common.SiteHelper;
 import edu.vt.vbi.patric.dao.DBTranscriptomics;
 import edu.vt.vbi.patric.dao.ResultType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TranscriptomicsEnrichment extends GenericPortlet {
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.portlet.GenericPortlet#doView(javax.portlet.RenderRequest, javax.portlet.RenderResponse)
-	 */
+	private static final Logger LOGGER = LoggerFactory.getLogger(TranscriptomicsEnrichment.class);
+
 	@Override
-	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException, UnavailableException {
+	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 
 		new SiteHelper().setHtmlMetaElements(request, response, "Pathway Summary");
 
@@ -65,7 +63,7 @@ public class TranscriptomicsEnrichment extends GenericPortlet {
 
 		if (callType.equals("saveParams")) {
 
-			HashMap<String, String> key = new HashMap<String, String>();
+			HashMap<String, String> key = new HashMap<>();
 			key.put("feature_info_id", req.getParameter("feature_info_id"));
 
 			Random g = new Random();
@@ -81,7 +79,7 @@ public class TranscriptomicsEnrichment extends GenericPortlet {
 
 		if (callType.equals("getGenomeIds")) {
 
-			HashMap<String, String> key = new HashMap<String, String>();
+			HashMap<String, String> key = new HashMap<>();
 
 			key.put("feature_info_id", req.getParameter("feature_info_id"));
 			key.put("map", req.getParameter("map"));
@@ -109,7 +107,7 @@ public class TranscriptomicsEnrichment extends GenericPortlet {
 			String sort_field = "";
 			String sort_dir = "";
 			try {
-				sorter = (JSONArray) a.parse(req.getParameter("sort").toString());
+				sorter = (JSONArray) a.parse(req.getParameter("sort"));
 				sort_field += ((JSONObject) sorter.get(0)).get("property").toString();
 				sort_dir += ((JSONObject) sorter.get(0)).get("direction").toString();
 				for (int i = 1; i < sorter.size(); i++) {
@@ -117,10 +115,10 @@ public class TranscriptomicsEnrichment extends GenericPortlet {
 				}
 			}
 			catch (ParseException e) {
-				e.printStackTrace();
+				LOGGER.error(e.getMessage(), e);
 			}
 
-			HashMap<String, String> sort = new HashMap<String, String>();
+			HashMap<String, String> sort = new HashMap<>();
 
 			if (!sort_field.equals("") && !sort_dir.equals("")) {
 				sort.put("field", sort_field);
@@ -136,20 +134,18 @@ public class TranscriptomicsEnrichment extends GenericPortlet {
 				jsonResult.put("total", count_total);
 				JSONArray results = new JSONArray();
 
-				for (int i = 0; i < items.size(); i++) {
-					ResultType g = (ResultType) items.get(i);
+				for (ResultType item : items) {
 					JSONObject obj = new JSONObject();
-					obj.putAll(g);
+					obj.putAll(item);
 					results.add(obj);
 				}
 				jsonResult.put("results", results);
 			}
 			catch (Exception ex) {
-				ex.printStackTrace();
+				LOGGER.error(ex.getMessage(), ex);
 			}
 
 			PrintWriter writer = resp.getWriter();
-			// writer.write(jsonResult.toString());
 			jsonResult.writeJSONString(writer);
 			writer.close();
 		}

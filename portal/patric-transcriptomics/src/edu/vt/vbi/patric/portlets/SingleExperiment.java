@@ -26,7 +26,6 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
-import javax.portlet.UnavailableException;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -37,11 +36,15 @@ import edu.vt.vbi.patric.common.SiteHelper;
 import edu.vt.vbi.patric.common.SolrCore;
 import edu.vt.vbi.patric.common.SolrInterface;
 import edu.vt.vbi.patric.dao.ResultType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SingleExperiment extends GenericPortlet {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(SingleExperiment.class);
+
 	@Override
-	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException, UnavailableException {
+	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 
 		new SiteHelper().setHtmlMetaElements(request, response, "Single Experiment");
 
@@ -77,19 +80,18 @@ public class SingleExperiment extends GenericPortlet {
 				String sort_field = "";
 				String sort_dir = "";
 				try {
-					sorter = (JSONArray) a.parse(req.getParameter("sort").toString());
+					sorter = (JSONArray) a.parse(req.getParameter("sort"));
 					sort_field += ((JSONObject) sorter.get(0)).get("property").toString();
 					sort_dir += ((JSONObject) sorter.get(0)).get("direction").toString();
 					for (int i = 1; i < sorter.size(); i++) {
 						sort_field += "," + ((JSONObject) sorter.get(i)).get("property").toString();
 					}
-					// System.out.println(sort_field);
 				}
 				catch (ParseException e) {
-					e.printStackTrace();
+					LOGGER.error(e.getMessage(), e);
 				}
 
-				sort = new HashMap<String, String>();
+				sort = new HashMap<>();
 
 				if (!sort_field.equals("") && !sort_dir.equals("")) {
 					sort.put("field", sort_field);

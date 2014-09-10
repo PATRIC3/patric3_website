@@ -29,19 +29,20 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import edu.vt.vbi.patric.common.PolyomicHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @SuppressWarnings("unchecked")
 public class ExpressionDataCollection {
 
-	private String[] collectionIds;
+	private List<String> expressionFileName;
 
-	private ArrayList<String> expressionFileName;
+	private List<String> sampleFileName;
 
-	private ArrayList<String> sampleFileName;
-
-	private ArrayList<String> mappingFileName;
+	private List<String> mappingFileName;
 
 	private JSONArray sample, expression;
 
@@ -53,22 +54,24 @@ public class ExpressionDataCollection {
 
 	public final static String CONTENT_MAPPING = "mapping";
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(ExpressionDataCollection.class);
+
 	public ExpressionDataCollection(String id, String token) {
 
 		PolyomicHandler polyomic = new PolyomicHandler();
 		polyomic.setAuthenticationToken(token);
-		collectionIds = id.split(",");
+		String[] collectionIds = id.split(",");
 
 		sample = new JSONArray();
 		expression = new JSONArray();
 
-		JSONObject collection = null;
-		expressionFileName = new ArrayList<String>();
-		sampleFileName = new ArrayList<String>();
-		mappingFileName = new ArrayList<String>();
+		JSONObject collection;
+		expressionFileName = new ArrayList<>();
+		sampleFileName = new ArrayList<>();
+		mappingFileName = new ArrayList<>();
 
-		for (int i = 0; i < collectionIds.length; i++) {
-			collection = polyomic.getCollection(collectionIds[i], null);
+		for (String collectionId : collectionIds) {
+			collection = polyomic.getCollection(collectionId, null);
 
 			expressionFileName.add(polyomic.findJSONUrl(collection, CONTENT_EXPRESSION));
 			sampleFileName.add(polyomic.findJSONUrl(collection, CONTENT_SAMPLE));
@@ -84,14 +87,14 @@ public class ExpressionDataCollection {
 			inp = connection.getInputStream();
 		}
 		catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 		return inp;
 	}
 
 	public void read(String input) throws FileNotFoundException {
 
-		ArrayList<String> temp = null;
+		List<String> temp = null;
 
 		if (input.equals(CONTENT_SAMPLE)) {
 			temp = sampleFileName;
@@ -100,13 +103,14 @@ public class ExpressionDataCollection {
 			temp = expressionFileName;
 		}
 
-		InputStreamReader stream = null;
-		BufferedReader reader = null;
+		InputStreamReader stream;
+		BufferedReader reader;
+		String strLine;
 
-		String strLine = "";
-		for (int i = 0; i < temp.size(); i++) {
+		assert temp != null;
+		for (String aTemp : temp) {
 
-			inp = getInputStreamReader(temp.get(i));
+			inp = getInputStreamReader(aTemp);
 			stream = new InputStreamReader(inp);
 			reader = new BufferedReader(stream);
 
@@ -117,13 +121,13 @@ public class ExpressionDataCollection {
 						AddToCurrentSet((JSONArray) tmp.get(input), input);
 					}
 					catch (ParseException e) {
-						e.printStackTrace();
+						LOGGER.error(e.getMessage(), e);
 					}
 				}
 				inp.close();
 			}
 			catch (IOException e) {
-				e.printStackTrace();
+				LOGGER.error(e.getMessage(), e);
 			}
 		}
 	}
@@ -142,11 +146,12 @@ public class ExpressionDataCollection {
 
 		JSONArray ret = new JSONArray();
 
-		for (int i = 0; i < temp.size(); i++) {
-			JSONObject a = (JSONObject) temp.get(i);
+		assert temp != null;
+		for (Object aTemp : temp) {
+			JSONObject a = (JSONObject) aTemp;
 
-			for (int j = 0; j < items.length; j++) {
-				if (a.get("pid").toString().equals(items[j])) {
+			for (String item1 : items) {
+				if (a.get("pid").toString().equals(item1)) {
 					ret.add(a);
 					break;
 				}
@@ -162,8 +167,8 @@ public class ExpressionDataCollection {
 	}
 
 	public void AddToCurrentSet(JSONArray b, String type) {
-		for (int i = 0; i < b.size(); i++) {
-			JSONObject c = (JSONObject) b.get(i);
+		for (Object aB : b) {
+			JSONObject c = (JSONObject) aB;
 			if (type.equals(CONTENT_SAMPLE)) {
 				this.sample.add(c);
 			}
@@ -173,21 +178,22 @@ public class ExpressionDataCollection {
 		}
 	}
 
-	public JSONArray append(JSONArray a, String input) {
-		JSONArray b = null;
+	public JSONArray append(JSONArray array, String input) {
+		JSONArray items = null;
 
 		if (input.equals(CONTENT_SAMPLE)) {
-			b = this.sample;
+			items = this.sample;
 		}
 		else if (input.equals(CONTENT_EXPRESSION)) {
-			b = this.expression;
+			items = this.expression;
 		}
 
-		for (int i = 0; i < b.size(); i++) {
-			JSONObject c = (JSONObject) b.get(i);
-			a.add(c);
+		assert items != null;
+		for (Object item : items) {
+			JSONObject obj = (JSONObject) item;
+			array.add(obj);
 		}
-		return a;
+		return array;
 	}
 
 	public JSONArray get(String type) {
