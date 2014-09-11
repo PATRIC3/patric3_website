@@ -43,7 +43,7 @@ if (source != null && source.equals("") == false && sourceId != null && sourceId
 		key.put("keyword", "locus_tag: " + sourceId);
 		res = solr.getData(key, null, null, 0, 1, false, false, false);
 		JSONArray features = (JSONArray)((JSONObject)res.get("response")).get("docs");
-		System.out.println(features.toJSONString());
+
 		if (features.size() > 0) {
 			JSONObject mapping = (JSONObject) features.get(0);
 			String na_feature_id = mapping.get("na_feature_id").toString();

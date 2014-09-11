@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import javax.portlet.GenericPortlet;
@@ -29,15 +30,12 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
-import javax.portlet.UnavailableException;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
-//import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
-//import org.apache.solr.common.util.NamedList;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -47,6 +45,8 @@ import edu.vt.vbi.patric.common.SiteHelper;
 import edu.vt.vbi.patric.common.SolrCore;
 import edu.vt.vbi.patric.common.SolrInterface;
 import edu.vt.vbi.patric.dao.ResultType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SpecialtyGeneSourcePortlet extends GenericPortlet {
 
@@ -54,17 +54,14 @@ public class SpecialtyGeneSourcePortlet extends GenericPortlet {
 
 	JSONParser jsonParser = new JSONParser();
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.portlet.GenericPortlet#doView(javax.portlet.RenderRequest, javax.portlet.RenderResponse)
-	 */
+	private static final Logger LOGGER = LoggerFactory.getLogger(SpecialtyGeneSourcePortlet.class);
+
 	@Override
-	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException, UnavailableException {
+	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 
 		response.setContentType("text/html");
 
-		PortletRequestDispatcher prd = null;
+		PortletRequestDispatcher prd;
 
 		new SiteHelper().setHtmlMetaElements(request, response, "Specialty Gene Source");
 		response.setTitle("Specialty Gene Source");
@@ -119,7 +116,7 @@ public class SpecialtyGeneSourcePortlet extends GenericPortlet {
 
 			if (sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE) != null) {
 				ResultType key = (ResultType) sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
-				ret = key.get("keyword").toString();
+				ret = key.get("keyword");
 			}
 
 			PrintWriter writer = response.getWriter();
@@ -160,21 +157,20 @@ public class SpecialtyGeneSourcePortlet extends GenericPortlet {
 				
 				// set source field as a filter query condition
 				key.put("filter", "source:" + key.get("source"));
-				//System.out.println(key.toString());
-				
+
 				String start_id = request.getParameter("start");
 				String limit = request.getParameter("limit");
 				int start = Integer.parseInt(start_id);
 				int end = Integer.parseInt(limit);
 
-				HashMap<String, String> sort = null;
+				Map<String, String> sort = null;
 				if (request.getParameter("sort") != null) {
 					// sorting
 					JSONArray sorter;
 					String sort_field = "";
 					String sort_dir = "";
 					try {
-						sorter = (JSONArray) jsonParser.parse(request.getParameter("sort").toString());
+						sorter = (JSONArray) jsonParser.parse(request.getParameter("sort"));
 						sort_field += ((JSONObject) sorter.get(0)).get("property").toString();
 						sort_dir += ((JSONObject) sorter.get(0)).get("direction").toString();
 						for (int i = 1; i < sorter.size(); i++) {
@@ -182,10 +178,10 @@ public class SpecialtyGeneSourcePortlet extends GenericPortlet {
 						}
 					}
 					catch (ParseException e) {
-						e.printStackTrace();
+						LOGGER.error(e.getMessage(), e);
 					}
 
-					sort = new HashMap<String, String>();
+					sort = new HashMap<>();
 
 					if (!sort_field.equals("") && !sort_dir.equals("")) {
 						sort.put("field", sort_field);
@@ -193,7 +189,7 @@ public class SpecialtyGeneSourcePortlet extends GenericPortlet {
 					}
 				}
 
-				JSONObject object = solr.getData(key, sort, facet, start, end, facet != null ? true : false, hl, false);
+				JSONObject object = solr.getData(key, sort, facet, start, end, facet != null, hl, false);
 
 				JSONObject obj = (JSONObject) object.get("response");
 				JSONArray obj1 = (JSONArray) obj.get("docs");
@@ -209,8 +205,7 @@ public class SpecialtyGeneSourcePortlet extends GenericPortlet {
 				query.setFacetLimit(-1);
 				query.setRows(0);
 				
-				//HashMap<String, HashMap<String, Integer>> hmCounts = new HashMap<String, HashMap<String, Integer>>();
-				HashMap<String, Long> hmCounts = new HashMap<String, Long>();
+				HashMap<String, Long> hmCounts = new HashMap<>();
 				
 				try {
 					solr.setCurrentInstance(SolrCore.SPECIALTY_GENE_MAPPING);
@@ -220,58 +215,15 @@ public class SpecialtyGeneSourcePortlet extends GenericPortlet {
 					for (Count ffsi: ffSourceId) {
 						hmCounts.put(ffsi.getName(), ffsi.getCount());
 					}
-					/*
-					NamedList<List<PivotField>> nlPivot = res.getFacetPivot();
-					List<PivotField> lPivot = nlPivot.getVal(0);
-					
-					for (PivotField pivot: lPivot) {
-						String sourceId = pivot.getValue().toString();
-						int cnt = pivot.getCount();
-						hmCounts.put(sourceId, cnt);
-						///
-						int cntSameGenus = 0, cntSameSpecies = 0, cntSameGenome = 0;
-						
-						List<PivotField> pvSameGenus = pivot.getPivot();
-						for (PivotField pvSG: pvSameGenus) {
-							if (pvSG.getValue().toString().equals("1")) {
-								cntSameGenus = pvSG.getCount();
-								//
-								List<PivotField> pvSameSpecies = pvSG.getPivot();
-								for (PivotField pvSS: pvSameSpecies) {
-									if (pvSS.getValue().toString().equals("1")) {
-										cntSameSpecies = pvSS.getCount();
-										//
-										List<PivotField> pvSameGenome = pvSS.getPivot();
-										for (PivotField pvSN: pvSameGenome) {
-											if (pvSN.getValue().toString().equals("1")) {
-												cntSameGenome = pvSN.getCount();
-											}
-										}
-									}
-								}
-							}
-						}
-						HashMap<String, Integer> cnt = new HashMap<String, Integer>();
-						cnt.put("sameGenus", cntSameGenus);
-						cnt.put("sameSpecies", cntSameSpecies);
-						cnt.put("sameGenome", cntSameGenome);
-						hmCounts.put(sourceId, cnt);
-					}
-					*/
 				}
 				catch (SolrServerException e) {
-					e.printStackTrace();
+					LOGGER.error(e.getMessage(), e);
 				}
-				//System.out.println(hmCounts.toString());
 
-				//JSONArray obj1 = (JSONArray) obj.get("docs");
 				JSONArray results = new JSONArray();
-				for (int i = 0; i < obj1.size(); i++) {
-					JSONObject row = (JSONObject) obj1.get(i);
+				for (Object anObj1 : obj1) {
+					JSONObject row = (JSONObject) anObj1;
 					if (hmCounts.containsKey(row.get("source_id"))) {
-						//row.put("same_genus", hmCounts.get(row.get("source_id")).get("sameGenus"));
-						//row.put("same_species", hmCounts.get(row.get("source_id")).get("sameSpecies"));
-						//row.put("same_genome", hmCounts.get(row.get("source_id")).get("sameGenome"));
 						row.put("homologs", hmCounts.get(row.get("source_id")));
 					}
 					else {
@@ -286,7 +238,6 @@ public class SpecialtyGeneSourcePortlet extends GenericPortlet {
 					}
 				}
 
-				//jsonResult.put("results", obj1);
 				jsonResult.put("results", results);
 				jsonResult.put("total", obj.get("numFound"));
 
@@ -326,7 +277,7 @@ public class SpecialtyGeneSourcePortlet extends GenericPortlet {
 					}
 				}
 				catch (ParseException e) {
-					e.printStackTrace();
+					LOGGER.error(e.getMessage(), e);
 				}
 
 				response.setContentType("application/json");

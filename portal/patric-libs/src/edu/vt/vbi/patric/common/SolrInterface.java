@@ -128,7 +128,7 @@ public class SolrInterface {
 		return url;
 	}
 
-	public JSONObject getData(ResultType key, HashMap<String, String> sort, String facets, int start, int end, boolean facet, boolean highlight,
+	public JSONObject getData(ResultType key, Map<String, String> sort, String facets, int start, int end, boolean facet, boolean highlight,
 			boolean grouping) throws IOException {
 
 		if (end == -1)
@@ -217,8 +217,6 @@ public class SolrInterface {
 			query.addField(key.get("fields").toString());
 		}
 
-		// System.out.println("Request: " + query.toString());
-
 		return ConverttoJSON(server, query, facet, highlight);
 	}
 
@@ -239,17 +237,9 @@ public class SolrInterface {
 	public JSONObject ConverttoJSON(SolrServer server, SolrQuery query, boolean faceted, boolean highlighted) {
 
 		JSONObject result = new JSONObject();
-		// long start = 0, end = 0;
 
 		try {
-			// start = System.currentTimeMillis();
 			QueryResponse qr = server.query(query, SolrRequest.METHOD.POST);
-			// end = System.currentTimeMillis();
-			// System.out.println("Query time - "+(end-start)+"ms");
-			// System.out.println(query.toString()); // un-comment if you want
-			// to see the result string
-
-			// start = System.currentTimeMillis();
 
 			SolrDocumentList sdl = new SolrDocumentList();
 			GroupResponse groupResponse = qr.getGroupResponse();
@@ -286,7 +276,6 @@ public class SolrInterface {
 				for (Iterator<Map.Entry<String, Object>> i = d.iterator(); i.hasNext();) {
 					Map.Entry<String, Object> el = i.next();
 					if (el.getKey().equals("completion_date") || el.getKey().equals("release_date")) {
-						// System.out.println(el.getKey()+":"+el.getValue().toString()+" ("+el.getValue().getClass()+")");
 						values.put(el.getKey(), transformDate((Date) el.getValue()));
 					}
 					else {
@@ -295,10 +284,8 @@ public class SolrInterface {
 
 					if (el.getKey().equals("rownum")) {
 						if (highlighted) {
-							// System.out.print(el.getValue());
 							if (highlight_id.containsKey(el.getValue().toString())) {
 								highlight_fields = highlight_id.get(el.getValue().toString());
-								// System.out.print("highlight_fields "+highlight_fields);
 							}
 						}
 					}
@@ -325,7 +312,6 @@ public class SolrInterface {
 				docs.add(values);
 			}
 
-			// System.out.println(docs.toJSONString());
 			response.put("docs", docs);
 			result.put("response", response);
 
@@ -402,8 +388,6 @@ public class SolrInterface {
 		catch (SolrServerException e) {
 			e.printStackTrace();
 		}
-		// end = System.currentTimeMillis();
-		// System.out.println("Processing time - "+(end-start)+"ms");
 		return result;
 	}
 
@@ -413,8 +397,6 @@ public class SolrInterface {
 		keyword = keyword.replaceAll("%22", "\"");
 		keyword = keyword.replaceAll("%27", "'");
 		keyword = keyword.replaceAll("%2F", "\\\\/");
-
-		// System.out.println(keyword);
 
 		keyword = StringHelper.parseSolrKeywordOperator(keyword);
 		return keyword;
@@ -428,22 +410,17 @@ public class SolrInterface {
 			ParseException {
 		keyword = KeywordReplace(keyword);
 
-		// System.out.print("Patric Libs keyword - "+keyword+","+fq);
-
 		int beginindex = keyword.indexOf(" AND (" + single_facet);
 		int endindex = 0;
 
 		StringBuffer s = new StringBuffer(keyword);
-
-		// System.out.print("single_facet: "+single_facet);
-		// System.out.print("beginindex: "+beginindex);
 
 		if (beginindex < 0) {
 			beginindex = keyword.indexOf("(" + single_facet);
 			endindex = keyword.indexOf(") AND ", beginindex);
 			if (endindex < 0) {
 				endindex = keyword.indexOf("))", beginindex);
-				// System.out.print("endindex: " + endindex);
+
 				// TODO: this cause java.lang.StringIndexOutOfBoundsException: String index out of range: -1
 				// when Patric Libs keyword - (*) and endindex: 2
 				s.delete(beginindex, endindex + 2);
@@ -459,14 +436,8 @@ public class SolrInterface {
 			}
 			s.delete(beginindex, endindex + 2);
 		}
-		// System.out.print(s);
-		// System.out.print("s.length: " + s.length());
 		if (s.length() == 0)
 			s.append("(*)");
-
-		/*
-		 * System.out.print("substring : "+keyword.substring(beginindex, endindex+1)); System.out.print("new query : "+s.toString());
-		 */
 
 		SolrQuery query = new SolrQuery();
 		query.setQuery(s.toString());
@@ -555,7 +526,6 @@ public class SolrInterface {
 			query.set("group.ngroups", "true");
 		}
 
-		// System.out.println("Global Summary Search : "+query.toString());
 		return ConverttoJSON(server, query, false, true);
 	}
 
@@ -588,7 +558,6 @@ public class SolrInterface {
 				this.setCurrentInstance(SolrCore.TRANSCRIPTOMICS_EXPERIMENT);
 			}
 
-			// System.out.println(query);
 			QueryResponse qr = server.query(query, SolrRequest.METHOD.POST);
 			SpellCheckResponse spellCheckRes = qr.getSpellCheckResponse();
 			if (spellCheckRes.getCollatedResult() != null && !suggestion.contains(spellCheckRes.getCollatedResult()))
@@ -628,9 +597,6 @@ public class SolrInterface {
 			e2.printStackTrace();
 		}
 
-		/*
-		 * System.out.print(facet_data.toString()); System.out.print(facet_data.get("facet").toString());
-		 */
 		String[] a = facet_data.get("facet").toString().split(",");
 		String[] a_text = facet_data.get("facet_text").toString().split(",");
 
@@ -665,7 +631,6 @@ public class SolrInterface {
 					catch (ParseException e) {
 						e.printStackTrace();
 					}
-					// System.out.print("ai " + a[i]);
 					JSONObject obj = (JSONObject) object.get("facets");
 					sent = (JSONObject) obj.get(a[i]);
 					f = createNode(sent, i, "tree", true, key.get("keyword"), limit, a_text[i]);
@@ -737,8 +702,6 @@ public class SolrInterface {
 					else
 						lookup = split[sp].substring(1, endindex);
 
-					// System.out.print("lookup : "+ lookup);
-					// System.out.print("lookup : "+ lookup.indexOf(" OR "));
 
 					if (lookup.indexOf(" OR ") > 0) {
 						String[] lookup_arr = lookup.split(" OR ");
@@ -748,8 +711,6 @@ public class SolrInterface {
 								if (k > 0)
 									lookup_arr[k] = lookup_arr[k].split("\\[")[1];
 							}
-							// System.out.print("lookup_arr[k] : "+
-							// lookup_arr[k]);
 							if (lookup_arr[k].equals(object.get("value").toString())
 									|| lookup_arr[k].equals("\"" + object.get("value").toString() + "\"")) {
 								temp.put("checked", true);
@@ -856,7 +817,7 @@ public class SolrInterface {
 	/**
 	 * Retrieve transcriptomics comparison table from Solr with given experiment id(s) and sample id(s)
 	 * @author Oral Dalay
-	 * @param experiment Ids or/and Comparison Ids
+	 * param experiment Ids or/and Comparison Ids
 	 * @return JSONObject
 	 * @throws MalformedURLException
 	 */
@@ -865,9 +826,6 @@ public class SolrInterface {
 			throws MalformedURLException {
 		JSONObject res = new JSONObject();
 		String query = "";
-
-		// System.out.println(expId);
-		// System.out.println(sampleId);
 
 		if (expId != null && !expId.equals("")) {
 			query += "eid:(" + expId.replaceAll(",", " OR ") + ")";
@@ -892,9 +850,8 @@ public class SolrInterface {
 		catch (IOException e) {
 			e.printStackTrace();
 		}
-		// System.out.println((JSONObject)res.get("response"));
 		JSONObject ret = new JSONObject();
-		ret.put("data", (JSONArray) ((JSONObject) res.get("response")).get("docs"));
+		ret.put("data", ((JSONObject) res.get("response")).get("docs"));
 		ret.put("total", ((JSONObject) res.get("response")).get("numFound"));
 
 		return ret;
@@ -923,7 +880,6 @@ public class SolrInterface {
 		catch (IOException e) {
 			e.printStackTrace();
 		}
-		// System.out.println((JSONObject)res.get("response"));
 
 		JSONArray arr = (JSONArray) ((JSONObject) res.get("response")).get("docs");
 
@@ -936,9 +892,6 @@ public class SolrInterface {
 
 		}
 
-		// ret.put("data", (JSONArray)((JSONObject)res.get("response")).get("docs"));
-		// ret.put("total", ((JSONObject)res.get("response")).get("numFound"));
-
 		return ret.length() > 0 ? ret.substring(0, ret.length() - 1) : ret;
 
 	}
@@ -946,7 +899,7 @@ public class SolrInterface {
 	/**
 	 * Retrieve transcriptomics genes from Solr with given experiment id(s) and sample id(s)
 	 * @author Oral Dalay
-	 * @param experiment Ids or/and Comparison Ids
+	 * param experiment Ids or/and Comparison Ids
 	 * @return JSONObject
 	 * @throws MalformedURLException
 	 */
@@ -954,9 +907,6 @@ public class SolrInterface {
 	public JSONArray getTranscriptomicsGenes(String sampleId, String expId, String keyword) throws MalformedURLException {
 		JSONObject res = new JSONObject();
 		String query = "";
-		/*
-		 * System.out.println(expId); System.out.println(sampleId); System.out.println(keyword);
-		 */
 
 		if (keyword != null && !keyword.equals("")) {
 			query += "(locus_tag:(" + keyword + ") OR refseq_locus_tag:(" + keyword + ")) ";
@@ -987,7 +937,6 @@ public class SolrInterface {
 		catch (IOException e) {
 			e.printStackTrace();
 		}
-		// System.out.println((JSONObject)res.get("response"));
 		return (JSONArray) ((JSONObject) res.get("response")).get("docs");
 	}
 
@@ -1282,7 +1231,7 @@ public class SolrInterface {
 		query.setFacetLimit(-1);
 		query.setFacetMinCount(1);
 		query.setFacetSort("count");
-		// System.out.println("queryFacet::"+query.toString());
+
 		try {
 			QueryResponse qr = server.query(query);
 			// skip passing records
@@ -1290,7 +1239,6 @@ public class SolrInterface {
 
 			// get facet list and counts
 			FacetField ff = qr.getFacetField(facet);
-			// System.out.println(ff.toString());
 
 			JSONArray facetfield = new JSONArray();
 			List<FacetField.Count> facetEntries = ff.getValues();
@@ -1444,7 +1392,7 @@ public class SolrInterface {
 			else { // get corresponding PARIC
 				SolrQuery query2 = new SolrQuery();
 				query2.setQuery("pos_group:" + f.getPosGroupInQuote() + " AND feature_type:" + f.getFeatureType() + " AND annotation:PATRIC");
-				// System.out.println("SolrInterface.getPATRICFeature:" + query2.toString());
+
 				List<DNAFeature> res2 = this.searchSolrRecords(DNAFeature.class, query2);
 				if (!res2.isEmpty()) { // found PATRIC feature
 					pf = res2.get(0);
@@ -1462,8 +1410,6 @@ public class SolrInterface {
 		query.setQuery("na_feature_id:" + id);
 		query.setRows(1000000);
 		String experiment_id = "";
-
-		// System.out.println(query.toString());
 
 		try {
 			QueryResponse qr = server.query(query);

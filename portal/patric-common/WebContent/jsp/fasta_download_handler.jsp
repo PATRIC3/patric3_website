@@ -21,22 +21,14 @@
 	String fids = request.getParameter("fids");
 	// getting sort params
 
-	/*System.out.println("fasta_type:"+_fasta_type);
-	System.out.println("fasta_scope:"+_fasta_scope);
-	System.out.println("fasta_action:"+_fasta_action);
-	System.out.println("fids:"+fids);
-	 */
-
 	HashMap<String, String> key = new HashMap<String, String>();
 	HashMap<String, String> sort = new HashMap<String, String>();
 
 	if (_fasta_action == null || _fasta_type == null || _fasta_scope == null) {
-		System.out.println("Error");
 		_fasta_action = null;
 	}
 	if (_fasta_type.equalsIgnoreCase("dna") || _fasta_type.equalsIgnoreCase("protein")
 			|| _fasta_type.equalsIgnoreCase("both")) {
-		//System.out.println(_fasta_type);
 
 		if (_fasta_scope.equalsIgnoreCase("Selected")) {
 
@@ -53,8 +45,6 @@
 	if (_fasta_action == null) {
 	}
 	else if (_fasta_action.equalsIgnoreCase("download")) {
-
-		//System.out.println(_fasta_action);
 
 		response.setContentType("application/octetstream");
 		response.setHeader("Content-Disposition", "attachment; filename=\"" + _filename + "\"");
@@ -82,7 +72,7 @@
 
 	}
 	else if (_fasta_action.equalsIgnoreCase("display")) {
-		//System.out.println(_fasta_action);
+
 		StringBuilder output = new StringBuilder();
 		output.append("<div class=\"fixed-width-font\">\n");
 		output.append("<pre>\n");
@@ -107,7 +97,6 @@
 			}
 		}
 		catch (Exception ex) {
-			ex.printStackTrace();
 			output.append(ex.toString());
 		}
 		output.append("</pre>");

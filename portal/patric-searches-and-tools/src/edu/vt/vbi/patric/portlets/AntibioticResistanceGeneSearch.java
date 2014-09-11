@@ -18,6 +18,7 @@ package edu.vt.vbi.patric.portlets;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import javax.portlet.GenericPortlet;
@@ -28,7 +29,6 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
-import javax.portlet.UnavailableException;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -39,6 +39,8 @@ import edu.vt.vbi.patric.common.SiteHelper;
 import edu.vt.vbi.patric.common.SolrCore;
 import edu.vt.vbi.patric.common.SolrInterface;
 import edu.vt.vbi.patric.dao.ResultType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AntibioticResistanceGeneSearch extends GenericPortlet {
 
@@ -46,19 +48,16 @@ public class AntibioticResistanceGeneSearch extends GenericPortlet {
 
 	JSONParser jsonParser = new JSONParser();
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.portlet.GenericPortlet#doView(javax.portlet.RenderRequest, javax.portlet.RenderResponse)
-	 */
+	private static final Logger LOGGER = LoggerFactory.getLogger(AntibioticResistanceGeneSearch.class);
+
 	@Override
-	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException, UnavailableException {
+	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 
 		response.setContentType("text/html");
 		String mode = request.getParameter("display_mode");
 		new SiteHelper().setHtmlMetaElements(request, response, "Antibiotic Resistance Gene Search");
 
-		PortletRequestDispatcher prd = null;
+		PortletRequestDispatcher prd;
 		if (mode != null && mode.equals("result")) {
 			prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/antibiotic_resistance_gene_search_result.jsp");
 		}
@@ -91,7 +90,7 @@ public class AntibioticResistanceGeneSearch extends GenericPortlet {
 			if (genomeId != null && !genomeId.equalsIgnoreCase("")) {
 				key.put("genomeId", genomeId);
 			}
-			if (taxonId != null && !taxonId.equalsIgnoreCase("")) {
+			if (!taxonId.equalsIgnoreCase("")) {
 				key.put("taxonId", taxonId);
 			}
 			if (keyword != null) {
@@ -113,8 +112,8 @@ public class AntibioticResistanceGeneSearch extends GenericPortlet {
 			Random g = new Random();
 			int random = g.nextInt();
 
-			PortletSession sess = request.getPortletSession(true);
-			sess.setAttribute("key" + random, key, PortletSession.APPLICATION_SCOPE);
+			PortletSession session = request.getPortletSession(true);
+			session.setAttribute("key" + random, key, PortletSession.APPLICATION_SCOPE);
 
 			PrintWriter writer = response.getWriter();
 			writer.write("" + random);
@@ -127,7 +126,7 @@ public class AntibioticResistanceGeneSearch extends GenericPortlet {
 
 			if (sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE) != null) {
 				ResultType key = (ResultType) sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
-				ret = key.get("keyword").toString();
+				ret = key.get("keyword");
 			}
 
 			PrintWriter writer = response.getWriter();
@@ -136,8 +135,8 @@ public class AntibioticResistanceGeneSearch extends GenericPortlet {
 		}
 		else {
 			String need = request.getParameter("need");
-			String facet = "", keyword = "", pk = "", state = "", taxonId = "";
-			boolean hl = false;
+			String facet, keyword, pk, state, taxonId;
+			boolean hl;
 			PortletSession sess = request.getPortletSession();
 			ResultType key = new ResultType();
 			JSONObject jsonResult = new JSONObject();
@@ -150,16 +149,6 @@ public class AntibioticResistanceGeneSearch extends GenericPortlet {
 				pk = request.getParameter("pk");
 				keyword = request.getParameter("keyword");
 				facet = request.getParameter("facet");
-				/*if (facet.equals("") == false) {
-					try {
-						JSONObject objFacet = (JSONObject) jsonParser.parse(facet);
-						objFacet.put("facet.sort", "index");
-						facet = objFacet.toJSONString();
-					}
-					catch (ParseException e) {
-						e.printStackTrace();
-					}
-				}*/
 
 				String highlight = request.getParameter("highlight");
 				hl = Boolean.parseBoolean(highlight);
@@ -180,14 +169,14 @@ public class AntibioticResistanceGeneSearch extends GenericPortlet {
 				int start = Integer.parseInt(start_id);
 				int end = Integer.parseInt(limit);
 
-				HashMap<String, String> sort = null;
+				Map<String, String> sort = null;
 				if (request.getParameter("sort") != null) {
 					// sorting
 					JSONArray sorter;
 					String sort_field = "";
 					String sort_dir = "";
 					try {
-						sorter = (JSONArray) jsonParser.parse(request.getParameter("sort").toString());
+						sorter = (JSONArray) jsonParser.parse(request.getParameter("sort"));
 						sort_field += ((JSONObject) sorter.get(0)).get("property").toString();
 						sort_dir += ((JSONObject) sorter.get(0)).get("direction").toString();
 						for (int i = 1; i < sorter.size(); i++) {
@@ -195,10 +184,10 @@ public class AntibioticResistanceGeneSearch extends GenericPortlet {
 						}
 					}
 					catch (ParseException e) {
-						e.printStackTrace();
+						LOGGER.error(e.getMessage(), e);
 					}
 
-					sort = new HashMap<String, String>();
+					sort = new HashMap<>();
 
 					if (!sort_field.equals("") && !sort_dir.equals("")) {
 						sort.put("field", sort_field);
@@ -207,13 +196,13 @@ public class AntibioticResistanceGeneSearch extends GenericPortlet {
 				}
 
 				// add join condition
-				if (taxonId != null && taxonId.equals("") == false) {
+				if (taxonId != null && !taxonId.equals("")) {
 					key.put("taxonId", taxonId);
 				}
 				if (key.containsKey("taxonId") && key.get("taxonId") != null) {
 					key.put("join", SolrCore.GENOME.getSolrCoreJoin("gid", "genome_info_id", "taxon_lineage_ids:" + key.get("taxonId")));
 				}
-				JSONObject object = solr.getData(key, sort, facet, start, end, facet != null ? true : false, hl, false);
+				JSONObject object = solr.getData(key, sort, facet, start, end, facet != null, hl, false);
 
 				JSONObject obj = (JSONObject) object.get("response");
 				JSONArray obj1 = (JSONArray) obj.get("docs");
@@ -249,20 +238,6 @@ public class AntibioticResistanceGeneSearch extends GenericPortlet {
 				}
 
 				key.put("state", state);
-/*
-				if (key.containsKey("facet") && key.get("facet").equals("") == false) {
-					try {
-						facet = key.get("facet");
-						JSONObject objFacet = (JSONObject) jsonParser.parse(facet);
-						objFacet.put("facet.sort", "index");
-						facet = objFacet.toJSONString();
-					}
-					catch (ParseException e) {
-						e.printStackTrace();
-					}
-					key.put("facet", facet);
-				}
-*/
 				sess.setAttribute("key" + pk, key, PortletSession.APPLICATION_SCOPE);
 
 				try {
@@ -277,7 +252,7 @@ public class AntibioticResistanceGeneSearch extends GenericPortlet {
 					}
 				}
 				catch (ParseException e) {
-					e.printStackTrace();
+					LOGGER.error(e.getMessage(), e);
 				}
 
 				response.setContentType("application/json");

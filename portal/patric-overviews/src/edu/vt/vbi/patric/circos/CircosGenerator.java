@@ -34,7 +34,7 @@ import com.samskivert.mustache.Template;
 
 public class CircosGenerator {
 
-	private static final Logger logger = LoggerFactory.getLogger(CircosGenerator.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(CircosGenerator.class);
 
 	private final String DIR_CONFIG = "/conf";
 
@@ -59,13 +59,13 @@ public class CircosGenerator {
 			tmplCircosConf = Mustache.compiler().compile(new BufferedReader(new FileReader(path + "/conf_templates/circos.mu")));
 		}
 		catch (FileNotFoundException e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 	}
 
 	public Circos createCircosImage(Map<String, Object> parameters) {
 		if (parameters.isEmpty()) {
-			logger.error("Circos image could not be created");
+			LOGGER.error("Circos image could not be created");
 			return null;
 		}
 		else {
@@ -87,7 +87,7 @@ public class CircosGenerator {
 			}
 
 			// Store image size parameter from form
-			if (parameters.containsKey("image_dimensions") && parameters.get("image_dimensions").equals("") == false) {
+			if (parameters.containsKey("image_dimensions") && !parameters.get("image_dimensions").equals("")) {
 				circos.setImageSize(Integer.parseInt(parameters.get("image_dimensions").toString()));
 			}
 
@@ -106,7 +106,7 @@ public class CircosGenerator {
 				Files.createDirectory(Paths.get(tmpFolderName));
 			}
 			catch (IOException e) {
-				e.printStackTrace();
+				LOGGER.error(e.getMessage(), e);
 				return null;
 			}
 
@@ -118,13 +118,13 @@ public class CircosGenerator {
 			// `circos -conf #{folder_name}/circos_configs/circos.conf -debug_group summary,timer > circos.log.out`
 			String command = "circos -conf " + tmpFolderName + DIR_CONFIG + "/circos.conf -debug_group summary,timer";
 			try {
-				logger.info("Starting Circos script: " + command);
+				LOGGER.debug("Starting Circos script: " + command);
 				Process p = Runtime.getRuntime().exec(command);
 				p.waitFor();
-				logger.info(IOUtils.toString(p.getInputStream()));
+				LOGGER.debug(IOUtils.toString(p.getInputStream()));
 			}
 			catch (Exception e) {
-				e.printStackTrace();
+				LOGGER.error(e.getMessage(), e);
 			}
 
 			return circos;
@@ -140,10 +140,7 @@ public class CircosGenerator {
 		Map<String, List<Map<String, Object>>> genomeData = new LinkedHashMap<>();
 		Map<String, String> trackNames = new HashMap<>();
 
-		// Iterate over each checked off data type
-		Iterator<String> paramKeys = (Iterator<String>) parameters.keySet().iterator();
-		while (paramKeys.hasNext()) {
-			String parameter = paramKeys.next();
+		for (String parameter: parameters.keySet()) {
 			// Skip over parameters that aren't track types
 			int idx = defaultDataTracks.indexOf(parameter);
 			if (idx < 0) {
@@ -171,12 +168,13 @@ public class CircosGenerator {
 		// Create a set of all the entered custom track numbers
 		// parameters.keys.select{ |e| /custom_track_.*/.match e }.each { |parameter| track_nums << parameter[/.*_(\d+)$/, 1] }
 		Set<Integer> trackNums = new HashSet<>();
-		paramKeys = (Iterator<String>) parameters.keySet().iterator();
-		while (paramKeys.hasNext()) {
-			String key = paramKeys.next();
+//		paramKeys = (Iterator<String>) parameters.keySet().iterator();
+//		while (paramKeys.hasNext()) {
+//			String key = paramKeys.next();
+		for (String key: parameters.keySet()) {
 			if (key.matches("custom_track_.*_(\\d+)$")) {
 				int num = Integer.parseInt(key.substring(key.lastIndexOf("_") + 1));
-				// logger.info("{} matches {}", key, num);
+				LOGGER.trace("{} matches {}", key, num);
 				trackNums.add(num);
 			}
 		}
@@ -218,7 +216,7 @@ public class CircosGenerator {
 			Files.createDirectory(Paths.get(dirData));
 		}
 		catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 		Map<String, List<Map<String, Object>>> genomeData = circos.getGenomeData();
 		String genomeName = circosData.getGenomeName(circos.getGenomeId());
@@ -239,7 +237,7 @@ public class CircosGenerator {
 				}
 			}
 			catch (IOException e) {
-				e.printStackTrace();
+				LOGGER.error(e.getMessage(), e);
 			}
 		}
 
@@ -250,7 +248,7 @@ public class CircosGenerator {
 			}
 		}
 		catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 
 		// 3. Calculate GC content & skew values if user selected
@@ -259,7 +257,7 @@ public class CircosGenerator {
 
 		// 3.1 Create GC content data file
 		if (circos.getGcContentPlotType() != null) {
-			logger.info("Creating data file for GC content");
+			LOGGER.debug("Creating data file for GC content");
 			trackNames.put("gc_content", "GC Content, " + circos.getGcContentPlotType() + " Plot");
 			Map<String, Float> gcContentValues = new LinkedHashMap<>();
 			float minGCContent = 1.0f;
@@ -310,7 +308,7 @@ public class CircosGenerator {
 				}
 			}
 			catch (IOException e) {
-				e.printStackTrace();
+				LOGGER.error(e.getMessage(), e);
 			}
 			float[] range = new float[2];
 			range[0] = minGCContent;
@@ -321,7 +319,7 @@ public class CircosGenerator {
 
 		// 3.2 Create GC skew data file
 		if (circos.getGcSkewPlotType() != null) {
-			logger.info("Creating data file for GC skew");
+			LOGGER.debug("Creating data file for GC skew");
 			trackNames.put("gc_skew", "GC Skew, " + circos.getGcSkewPlotType() + " Plot");
 
 			Map<String, Float> gcSkewValues = new LinkedHashMap<>();
@@ -356,16 +354,14 @@ public class CircosGenerator {
 			}
 			// Write GC skew data for this accession
 			try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(dirData + "/gc.skew.txt")));) {
-				Iterator<String> iterGC = gcSkewValues.keySet().iterator();
-				while (iterGC.hasNext()) {
-					String range = iterGC.next();
+				for (String range : gcSkewValues.keySet()) {
 					String[] rangeId = range.split(":");
 					String[] rangeLoc = rangeId[1].split("\\.\\.");
 					writer.format("%s\t%s\t%s\t%f\n", rangeId[0], rangeLoc[0], rangeLoc[1], gcSkewValues.get(range));
 				}
 			}
 			catch (IOException e) {
-				e.printStackTrace();
+				LOGGER.error(e.getMessage(), e);
 			}
 
 			float[] range = new float[2];
@@ -383,20 +379,19 @@ public class CircosGenerator {
 			writer.close();
 		}
 		catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 
 		// 5. Process upload files
-		List<Map<String, Object>> fileupload = new ArrayList<Map<String, Object>>();
+		List<Map<String, Object>> fileupload = new ArrayList<>();
 		Set<Integer> trackNums = new HashSet<>();
-		Iterator<String> paramKeys = (Iterator<String>) parameters.keySet().iterator();
-		while (paramKeys.hasNext()) {
-			String key = paramKeys.next();
+
+		for (String key : parameters.keySet()) {
 			if (key.matches("file_(\\d+)$")) {
 				int num = Integer.parseInt(key.substring(key.lastIndexOf("_") + 1));
 				FileItem item = (FileItem) parameters.get("file_" + num);
-				// logger.info("{} matches, filename={}", key, item.getName().toString());
-				if (item.getName().toString().equals("") == false) {
+				LOGGER.trace("{} matches, filename={}", key, item.getName());
+				if (!item.getName().equals("")) {
 					trackNums.add(num);
 				}
 			}
@@ -414,7 +409,7 @@ public class CircosGenerator {
 
 					try (BufferedReader br = new BufferedReader(new InputStreamReader(item.getInputStream()))) {
 						String line;
-						while ((line = br.readLine()) != null && isValid == true) {
+						while ((line = br.readLine()) != null && isValid) {
 							// logger.info(line);
 							String[] tab = line.split("\t");
 							if (plotType.equals("tile")) {
@@ -422,7 +417,7 @@ public class CircosGenerator {
 									sb.append(line);
 									sb.append("\n");
 								}
-								else if (tab[3].contains("id=") == false) {
+								else if (!tab[3].contains("id=")) {
 									isValid = false;
 								}
 								else {
@@ -447,10 +442,10 @@ public class CircosGenerator {
 						}
 					}
 					catch (IOException e) {
-						e.printStackTrace();
+						LOGGER.error(e.getMessage(), e);
 					}
 					if (isValid) {
-						// item.write(new File(dirData + "/" + fileName));
+
 						try (BufferedWriter writer = new BufferedWriter(new FileWriter(dirData + "/" + fileName))) {
 							writer.append(sb);
 						}
@@ -471,7 +466,7 @@ public class CircosGenerator {
 					}
 				}
 				catch (Exception e) {
-					e.printStackTrace();
+					LOGGER.error(e.getMessage(), e);
 				}
 			}
 		}
@@ -498,7 +493,7 @@ public class CircosGenerator {
 			Files.copy(Paths.get(appDir + "/conf_templates/ticks.conf"), Paths.get(confDir + "/ticks.conf"));
 		}
 		catch (IOException e) {
-			logger.error(e.getMessage());
+			LOGGER.error(e.getMessage(), e);
 		}
 
 		// plots.conf
@@ -654,7 +649,7 @@ public class CircosGenerator {
 			tmplPlotConf.execute(data, writer);
 		}
 		catch (IOException e) {
-			logger.error(e.getMessage());
+			LOGGER.error(e.getMessage(), e);
 		}
 
 		// Build image.conf with Mustache template
@@ -666,7 +661,7 @@ public class CircosGenerator {
 			tmplImageConf.execute(data, writer);
 		}
 		catch (IOException e) {
-			logger.error(e.getMessage());
+			LOGGER.error(e.getMessage(), e);
 		}
 
 		// Build circos.conf with Mustache template
@@ -677,7 +672,7 @@ public class CircosGenerator {
 			tmplCircosConf.execute(data, writer);
 		}
 		catch (IOException e) {
-			logger.error(e.getMessage());
+			LOGGER.error(e.getMessage(), e);
 		}
 
 		// return circos config

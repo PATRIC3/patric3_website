@@ -21,7 +21,7 @@ public class CircosData {
 
 	private String baseUrlSolr;
 
-	private static final Logger logger = LoggerFactory.getLogger(CircosData.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(CircosData.class);
 
 	public CircosData() {
 		boolean isProduction = System.getProperty("solr.isProduction", "false").equals("true");
@@ -34,7 +34,7 @@ public class CircosData {
 	}
 
 	public List<Map<String, Object>> getFeatures(String genome_info_id, String feature_type, String strand, String keyword) {
-		List<Map<String, Object>> docs = new LinkedList<Map<String, Object>>();
+		List<Map<String, Object>> docs = new LinkedList<>();
 
 		Map<String, String> solrQueryByType = new HashMap<>();
 		solrQueryByType.put("cds", "feature_type:CDS");
@@ -52,7 +52,7 @@ public class CircosData {
 		query.setSorts(sorts);
 		query.setRows(10000);
 
-		logger.info("SolrRequest [DNAFeature]{}", query.toString());
+		LOGGER.debug("SolrRequest [DNAFeature]{}", query.toString());
 		QueryResponse qr;
 		try {
 			SolrServer solrServer = new HttpSolrServer(baseUrlSolr + "dnafeature");
@@ -71,13 +71,13 @@ public class CircosData {
 			}
 		}
 		catch (SolrServerException e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 		return docs;
 	}
 
 	public List<Map<String, Object>> getAccessions(String genome_info_id) {
-		List<Map<String, Object>> accessions = new LinkedList<Map<String, Object>>();
+		List<Map<String, Object>> accessions = new LinkedList<>();
 
 		SolrQuery query = new SolrQuery();
 		query.setQuery("gid:" + genome_info_id);
@@ -85,7 +85,7 @@ public class CircosData {
 		query.setSort("accession", SolrQuery.ORDER.asc);
 		query.setRows(10000);
 
-		// logger.info("SolrRequest [SequenceInfo]{}", query.toString());
+		LOGGER.debug("SolrRequest [SequenceInfo]{}", query.toString());
 		QueryResponse qr;
 		try {
 			SolrServer solrServer = new HttpSolrServer(baseUrlSolr + "sequenceinfo");
@@ -101,7 +101,7 @@ public class CircosData {
 			}
 		}
 		catch (SolrServerException e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 		return accessions;
 	}
@@ -112,7 +112,7 @@ public class CircosData {
 		query.setQuery("gid:" + genome_info_id);
 		query.setFields("genome_name");
 
-		// logger.info("SolrRequest [GenomeSummary]{}", query.toString());
+		LOGGER.debug("SolrRequest [GenomeSummary]{}", query.toString());
 		QueryResponse qr;
 		try {
 			SolrServer solrServer = new HttpSolrServer(baseUrlSolr + "genomesummary");
@@ -123,7 +123,7 @@ public class CircosData {
 			}
 		}
 		catch (SolrServerException e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 		return genomeName;
 	}

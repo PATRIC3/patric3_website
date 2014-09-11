@@ -17,15 +17,13 @@
 
 		
 	if (_fasta_action == null || _fasta_type == null || _fasta_scope == null) {
-		System.out.println("Error");
 		_fasta_action = null;
 	}
 	if (_fasta_type.equalsIgnoreCase("NA") || _fasta_type.equalsIgnoreCase("AA") || _fasta_type.equalsIgnoreCase("ALL")) 
 	{
 		
 		String fids = request.getParameter("fids");
-		//System.out.print(fids);
-		
+
 		if (fids!=null && fids.contains(",")) {
 			String[] arr_fids = fids.split(",");
 			_fasta_feature_ids.addAll(Arrays.asList(arr_fids));
@@ -89,7 +87,6 @@
 				output.append("<br/>\n");
 			}
 		} catch (Exception ex) {
-			ex.printStackTrace();
 			output.append(ex.toString());
 		}
 		output.append("</pre>");

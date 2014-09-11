@@ -23,10 +23,14 @@ import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ENewsGenerator {
 
 	String sourceURL = "http://enews.patricbrc.org/php/rssAdapter.php";
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(ENewsGenerator.class);
 
 	public void setSourceURL(String url) {
 		sourceURL = url;
@@ -50,7 +54,7 @@ public class ENewsGenerator {
 			isSuccess = true;
 		}
 		catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 		finally {
 			httpclient.getConnectionManager().shutdown();

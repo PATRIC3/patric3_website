@@ -18,15 +18,13 @@ if (_accession!=null && _algorithm!=null) {
 	if (names[1] != null) {
 		_sid = names[1];
 	}
-	//System.out.println(_accession+","+_accn+","+_sid);
-	
+
 	HashMap<String,String> key = new HashMap<String,String>();
 	key.put("accession",_accn);
 	key.put("algorithm",_algorithm);
 	key.put("sid", _sid);
 
 	DBSummary conn_summary = new DBSummary();
-	//ArrayList<ResultType> features = conn_summary.getFeatures(key);
 	List<DNAFeature> features = conn_summary.getDNAFeatures(key);
 	
 	ArrayList<Integer> hist = conn_summary.getHistogram(key);

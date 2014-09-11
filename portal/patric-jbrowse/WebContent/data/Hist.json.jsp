@@ -23,8 +23,6 @@ if (_accession!=null && _algorithm!=null) {
 	key.put("algorithm", _algorithm);
 	key.put("sid", _sid);
 
-	//System.out.println(key.toString());
-
 	ArrayList<Integer> hist = db.getHistogram(key);
 
 	response.setContentType("application/json");

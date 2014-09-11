@@ -10,10 +10,6 @@ String pk = request.getParameter("param_key");
 
 ResultType key = (ResultType) portletSession.getAttribute("key"+pk, PortletSession.APPLICATION_SCOPE);
 
-if (key != null) {
-	System.out.println(key.toString());
-}
-
 String taxonId = "";
 String genomeId = "";
 String keyword = "";

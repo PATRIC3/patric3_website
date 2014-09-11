@@ -34,10 +34,14 @@ import org.json.simple.parser.ParseException;
 
 import edu.vt.vbi.patric.common.ExpressionDataFileReader;
 import edu.vt.vbi.patric.common.PolyomicHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TranscriptomicsUploader extends GenericPortlet {
 
 	String ENDPOINT = "http://polyomic.patricbrc.org:8888";
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(TranscriptomicsUploader.class);
 
 	@Override
 	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException, UnavailableException {
@@ -47,7 +51,7 @@ public class TranscriptomicsUploader extends GenericPortlet {
 	@SuppressWarnings("unchecked")
 	public void serveResource(ResourceRequest request, ResourceResponse response) throws PortletException, IOException {
 		String mode = request.getParameter("mode");
-		System.out.println("TranscriptomicsUploader mode:" + mode);
+		LOGGER.info("TranscriptomicsUploader mode: {}", mode);
 
 		if (request.getUserPrincipal() != null && mode != null) {
 			String userName = request.getUserPrincipal().getName();
@@ -84,7 +88,7 @@ public class TranscriptomicsUploader extends GenericPortlet {
 				json.put("collection", collectionId);
 				json.put("url", polyomic.getEndpoint());
 
-				System.out.println("create_collection is called:" + json.toJSONString());
+				LOGGER.info("create_collection is called: {}", json.toJSONString());
 
 				response.setContentType("application/json");
 				json.writeJSONString(response.getWriter());
@@ -96,20 +100,15 @@ public class TranscriptomicsUploader extends GenericPortlet {
 				String collectionId = request.getParameter("collectionId");
 				JSONObject snapshot = new JSONObject();
 
-				System.out.println("in parse_collection. collectionId:" + collectionId + ",token=" + polyomic.getAuthenticationToken());
+				LOGGER.debug("in parse_collection. collectionId: {}, token={}", collectionId, polyomic.getAuthenticationToken());
 
 				if (collectionId != null) {
 
 					JSONObject config = polyomic.getExpressionDataFileReaderConfig(collectionId);
-
-					// System.out.println("config: " + config.toJSONString());
-
 					ExpressionDataFileReader reader = new ExpressionDataFileReader(config);
 
 					if (reader.doRead()) {
 						reader.calculateExpStats();
-						// polyomic.saveJSONFilesToCollection(collectionId,
-						// reader);
 						polyomic.saveJSONtoCollection(collectionId, PolyomicHandler.CONTENT_SAMPLE + ".json",
 								reader.get(PolyomicHandler.CONTENT_SAMPLE), PolyomicHandler.CONTENT_SAMPLE);
 						polyomic.saveJSONtoCollection(collectionId, PolyomicHandler.CONTENT_EXPRESSION + ".json",
@@ -144,7 +143,6 @@ public class TranscriptomicsUploader extends GenericPortlet {
 					JSONObject config = polyomic.getExpressionDataFileReaderConfig(collectionId);
 					config.put("idMappingType", geneIdType);
 
-					// System.out.println("init reader: " + config.toJSONString());
 					ExpressionDataFileReader reader = new ExpressionDataFileReader(config);
 
 					if (reader.doRead()) {
@@ -202,11 +200,10 @@ public class TranscriptomicsUploader extends GenericPortlet {
 				try {
 					jsonExtra = (JSONObject) parser.parse(_extra);
 					jsonParsed = (JSONObject) jsonExtra.get("parsed");
-					// jsonOrganism = (JSONObject) jsonExtra.get("organism");
 					jsonMapping = (JSONObject) jsonExtra.get("mapping");
 				}
 				catch (ParseException e) {
-					e.printStackTrace();
+					LOGGER.error(e.getMessage(), e);
 				}
 
 				JSONObject json = new JSONObject();
@@ -234,10 +231,7 @@ public class TranscriptomicsUploader extends GenericPortlet {
 					json.put("origFileName", jsonParsed.get("origFileName"));
 				}
 				// organism, ncbi_taxon_id
-				/*
-				 * if (jsonOrganism != null) { if (jsonOrganism.containsKey("display_name")) { json.put("organism", jsonOrganism.get("display_name"));
-				 * } if (jsonOrganism.containsKey("ncbi_taxon_id")) { json.put("ncbi_taxon_id", jsonOrganism.get("ncbi_taxon_id")); } }
-				 */
+
 				// genes total, genes mapped
 				if (jsonMapping != null) {
 					json.put("geneTotal", jsonMapping.get("geneTotal"));
@@ -254,14 +248,12 @@ public class TranscriptomicsUploader extends GenericPortlet {
 				json.put("mdate", timestamp);
 				json.put("cdate", timestamp);
 
-				if (json != null) {
-					polyomic.saveJSONtoCollection(collectionId, "experiment.json", json, PolyomicHandler.CONTENT_EXPERIMENT);
+				polyomic.saveJSONtoCollection(collectionId, "experiment.json", json, PolyomicHandler.CONTENT_EXPERIMENT);
 
-					// save to workspace as well for better retrieval
-					// set status as "available" on the collection
-					polyomic.setCollectionState(collectionId, "available");
-					polyomic.addWorkspaceCollection(collectionId, json);
-				}
+				// save to workspace as well for better retrieval
+				// set status as "available" on the collection
+				polyomic.setCollectionState(collectionId, "available");
+				polyomic.addWorkspaceCollection(collectionId, json);
 
 				response.setContentType("application/json; charset=UTF-8");
 				json.writeJSONString(response.getWriter());

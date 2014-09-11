@@ -24,9 +24,7 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.*;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
@@ -41,6 +39,8 @@ import org.json.simple.JSONObject;
 
 import edu.vt.vbi.patric.dao.DBSearch;
 import edu.vt.vbi.patric.dao.ResultType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 //NOTES:
 //1. In allowing getter/setter methods to add new headers/fields, it opens up the
@@ -103,7 +103,7 @@ public class ExpressionDataFileReader {
 
 	private JSONArray expression, gene, sample, snapshot_array;
 	
-	private ArrayList<String> sampleIDs = new ArrayList<String>();
+	private List<String> sampleIDs = new ArrayList<>();
 	
 	private JSONObject mapping;
 
@@ -121,14 +121,14 @@ public class ExpressionDataFileReader {
 
 	private String collectionID;
 
-	private final HashMap<String, String> idTypes = new HashMap<String, String>();
+	private final Map<String, String> idTypes = new HashMap<>();
 
-	// Constructor
-	// -----------------------------------------------------------------------
+	private static final Logger LOGGER = LoggerFactory.getLogger(ExpressionDataFileReader.class);
 
 	/**
 	 * This constructor is used when you're reading in a file instead of generating one
 	 */
+
 	public ExpressionDataFileReader(JSONObject config) {
 
 		samplefileThere = Boolean.parseBoolean(config.get("sampleFilePresent").toString());
@@ -156,8 +156,8 @@ public class ExpressionDataFileReader {
 
 		boolean sample_success = false;
 		InputStream inp;
-		InputStreamReader stream = null;
-		BufferedReader reader = null;
+		InputStreamReader stream;
+		BufferedReader reader;
 
 		/*
 		 * If sample file is provided
@@ -172,7 +172,7 @@ public class ExpressionDataFileReader {
 					sample_success = readExcelFormat(inp, "sample");
 				}
 				catch (InvalidFormatException e) {
-					e.printStackTrace();
+					LOGGER.error(e.getMessage(), e);
 				}
 			}
 			else if (samplefileType.equals("txt") || samplefileType.equals("csv")) {
@@ -203,7 +203,7 @@ public class ExpressionDataFileReader {
 					data_success = readExcelFormat(inp, "data");
 				}
 				catch (InvalidFormatException e) {
-					e.printStackTrace();
+					LOGGER.error(e.getMessage(), e);
 				}
 			}
 			else if (datafileType.equals("txt") || datafileType.equals("csv")) {
@@ -227,7 +227,7 @@ public class ExpressionDataFileReader {
 	public InputStream getInputStreamReader(String path) throws MalformedURLException {
 		InputStream inp = null;
 
-		System.out.println(path);
+		LOGGER.debug(path);
 
 		try {
 			URL url = new URL(path);
@@ -238,7 +238,7 @@ public class ExpressionDataFileReader {
 			throw mfuex;
 		}
 		catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 		return inp;
 	}
@@ -293,15 +293,14 @@ public class ExpressionDataFileReader {
 	 */
 	public boolean readTXTDataFile(BufferedReader in) {
 		try {
-			String strLine = null;
+			String strLine;
 			int rowCount = 0;
 
 			while ((strLine = in.readLine()) != null && strLine != "") {
 				String snapshot = "";
 				String[] separated = strLine.split(separator);
 
-				if (separated != null && separated[0] != null && separated[0].length() > 0
-						&& (separated[0].charAt(0) == '!' || separated[0].charAt(0) == '#')) {
+				if (separated[0] != null && separated[0].length() > 0 && (separated[0].charAt(0) == '!' || separated[0].charAt(0) == '#')) {
 					continue;
 				}
 
@@ -421,7 +420,6 @@ public class ExpressionDataFileReader {
 					}
 					
 				}
-				// System.out.println(snapshot);
 				// To provide user a snapshot of uploaded file.
 				if (snapshot_array.size() < snapshot_size && snapshot.length() >= 1) {
 					JSONObject snapshot_obj = new JSONObject();
@@ -432,7 +430,7 @@ public class ExpressionDataFileReader {
 			}
 		}
 		catch (IOException e) {
-			System.out.println("File read Exception thrown. Uncomment in readFile(String fileName) to see stack trace.");
+			LOGGER.error("File read Exception thrown. Uncomment in readFile(String fileName) to see stack trace.", e);
 			return false;
 		}
 
@@ -538,7 +536,7 @@ public class ExpressionDataFileReader {
 						}
 						cellCount++;
 					}
-					//System.out.println(sample.toJSONString());
+					LOGGER.trace(sample.toJSONString());
 				}
 				else {
 					// process data cells
@@ -555,7 +553,7 @@ public class ExpressionDataFileReader {
 							}
 							else {
 								JSONObject s = getSample(sampleIDs.get(i-1));
-								//System.out.println("i=" + i + ", " + s.get("sampleUserGivenId"));
+								LOGGER.trace("i={}, {}", i, s.get("sampleUserGivenId"));
 
 								td.put("exp_locus_tag", geneID.get("exp_locus_tag"));
 								td.put("pid", s.get("pid"));
@@ -578,7 +576,7 @@ public class ExpressionDataFileReader {
 							else {
 								// convert to zero
 								JSONObject s = getSample(sampleIDs.get(i-1));
-								//System.out.println("i=" + i + ", " + s.get("sampleUserGivenId"));
+								LOGGER.trace("i={}, {}", i, s.get("sampleUserGivenId"));
 								
 								td.put("exp_locus_tag", geneID.get("exp_locus_tag"));
 								td.put("pid", s.get("pid"));
@@ -588,37 +586,9 @@ public class ExpressionDataFileReader {
 								snapshot += "\t0.0";
 							}
 						}
-						// System.out.println(td.toJSONString());
 					}
-					// System.out.println(snapshot);
 				}
 			}
-			/*
-			 * else if (orientation.equals("svg")) { int cellNullcounter = 0; while (cellIter.hasNext()) { myCell = cellIter.next(); if (rowCount == 0
-			 * && cellCount > fcn) { // process header JSONObject b = new JSONObject(); if (myCell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
-			 * b.put("sampleUserGivenId", String.format("%.0f", myCell.getNumericCellValue())); } else { b.put("sampleUserGivenId",
-			 * myCell.toString().trim()); }
-			 * 
-			 * if (!samplefileThere) { b.put("pid", collectionID + samplePreTag + cellCount);
-			 * 
-			 * if (myCell.getCellType() == Cell.CELL_TYPE_NUMERIC) { b.put("expname", String.format("%.0f", myCell.getNumericCellValue())); } else {
-			 * b.put("expname", myCell.toString().trim()); } sample.add(b); } samples_temp.add(b); } else if (rowCount > 0) { // process data
-			 * JSONObject geneA = new JSONObject();
-			 * 
-			 * if (cellCount == 0) { if (IsCellNotNull(myCell)) { geneA.put("exp_locus_tag", myCell.toString().trim()); gene.add(geneA); } else {
-			 * break; } } else { if (IsCellNotNull(myCell)) { JSONObject a = (JSONObject) gene.get(rowCount - 1); geneA.put("exp_locus_tag",
-			 * a.get("exp_locus_tag"));
-			 * 
-			 * a = (JSONObject) samples_temp.get(cellCount - 1); a = getSample(a.get("sampleUserGivenId").toString().trim());
-			 * 
-			 * geneA.put("pid", a.get("pid")); geneA.put("log_ratio", getFloatValue(myCell.toString().trim())); expression.add(geneA); } else {
-			 * cellNullcounter += 1; if (cellNullcounter == samples_temp.size()) { gene.remove(gene.size() - 1); rowCount--; } } } } // add to
-			 * snapshot if (IsCellNotNull(myCell)) { if (cellCount == 0 && rowCount > 0 || cellCount > fcn && rowCount == 0) { if (cellCount > fcn)
-			 * snapshot += "\t"; snapshot += myCell.toString(); } else if (cellCount == 0 && rowCount == 0) snapshot += "Gene"; else if (cellCount > 0
-			 * && rowCount > 0) snapshot += "\t" + getFloatValue(myCell.toString()); } else { snapshot += "\t"; }
-			 * 
-			 * cellCount++; } }
-			 */
 			else if (orientation.equals("gvs")) {
 				String sampleId = "";
 				cellCount = 0;
@@ -797,7 +767,7 @@ public class ExpressionDataFileReader {
 			}
 			rowCount++;
 		}
-		// System.out.println("readingXSLSample: " + sample.toJSONString());
+		LOGGER.trace("readingXSLSample: {}", sample.toJSONString());
 		return true;
 	}
 
@@ -854,10 +824,8 @@ public class ExpressionDataFileReader {
 				}
 				else if (rowCount > 0) {
 					// process data
-					// System.out.println("strLine-> "+strLine);
-					// for (int i = 0; i < separated.length; i++) {
 					for (int i = 0; i < columnCount; i++) {
-						if (separated[i] != null && separated[i].trim().equals("") == false) {
+						if (separated[i] != null && !separated[i].trim().equals("")) {
 							if (sample_order_list.get(i) != null) {
 								if (sample_order_list.get(i).equals("pid") || sample_order_list.get(i).equals("comparison id")) {
 									a.put("pid", collectionID + samplePreTag + (rowCount - 1));
@@ -883,10 +851,10 @@ public class ExpressionDataFileReader {
 			}
 		}
 		catch (IOException e) {
-			System.out.println("File read Exception thrown. Uncomment in readSampleFile(String fileName) to see stack trace.");
+			LOGGER.error("File read Exception thrown. Uncomment in readSampleFile(String fileName) to see stack trace.", e);
 			return false;
 		}
-		System.out.println("readSampleFile: " + sample.toJSONString());
+		LOGGER.debug("readSampleFile: {}", sample.toJSONString());
 		return success;
 	}
 
@@ -896,7 +864,7 @@ public class ExpressionDataFileReader {
 	public boolean runIDMappingStatistics() {
 
 		DBSearch db = new DBSearch();
-		HashMap<String, String> key = new HashMap<String, String>();
+		Map<String, String> key = new HashMap<>();
 
 		String idList = ((JSONObject) (gene.get(0))).get("exp_locus_tag").toString();
 
@@ -927,14 +895,9 @@ public class ExpressionDataFileReader {
 		JSONArray mapped_list = new JSONArray();
 		JSONArray unmapped_list = new JSONArray();
 
-		/*
-		 * This for loop is to create mapping.json The output is written to idmapping_stat JSONObject mapped_list -> JSONArray of JSONObjects
-		 * (exp_locus_tag & patric_locus_tag) unmapped_list -> JSONArray of JSONObjects(exp_locus_tag)
-		 */
+		for (Object aGene : gene) {
 
-		for (int j = 0; j < gene.size(); j++) {
-
-			JSONObject b = (JSONObject) gene.get(j);
+			JSONObject b = (JSONObject) aGene;
 			JSONObject a = (JSONObject) results.get(b.get("exp_locus_tag"));
 			JSONObject c = new JSONObject();
 
@@ -958,9 +921,9 @@ public class ExpressionDataFileReader {
 		 */
 		JSONArray temp_list = new JSONArray();
 
-		for (int j = 0; j < expression.size(); j++) {
+		for (Object anExpression : expression) {
 
-			JSONObject b = (JSONObject) expression.get(j);
+			JSONObject b = (JSONObject) anExpression;
 			JSONObject a = (JSONObject) results.get(b.get("exp_locus_tag"));
 
 			if (a != null) {
@@ -991,9 +954,8 @@ public class ExpressionDataFileReader {
 		JSONArray temp_gene_sample_list = new JSONArray();
 		JSONObject temp_stat = new JSONObject();
 
-		for (int i = 0; i < expression.size(); i++) {
-			JSONObject a = (JSONObject) expression.get(i);
-			// System.out.println(a.toJSONString());
+		for (Object anExpression : expression) {
+			JSONObject a = (JSONObject) anExpression;
 			String temp = "";
 			String pid = a.get("pid").toString();
 			String log_ratio = a.get("log_ratio").toString();
@@ -1008,11 +970,11 @@ public class ExpressionDataFileReader {
 			sample_values.put(pid, temp);
 		}
 
-		for (int i = 0; i < sample.size(); i++) {
-			JSONObject z = (JSONObject) sample.get(i);
+		for (Object aSample : sample) {
+			JSONObject z = (JSONObject) aSample;
 			String pid = z.get("pid").toString();
 
-			String[] a = sample_values.get(pid).toString().split(",");
+			String[] a = sample_values.get(pid).split(",");
 			double[] b = new double[a.length];
 
 			int count = 0;
@@ -1035,8 +997,8 @@ public class ExpressionDataFileReader {
 			temp_stat.put(pid, z);
 		}
 
-		for (int i = 0; i < expression.size(); i++) {
-			JSONObject a = (JSONObject) expression.get(i);
+		for (Object anExpression : expression) {
+			JSONObject a = (JSONObject) anExpression;
 			String pid = a.get("pid").toString();
 			String log_ratio = a.get("log_ratio").toString();
 			JSONObject b = (JSONObject) temp_stat.get(pid);
@@ -1060,8 +1022,8 @@ public class ExpressionDataFileReader {
 			temp_gene_sample_list.add(a);
 		}
 
-		for (int i = 0; i < sample.size(); i++) {
-			JSONObject a = (JSONObject) sample.get(i);
+		for (Object aSample : sample) {
+			JSONObject a = (JSONObject) aSample;
 			String pid = a.get("pid").toString();
 			JSONObject b = (JSONObject) temp_stat.get(pid);
 
@@ -1100,26 +1062,14 @@ public class ExpressionDataFileReader {
 				fwrite.close();
 			}
 			else {
-				System.err.println("Error creating file");
+				LOGGER.error("Error creating file");
 			}
 		}
 		catch (Exception e) {
-			System.err.println("Error: Unable to Write " + e.getMessage());
+			LOGGER.error(e.getMessage(), e);
 		}
 	}
 
-	/*
-	 * public void writeDataAsList() { try { FileWriter fwrite; File file = new File("/tmp/test_from_patric_list.txt");
-	 * 
-	 * if (file.createNewFile()) { System.out.println("File is created!"); fwrite = new FileWriter(file); String as = "";
-	 * 
-	 * for (int i = 0; i < expression.size(); i++) { JSONObject ao = (JSONObject) expression.get(i); as += ao.get("exp_locus_tag").toString() + "\t";
-	 * as += getSampleReverse(ao.get("pid").toString()).get("sampleUserGivenId").toString() + "\t"; as += ao.get("log_ratio").toString(); as += "\n";
-	 * }
-	 * 
-	 * fwrite.write(as); fwrite.flush(); fwrite.close(); } else { System.out.print("Error creating file"); } } catch (Exception e) {// Catch exception
-	 * if any System.err.println("Error: Unable to Write " + e.getMessage()); } }
-	 */
 	public JSONObject get(String type) {
 		JSONObject temp = new JSONObject();
 
@@ -1142,8 +1092,8 @@ public class ExpressionDataFileReader {
 	public JSONObject getSample(String sampleUserGivenId) {
 
 		JSONObject a;
-		for (int i = 0; i < sample.size(); i++) {
-			a = (JSONObject) sample.get(i);
+		for (Object aSample : sample) {
+			a = (JSONObject) aSample;
 			if (!sampleUserGivenId.equals("") && a.get("sampleUserGivenId").equals(sampleUserGivenId)) {
 				return a;
 			}
@@ -1154,8 +1104,8 @@ public class ExpressionDataFileReader {
 	public JSONObject getSampleReverse(String pid) {
 
 		JSONObject a;
-		for (int i = 0; i < sample.size(); i++) {
-			a = (JSONObject) sample.get(i);
+		for (Object aSample : sample) {
+			a = (JSONObject) aSample;
 			if (!pid.equals("") && a.get("pid").equals(pid)) {
 				return a;
 			}
@@ -1166,8 +1116,8 @@ public class ExpressionDataFileReader {
 	public JSONObject getGene(String exp_locus_tag) {
 
 		JSONObject a;
-		for (int i = 0; i < gene.size(); i++) {
-			a = (JSONObject) gene.get(i);
+		for (Object aGene : gene) {
+			a = (JSONObject) aGene;
 			if (!exp_locus_tag.equals("") && a.get("exp_locus_tag").equals(exp_locus_tag)) {
 				return a;
 			}

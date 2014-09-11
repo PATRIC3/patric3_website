@@ -23,6 +23,8 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.theseed.json.JSONArray;
 import org.theseed.json.JSONException;
 
@@ -38,9 +40,12 @@ import org.theseed.serverConnections.ServerConnection;
  */
 
 public class SAPserver {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(SAPserver.class);
 	/*
 	 * Instantiate and connect to the server.
 	 */
+
 	public ServerConnection server = null;
 
 	public SAPserver() {
@@ -49,8 +54,7 @@ public class SAPserver {
 
 		}
 		catch (MalformedURLException e) {
-			System.err.println("Oops! For some reason our URL is not right!");
-			e.printStackTrace();
+			LOGGER.error("Oops! For some reason our URL is not right!", e);
 		}
 
 	}
@@ -61,8 +65,7 @@ public class SAPserver {
 
 		}
 		catch (MalformedURLException e) {
-			System.err.println("Oops! For some reason our URL is not right!");
-			e.printStackTrace();
+			LOGGER.error("Oops! For some reason our URL is not right!", e);
 		}
 	}
 
@@ -337,8 +340,6 @@ public class SAPserver {
 	 * Added by Harry Yoo (hyun@vbi.vt.edu)
 	 * @param focus
 	 * @param count
-	 * @param genomes
-	 * @param pins
 	 * @param extent
 	 * @return
 	 * @throws Exception
@@ -359,7 +360,7 @@ public class SAPserver {
 			br = server.queryReader();
 		}
 		catch (Exception ex) {
-			ex.printStackTrace();
+			LOGGER.error(ex.getMessage(), ex);
 		}
 		return br;
 	}
@@ -653,8 +654,7 @@ public class SAPserver {
 			}
 		}
 		catch (JSONException e) {
-			System.err.println("Sorry, there was an error parsing the array");
-			e.printStackTrace();
+			LOGGER.error("Sorry, there was an error parsing the array", e);
 		}
 		return toReturn;
 
@@ -715,10 +715,6 @@ public class SAPserver {
 	 * @return Returns a reference to a hash mapping each incoming feature ID to the scientific name of its parent genome. If an ID refers to more
 	 * than one real feature, only the first feature's genome is returned.
 	 */
-	public HashMap<String, String> genomeNames(String[] ids) {
-		return this.genomeNames(ids, false);
-	}
-
 	public HashMap<String, String> genomeNames(String[] ids, boolean numbers) {
 		server.reset();
 		server.setMethod("genome_names");
@@ -726,6 +722,10 @@ public class SAPserver {
 		if (numbers)
 			server.setData("-numbers", numbers);
 		return server.resultsAsHashMapString();
+	}
+
+	public HashMap<String, String> genomeNames(String[] ids) {
+		return this.genomeNames(ids, false);
 	}
 
 	/**
@@ -792,12 +792,12 @@ public class SAPserver {
 			server.setData("-subsOnly", "true");
 
 		HashMap<Object, Object> results = server.resultsAsHashMapObject();
-		HashMap<String, ArrayList<String[]>> toReturn = new HashMap<String, ArrayList<String[]>>();
+		HashMap<String, ArrayList<String[]>> toReturn = new HashMap<>();
 
 		// convert the results to string/object
 		for (Object obj : results.keySet()) {
 			JSONArray ja = (JSONArray) results.get(obj);
-			ArrayList<String[]> al = new ArrayList<String[]>(ja.length());
+			ArrayList<String[]> al = new ArrayList<>(ja.length());
 			try {
 				for (int i = 0; i < ja.length(); i++) {
 					JSONArray inner = (JSONArray) ja.get(i);
@@ -808,8 +808,7 @@ public class SAPserver {
 				}
 			}
 			catch (JSONException e) {
-				System.err.println("Sorry, there was an error parsing the JSON code");
-				e.printStackTrace();
+				LOGGER.error("Sorry, there was an error parsing the JSON code", e);
 			}
 			toReturn.put((String) obj, al);
 

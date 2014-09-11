@@ -18,6 +18,7 @@ package edu.vt.vbi.patric.portlets;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import javax.portlet.GenericPortlet;
@@ -28,7 +29,6 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
-import javax.portlet.UnavailableException;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -39,24 +39,23 @@ import edu.vt.vbi.patric.common.SiteHelper;
 import edu.vt.vbi.patric.common.SolrCore;
 import edu.vt.vbi.patric.common.SolrInterface;
 import edu.vt.vbi.patric.dao.ResultType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GenomicFeature extends GenericPortlet {
 
 	SolrInterface solr = new SolrInterface();
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.portlet.GenericPortlet#doView(javax.portlet.RenderRequest, javax.portlet.RenderResponse)
-	 */
+	private static final Logger LOGGER = LoggerFactory.getLogger(GenomicFeature.class);
+
 	@Override
-	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException, UnavailableException {
+	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 
 		response.setContentType("text/html");
 		String mode = request.getParameter("display_mode");
 		new SiteHelper().setHtmlMetaElements(request, response, "Feature Finder");
 
-		PortletRequestDispatcher prd = null;
+		PortletRequestDispatcher prd;
 		if (mode != null && mode.equals("result")) {
 			prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/feature_finder_result.jsp");
 		}
@@ -73,7 +72,6 @@ public class GenomicFeature extends GenericPortlet {
 
 		if (sraction != null && sraction.equals("save_params")) {
 
-			// HashMap<String,String> key = new HashMap<String,String>();
 			ResultType key = new ResultType();
 
 			String genomeId = request.getParameter("genomeId");
@@ -93,7 +91,7 @@ public class GenomicFeature extends GenericPortlet {
 			if (genomeId != null && !genomeId.equalsIgnoreCase("")) {
 				key.put("genomeId", genomeId);
 			}
-			if (taxonId != null && !taxonId.equalsIgnoreCase("")) {
+			if (!taxonId.equalsIgnoreCase("")) {
 				key.put("taxonId", taxonId);
 			}
 			if (keyword != null) {
@@ -125,9 +123,9 @@ public class GenomicFeature extends GenericPortlet {
 
 			String need = request.getParameter("need");
 
-			String facet = "", keyword = "", pk = "", state = "";
+			String facet, keyword, pk, state;
 			boolean grouping = false;
-			boolean hl = false;
+			boolean hl;
 
 			PortletSession sess = request.getPortletSession();
 
@@ -147,7 +145,7 @@ public class GenomicFeature extends GenericPortlet {
 				hl = Boolean.parseBoolean(highlight);
 
 				if (request.getParameter("grouping") != null)
-					grouping = Boolean.parseBoolean(request.getParameter("grouping").toString());
+					grouping = Boolean.parseBoolean(request.getParameter("grouping"));
 
 				if (sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE) == null) {
 					key.put("facet", facet);
@@ -176,19 +174,18 @@ public class GenomicFeature extends GenericPortlet {
 					String sort_field = "";
 					String sort_dir = "";
 					try {
-						sorter = (JSONArray) a.parse(request.getParameter("sort").toString());
+						sorter = (JSONArray) a.parse(request.getParameter("sort"));
 						sort_field += ((JSONObject) sorter.get(0)).get("property").toString();
 						sort_dir += ((JSONObject) sorter.get(0)).get("direction").toString();
 						for (int i = 1; i < sorter.size(); i++) {
 							sort_field += "," + ((JSONObject) sorter.get(i)).get("property").toString();
 						}
-						// System.out.println(sort_field);
 					}
 					catch (ParseException e) {
-						e.printStackTrace();
+						LOGGER.error(e.getMessage(), e);
 					}
 
-					sort = new HashMap<String, String>();
+					sort = new HashMap<>();
 
 					if (!sort_field.equals("") && !sort_dir.equals("")) {
 						sort.put("field", sort_field);
@@ -244,7 +241,7 @@ public class GenomicFeature extends GenericPortlet {
 				int end = Integer.parseInt(limit);
 
 				// sorting
-				HashMap<String, String> sort = null;
+				Map<String, String> sort = null;
 				if (request.getParameter("sort") != null) {
 					// sorting
 					JSONParser a = new JSONParser();
@@ -252,7 +249,7 @@ public class GenomicFeature extends GenericPortlet {
 					String sort_field = "";
 					String sort_dir = "";
 					try {
-						sorter = (JSONArray) a.parse(request.getParameter("sort").toString());
+						sorter = (JSONArray) a.parse(request.getParameter("sort"));
 						sort_field += ((JSONObject) sorter.get(0)).get("property").toString();
 						sort_dir += ((JSONObject) sorter.get(0)).get("direction").toString();
 						for (int i = 1; i < sorter.size(); i++) {
@@ -260,10 +257,10 @@ public class GenomicFeature extends GenericPortlet {
 						}
 					}
 					catch (ParseException e) {
-						e.printStackTrace();
+						LOGGER.error(e.getMessage(), e);
 					}
 
-					sort = new HashMap<String, String>();
+					sort = new HashMap<>();
 
 					if (!sort_field.equals("") && !sort_dir.equals("")) {
 						sort.put("field", sort_field);
@@ -271,7 +268,7 @@ public class GenomicFeature extends GenericPortlet {
 					}
 				}
 				// add join condition
-				if (request.getParameter("taxonId") != null && request.getParameter("taxonId").equals("") == false ) {
+				if (request.getParameter("taxonId") != null && !request.getParameter("taxonId").equals("")) {
 					key.put("taxonId", request.getParameter("taxonId"));
 				}
 				if (key.containsKey("taxonId") && key.get("taxonId") != null) {
@@ -322,7 +319,7 @@ public class GenomicFeature extends GenericPortlet {
 					}
 				}
 				catch (ParseException e) {
-					e.printStackTrace();
+					LOGGER.error(e.getMessage(), e);
 				}
 
 				response.setContentType("application/json");
@@ -335,7 +332,7 @@ public class GenomicFeature extends GenericPortlet {
 				solr.setCurrentInstance(SolrCore.FEATURE);
 
 				pk = request.getParameter("pk");
-				int rows = Integer.parseInt(request.getParameter("limit").toString());
+				int rows = Integer.parseInt(request.getParameter("limit"));
 				String field = request.getParameter("field");
 
 				key = (ResultType) sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);

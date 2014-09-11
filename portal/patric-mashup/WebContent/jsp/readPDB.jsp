@@ -1,7 +1,10 @@
 <%@ page import="java.util.*" 
 %><%@ page import="java.net.*"
 %><%@ page import="java.io.*"
+%><%@ page import="org.slf4j.Logger"
+%><%@ page import="org.slf4j.LoggerFactory"
 %><%@ page import="edu.vt.vbi.patric.mashup.PDBInterface"
+
 %><%
 String pdbID = request.getParameter("pdbID");
 String baseURL = "http://www.rcsb.org/pdb/files/";

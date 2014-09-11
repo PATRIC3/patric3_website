@@ -71,14 +71,12 @@ public class CreateZip {
 							System.err.println("Skipping File: " + file.getAbsolutePath());
 						}
 						else {
-							// System.out.println("File: " + file.getAbsolutePath());
 							for (int z = 0; z < files.length; z++) {
 								if (files[z] != null && files[z].equals(file.getAbsolutePath())) {
 									flag = true;
 									break;
 								}
 							}
-							// System.out.println(flag);
 							if (!flag) {
 								files[j] = file.getAbsolutePath();
 								j++;
@@ -88,7 +86,6 @@ public class CreateZip {
 				}
 			}
 		}
-		// System.out.println(j);
 		if (j > 0) {
 			for (int i = 0; i < j; i++) {
 				file = new File(files[i]);

@@ -55,7 +55,7 @@ if (feature != null) {
 	
 	if (feature.getAnnotation().equals("PATRIC")) {
 		refseqInfo = conn_summary.getRefSeqInfo("PATRIC", Long.toString(feature.getId()));
-		//System.out.println("refseqInfo:"+refseqInfo.toString());
+
 		if (refseqInfo.get("gene_id")!=null && refseqInfo.get("gene_id").equals("") == false) {
 			refseqLink = SiteHelper.getExternalLinks("ncbi_gene").replace("&","&amp;")+refseqInfo.get("gene_id");
 		}
@@ -138,7 +138,7 @@ if (feature != null) {
 		key.put("keyword", "source: PATRIC_VF AND (locus_tag: " + feature.getLocusTag() + (feature.hasRefseqLocusTag()?" OR locus_tag: " + feature.getRefseqLocusTag() + ")": ")"));
 	
 		JSONObject res = solr.getData(key, null, null, 0, 1, false, false, false);
-		//System.out.println( ((JSONObject)res.get("response")).toJSONString());
+
 		int numFound = Integer.parseInt(((JSONObject)res.get("response")).get("numFound").toString());
 
 		if (numFound > 0) {

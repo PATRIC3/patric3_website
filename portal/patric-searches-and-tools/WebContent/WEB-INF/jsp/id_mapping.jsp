@@ -25,8 +25,6 @@ if(pk != null){
 	}
 }
 
-//System.out.print(request.getParameter("display_mode"));
-
 if (request.getParameter("display_mode") != null && request.getParameter("display_mode").equals("")) {
 	keyword = "";
 }

@@ -35,7 +35,6 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
-import javax.portlet.UnavailableException;
 
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
@@ -52,11 +51,15 @@ import edu.vt.vbi.patric.common.SolrInterface;
 import edu.vt.vbi.patric.common.UIPreference;
 import edu.vt.vbi.patric.common.Workspace;
 import edu.vt.vbi.patric.dao.ResultType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class WorkspacePortlet extends GenericPortlet {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(WorkspacePortlet.class);
+
 	@Override
-	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException, UnavailableException {
+	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 		// do nothing
 	}
 
@@ -64,7 +67,7 @@ public class WorkspacePortlet extends GenericPortlet {
 		Enumeration<String> params = request.getParameterNames();
 		while (params.hasMoreElements()) {
 			String k = params.nextElement();
-			System.out.println(k + ":" + request.getParameterValues(k)[0]);
+			LOGGER.info("{}: {}", k, request.getParameterValues(k)[0]);
 		}
 	}
 
@@ -74,7 +77,6 @@ public class WorkspacePortlet extends GenericPortlet {
 		PortletSession p_session = request.getPortletSession(true);
 		String token = (String) p_session.getAttribute("PolyomicAuthToken", PortletSession.APPLICATION_SCOPE);
 		Long defaultWId = (Long) p_session.getAttribute("DefaultWorkspaceID", PortletSession.APPLICATION_SCOPE);
-		// System.out.println("getWorkspace::token="+token+","+"defaultWId="+defaultWId);
 
 		if (token == null) {
 			String userName = request.getUserPrincipal().getName();
@@ -100,7 +102,7 @@ public class WorkspacePortlet extends GenericPortlet {
 		PolyomicHandler polyomic = new PolyomicHandler();
 		PortletSession p_session = request.getPortletSession(true);
 		Workspace ws_from_session = (Workspace) p_session.getAttribute("workspace", PortletSession.APPLICATION_SCOPE);
-		Workspace ws = null;
+		Workspace ws;
 
 		if (request.getUserPrincipal() == null) {
 			if (ws_from_session != null) {
@@ -213,7 +215,6 @@ public class WorkspacePortlet extends GenericPortlet {
 		if (action_type != null && action != null) {
 			// read workspace from session
 			Workspace ws = getValidWorkspace(request);
-			// System.out.println(ws.getWorkspace().toJSONString());
 
 			if (action_type.equals("groupAction")) {
 				if (action.equals("create")) {
@@ -240,7 +241,6 @@ public class WorkspacePortlet extends GenericPortlet {
 					}
 					// Speical expception. if group is created from feature level, but user wanted to stop as Genome group,
 					// convert feature IDs to Genome IDs
-					// System.out.println("grp_type:"+grp_type+", grp_element:"+grp_element);
 					if (grp_type.equals("Feature") && (grp_element != null && grp_element.equals("Genome"))
 							&& (tracks != null && tracks.equals("") == false)) {
 
@@ -526,8 +526,8 @@ public class WorkspacePortlet extends GenericPortlet {
 					try {
 						new_group = (JSONObject) parser.parse(groupInfo);
 					}
-					catch (Exception ex) {
-						ex.printStackTrace();
+					catch (Exception e) {
+						LOGGER.error(e.getMessage(), e);
 					}
 
 					String new_group_name = null, new_group_desc = null;
@@ -553,8 +553,8 @@ public class WorkspacePortlet extends GenericPortlet {
 						jsonExpUpdated = (JSONObject) parser.parse(strExpUpdated);
 						collectionId = jsonExpUpdated.get("expid").toString();
 					}
-					catch (Exception ex) {
-						ex.printStackTrace();
+					catch (Exception e) {
+						LOGGER.error(e.getMessage(), e);
 					}
 
 					PolyomicHandler polyomic = getPolyomicHandler(request);
@@ -688,9 +688,8 @@ public class WorkspacePortlet extends GenericPortlet {
 				else if (action.equals("getPublicExperiments")) {
 					JSONArray collectionIDs = null;
 					DefaultHttpClient httpclient = new DefaultHttpClient();
-					//String hostname = System.getProperty("java.rmi.server.hostname");
 					String url = "http://" + request.getServerName() + ":" + request.getServerPort() + "/patric/static/publicworkspace.json";
-					System.out.println(url);
+					LOGGER.debug(url);
 					HttpGet httpRequest = new HttpGet(url);
 					try {
 						ResponseHandler<String> responseHandler = new BasicResponseHandler();
@@ -699,11 +698,8 @@ public class WorkspacePortlet extends GenericPortlet {
 						JSONParser parser = new JSONParser();
 						collectionIDs = (JSONArray) parser.parse(strResponseBody);
 					}
-					catch (IOException e) {
-						e.printStackTrace();
-					}
-					catch (ParseException e) {
-						e.printStackTrace();
+					catch (IOException | ParseException e) {
+						LOGGER.error(e.getMessage(), e);
 					}
 					finally {
 						httpclient.getConnectionManager().shutdown();
@@ -804,7 +800,6 @@ public class WorkspacePortlet extends GenericPortlet {
 					else {
 						key.put("sortParam", request.getParameter("sort"));
 					}
-					// System.out.println("key:"+key.toString());
 					SolrInterface solr = new SolrInterface();
 					JSONObject resPATRIC = solr.getExperimentsByID(key);
 
@@ -1250,7 +1245,6 @@ public class WorkspacePortlet extends GenericPortlet {
 						if (tracksPATRIC.size() >0) {
 							Map<String, Object> keyPATRIC = new HashMap<>();
 							keyPATRIC.put("tracks", tracksPATRIC);
-							// System.out.println("keyPATRIC="+keyPATRIC);
 							res = solr.getExperimentsByID(keyPATRIC);
 							
 							items = (JSONArray) res.get("results");
@@ -1264,13 +1258,11 @@ public class WorkspacePortlet extends GenericPortlet {
 							}
 						}
 						
-						if (collectionIds.size() >0) {
-							//System.out.println("collectionIds="+collectionIds.toString());
+						if (collectionIds.size() > 0) {
 							PolyomicHandler polyomic = null;
 							polyomic = getPolyomicHandler(request);
 							res = polyomic.getExperiments(collectionIds);
-							// System.out.println(res.toString());	
-							
+
 							items = (JSONArray) res.get("results");
 							for (int i = 0; i < items.size(); i++) {
 								item = (JSONObject) items.get(i);
@@ -1331,7 +1323,6 @@ public class WorkspacePortlet extends GenericPortlet {
 					if (request.getMethod().equals("GET")) {
 
 						String strUIPref = uiPref.getStateList().toJSONString();
-						// System.out.println("reading UIPreference:" + strUIPref);
 
 						response.getWriter().write(strUIPref);
 						response.getWriter().close();
@@ -1352,13 +1343,13 @@ public class WorkspacePortlet extends GenericPortlet {
 								uiPref.setStateList(params);
 							}
 							else {
-								System.out.println("[ERROR] " + rt.toString());
+								LOGGER.error(rt.toString());
 							}
 
 							this.saveUIPreference(request, uiPref);
 						}
 						catch (ParseException e) {
-							e.printStackTrace();
+							LOGGER.error(e.getMessage(), e);
 						}
 
 						response.getWriter().write("");
@@ -1367,7 +1358,7 @@ public class WorkspacePortlet extends GenericPortlet {
 				}
 				else if (action.equals("remove")) {
 					if (request.getParameter("name") != null) {
-						uiPref.resetState(request.getParameter("name").toString());
+						uiPref.resetState(request.getParameter("name"));
 						this.saveUIPreference(request, uiPref);
 					}
 

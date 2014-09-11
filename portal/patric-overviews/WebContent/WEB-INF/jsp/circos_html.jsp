@@ -11,7 +11,6 @@
 	SolrInterface solr = new SolrInterface();
 	solr.setCurrentInstance(SolrCore.SEQUENCE);
 	JSONObject genomeInfo = solr.getGenome(genomeId);
-	// System.out.println(genomeInfo.toJSONString());
 	// This genome has more than 200 contigs. The circular genome map is not displayed as it can be too busy and uninterpretable.
 %>
 <script type="text/javascript">

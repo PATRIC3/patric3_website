@@ -44,7 +44,7 @@ public class PSICQUICInterface {
 		String result = "-1";
 		try {
 			String url = baseURL + db + baseURLQuery + term + "?format=count";
-			LOGGER.debug("psicquic-count-url:{}", url);
+			LOGGER.debug(url);
 
 			StringWriter writer = new StringWriter();
 			IOUtils.copy((new URL(url)).openStream(), writer);
@@ -63,7 +63,7 @@ public class PSICQUICInterface {
 			String search_count = getCounts(db, term);
 			String url = baseURL + db + baseURLQuery + term + "?format=xml25&firstResult=" + startAt + "&maxResults=" + count;
 
-			LOGGER.debug("psicquic-fetch-url:{}", url);
+			LOGGER.debug(url);
 
 			JSONArray subList = null;
 

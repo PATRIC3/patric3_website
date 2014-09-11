@@ -49,6 +49,8 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import edu.vt.vbi.patric.dao.ResultType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 //NOTES:
 //1. In allowing getter/setter methods to add new headers/fields, it opens up the
@@ -97,20 +99,23 @@ public class ExcelHelper {
 
 	private int emptyOpt;
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(ExcelHelper.class);
+
 	/**
 	 * This constructor is used when you're reading in a file instead of generating one
-	 * 
+	 *
 	 * @param type = type of workbook. "hssf" or "xssf", defaults to XSSF
 	 */
+
 	public ExcelHelper(String type) {
 		if (type.equalsIgnoreCase("hssf")) {
 			wb = new HSSFWorkbook();
-			styles = new HashMap<String, CellStyle>();
+			styles = new HashMap<>();
 			styles = createStyles();
 		}
 		else {
 			xwb = new XSSFWorkbook();
-			xstyles = new HashMap<String, XSSFCellStyle>();
+			xstyles = new HashMap<>();
 			xstyles = createXStyles();
 		}
 
@@ -118,8 +123,8 @@ public class ExcelHelper {
 		alternatingOpt = 0;
 		emptyOpt = 0;
 
-		headers = new ArrayList<String>();
-		fields = new ArrayList<String>();
+		headers = new ArrayList<>();
+		fields = new ArrayList<>();
 		source = new JSONArray();
 	}
 
@@ -134,12 +139,12 @@ public class ExcelHelper {
 	public ExcelHelper(String type, List<String> h, List<String> f, List<?> s) {
 		if (type.equalsIgnoreCase("hssf")) {
 			wb = new HSSFWorkbook();
-			styles = new HashMap<String, CellStyle>();
+			styles = new HashMap<>();
 			styles = createStyles();
 		}
 		else {
 			xwb = new XSSFWorkbook();
-			xstyles = new HashMap<String, XSSFCellStyle>();
+			xstyles = new HashMap<>();
 			xstyles = createXStyles();
 		}
 
@@ -188,11 +193,13 @@ public class ExcelHelper {
 			if (source instanceof JSONArray) {
 
 				// print body
-				Iterator<?> itr = source.iterator();
-				while (itr.hasNext()) {
+				// Iterator<?> itr = source.iterator();
+				// while (itr.hasNext()) {
+				for (Object aRow: source) {
 					Row row = sheet1.createRow(rowCount);
 					rowCount++;
-					JSONObject jObj = (JSONObject) itr.next();
+				// 	JSONObject jObj = (JSONObject) itr.next();
+					JSONObject jObj = (JSONObject) aRow;
 					for (int i = 0; i < fields.size(); i++) {
 						String _f = fields.get(i);
 						Cell cell = row.createCell(i);
@@ -222,17 +229,19 @@ public class ExcelHelper {
 			else if (source instanceof List<?>) {
 
 				// print body
-				Iterator<?> itr = source.iterator();
-				while (itr.hasNext()) {
+				// Iterator<?> itr = source.iterator();
+				// while (itr.hasNext()) {
+				for (Object aRow: source) {
 					Row row = sheet1.createRow(rowCount);
 					rowCount++;
-					ResultType rObj = (ResultType) itr.next();
+				//	ResultType rObj = (ResultType) itr.next();
+					ResultType rObj = (ResultType) aRow;
 					for (int i = 0; i < fields.size(); i++) {
 						String _f = fields.get(i);
 						Cell cell = row.createCell(i);
 
 						if (rObj.get(_f) != null) {
-							cell.setCellValue(rObj.get(_f).toString());
+							cell.setCellValue(rObj.get(_f));
 						}
 						else {
 							cell.setCellValue("");
@@ -320,7 +329,7 @@ public class ExcelHelper {
 						XSSFCell cell = row.createCell(i);
 
 						if (rObj.get(_f) != null) {
-							cell.setCellValue(rObj.get(_f).toString());
+							cell.setCellValue(rObj.get(_f));
 						}
 						else {
 							cell.setCellValue("");
@@ -353,19 +362,18 @@ public class ExcelHelper {
 	public String writeToTextFile() {
 		StringBuilder sb = new StringBuilder();
 
-		for (int i = 0; i < headers.size(); i++) {
-			sb.append(headers.get(i));
-			sb.append("\t");
+		for (String header : headers) {
+			sb.append(header).append("\t");
 		}
 		sb.append("\n");
 
 		if (source instanceof JSONArray) {
-			Iterator<?> itr = source.iterator();
-			while (itr.hasNext()) {
-				JSONObject jObj = (JSONObject) itr.next();
-				for (int i = 0; i < fields.size(); i++) {
-					String _f = fields.get(i);
-
+			// Iterator<?> itr = source.iterator();
+			// while (itr.hasNext()) {
+			// 	JSONObject jObj = (JSONObject) itr.next();
+			for (Object obj: source) {
+				JSONObject jObj = (JSONObject) obj;
+				for (String _f : fields) {
 					if (jObj.get(_f) != null) {
 						sb.append(jObj.get(_f));
 						sb.append("\t");
@@ -378,12 +386,12 @@ public class ExcelHelper {
 			}
 		}
 		else if (source instanceof List<?>) {
-			Iterator<?> itr = source.iterator();
-			while (itr.hasNext()) {
-				ResultType rObj = (ResultType) itr.next();
-				for (int i = 0; i < fields.size(); i++) {
-					String _f = fields.get(i);
-
+			// Iterator<?> itr = source.iterator();
+			// while (itr.hasNext()) {
+			//	ResultType rObj = (ResultType) itr.next();
+			for (Object obj: source) {
+				ResultType rObj = (ResultType) obj;
+				for (String _f : fields) {
 					if (rObj.get(_f) != null) {
 						sb.append(rObj.get(_f));
 						sb.append("\t");
@@ -414,7 +422,7 @@ public class ExcelHelper {
 			}
 		}
 		catch (Exception ex) {
-			ex.printStackTrace();
+			LOGGER.error(ex.getMessage(), ex);
 		}
 	}
 
@@ -446,7 +454,7 @@ public class ExcelHelper {
 			}
 		}
 		catch (Exception ex) {
-			ex.printStackTrace();
+			LOGGER.error(ex.getMessage(), ex);
 		}
 	}
 
@@ -464,7 +472,7 @@ public class ExcelHelper {
 		}
 		catch (FileNotFoundException e) {
 			inp = null;
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 
 		if (fileName.substring(fileName.length() - 1, fileName.length()).equals("x")) {
@@ -473,15 +481,15 @@ public class ExcelHelper {
 				return true;
 			}
 			catch (FileNotFoundException e) {
-				System.out.println("File Not Found Exception thrown. Uncomment in readFile(String fileName) to see stack trace.");
+				LOGGER.error("File Not Found Exception thrown. Uncomment in readFile(String fileName) to see stack trace.", e);
 				return false;
 			}
 			catch (InvalidFormatException e) {
-				System.out.println("Invalid Format Exception thrown. Uncomment in readFile(String fileName) to see stack trace.");
+				LOGGER.error("Invalid Format Exception thrown. Uncomment in readFile(String fileName) to see stack trace.", e);
 				return false;
 			}
 			catch (IOException e) {
-				System.out.println("I/O Exception thrown. Uncomment in readFile(String fileName) to see stack trace.");
+				LOGGER.error("I/O Exception thrown. Uncomment in readFile(String fileName) to see stack trace.", e);
 				return false;
 			}
 			catch (Exception e) {
@@ -494,15 +502,15 @@ public class ExcelHelper {
 				return true;
 			}
 			catch (FileNotFoundException e) {
-				System.out.println("File Not Found Exception thrown. Uncomment in readFile(String fileName) to see stack trace.");
+				LOGGER.error("File Not Found Exception thrown. Uncomment in readFile(String fileName) to see stack trace.", e);
 				return false;
 			}
 			catch (InvalidFormatException e) {
-				System.out.println("Invalid Format Exception thrown. Uncomment in readFile(String fileName) to see stack trace.");
+				LOGGER.error("Invalid Format Exception thrown. Uncomment in readFile(String fileName) to see stack trace.", e);
 				return false;
 			}
 			catch (IOException e) {
-				System.out.println("I/O Exception thrown. Uncomment in readFile(String fileName) to see stack trace.");
+				LOGGER.error("I/O Exception thrown. Uncomment in readFile(String fileName) to see stack trace.", e);
 				return false;
 			}
 			catch (Exception e) {
@@ -694,11 +702,10 @@ public class ExcelHelper {
 	 * Returns a CellStyle with a thin black boarder around all edges Boarder Options: 0 = no boarder 1 = all thin black boarder 2 = top+bot thin
 	 * black boarder
 	 * 
-	 * @param wb = workbook used to create style
 	 * @return CellStyle
 	 */
 	private CellStyle createBorderStyle() {
-		CellStyle style = null;
+		CellStyle style;
 		if (wb == null) {
 			style = xwb.createCellStyle();
 		}

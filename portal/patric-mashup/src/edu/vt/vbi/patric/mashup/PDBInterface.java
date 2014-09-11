@@ -125,7 +125,7 @@ public class PDBInterface {
 		return handler.getParsedData();
 	}
 
-	public ArrayList<HashMap<String, String>> getSequenceCluster(String pdbID, int cluster) throws java.rmi.RemoteException {
+	public List<Map<String, String>> getSequenceCluster(String pdbID, int cluster) throws java.rmi.RemoteException {
 		PDBSequenceClusterHandler handler = new PDBSequenceClusterHandler();
 		try {
 			String url = baseUrlCluster + "?structureId=" + pdbID + "&cluster=" + cluster;

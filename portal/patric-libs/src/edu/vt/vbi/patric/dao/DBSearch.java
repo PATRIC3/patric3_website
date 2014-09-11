@@ -15,11 +15,7 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.dao;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import org.hibernate.Hibernate;
 import org.hibernate.SQLQuery;
@@ -83,7 +79,7 @@ public class DBSearch {
 		return Integer.parseInt(obj.toString());
 	}
 
-	public ArrayList<ResultType> getTranscriptomicsIDSearchResult(HashMap<String, String> key, int start, int end) {
+	public ArrayList<ResultType> getTranscriptomicsIDSearchResult(Map<String, String> key, int start, int end) {
 		String sql = "";
 
 		sql = this.getIDSearchSQL(key, null, "shortversion");
@@ -131,7 +127,7 @@ public class DBSearch {
 		return results;
 	}
 
-	public ArrayList<ResultType> getIDSearchResult(HashMap<String, String> key, HashMap<String, String> sort, int start, int end) {
+	public ArrayList<ResultType> getIDSearchResult(Map<String, String> key, Map<String, String> sort, int start, int end) {
 		String sql = "";
 
 		sql = this.getIDSearchSQL(key, sort, "function");
@@ -233,7 +229,7 @@ public class DBSearch {
 		return results;
 	}
 
-	private String getIDSearchSQL(HashMap<String, String> key, HashMap<String, String> sort, String where) {
+	private String getIDSearchSQL(Map<String, String> key, Map<String, String> sort, String where) {
 
 		String sql = "";
 
@@ -694,7 +690,6 @@ public class DBSearch {
 
 		if (key.containsKey("solrId") && !key.get("solrId").equalsIgnoreCase("")) {
 
-			// System.out.print(key.get("solrId"));
 			List<?> lstGId = Arrays.asList(key.get("solrId").split(","));
 			if (lstGId.size() < 333) {
 				sql += " and gi.genome_info_id in (" + key.get("solrId") + ")";
@@ -863,8 +858,6 @@ public class DBSearch {
 
 			if (!algorithm.equals("") && algorithm != null) {
 
-				// System.out.print("algorithm"+algorithm);
-
 				if (!algorithm.equals("ALL")) {
 
 					if (algorithm.equals("BRC") || algorithm.equals("Legacy BRC"))
@@ -882,17 +875,7 @@ public class DBSearch {
 			}
 		}
 
-		/*
-		 * if (key.containsKey("search_on") && key.get("search_on").equalsIgnoreCase("Keyword") ) {
-		 * 
-		 * String keyword = ((String)key.get("keyword"));
-		 * 
-		 * if(!keyword.equals("") && keyword !=null){
-		 * 
-		 * q.setString("keyword", "%"+keyword+"%"); }
-		 * 
-		 * }else
-		 */if (key.containsKey("search_on") && key.get("search_on").equalsIgnoreCase("GO_Term")) {
+		if (key.containsKey("search_on") && key.get("search_on").equalsIgnoreCase("GO_Term")) {
 
 			String keyword = key.get("keyword");
 

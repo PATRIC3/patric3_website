@@ -57,7 +57,7 @@ public class PRIDEInterface {
 		JSONObject result = new JSONObject();
 		result.put("hasData", false);
 		if (species.equals("")) {
-			LOGGER.debug("PRIDE-query:No species name was given");
+			LOGGER.debug("PRIDE-query: No species name was given");
 
 			JSONArray subList = new JSONArray();
 			result.put("results", subList);
@@ -68,7 +68,7 @@ public class PRIDEInterface {
 			try {
 				setQueryString(species);
 				String param = "query=" + xmlQueryString.toString();
-				LOGGER.debug("PRIDE-query:{}", xmlQueryString.toString());
+				LOGGER.debug(xmlQueryString.toString());
 
 				URL url = new URL(baseURL);
 				URLConnection conn = url.openConnection();
@@ -98,6 +98,7 @@ public class PRIDEInterface {
 						row.put("link_data_file", "ftp://ftp.ebi.ac.uk/pub/databases/pride/PRIDE_Exp_Complete_Ac_" + columns[2] + ".xml.gz");
 					}
 					catch (ArrayIndexOutOfBoundsException ex) {
+						LOGGER.error(ex.getMessage(), ex);
 					}
 					subList.add(row);
 				}
@@ -110,8 +111,6 @@ public class PRIDEInterface {
 			}
 			catch (Exception e) {
 				LOGGER.error(e.getMessage(), e);
-			}
-			finally {
 			}
 		}
 		return result;

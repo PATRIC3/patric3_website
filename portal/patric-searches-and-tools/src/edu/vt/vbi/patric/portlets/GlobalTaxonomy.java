@@ -18,6 +18,7 @@ package edu.vt.vbi.patric.portlets;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import javax.portlet.GenericPortlet;
@@ -27,7 +28,6 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
-import javax.portlet.UnavailableException;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -37,19 +37,17 @@ import org.json.simple.parser.ParseException;
 import edu.vt.vbi.patric.common.SolrCore;
 import edu.vt.vbi.patric.common.SolrInterface;
 import edu.vt.vbi.patric.dao.ResultType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GlobalTaxonomy extends GenericPortlet {
 
 	SolrInterface solr = new SolrInterface();
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.portlet.GenericPortlet#doView(javax.portlet.RenderRequest, javax.portlet.RenderResponse)
-	 */
-	@Override
-	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException, UnavailableException {
+	private static final Logger LOGGER = LoggerFactory.getLogger(GlobalTaxonomy.class);
 
+	@Override
+	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 	}
 
 	@SuppressWarnings("unchecked")
@@ -103,8 +101,8 @@ public class GlobalTaxonomy extends GenericPortlet {
 		else {
 
 			String need = request.getParameter("need");
-			String facet = "", keyword = "", pk = "", state = "";
-			boolean hl = false;
+			String facet, keyword, pk, state;
+			boolean hl;
 			PortletSession sess = request.getPortletSession();
 			ResultType key = new ResultType();
 			JSONObject jsonResult = new JSONObject();
@@ -139,10 +137,10 @@ public class GlobalTaxonomy extends GenericPortlet {
 				String sort_field = request.getParameter("sort");
 				String sort_dir = request.getParameter("dir");
 
-				HashMap<String, String> sort = null;
+				Map<String, String> sort = null;
 
 				if (sort_field != null && sort_dir != null && !sort_field.equals("") && !sort_dir.equals("")) {
-					sort = new HashMap<String, String>();
+					sort = new HashMap<>();
 					sort.put("field", sort_field);
 					sort.put("direction", sort_dir);
 				}
@@ -185,7 +183,7 @@ public class GlobalTaxonomy extends GenericPortlet {
 					}
 				}
 				catch (ParseException e) {
-					e.printStackTrace();
+					LOGGER.error(e.getMessage(), e);
 				}
 
 				response.setContentType("application/json");

@@ -30,7 +30,6 @@ import javax.portlet.PortletException;
 import javax.portlet.PortletRequestDispatcher;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
-import javax.portlet.UnavailableException;
 
 import org.hibernate.jmx.StatisticsService;
 import org.json.simple.JSONArray;
@@ -46,15 +45,15 @@ import edu.vt.vbi.patric.dao.DBShared;
 import edu.vt.vbi.patric.dao.DBSummary;
 import edu.vt.vbi.patric.dao.DBTranscriptomics;
 import edu.vt.vbi.patric.dao.HibernateHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BreadCrumb extends GenericPortlet {
 
 	private final boolean initCache = true;
 
-	/**
-	 * Initialize Database connections, build genome selector caches, and generate static data feed for eNews and Watchlist
-	 * 
-	 */
+	private static final Logger LOGGER = LoggerFactory.getLogger(BreadCrumb.class);
+
 	@Override
 	public void init() throws PortletException {
 		super.init();
@@ -79,7 +78,7 @@ public class BreadCrumb extends GenericPortlet {
 			server.registerMBean(mBean, on);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 
 		// create cache for Genome Selector (all bacteria level)
@@ -92,7 +91,7 @@ public class BreadCrumb extends GenericPortlet {
 				list.writeJSONString(out);
 			}
 			catch (IOException e) {
-				e.printStackTrace();
+				LOGGER.error(e.getMessage(), e);
 			}
 
 			try (BufferedWriter out = new BufferedWriter(new FileWriter(getPortletContext().getRealPath("azlist-bacteria.js")))) {
@@ -100,7 +99,7 @@ public class BreadCrumb extends GenericPortlet {
 				list.writeJSONString(out);
 			}
 			catch (IOException e) {
-				e.printStackTrace();
+				LOGGER.error(e.getMessage(), e);
 			}
 
 			try (BufferedWriter out = new BufferedWriter(new FileWriter(getPortletContext().getRealPath("tgm-bacteria.js")))) {
@@ -108,7 +107,7 @@ public class BreadCrumb extends GenericPortlet {
 				list.writeJSONString(out);
 			}
 			catch (IOException e) {
-				e.printStackTrace();
+				LOGGER.error(e.getMessage(), e);
 			}
 		}
 
@@ -117,15 +116,15 @@ public class BreadCrumb extends GenericPortlet {
 			if (initCache) {
 				ENewsGenerator cacheGen = new ENewsGenerator();
 				if (cacheGen.createCacheFile(getPortletContext().getRealPath("/js/enews_data.js"))) {
-					System.out.println("eNews cache is generated");
+					LOGGER.info("eNews cache is generated");
 				}
 				else {
-					System.out.println("problem in generating eNews cache");
+					LOGGER.error("problem in generating eNews cache");
 				}
 			}
 		}
-		catch (Exception ex) {
-			ex.printStackTrace();
+		catch (Exception e) {
+			LOGGER.error(e.getMessage(), e);
 		}
 	}
 
@@ -137,11 +136,11 @@ public class BreadCrumb extends GenericPortlet {
 			server.unregisterMBean(on);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 	}
 
-	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException, UnavailableException {
+	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 		response.setContentType("text/html");
 
 		String cType = request.getParameter("context_type");

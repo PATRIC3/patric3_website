@@ -30,8 +30,7 @@
 
 	// hypothetical
 	query.setQuery("product:(hypothetical AND protein) AND feature_type_f:CDS");
-	//System.out.println(query.toString());
-	
+
 	QueryResponse qr = solr.getServer().query(query);
 	FacetField ff = qr.getFacetField("annotation_f");
 	for (FacetField.Count fc: ff.getValues()) {

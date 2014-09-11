@@ -56,19 +56,11 @@
 		
 		
 		if(!algorithm.equals("") && algorithm != null){
-			
-			//System.out.print("algorithm " + algorithm);
-			
 			key.put("algorithm", algorithm);
-			
 		}
 		
 		if(!ec_number.equals("") && ec_number != null){
-			
-			//System.out.print("ec_number " + ec_number);
-
 			key.put("ec_number", ec_number);
-			
 		}
 		
 		if (genomeId != null && !genomeId.equalsIgnoreCase("")) {

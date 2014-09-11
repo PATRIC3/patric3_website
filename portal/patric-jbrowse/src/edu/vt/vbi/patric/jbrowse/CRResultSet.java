@@ -17,9 +17,7 @@ package edu.vt.vbi.patric.jbrowse;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -27,6 +25,8 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import edu.vt.vbi.patric.common.StringHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CRResultSet extends HashMap<Integer, CRTrack> {
 	/**
@@ -40,9 +40,11 @@ public class CRResultSet extends HashMap<Integer, CRTrack> {
 
 	private String pinGenome;
 
-	private HashSet<String> genomeNames;
+	private Set<String> genomeNames;
 
-	private ArrayList<String> defaultTracks;
+	private List<String> defaultTracks;
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(CRResultSet.class);
 
 	public CRResultSet(String pin, BufferedReader br) {
 		pinGenome = pin.replace("fig|", "").split(".peg.[0-9]*")[0];
@@ -50,13 +52,13 @@ public class CRResultSet extends HashMap<Integer, CRTrack> {
 		try {
 			if (br != null) {
 				JSONObject res = (JSONObject) parser.parse(br);
-				// System.out.println(res.toJSONString());
-				JSONArray tracks = (JSONArray) res.get(pin);
-				genomeNames = new HashSet<String>();
-				defaultTracks = new ArrayList<String>();
 
-				for (int i = 0; i < tracks.size(); i++) {
-					JSONObject tr = (JSONObject) tracks.get(i);
+				JSONArray tracks = (JSONArray) res.get(pin);
+				genomeNames = new HashSet<>();
+				defaultTracks = new ArrayList<>();
+
+				for (Object track : tracks) {
+					JSONObject tr = (JSONObject) track;
 
 					CRTrack crTrk = new CRTrack(tr);
 					super.put(crTrk.getRowID(), crTrk);
@@ -67,14 +69,11 @@ public class CRResultSet extends HashMap<Integer, CRTrack> {
 				}
 			}
 			else {
-				System.out.println("BufferedReader is null");
+				LOGGER.error("BufferedReader is null");
 			}
 		}
-		catch (IOException | ParseException e) {
-			e.printStackTrace();
-		}
 		catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 	}
 
@@ -82,7 +81,7 @@ public class CRResultSet extends HashMap<Integer, CRTrack> {
 		return pinStrand;
 	}
 
-	public HashSet<String> getGenomeNames() {
+	public Set<String> getGenomeNames() {
 		return genomeNames;
 	}
 

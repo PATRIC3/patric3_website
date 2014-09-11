@@ -17,12 +17,7 @@ package edu.vt.vbi.patric.portlets;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 import javax.portlet.GenericPortlet;
 import javax.portlet.PortletException;
@@ -32,10 +27,11 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
-import javax.portlet.UnavailableException;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.theseed.servers.SAPserver;
 
 import edu.vt.vbi.patric.jbrowse.CRFeature;
@@ -48,12 +44,14 @@ import edu.vt.vbi.patric.dao.ResultType;
 
 public class CompareRegionViewer extends GenericPortlet {
 
-	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException, UnavailableException {
+	private static final Logger LOGGER = LoggerFactory.getLogger(CompareRegionViewer.class);
+
+	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 
 		new SiteHelper().setHtmlMetaElements(request, response, "Compare Region Viewer");
 
 		response.setContentType("text/html");
-		PortletRequestDispatcher prd = null;
+		PortletRequestDispatcher prd;
 		prd = getPortletContext().getRequestDispatcher("/WEB-INF/CRViewer.jsp");
 		prd.include(request, response);
 	}
@@ -151,7 +149,7 @@ public class CompareRegionViewer extends GenericPortlet {
 				session.setAttribute("window_size", _window);
 			}
 			catch (Exception ex) {
-				ex.printStackTrace();
+				LOGGER.error(ex.getMessage(), ex);
 			}
 
 			JSONObject trackList = new JSONObject();
@@ -168,7 +166,7 @@ public class CompareRegionViewer extends GenericPortlet {
 					"function(track, feature, div) { div.style.backgroundColor = ['red','#1F497D','#938953','#4F81BD','#9BBB59','#806482','#4BACC6','#F79646'][feature.get('phase')];}");
 
 			// query genome metadata
-			HashMap<String, ResultType> gMetaData = conn_summary.getGenomeMetadata(crRS.getGenomeNames());
+			Map<String, ResultType> gMetaData = conn_summary.getGenomeMetadata(crRS.getGenomeNames());
 
 			int count_genomes = 1;
 			if (crRS != null && crRS.getGenomeNames().size() > 0) {
@@ -254,12 +252,11 @@ public class CompareRegionViewer extends GenericPortlet {
 			features_count = crTrack.size();
 		}
 		catch (Exception ex) {
-			ex.printStackTrace();
+
 		}
 
 		DBSummary conn_summary = new DBSummary();
 		HashMap<String, ResultType> pseedMap = conn_summary.getPSeedMapping("pseed", pseed_ids);
-		// System.out.println("pseed_map:"+pseedMap.toString());
 
 		// formatting
 		JSONArray nclist = new JSONArray();
@@ -269,7 +266,6 @@ public class CompareRegionViewer extends GenericPortlet {
 
 			feature = crTrack.get(i);
 			feature_patric = pseedMap.get(feature.getfeatureID());
-			// System.out.println(feature.getfeatureID()+","+feature_patric);
 
 			if (feature_patric != null) {
 

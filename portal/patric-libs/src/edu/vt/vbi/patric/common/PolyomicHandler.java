@@ -49,6 +49,8 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 //import edu.vt.vbi.patric.identity.db.HibernateUserModuleImpl;
 
@@ -74,6 +76,8 @@ public class PolyomicHandler {
 	public final static String CONTENT_MAPPING = "mapping";
 
 	public final static String CONTENT_EXPERIMENT = "experiment";
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(PolyomicHandler.class);
 
 	public PolyomicHandler() {
 		ENDPOINT = System.getProperty("polyomic.baseUrl", "http://polyomic.patricbrc.org");
@@ -146,7 +150,7 @@ public class PolyomicHandler {
 			httpRequest.setEntity(entity);
 		}
 		catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 
 		try {
@@ -155,14 +159,12 @@ public class PolyomicHandler {
 			code = code.replaceAll("\"", "");
 			AuthenticationCode = code;
 
-			if (_debug) {
-				System.out.println("[app-log]:PolyomicHandler.createUser is called. creating [" + userName + "]");
-				System.out.println("request in createUser:" + httpRequest.getRequestLine().toString());
-				System.out.println("response in createUser: " + code);
-			}
+			LOGGER.debug("PolyomicHandler.createUser is called. creating [{}]", userName);
+			LOGGER.debug("request in createUser:", httpRequest.getRequestLine().toString());
+			LOGGER.debug("response in createUser: ", code);
 		}
 		catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 		finally {
 			httpclient.getConnectionManager().shutdown();
@@ -200,7 +202,7 @@ public class PolyomicHandler {
 				}
 				else {
 					// no token is set & need to create one
-					System.out.println("[app-log]: no user code found. we are creating one for " + userName);
+					LOGGER.debug("no user code found. we are creating one for {}", userName);
 					code = createUser(userName);
 					// register to JBoss user property
 					setAuthcodeToUserProperty(userName, code);
@@ -209,15 +211,10 @@ public class PolyomicHandler {
 			finally {
 				transaction.commit();
 			}
-			if (_debug) {
-				System.out.println("[app-log]:PolyomicHandler.retrieveAuthenticationCode is called");
-			}
+			LOGGER.debug("PolyomicHandler.retrieveAuthenticationCode is called");
 		}
-		catch (IdentityException e) {
-			e.printStackTrace();
-		}
-		catch (NamingException e1) {
-			e1.printStackTrace();
+		catch (IdentityException | NamingException e) {
+			LOGGER.error(e.getMessage(), e);
 		}
 		return code;
 	}
@@ -245,11 +242,8 @@ public class PolyomicHandler {
 				transaction.commit();
 			}
 		}
-		catch (IdentityException e) {
-			e.printStackTrace();
-		}
-		catch (NamingException e1) {
-			e1.printStackTrace();
+		catch (IdentityException | NamingException e) {
+			LOGGER.error(e.getMessage(), e);
 		}
 	}
 
@@ -277,7 +271,7 @@ public class PolyomicHandler {
 			jsonParam.put("authorizationUserId", URLEncoder.encode(userName, "UTF-8"));
 		}
 		catch (UnsupportedEncodingException e1) {
-			e1.printStackTrace();
+			LOGGER.error(e1.getMessage(), e1);
 		}
 		jsonRequest.put("params", jsonParam);
 
@@ -287,7 +281,7 @@ public class PolyomicHandler {
 			httpRequest.setEntity(entity);
 		}
 		catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 
 		try {
@@ -298,16 +292,14 @@ public class PolyomicHandler {
 				AuthenticationToken = token;
 			}
 			else {
-				System.out.println("[app-log] token is null");
+				LOGGER.debug("token is null");
 			}
 
-			if (_debug) {
-				System.out.println("[app-log]:PolyomicHandler.retrieveAuthenticationToken is called");
-				System.out.println("authentication tokien:" + token);
-			}
+			LOGGER.debug("PolyomicHandler.retrieveAuthenticationToken is called");
+			LOGGER.debug("authentication tokien: {}", token);
 		}
 		catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 		finally {
 			httpclient.getConnectionManager().shutdown();
@@ -349,11 +341,8 @@ public class PolyomicHandler {
 			collection = (JSONObject) parser.parse(strResponseBody);
 
 		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-		catch (ParseException e) {
-			e.printStackTrace();
+		catch (IOException | ParseException e) {
+			LOGGER.error(e.getMessage(), e);
 		}
 		finally {
 			httpclient.getConnectionManager().shutdown();
@@ -456,7 +445,6 @@ public class PolyomicHandler {
 	 * 
 	 * @param collection
 	 * @param content file content (expression | sample | mapping | experiment)
-	 * @param id collection id
 	 * @return String url
 	 */
 	public String findJSONUrl(JSONObject collection, String content) {
@@ -478,10 +466,6 @@ public class PolyomicHandler {
 			}
 		}
 		if (_file_name != null) {
-			/*
-			 * return ENDPOINT + "/Collection/" + collectionId + "/" + _file_name +
-			 * "?http_accept=application/json&http_authorized_session=polyomic%20authorization_token%3D" + AuthenticationToken;
-			 */
 			return ENDPOINT + "/Collection/" + collectionId + "/" + _file_name
 					+ "?http_accept=*/*&http_authorized_session=polyomic%20authorization_token%3D" + AuthenticationToken;
 		}
@@ -515,28 +499,26 @@ public class PolyomicHandler {
 			 */
 			ByteArrayBody body = new ByteArrayBody(json.toJSONString().getBytes("UTF-8"), "application/json; charset=UTF-8", filename);
 
-			if (_debug) {
-				System.out.println("ContentLength in body: " + body.getContentLength());
-				System.out.println("TransferEncoding in body: " + body.getTransferEncoding());
-			}
+			LOGGER.trace("ContentLength in body: {}", body.getContentLength());
+			LOGGER.trace("TransferEncoding in body: {}", body.getTransferEncoding());
+
 			entity.addPart("file0", body);
 		}
 		catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 
-		if (_debug) {
-			System.out.println("ContentLength in entity: " + entity.getContentLength());
-			System.out.println("ContentEncoding in entity: " + entity.getContentEncoding());
-			System.out.println("ContentType in entity:" + entity.getContentType());
-			System.out.println("isChunked: " + entity.isChunked());
-		}
+		LOGGER.trace("ContentLength in entity: {}", entity.getContentLength());
+		LOGGER.trace("ContentEncoding in entity: {}", entity.getContentEncoding());
+		LOGGER.trace("ContentType in entity: {}", entity.getContentType());
+		LOGGER.trace("isChunked: {}", entity.isChunked());
+
 
 		try {
 			entity.addPart("file0_content", new StringBody(content));
 		}
 		catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 
 		httpRequest.setEntity(entity);
@@ -546,7 +528,7 @@ public class PolyomicHandler {
 			httpclient.execute(httpRequest, responseHandler);
 		}
 		catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 		finally {
 			httpclient.getConnectionManager().shutdown();
@@ -562,9 +544,8 @@ public class PolyomicHandler {
 		MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
 
 		int fileIndex = 0;
-		JSONObject json = null;
-		ByteArrayBody body = null;
-		// InputStreamBody body = null;
+		JSONObject json;
+		ByteArrayBody body;
 		byte[] bytes = null;
 
 		json = reader.get(CONTENT_SAMPLE);
@@ -573,20 +554,18 @@ public class PolyomicHandler {
 				bytes = json.toJSONString().getBytes("UTF-8");
 			}
 			catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
+				LOGGER.error(e.getMessage(), e);
 			}
 
-			System.out.println("sample size: " + bytes.length);
+			LOGGER.debug("sample size: {}", bytes.length);
 			body = new ByteArrayBody(bytes, "application/json; charset=UTF-8", CONTENT_SAMPLE + ".json");
-			// body = new InputStreamBody(new ByteArrayInputStream(bytes),
-			// "application/json; charset=UTF-8", CONTENT_SAMPLE+".json");
 
 			entity.addPart("file" + fileIndex, body);
 			try {
 				entity.addPart("file" + fileIndex + "_content", new StringBody(CONTENT_SAMPLE));
 			}
 			catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
+				LOGGER.error(e.getMessage(), e);
 			}
 			fileIndex++;
 		}
@@ -597,20 +576,18 @@ public class PolyomicHandler {
 				bytes = json.toJSONString().getBytes("UTF-8");
 			}
 			catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
+				LOGGER.error(e.getMessage(), e);
 			}
 
-			System.out.println("mapping size: " + bytes.length);
+			LOGGER.debug("mapping size: {}", bytes.length);
 			body = new ByteArrayBody(bytes, "application/json; charset=UTF-8", CONTENT_MAPPING + ".json");
-			// body = new InputStreamBody(new ByteArrayInputStream(bytes),
-			// "application/json; charset=UTF-8", CONTENT_MAPPING+".json");
 
 			entity.addPart("file" + fileIndex, body);
 			try {
 				entity.addPart("file" + fileIndex + "_content", new StringBody(CONTENT_MAPPING));
 			}
 			catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
+				LOGGER.error(e.getMessage(), e);
 			}
 			fileIndex++;
 		}
@@ -621,20 +598,18 @@ public class PolyomicHandler {
 				bytes = json.toJSONString().getBytes("UTF-8");
 			}
 			catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
+				LOGGER.error(e.getMessage(), e);
 			}
 
-			System.out.println("expression size: " + bytes.length);
+			LOGGER.debug("expression size: {}", bytes.length);
 			body = new ByteArrayBody(bytes, "application/json; charset=UTF-8", CONTENT_EXPRESSION + ".json");
-			// body = new InputStreamBody(new ByteArrayInputStream(bytes),
-			// "application/json; charset=UTF-8", CONTENT_EXPRESSION+".json");
 
 			entity.addPart("file" + fileIndex, body);
 			try {
 				entity.addPart("file" + fileIndex + "_content", new StringBody(CONTENT_EXPRESSION));
 			}
 			catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
+				LOGGER.error(e.getMessage(), e);
 			}
 			fileIndex++;
 		}
@@ -642,12 +617,12 @@ public class PolyomicHandler {
 		httpRequest.setEntity(entity);
 
 		try {
-			System.out.println("request in saveJSONFilesToCollection:" + httpRequest.getRequestLine().toString());
+			LOGGER.trace("request in saveJSONFilesToCollection: {}", httpRequest.getRequestLine().toString());
 			ResponseHandler<String> responseHandler = new BasicResponseHandler();
 			httpclient.execute(httpRequest, responseHandler);
 		}
 		catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 		finally {
 			httpclient.getConnectionManager().shutdown();
@@ -674,7 +649,7 @@ public class PolyomicHandler {
 			httpRequest.setEntity(entity);
 		}
 		catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 
 		try {
@@ -685,17 +660,12 @@ public class PolyomicHandler {
 			JSONObject jsonResponseBody = (JSONObject) parser.parse(responseBody);
 			collection = (String) jsonResponseBody.get("id");
 
-			if (_debug) {
-				System.out.println("request in createCollection:" + httpRequest.getRequestLine().toString());
-				System.out.println("response in createCollection: " + responseBody);
-				System.out.println("collection id:" + collection);
-			}
+			LOGGER.trace("request in createCollection: {}", httpRequest.getRequestLine().toString());
+			LOGGER.trace("response in createCollection: {}", responseBody);
+			LOGGER.trace("collection id: {}", collection);
 		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-		catch (ParseException e) {
-			e.printStackTrace();
+		catch (IOException | ParseException e) {
+			LOGGER.error(e.getMessage(), e);
 		}
 		finally {
 			httpclient.getConnectionManager().shutdown();
@@ -726,7 +696,7 @@ public class PolyomicHandler {
 			httpRequest.setEntity(entity);
 		}
 		catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 
 		try {
@@ -738,16 +708,12 @@ public class PolyomicHandler {
 
 			workspaceId = (Long) jsonResponseBody.get("id");
 
-			if (_debug) {
-				System.out.println("request in createWorkspace:" + httpRequest.getRequestLine().toString());
-				System.out.println("response in createWorkspace: " + responseBody);
-			}
+			LOGGER.trace("request in createWorkspace: {}", httpRequest.getRequestLine().toString());
+			LOGGER.trace("response in createWorkspace: {}", responseBody);
+
 		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-		catch (ParseException e) {
-			e.printStackTrace();
+		catch (IOException | ParseException e) {
+			LOGGER.error(e.getMessage(), e);
 		}
 		finally {
 			httpclient.getConnectionManager().shutdown();
@@ -772,18 +738,15 @@ public class PolyomicHandler {
 
 			DefaultWorkspaceID = (Long) jsonResponseBody.get("id");
 
-			if (_debug) {
-				System.out.println("response in retrieveDefaultWorkspace: " + strResponseBody);
-				System.out.println("DefaultWorkspaceId:" + DefaultWorkspaceID);
-			}
+			LOGGER.trace("response in retrieveDefaultWorkspace: {}", strResponseBody);
+			LOGGER.trace("DefaultWorkspaceId: {}", DefaultWorkspaceID);
 		}
 		catch (IOException e) {
-			// e.printStackTrace();
-			// create a default workspace
+			LOGGER.debug("creating a default workspace");
 			DefaultWorkspaceID = createWorkspace("default");
 		}
 		catch (ParseException e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 		finally {
 			httpclient.getConnectionManager().shutdown();
@@ -792,7 +755,7 @@ public class PolyomicHandler {
 
 	public Workspace getWorkspaceData(Long id) {
 
-		Workspace ws = null;
+		Workspace ws;
 		JSONObject jsonItems = readWorkspace(id);
 		JSONObject jsonData = (JSONObject) jsonItems.get("data");
 
@@ -808,12 +771,12 @@ public class PolyomicHandler {
 	}
 
 	public UIPreference getUIPreference(Long id) {
-		UIPreference uiPref = null;
+		UIPreference uiPref;
 
 		JSONObject jsonItems = readWorkspace(id);
 		JSONObject jsonData = (JSONObject) jsonItems.get("preference");
 
-		if (jsonData == null || jsonData.isEmpty() == true) {
+		if (jsonData == null || jsonData.isEmpty()) {
 			uiPref = new UIPreference();
 			setUIPreference(id, uiPref);
 		}
@@ -839,11 +802,8 @@ public class PolyomicHandler {
 			JSONObject jsonResponseBody = (JSONObject) parser.parse(strResponseBody);
 			workspace = (JSONObject) jsonResponseBody.get("items");
 		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-		catch (ParseException e) {
-			e.printStackTrace();
+		catch (IOException | ParseException e) {
+			LOGGER.error(e.getMessage(), e);
 		}
 		finally {
 			httpclient.getConnectionManager().shutdown();
@@ -878,7 +838,7 @@ public class PolyomicHandler {
 	 * set collection state and create a map
 	 * 
 	 * @param id
-	 * @param status
+	 * @param state
 	 * @return
 	 */
 	public String setCollectionState(String id, String state) {
@@ -909,20 +869,18 @@ public class PolyomicHandler {
 			httpRequest.setEntity(entity);
 		}
 		catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 
 		try {
 			ResponseHandler<String> responseHandler = new BasicResponseHandler();
 			String responseBody = httpclient.execute(httpRequest, responseHandler);
 
-			if (_debug) {
-				System.out.println("request in setCollectionState:" + httpRequest.getRequestLine().toString());
-				System.out.println("response in setCollectionState: " + responseBody);
-			}
+			LOGGER.trace("request in setCollectionState: {}", httpRequest.getRequestLine().toString());
+			LOGGER.trace("response in setCollectionState: {}", responseBody);
 		}
 		catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 		finally {
 			httpclient.getConnectionManager().shutdown();
@@ -981,18 +939,15 @@ public class PolyomicHandler {
 			httpRequest.setEntity(entity);
 		}
 		catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 
 		try {
 			httpclient.execute(httpRequest);
-
-			if (_debug) {
-				System.out.println("saving workspace:" + body.toJSONString());
-			}
+			LOGGER.debug("saving workspace: {}", body.toJSONString());
 		}
 		catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 		finally {
 			httpclient.getConnectionManager().shutdown();

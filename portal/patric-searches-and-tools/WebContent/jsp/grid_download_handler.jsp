@@ -37,7 +37,6 @@
 	HashMap<String, String> sort = null;
 
 	if (_tablesource == null || _fileformat == null) {
-		System.out.println("Error");
 		_fileformat = null;
 	}
 

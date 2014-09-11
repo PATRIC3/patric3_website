@@ -17,9 +17,7 @@ package edu.vt.vbi.patric.portlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Random;
+import java.util.*;
 
 import javax.portlet.GenericPortlet;
 import javax.portlet.PortletException;
@@ -29,7 +27,6 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
-import javax.portlet.UnavailableException;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -39,23 +36,22 @@ import org.json.simple.parser.ParseException;
 import edu.vt.vbi.patric.common.SiteHelper;
 import edu.vt.vbi.patric.dao.DBSearch;
 import edu.vt.vbi.patric.dao.ResultType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class IDMapping extends GenericPortlet {
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.portlet.GenericPortlet#doView(javax.portlet.RenderRequest, javax.portlet.RenderResponse)
-	 */
+	private static final Logger LOGGER = LoggerFactory.getLogger(IDMapping.class);
+
 	@Override
-	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException, UnavailableException {
+	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 
 		response.setContentType("text/html");
 		response.setTitle("ID Mapping");
 		String mode = request.getParameter("display_mode");
 		new SiteHelper().setHtmlMetaElements(request, response, "ID Mapping");
 
-		PortletRequestDispatcher prd = null;
+		PortletRequestDispatcher prd;
 		if (mode != null && mode.equals("result")) {
 			prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/id_mapping_result.jsp");
 		}
@@ -106,7 +102,7 @@ public class IDMapping extends GenericPortlet {
 			ResultType key = (ResultType) sess.getAttribute("key" + pk);
 
 			// sorting
-			HashMap<String, String> sort = null;
+			Map<String, String> sort = null;
 			if (request.getParameter("sort") != null) {
 				// sorting
 				JSONParser a = new JSONParser();
@@ -114,7 +110,7 @@ public class IDMapping extends GenericPortlet {
 				String sort_field = "";
 				String sort_dir = "";
 				try {
-					sorter = (JSONArray) a.parse(request.getParameter("sort").toString());
+					sorter = (JSONArray) a.parse(request.getParameter("sort"));
 					sort_field += ((JSONObject) sorter.get(0)).get("property").toString();
 					sort_dir += ((JSONObject) sorter.get(0)).get("direction").toString();
 					for (int i = 1; i < sorter.size(); i++) {
@@ -122,10 +118,10 @@ public class IDMapping extends GenericPortlet {
 					}
 				}
 				catch (ParseException e) {
-					e.printStackTrace();
+					LOGGER.error(e.getMessage(), e);
 				}
 
-				sort = new HashMap<String, String>();
+				sort = new HashMap<>();
 
 				if (!sort_field.equals("") && !sort_dir.equals("")) {
 					sort.put("field", sort_field);
@@ -138,12 +134,12 @@ public class IDMapping extends GenericPortlet {
 
 			int count_total = conn_search.getIDSearchCount(key.toHashMap());
 
-			ArrayList<ResultType> items = null;
+			List<ResultType> items;
 			if (count_total > 0) {
 				items = conn_search.getIDSearchResult(key.toHashMap(), sort, start, end);
 			}
 			else {
-				items = new ArrayList<ResultType>();
+				items = new ArrayList<>();
 			}
 
 			JSONObject jsonResult = new JSONObject();
@@ -152,16 +148,15 @@ public class IDMapping extends GenericPortlet {
 
 				JSONArray results = new JSONArray();
 
-				for (int i = 0; i < items.size(); i++) {
-					ResultType g = (ResultType) items.get(i);
+				for (ResultType item : items) {
 					JSONObject obj = new JSONObject();
-					obj.putAll(g);
+					obj.putAll(item);
 					results.add(obj);
 				}
 				jsonResult.put("results", results);
 			}
 			catch (Exception ex) {
-				System.out.println(ex.toString());
+				LOGGER.error(ex.getMessage(), ex);
 			}
 
 			response.setContentType("application/json");

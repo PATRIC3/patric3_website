@@ -18,6 +18,7 @@ package edu.vt.vbi.patric.portlets;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import javax.portlet.GenericPortlet;
@@ -39,13 +40,17 @@ import edu.vt.vbi.patric.common.SiteHelper;
 import edu.vt.vbi.patric.common.SolrCore;
 import edu.vt.vbi.patric.common.SolrInterface;
 import edu.vt.vbi.patric.dao.ResultType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ExperimentListPortlet extends GenericPortlet {
 
 	SolrInterface solr = new SolrInterface();
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(ExperimentListPortlet.class);
+
 	@Override
-	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException, UnavailableException {
+	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 
 		response.setContentType("text/html");
 		PortletRequestDispatcher prd = null;
@@ -79,7 +84,7 @@ public class ExperimentListPortlet extends GenericPortlet {
 			if (genomeId != null && !genomeId.equalsIgnoreCase("")) {
 				key.put("genomeId", genomeId);
 			}
-			if (taxonId != null && !taxonId.equalsIgnoreCase("")) {
+			if (!taxonId.equalsIgnoreCase("")) {
 				key.put("taxonId", taxonId);
 			}
 			if (keyword != null) {
@@ -91,7 +96,6 @@ public class ExperimentListPortlet extends GenericPortlet {
 			if (state != null) {
 				key.put("state", state);
 			}
-			// System.out.println("save_params::" + key.toString());
 			// random
 			Random g = new Random();
 			int random = g.nextInt();
@@ -107,8 +111,8 @@ public class ExperimentListPortlet extends GenericPortlet {
 		else {
 
 			String need = request.getParameter("need");
-			String facet = "", keyword = "", pk = "", state = "", eId = "";
-			boolean hl = false;
+			String facet, keyword, pk, state, eId;
+			boolean hl;
 			PortletSession sess = request.getPortletSession();
 			ResultType key = new ResultType();
 			JSONObject jsonResult = new JSONObject();
@@ -122,13 +126,11 @@ public class ExperimentListPortlet extends GenericPortlet {
 				facet = request.getParameter("facet");
 
 				if (sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE) == null) {
-					// System.out.print("1comparison");
 					key.put("facet", facet);
 					key.put("keyword", keyword);
 					sess.setAttribute("key" + pk, key, PortletSession.APPLICATION_SCOPE);
 				}
 				else {
-					// System.out.print("2comparison");
 					key = (ResultType) sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
 					key.put("facet", facet);
 				}
@@ -136,7 +138,6 @@ public class ExperimentListPortlet extends GenericPortlet {
 				String orig_keyword = key.get("keyword");
 
 				if (eId != null && !eId.equals("")) {
-					// System.out.print("eId - " + eId);
 					key.put("keyword", solr.ConstructKeyword("eid", eId));
 
 				}
@@ -178,19 +179,18 @@ public class ExperimentListPortlet extends GenericPortlet {
 				String sort_field = "";
 				String sort_dir = "";
 				try {
-					sorter = (JSONArray) a.parse(request.getParameter("sort").toString());
+					sorter = (JSONArray) a.parse(request.getParameter("sort"));
 					sort_field += ((JSONObject) sorter.get(0)).get("property").toString();
 					sort_dir += ((JSONObject) sorter.get(0)).get("direction").toString();
 					for (int i = 1; i < sorter.size(); i++) {
 						sort_field += "," + ((JSONObject) sorter.get(i)).get("property").toString();
 					}
-					// System.out.println(sort_field);
 				}
 				catch (ParseException e) {
-					e.printStackTrace();
+					LOGGER.error(e.getMessage(), e);
 				}
 
-				HashMap<String, String> sort = new HashMap<String, String>();
+				Map<String, String> sort = new HashMap<>();
 
 				if (!sort_field.equals("") && !sort_dir.equals("")) {
 					sort.put("field", sort_field);
@@ -240,7 +240,6 @@ public class ExperimentListPortlet extends GenericPortlet {
 					key = (ResultType) sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
 					key.put("facet", facet);
 				}
-				// System.out.println("key::" + key.toString());
 
 				String start_id = request.getParameter("start");
 				String limit = request.getParameter("limit");
@@ -255,19 +254,18 @@ public class ExperimentListPortlet extends GenericPortlet {
 					String sort_field = "";
 					String sort_dir = "";
 					try {
-						sorter = (JSONArray) a.parse(request.getParameter("sort").toString());
+						sorter = (JSONArray) a.parse(request.getParameter("sort"));
 						sort_field += ((JSONObject) sorter.get(0)).get("property").toString();
 						sort_dir += ((JSONObject) sorter.get(0)).get("direction").toString();
 						for (int i = 1; i < sorter.size(); i++) {
 							sort_field += "," + ((JSONObject) sorter.get(i)).get("property").toString();
 						}
-						// System.out.println(sort_field);
 					}
 					catch (ParseException e) {
-						e.printStackTrace();
+						LOGGER.error(e.getMessage(), e);
 					}
 
-					sort = new HashMap<String, String>();
+					sort = new HashMap<>();
 
 					if (!sort_field.equals("") && !sort_dir.equals("")) {
 						sort.put("field", sort_field);
@@ -276,8 +274,6 @@ public class ExperimentListPortlet extends GenericPortlet {
 				}
 
 				JSONObject object = solr.getData(key, sort, facet, start, end, true, hl, false);
-
-				// System.out.print("pk-"+object.toString());
 
 				JSONObject obj = (JSONObject) object.get("response");
 				JSONArray obj1 = (JSONArray) obj.get("docs");
@@ -329,7 +325,7 @@ public class ExperimentListPortlet extends GenericPortlet {
 					}
 				}
 				catch (ParseException e) {
-					e.printStackTrace();
+					LOGGER.error(e.getMessage(), e);
 				}
 
 				response.setContentType("application/json");

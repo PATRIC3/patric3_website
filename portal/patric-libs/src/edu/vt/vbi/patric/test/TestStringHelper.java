@@ -17,15 +17,20 @@ package edu.vt.vbi.patric.test;
 
 import junit.framework.TestCase;
 import edu.vt.vbi.patric.common.StringHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestStringHelper extends TestCase {
 
 	private boolean testmode = false;
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(TestStringHelper.class);
+
 	public void testGetResult() {
 		if (testmode == true) {
 			String keyword = "\"outbreak\" or epidemic Or bore oR tailor and brucellosis and (disease_f:\"Homo sapiens\") OR rt_0008 OR rt0008 OR Rt-0008 AND (gid:\"111\") AND (feature_type_f:\"CDS\" OR feature_type_f:\"gene\") AND (rast_cds:[1 TO *])";
-			System.out.println(StringHelper.parseSolrKeywordOperator(keyword));
+
+			LOGGER.debug(StringHelper.parseSolrKeywordOperator(keyword));
 		}
 	}
 

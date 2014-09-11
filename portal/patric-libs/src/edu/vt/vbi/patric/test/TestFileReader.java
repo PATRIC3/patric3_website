@@ -23,10 +23,14 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.json.simple.JSONObject;
 
 import edu.vt.vbi.patric.common.ExpressionDataFileReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestFileReader extends TestCase {
 
 	private boolean testmode = false;
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(TestFileReader.class);
 
 	@SuppressWarnings("unchecked")
 	public void testGetResult() throws InvalidFormatException, IOException {
@@ -43,7 +47,7 @@ public class TestFileReader extends TestCase {
 			config.put("dataFileFormat", "matrix");
 			config.put("dataFileOrientation", "svg");
 
-			System.out.println(config.toString());
+			LOGGER.debug(config.toString());
 
 			reader = new ExpressionDataFileReader(config);
 
@@ -53,7 +57,8 @@ public class TestFileReader extends TestCase {
 
 				JSONObject a = reader.get("sample");
 				reader.writeData("samples");
-				System.out.println(a.toJSONString());
+
+				LOGGER.debug(a.toJSONString());
 			}
 		}
 	}

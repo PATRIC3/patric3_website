@@ -20,11 +20,15 @@ import java.io.IOException;
 
 import junit.framework.TestCase;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.theseed.servers.SAPserver;
 
 public class TestSEEDInterface extends TestCase {
 
 	private boolean testmode = false;
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(TestSEEDInterface.class);
 
 	public void testGetResult() {
 		if (testmode == true) {
@@ -33,17 +37,17 @@ public class TestSEEDInterface extends TestCase {
 			SAPserver sapling = new SAPserver("http://servers.nmpdr.org/pseed/sapling/server.cgi");
 
 			// CRResultSet crRS = new CRResultSet(_feature, sapling.compared_regions(_feature, 5, 10000));
-			// System.out.println(crRS.toString());
+			// LOGGER.trace(crRS.toString());
 
 			BufferedReader br = sapling.compared_regions(_feature, 5, 10000);
 			String out;
 			try {
 				while ((out = br.readLine()) != null) {
-					System.out.println(out);
+					LOGGER.trace(out);
 				}
 			}
 			catch (IOException e) {
-				e.printStackTrace();
+				LOGGER.error(e.getMessage(), e);
 			}
 		}
 	}

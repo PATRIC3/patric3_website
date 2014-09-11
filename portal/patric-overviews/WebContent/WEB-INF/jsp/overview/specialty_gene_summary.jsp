@@ -23,8 +23,7 @@
 	
 	// facet query
 	query.setQuery("*:*");
-	// System.out.println(query.toString());
-	
+
 	QueryResponse qr = solr.getServer().query(query);
 	FacetField ff = qr.getFacetField("property_source");
 %>

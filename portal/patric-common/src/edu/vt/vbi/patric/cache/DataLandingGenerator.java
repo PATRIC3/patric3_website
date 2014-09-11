@@ -45,6 +45,8 @@ import edu.vt.vbi.patric.dao.DBShared;
 import edu.vt.vbi.patric.dao.DBSummary;
 import edu.vt.vbi.patric.dao.DBTranscriptomics;
 import edu.vt.vbi.patric.dao.ResultType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("unchecked")
 public class DataLandingGenerator {
@@ -78,6 +80,8 @@ public class DataLandingGenerator {
 	final String URL_PATHWAY_GENE_TAB = "CompPathwayTable?cType=genome&cId={cId}&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId={pId}&pClass=&ecN=";
 
 	final String ULR_SPECIALTY_GENE_TAB = "SpecialtyGeneList?cType=genome&cId={cId}&kw=source:{source}";
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(DataLandingGenerator.class);
 
 	public void setBaseURL(String url) {
 		baseURL = url;
@@ -143,8 +147,8 @@ public class DataLandingGenerator {
 			jsonOut.close();
 			isSuccess = true;
 		}
-		catch (IOException ioex) {
-			ioex.printStackTrace();
+		catch (IOException e) {
+			LOGGER.error(e.getMessage(), e);
 		}
 		return isSuccess;
 	}
@@ -194,8 +198,8 @@ public class DataLandingGenerator {
 			jsonOut.close();
 			isSuccess = true;
 		}
-		catch (IOException ioex) {
-			ioex.printStackTrace();
+		catch (IOException e) {
+			LOGGER.error(e.getMessage(), e);
 		}
 		return isSuccess;
 	}
@@ -239,8 +243,8 @@ public class DataLandingGenerator {
 			jsonOut.close();
 			isSuccess = true;
 		}
-		catch (IOException ioex) {
-			ioex.printStackTrace();
+		catch (IOException e) {
+			LOGGER.error(e.getMessage(), e);
 		}
 		return isSuccess;
 	}
@@ -284,8 +288,8 @@ public class DataLandingGenerator {
 			jsonOut.close();
 			isSuccess = true;
 		}
-		catch (IOException ioex) {
-			ioex.printStackTrace();
+		catch (IOException e) {
+			LOGGER.error(e.getMessage(), e);
 		}
 		return isSuccess;
 	}
@@ -329,8 +333,8 @@ public class DataLandingGenerator {
 			jsonOut.close();
 			isSuccess = true;
 		}
-		catch (IOException ioex) {
-			ioex.printStackTrace();
+		catch (IOException e) {
+			LOGGER.error(e.getMessage(), e);
 		}
 		return isSuccess;
 	}
@@ -384,8 +388,8 @@ public class DataLandingGenerator {
 			jsonOut.close();
 			isSuccess = true;
 		}
-		catch (IOException ioex) {
-			ioex.printStackTrace();
+		catch (IOException e) {
+			LOGGER.error(e.getMessage(), e);
 		}
 		return isSuccess;
 	}
@@ -424,8 +428,8 @@ public class DataLandingGenerator {
 			jsonOut.close();
 			isSuccess = true;
 		}
-		catch (IOException ioex) {
-			ioex.printStackTrace();
+		catch (IOException e) {
+			LOGGER.error(e.getMessage(), e);
 		}
 		return isSuccess;
 	}
@@ -464,8 +468,8 @@ public class DataLandingGenerator {
 			jsonOut.close();
 			isSuccess = true;
 		}
-		catch (IOException ioex) {
-			ioex.printStackTrace();
+		catch (IOException e) {
+			LOGGER.error(e.getMessage(), e);
 		}
 		return isSuccess;
 	}
@@ -514,8 +518,8 @@ public class DataLandingGenerator {
 			jsonOut.close();
 			isSuccess = true;
 		}
-		catch (IOException ioex) {
-			ioex.printStackTrace();
+		catch (IOException e) {
+			LOGGER.error(e.getMessage(), e);
 		}
 		return isSuccess;
 	}
@@ -530,7 +534,7 @@ public class DataLandingGenerator {
 			solr.setCurrentInstance(SolrCore.TAXONOMY);
 		}
 		catch (MalformedURLException e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 		ResultType key = new ResultType();
 		JSONObject res = null;
@@ -545,7 +549,7 @@ public class DataLandingGenerator {
 				tx = (JSONObject) docs.get(0);
 			}
 			catch (IOException e) {
-				e.printStackTrace();
+				LOGGER.error(e.getMessage(), e);
 			}
 
 			JSONObject item = new JSONObject();
@@ -647,7 +651,7 @@ public class DataLandingGenerator {
 			}
 		}
 		catch (MalformedURLException e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 
 		return jsonData;
@@ -806,7 +810,7 @@ public class DataLandingGenerator {
 			}
 		}
 		catch (MalformedURLException e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 
 		return jsonData;
@@ -847,7 +851,7 @@ public class DataLandingGenerator {
 			}
 		}
 		catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 		jsonData.put("data", data);
 		return jsonData;
@@ -885,7 +889,7 @@ public class DataLandingGenerator {
 			jsonData.put("data", data);
 		}
 		catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 
 		return jsonData;
@@ -919,7 +923,7 @@ public class DataLandingGenerator {
 				res = solr.getData(skey, null, null, 0, 1, false, false, false);
 				JSONArray docs = (JSONArray) ((JSONObject) res.get("response")).get("docs");
 				genomeInfo = (JSONObject) docs.get(0);
-				// System.out.println(genomeInfo.toJSONString());
+
 				genome.put("popularName", genomeInfo.get("genome_name"));
 				genome.put("gb_link", URL_GENOMEBROWSER.replace("{cType}", "genome").replace("{cId}", String.format("%d", gid)));
 				// meta data
@@ -938,7 +942,7 @@ public class DataLandingGenerator {
 				genome.put("metadata", meta);
 			}
 			catch (IOException e) {
-				e.printStackTrace();
+				LOGGER.error(e.getMessage(), e);
 			}
 
 			JSONArray data = new JSONArray();
@@ -984,7 +988,7 @@ public class DataLandingGenerator {
 				pf.put("data", ((JSONObject) res.get("response")).get("numFound"));
 			}
 			catch (IOException e) {
-				e.printStackTrace();
+				LOGGER.error(e.getMessage(), e);
 			}
 			data.add(pf);
 
@@ -1034,7 +1038,7 @@ public class DataLandingGenerator {
 				genome.put("popularName", genomeInfo.get("genome_name"));
 			}
 			catch (IOException e) {
-				e.printStackTrace();
+				LOGGER.error(e.getMessage(), e);
 			}
 
 			JSONArray featureTypes = new JSONArray();
@@ -1197,11 +1201,11 @@ public class DataLandingGenerator {
 					}
 				}
 				catch (SolrServerException e) {
-					e.printStackTrace();
+					LOGGER.error(e.getMessage(), e);
 				}
 			}
 			catch (IOException e) {
-				e.printStackTrace();
+				LOGGER.error(e.getMessage(), e);
 			}
 			//
 			genome.put("featureTypes", featureTypes);
@@ -1278,7 +1282,7 @@ public class DataLandingGenerator {
 				genome.put("popularName", genomeInfo.get("genome_name"));
 			}
 			catch (IOException e) {
-				e.printStackTrace();
+				LOGGER.error(e.getMessage(), e);
 			}
 
 			JSONArray specialtyGenes = new JSONArray();
@@ -1304,11 +1308,11 @@ public class DataLandingGenerator {
 					}
 				}
 				catch (SolrServerException e) {
-					e.printStackTrace();
+					LOGGER.error(e.getMessage(), e);
 				}
 			}
 			catch (IOException e) {
-				e.printStackTrace();
+				LOGGER.error(e.getMessage(), e);
 			}
 			//
 			genome.put("specialtyGenes", specialtyGenes);
@@ -1383,7 +1387,7 @@ public class DataLandingGenerator {
 				genome.put("popularName", genomeInfo.get("genome_name"));
 			}
 			catch (IOException e) {
-				e.printStackTrace();
+				LOGGER.error(e.getMessage(), e);
 			}
 
 			JSONArray specialtyGenes = new JSONArray();
@@ -1395,7 +1399,6 @@ public class DataLandingGenerator {
 					query.setQuery("property:\"Antibiotic Resistance\"");
 					query.setFilterQueries("genome_info_id:" + gid);
 					query.setFacet(true).setFacetMinCount(1).addFacetField("property_source").setFacetSort(FacetParams.FACET_SORT_INDEX);
-					//System.out.println(query.toString());
 
 					QueryResponse qr = solr.getServer().query(query);
 					FacetField ff = qr.getFacetField("property_source");
@@ -1410,11 +1413,11 @@ public class DataLandingGenerator {
 					}
 				}
 				catch (SolrServerException e) {
-					e.printStackTrace();
+					LOGGER.error(e.getMessage(), e);
 				}
 			}
 			catch (IOException e) {
-				e.printStackTrace();
+				LOGGER.error(e.getMessage(), e);
 			}
 			//
 			genome.put("specialtyGenes", specialtyGenes);
@@ -1497,7 +1500,7 @@ public class DataLandingGenerator {
 				genome.put("link", URL_PATHWAY_TAB.replace("{cType}", "genome").replace("{cId}", gid.toString()).replace("{pId}", ""));
 			}
 			catch (IOException e) {
-				e.printStackTrace();
+				LOGGER.error(e.getMessage(), e);
 			}
 
 			JSONArray data = new JSONArray();
@@ -1552,7 +1555,7 @@ public class DataLandingGenerator {
 				genome.put("link", URL_TRANSCRIPTOMICS_TAB.replace("{cType}", "genome").replace("{cId}", gid.toString()).replace("{kw}", ""));
 			}
 			catch (IOException e) {
-				e.printStackTrace();
+				LOGGER.error(e.getMessage(), e);
 			}
 
 			// Retrieve EId associated a given genome
@@ -1611,7 +1614,7 @@ public class DataLandingGenerator {
 				ec.put("data", data);
 			}
 			catch (IOException e) {
-				e.printStackTrace();
+				LOGGER.error(e.getMessage(), e);
 			}
 
 			genome.put("GeneModifications", gm);
@@ -1637,7 +1640,7 @@ public class DataLandingGenerator {
 			solr.setCurrentInstance(SolrCore.TAXONOMY);
 		}
 		catch (MalformedURLException e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 		ResultType key = new ResultType();
 		JSONObject res = null;
@@ -1654,7 +1657,7 @@ public class DataLandingGenerator {
 				tx = (JSONObject) docs.get(0);
 			}
 			catch (IOException e) {
-				e.printStackTrace();
+				LOGGER.error(e.getMessage(), e);
 			}
 
 			JSONObject item = new JSONObject();
@@ -1694,11 +1697,8 @@ public class DataLandingGenerator {
 			JSONParser parser = new JSONParser();
 			jsonData = (JSONObject) parser.parse(response);
 		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-		catch (ParseException e) {
-			e.printStackTrace();
+		catch (IOException | ParseException e) {
+			LOGGER.error(e.getMessage(), e);
 		}
 		finally {
 			httpclient.getConnectionManager().shutdown();

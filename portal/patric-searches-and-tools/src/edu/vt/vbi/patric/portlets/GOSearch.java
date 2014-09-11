@@ -18,6 +18,7 @@ package edu.vt.vbi.patric.portlets;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import javax.portlet.GenericPortlet;
@@ -28,7 +29,6 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
-import javax.portlet.UnavailableException;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -39,22 +39,21 @@ import edu.vt.vbi.patric.common.SiteHelper;
 import edu.vt.vbi.patric.common.SolrCore;
 import edu.vt.vbi.patric.common.SolrInterface;
 import edu.vt.vbi.patric.dao.ResultType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GOSearch extends GenericPortlet {
 
 	SolrInterface solr = new SolrInterface();
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.portlet.GenericPortlet#doView(javax.portlet.RenderRequest, javax.portlet.RenderResponse)
-	 */
+	private static final Logger LOGGER = LoggerFactory.getLogger(GOSearch.class);
+
 	@Override
-	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException, UnavailableException {
+	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 
 		response.setContentType("text/html");
 		response.setTitle("GO Search");
-		PortletRequestDispatcher prd = null;
+		PortletRequestDispatcher prd;
 
 		new SiteHelper().setHtmlMetaElements(request, response, "GO Search");
 
@@ -123,8 +122,8 @@ public class GOSearch extends GenericPortlet {
 
 			String need = request.getParameter("need");
 
-			String facet = "", keyword = "", pk = "", state = "";
-			boolean hl = false;
+			String facet, keyword, pk, state;
+			boolean hl;
 			PortletSession sess = request.getPortletSession();
 			ResultType key = new ResultType();
 			JSONObject jsonResult = new JSONObject();
@@ -156,7 +155,7 @@ public class GOSearch extends GenericPortlet {
 				int start = Integer.parseInt(start_id);
 				int end = Integer.parseInt(limit);
 
-				HashMap<String, String> sort = null;
+				Map<String, String> sort = null;
 				if (request.getParameter("sort") != null) {
 					// sorting
 					JSONParser a = new JSONParser();
@@ -164,7 +163,7 @@ public class GOSearch extends GenericPortlet {
 					String sort_field = "";
 					String sort_dir = "";
 					try {
-						sorter = (JSONArray) a.parse(request.getParameter("sort").toString());
+						sorter = (JSONArray) a.parse(request.getParameter("sort"));
 						sort_field += ((JSONObject) sorter.get(0)).get("property").toString();
 						sort_dir += ((JSONObject) sorter.get(0)).get("direction").toString();
 						for (int i = 1; i < sorter.size(); i++) {
@@ -172,10 +171,10 @@ public class GOSearch extends GenericPortlet {
 						}
 					}
 					catch (ParseException e) {
-						e.printStackTrace();
+						LOGGER.error(e.getMessage(), e);
 					}
 
-					sort = new HashMap<String, String>();
+					sort = new HashMap<>();
 
 					if (!sort_field.equals("") && !sort_dir.equals("")) {
 						sort.put("field", sort_field);
@@ -223,7 +222,7 @@ public class GOSearch extends GenericPortlet {
 
 				}
 				catch (ParseException e) {
-					e.printStackTrace();
+					LOGGER.error(e.getMessage(), e);
 				}
 
 				response.setContentType("application/json");
@@ -236,7 +235,7 @@ public class GOSearch extends GenericPortlet {
 				solr.setCurrentInstance(SolrCore.GO);
 
 				pk = request.getParameter("pk");
-				int rows = Integer.parseInt(request.getParameter("limit").toString());
+				int rows = Integer.parseInt(request.getParameter("limit"));
 				String field = request.getParameter("field");
 
 				key = (ResultType) sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);

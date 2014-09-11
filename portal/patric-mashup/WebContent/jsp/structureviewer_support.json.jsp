@@ -10,8 +10,8 @@
 	String _pdb_id = request.getParameter("pdb_id");
 	String _chain_id = request.getParameter("chain_id");
 
-	ArrayList<HashMap<String,String>> items = null;
-	HashMap<String,String> item = null;
+	List<Map<String,String>> items = null;
+	// HashMap<String,String> item = null;
 	JSONObject json = new JSONObject();
 
 	//result = api.getGOTerms("4hhb");
@@ -36,7 +36,7 @@
 			out.println(json.toString());
 		}
 		else if (_mode.equals("chains")) {
-			ArrayList<String> list = api.getPolymers(_pdb_id);
+			List<String> list = api.getPolymers(_pdb_id);
 			
 			try {
 				json.put("totalCount", list.size());

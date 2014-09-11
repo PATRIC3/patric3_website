@@ -62,11 +62,14 @@ public class EutilInterface {
 		ESearchHandler esearchHandler = new ESearchHandler();
 		xmlReader.setContentHandler(esearchHandler);
 
-		String url = baseURLESearch + "?usehistory=y&db=" + db + "&term=" + term + search_opt;
-		URLConnection c = new URL(url).openConnection();
+		URL url = new URL(baseURLESearch + "?usehistory=y&db=" + db + "&term=" + term + search_opt);
+		URLConnection c = url.openConnection();
 		c.setConnectTimeout(TIMEOUT_CONN);
 		c.setReadTimeout(TIMEOUT_READ);
 		c.setUseCaches(true);
+
+		LOGGER.debug(url.toString());
+
 		xmlReader.parse(new InputSource(c.getInputStream()));
 
 		return esearchHandler.getParsedData();
@@ -90,7 +93,7 @@ public class EutilInterface {
 			c.setReadTimeout(TIMEOUT_READ);
 			c.setUseCaches(true);
 
-			LOGGER.debug("esummary-url:{}", url.toString());
+			LOGGER.debug(url.toString());
 
 			JSONArray subList = null;
 			if (db.equals("pubmed") || db.equals("pmc")) {

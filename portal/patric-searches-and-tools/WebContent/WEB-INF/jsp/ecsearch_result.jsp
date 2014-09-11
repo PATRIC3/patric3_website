@@ -27,7 +27,6 @@ if(key != null && key.containsKey("exact_search_term")){
 
 String algorithm = "";
 if(keyword.contains("annotation:(")){
-	//System.out.println(keyword);
 	algorithm = keyword.split("annotation:\\(")[1].split("\\)")[0];	
 }
 %>

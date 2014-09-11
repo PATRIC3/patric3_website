@@ -15,6 +15,9 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.common;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,6 +25,8 @@ import java.io.InputStreamReader;
 import java.util.List;
 
 public class StringHelper {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(StringHelper.class);
 
 	public static String implode(String[] array, String delim) {
 		String out = "";
@@ -91,49 +96,33 @@ public class StringHelper {
 			reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
 		}
 		catch (Exception ex) {
-			System.out.println(ex);
+			LOGGER.error(ex.getMessage(), ex);
 		}
 		StringBuilder sb = new StringBuilder();
 
-		String line = null;
+		String line;
 		try {
 			while ((line = reader.readLine()) != null) {
-				sb.append(line + "\n");
+				sb.append(line).append("\n");
 			}
 		}
 		catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 		finally {
 			try {
 				is.close();
 			}
 			catch (IOException e) {
-				e.printStackTrace();
+				LOGGER.error(e.getMessage(), e);
 			}
 		}
 		return sb.toString();
 	}
 
 	public static String parseSolrKeywordOperator(String keyword) {
-		// keyword.replaceAll("\b[a-zA-Z0-9_]\b", "XX");
-		// String return_keyword = "";
 		keyword = keyword.replaceAll("\\s+or\\s+|\\s+Or\\s+|\\s+oR\\s+", " OR ").replaceAll("( )+", " ");
-		/*
-		 * List<String> matchList = new ArrayList<String>(); Pattern regex = Pattern.compile("[^\\s\"']+|\"[^\"]*\"|'[^']*'"); Matcher regexMatcher =
-		 * regex.matcher(keyword); while (regexMatcher.find()) { matchList.add(regexMatcher.group()); } for(int i=0; i< matchList.size(); i++){
-		 * System.out.println(matchList.get(i)); if(matchList .get(i).toLowerCase().equals(((String)"AND").toLowerCase())){ return_keyword += " AND ";
-		 * }else if(matchList.get(i).toLowerCase().equals (((String)"OR").toLowerCase())){ return_keyword += " OR "; }else
-		 * if(matchList.get(i).substring(0,1).equals("(")){ return_keyword += matchList.get(i).trim(); int j = i+1; for(; j< matchList.size(); j++){
-		 * System.out.println(matchList.get(j)); if(!matchList.get(j).substring(0,1).equals(")")){ if(matchList.get(j).
-		 * toLowerCase().equals(((String)"OR").toLowerCase())) return_keyword += " OR "; else
-		 * if(matchList.get(j).toLowerCase().equals(((String)"TO").toLowerCase ())) return_keyword += " TO "; else if(matchList.get(j).toLowerCase().
-		 * equals(((String)"AND").toLowerCase())) return_keyword += " AND "; else return_keyword += matchList.get(j).trim(); }else{ return_keyword +=
-		 * matchList.get(j).trim(); break; } } i = j; }else{ return_keyword += "\""+matchList.get(i).trim()+"\""; } }
-		 * 
-		 * return return_keyword;
-		 */
-		return keyword;
 
+		return keyword;
 	}
 }

@@ -18,6 +18,7 @@ package edu.vt.vbi.patric.portlets;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import javax.portlet.GenericPortlet;
@@ -28,7 +29,6 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
-import javax.portlet.UnavailableException;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -40,16 +40,20 @@ import edu.vt.vbi.patric.common.SolrCore;
 import edu.vt.vbi.patric.common.SolrInterface;
 import edu.vt.vbi.patric.dao.ResultType;
 import edu.vt.vbi.patric.common.FASTAHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ProteomicsListPortlet extends GenericPortlet {
 
 	SolrInterface solr = new SolrInterface();
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(ProteomicsListPortlet.class);
+
 	@Override
-	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException, UnavailableException {
+	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 
 		response.setContentType("text/html");
-		PortletRequestDispatcher prd = null;
+		PortletRequestDispatcher prd;
 
 		new SiteHelper().setHtmlMetaElements(request, response, "Proteomics Experiment List");
 		response.setTitle("Proteomics Experiment List");
@@ -92,7 +96,6 @@ public class ProteomicsListPortlet extends GenericPortlet {
 			if (state != null) {
 				key.put("state", state);
 			}
-			// System.out.println("save_params::" + key.toString());
 			// random
 			Random g = new Random();
 			int random = g.nextInt();
@@ -107,8 +110,8 @@ public class ProteomicsListPortlet extends GenericPortlet {
 		else {
 
 			String need = request.getParameter("need");
-			String facet = "", keyword = "", pk = "", state = "", experiment_id = "";
-			boolean hl = false;
+			String facet = "", keyword, pk, state, experiment_id;
+			boolean hl;
 
 			PortletSession sess = request.getPortletSession();
 			ResultType key = new ResultType();
@@ -176,19 +179,18 @@ public class ProteomicsListPortlet extends GenericPortlet {
 				String sort_field = "";
 				String sort_dir = "";
 				try {
-					sorter = (JSONArray) parser.parse(request.getParameter("sort").toString());
+					sorter = (JSONArray) parser.parse(request.getParameter("sort"));
 					sort_field += ((JSONObject) sorter.get(0)).get("property").toString();
 					sort_dir += ((JSONObject) sorter.get(0)).get("direction").toString();
 					for (int i = 1; i < sorter.size(); i++) {
 						sort_field += "," + ((JSONObject) sorter.get(i)).get("property").toString();
 					}
-					// System.out.println(sort_field);
 				}
 				catch (ParseException e) {
-					e.printStackTrace();
+					LOGGER.error(e.getMessage(), e);
 				}
 
-				HashMap<String, String> sort = new HashMap<String, String>();
+				Map<String, String> sort = new HashMap<>();
 
 				if (!sort_field.equals("") && !sort_dir.equals("")) {
 					sort.put("field", sort_field);
@@ -240,14 +242,13 @@ public class ProteomicsListPortlet extends GenericPortlet {
 				else {
 					key.put("keyword", keyword);
 				}
-				// System.out.println("key::" + key.toString());
 
 				String start_id = request.getParameter("start");
 				String limit = request.getParameter("limit");
 				int start = Integer.parseInt(start_id);
 				int end = Integer.parseInt(limit);
 
-				HashMap<String, String> sort = null;
+				Map<String, String> sort = null;
 				if (request.getParameter("sort") != null) {
 					// sorting
 					JSONParser a = new JSONParser();
@@ -255,19 +256,18 @@ public class ProteomicsListPortlet extends GenericPortlet {
 					String sort_field = "";
 					String sort_dir = "";
 					try {
-						sorter = (JSONArray) a.parse(request.getParameter("sort").toString());
+						sorter = (JSONArray) a.parse(request.getParameter("sort"));
 						sort_field += ((JSONObject) sorter.get(0)).get("property").toString();
 						sort_dir += ((JSONObject) sorter.get(0)).get("direction").toString();
 						for (int i = 1; i < sorter.size(); i++) {
 							sort_field += "," + ((JSONObject) sorter.get(i)).get("property").toString();
 						}
-						// System.out.println(sort_field);
 					}
 					catch (ParseException e) {
-						e.printStackTrace();
+						LOGGER.error(e.getMessage(), e);
 					}
 
-					sort = new HashMap<String, String>();
+					sort = new HashMap<>();
 
 					if (!sort_field.equals("") && !sort_dir.equals("")) {
 						sort.put("field", sort_field);
@@ -275,9 +275,7 @@ public class ProteomicsListPortlet extends GenericPortlet {
 					}
 				}
 
-				JSONObject object = solr.getData(key, sort, facet, start, end, facet != null && !facet.equals("") ? true : false, hl, false);
-
-				// System.out.print("pk-"+object.toString());
+				JSONObject object = solr.getData(key, sort, facet, start, end, facet != null && !facet.equals(""), hl, false);
 
 				JSONObject obj = (JSONObject) object.get("response");
 				JSONArray obj1 = (JSONArray) obj.get("docs");
@@ -325,7 +323,7 @@ public class ProteomicsListPortlet extends GenericPortlet {
 					}
 				}
 				catch (ParseException e) {
-					e.printStackTrace();
+					LOGGER.error(e.getMessage(), e);
 				}
 
 				response.setContentType("application/json");

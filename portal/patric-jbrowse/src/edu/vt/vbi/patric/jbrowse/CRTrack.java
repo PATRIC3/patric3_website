@@ -17,6 +17,7 @@ package edu.vt.vbi.patric.jbrowse;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Set;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -29,18 +30,17 @@ public class CRTrack extends ArrayList<CRFeature> {
 
 	private String pin, genomeID, genomeName;
 
-	private HashSet<String> featureIDs;
+	private Set<String> featureIDs;
 
 	public CRTrack(JSONObject jsonTrack) {
-		// System.out.println(jsonTrack.toJSONString());
 		rowID = Integer.parseInt(jsonTrack.get("row_id").toString());
 		pin = jsonTrack.get("pin").toString();
 		genomeID = jsonTrack.get("genome_id").toString();
 		genomeName = jsonTrack.get("genome_name").toString();
 		JSONArray jsonFeatures = (JSONArray) jsonTrack.get("features");
-		featureIDs = new HashSet<String>();
-		for (int i = 0; i < jsonFeatures.size(); i++) {
-			CRFeature f = new CRFeature((JSONArray) jsonFeatures.get(i));
+		featureIDs = new HashSet<>();
+		for (Object jsonFeature : jsonFeatures) {
+			CRFeature f = new CRFeature((JSONArray) jsonFeature);
 			super.add(f);
 			featureIDs.add(f.getfeatureID());
 		}
@@ -48,9 +48,9 @@ public class CRTrack extends ArrayList<CRFeature> {
 
 	public CRFeature findFeature(String featureID) {
 		CRFeature f = null;
-		for (int i = 0; i < super.size(); i++) {
-			if (super.get(i).getfeatureID().equals(featureID)) {
-				f = super.get(i);
+		for (CRFeature crFeature : this) {
+			if (crFeature.getfeatureID().equals(featureID)) {
+				f = crFeature;
 				break;
 			}
 		}
@@ -58,13 +58,13 @@ public class CRTrack extends ArrayList<CRFeature> {
 	}
 
 	public String getPSEEDIDs() {
-		// return StringHelper.implode(featureIDs.toArray(),",");
+
 		StringBuffer sb = new StringBuffer();
 		for (String id : featureIDs) {
 			if (sb.length() > 0) {
 				sb.append(" OR ");
 			}
-			sb.append("\"" + id + "\"");
+			sb.append("\"").append(id).append("\"");
 		}
 		return sb.toString();
 	}
@@ -78,14 +78,11 @@ public class CRTrack extends ArrayList<CRFeature> {
 			isThisGenomeReversed = true;
 		}
 
-		// System.out.println("[debug:CRTrack.relocateFeatures]"+this.genomeName+","+center+","+window_size);
 		for (int idx = 0; idx < super.size(); idx++) {
 			CRFeature f = super.get(idx);
-			// System.out.println("[debug:CRTrack.relocateFeatures]"+idx+","+f.getStartPosition()+":"+f.getEndPosition()+","+f.getStrand()+","+isThisGenomeReversed);
+
 			int tS = (f.getStartPosition() - center) + window_size / 2;
 			int tE = (f.getEndPosition() - center) + window_size / 2;
-
-			// System.out.println("[debug:CRTrack.relocateFeatures]"+idx+",("+(f.getStartPosition()-center)+"):("+(f.getEndPosition()-center)+"),");
 
 			if (isThisGenomeReversed) {
 				int _tS = window_size - tS;
@@ -107,7 +104,6 @@ public class CRTrack extends ArrayList<CRFeature> {
 				f.setPhase(0);
 			}
 			super.set(idx, f);
-			// System.out.println("[debug:CRTrack.relocateFeatures]"+idx+","+f.getStartPosition()+":"+f.getEndPosition()+","+f.getStrand());
 		}
 
 	}

@@ -17,13 +17,7 @@ package edu.vt.vbi.patric.dao;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -45,6 +39,8 @@ import org.hibernate.lob.SerializableClob;
 import edu.vt.vbi.patric.beans.DNAFeature;
 import edu.vt.vbi.patric.common.SolrCore;
 import edu.vt.vbi.patric.common.SolrInterface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -65,15 +61,18 @@ public class DBSummary {
 		return factory;
 	}
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(DBSummary.class);
+
 	/**
 	 * Retrieves sequences that are associated to a given taxon node. This is used by GenomeList tab.
-	 * 
+	 *
 	 * @param key filtering conditions such as data_source ( <code>Legacy BRC|RefSeq|PATRIC</code>) and ncbi_taxon_id
 	 * @param sort sorting condition
 	 * @param start starting pointer
 	 * @param end stopping pointer. If this is <code>-1</code>, returns all the results.
 	 * @return a list of sequence info
 	 */
+
 	public ArrayList<ResultType> getSequenceListByTaxon(HashMap<String, String> key, HashMap<String, String> sort, int start, int end) {
 		String sql = "select distinct gi.genome_info_id, gi.genome_name, gi.ncbi_tax_id, si.sequence_info_id, si.accession, "
 				+ " 		si.gi, si.length, si.chromosome, si.strain, si.isolate, "
@@ -712,15 +711,9 @@ public class DBSummary {
 		if (key.containsKey("feature_info_id") && key.get("feature_info_id") != null) {
 			// q.setString("scope", key.get("feature_info_id"));
 			// there is no easy way to bind multiple values
-			if (debug) {
-				System.out.println("scope: feature_info_id = " + key.get("feature_info_id"));
-			}
 		}
 		else if (key.containsKey("genome_info_id") && key.get("genome_info_id") != null) {
 			q.setString("scope", key.get("genome_info_id"));
-			if (debug) {
-				System.out.println("scope: genome_info_id = " + key.get("genome_info_id"));
-			}
 		}
 		else if (key.containsKey("ncbi_taxon_id") && key.get("ncbi_taxon_id") != null) {
 			if (key.get("ncbi_taxon_id").equals("2") && key.containsKey("keyword") && key.get("keyword") != null && !key.get("keyword").equals("")) {
@@ -729,30 +722,18 @@ public class DBSummary {
 			else {
 				q.setString("scope", key.get("ncbi_taxon_id"));
 			}
-			if (debug) {
-				System.out.println("scope: ncbi_taxon_id = " + key.get("ncbi_taxon_id"));
-			}
 		}
 
 		// feature type
 		if (key.containsKey("featuretype") && key.get("featuretype") != null) {
 			if (key.get("featuretype").equalsIgnoreCase("all")) {
 				// no condition for this case
-				if (debug) {
-					System.out.println("feature type: all ");
-				}
 			}
 			else if (key.get("featuretype") != null) {
 				q.setString("featuretype", key.get("featuretype"));
-				if (debug) {
-					System.out.println("feature type: " + key.get("featuretype"));
-				}
 			}
 			else {
 				q.setString("featuretype", "CDS");
-				if (debug) {
-					System.out.println("feature type: CDS (default)");
-				}
 			}
 		}
 
@@ -767,17 +748,11 @@ public class DBSummary {
 			else if (key.get("annotation").equalsIgnoreCase("PATRIC")) {
 				q.setString("annotation", "RAST");
 			}
-			if (debug) {
-				System.out.println("annotation: " + key.get("annotation"));
-			}
 		}
 
 		// sequence status
 		if (key.containsKey("sequencestatus") && key.get("sequencestatus") != null && !key.get("sequencestatus").equals("All")) {
 			q.setString("sequencestatus", key.get("sequencestatus"));
-			if (debug) {
-				System.out.println("sequence status:" + key.get("sequence_status"));
-			}
 		}
 
 		return q;
@@ -972,7 +947,7 @@ public class DBSummary {
 				// this can be null
 			}
 			catch (Exception ex) {
-				System.out.println("Problem in retrieving comments for RNA: " + ex.toString());
+				LOGGER.error("Problem in retrieving comments for RNA: {}", ex.getMessage(), ex);
 			}
 		}
 		return result;
@@ -1116,39 +1091,6 @@ public class DBSummary {
 		return results;
 	}
 
-	/**
-	 * Retrieves feature info for a given condition. This is used to feed Genome Browser track.
-	 * 
-	 * @param key filtering condition such as accession, feature type, and annotation
-	 * @return list of feature level data (na_feature_id, locus_tag, p_start, p_end, is_reversed, name, debug, product, gene)
-	 * @deprecated
-	 */
-	public ArrayList<ResultType> getFeatures(HashMap<String, String> key) {
-
-		// query by sequence_info_id (if available) or accession
-		String q = "";
-		if (key.containsKey("sid") && key.get("sid") != null) {
-			q += "sequence_info_id:" + key.get("sid");
-		}
-		else {
-			q += "accession:\"" + key.get("accession") + "\"";
-		}
-		// filter by annotation and feature type (if provided)
-		String fq = "annotation:" + key.get("algorithm");
-		if (key.containsKey("type")) {
-			fq += " AND feature_type:" + key.get("type");
-		}
-		fq += " AND !(feature_type:source)";
-
-		SolrQuery query = new SolrQuery();
-		query.setQuery(q);
-		query.setFilterQueries(fq);
-
-		return getGenomicFeaturesFromSolr(query);
-		// return getGenomicFeaturesFromSolrStream(query);
-		// return getGenomicFeaturesFromSolrBatch(query);
-	}
-
 	public List<DNAFeature> getDNAFeatures(HashMap<String, String> key) {
 
 		// query by sequence_info_id (if available) or accession
@@ -1179,16 +1121,12 @@ public class DBSummary {
 	 * @return
 	 */
 	public ArrayList<ResultType> streamResponse(SolrQuery query) {
-		ArrayList<ResultType> results = new ArrayList<ResultType>();
+		ArrayList<ResultType> results = new ArrayList<>();
 		SolrInterface solr = new SolrInterface();
-		final BlockingQueue<SolrDocument> tmpQueue = new LinkedBlockingQueue<SolrDocument>();
+		final BlockingQueue<SolrDocument> tmpQueue = new LinkedBlockingQueue<>();
 		try {
 			solr.setCurrentInstance(SolrCore.FEATURE);
-
-			long tp1 = System.currentTimeMillis();
 			solr.getServer().queryAndStreamResponse(query, new StreamCallbackHandler(tmpQueue));
-			long tp2 = System.currentTimeMillis();
-			System.out.println("first query: " + (tp2 - tp1) + " ms");
 
 			SolrDocument tmpDoc;
 			do {
@@ -1199,132 +1137,11 @@ public class DBSummary {
 					results.add(row);
 				}
 			} while (!tmpDoc.isEmpty());
-
-			long tp3 = System.currentTimeMillis();
-			System.out.println("fetching all: " + (tp3 - tp2) + " ms, totalRows=" + results.size());
 		}
 		catch (SolrServerException | IOException | InterruptedException e) {
 			e.printStackTrace();
 		}
 		return results;
-	}
-
-	/**
-	 * @deprecated
-	 * @param query
-	 * @return
-	 */
-	public ArrayList<ResultType> getGenomicFeaturesFromSolrBatch(SolrQuery query) {
-		ArrayList<ResultType> results = new ArrayList<ResultType>();
-		SolrInterface solr = new SolrInterface();
-		int fetchSize = 5000;
-		long offset = 0;
-		long totalResults = 0;
-
-		query.setFields("na_feature_id,locus_tag,start_max,end_min,strand,feature_type,product,gene,refseq_locus_tag");
-
-		try {
-			solr.setCurrentInstance(SolrCore.FEATURE);
-
-			// first query to get totalRows
-			long tp1 = System.currentTimeMillis();
-			query.setRows(1);
-			totalResults = solr.getServer().query(query).getResults().getNumFound();
-			long tp2 = System.currentTimeMillis();
-			System.out.println("first query: " + (tp2 - tp1) + " ms, totalRows=" + totalResults);
-
-			// fetching
-			query.setSort("start_max", SolrQuery.ORDER.asc);
-			long tp3 = System.currentTimeMillis();
-			while (offset < totalResults) {
-
-				tp1 = System.currentTimeMillis();
-				// //
-				query.setStart((int) offset);
-				query.setRows(fetchSize);
-				for (SolrDocument doc : solr.getServer().query(query).getResults()) {
-					ResultType row = new ResultType();
-					row.putAll(doc);
-					results.add(row);
-				}
-				// //
-				tp2 = System.currentTimeMillis();
-				System.out.println("offset=" + offset + ": " + (tp2 - tp1) + " ms");
-
-				offset += fetchSize;
-			}
-
-			long tp4 = System.currentTimeMillis();
-			System.out.println("fetching all: " + (tp4 - tp3) + " ms");
-		}
-		catch (MalformedURLException | SolrServerException e) {
-			e.printStackTrace();
-		}
-		return results;
-	}
-
-	/**
-	 * @deprecated
-	 * @param query
-	 * @return
-	 */
-	public List<DNAFeature> getGenomicFeaturesFromSolrBeanBatch(SolrQuery query) {
-		List<DNAFeature> beans = new ArrayList<DNAFeature>();
-		SolrInterface solr = new SolrInterface();
-		int fetchSize = 800;
-		long offset = 0;
-		long totalResults = 0;
-
-		query.setFields("na_feature_id,locus_tag,start_max,end_min,strand,feature_type,product,gene,refseq_locus_tag");
-
-		try {
-			solr.setCurrentInstance(SolrCore.FEATURE);
-
-			// first query to get totalRows
-			long tp1 = System.currentTimeMillis();
-			query.setRows(1);
-			totalResults = solr.getServer().query(query).getResults().getNumFound();
-			long tp2 = System.currentTimeMillis();
-			System.out.println("first query: " + (tp2 - tp1) + " ms, totalRows=" + totalResults);
-
-			// fetching
-			query.setSort("start_max", SolrQuery.ORDER.asc);
-			long tp3 = System.currentTimeMillis();
-			while (offset < totalResults) {
-
-				tp1 = System.currentTimeMillis();
-
-				query.setStart((int) offset);
-				query.setRows(fetchSize);
-				QueryResponse rsp = solr.getServer().query(query);
-				beans.addAll(rsp.getBeans(DNAFeature.class));
-
-				tp2 = System.currentTimeMillis();
-				System.out.println("offset=" + offset + ": " + (tp2 - tp1) + " ms");
-
-				offset += fetchSize;
-			}
-
-			long tp4 = System.currentTimeMillis();
-			System.out.println("fetching all: " + (tp4 - tp3) + " ms");
-		}
-		catch (MalformedURLException | SolrServerException e) {
-			e.printStackTrace();
-		}
-		return beans;
-	}
-
-	/**
-	 * @deprecated
-	 * @param query
-	 * @return
-	 */
-	public ArrayList<ResultType> getGenomicFeaturesFromSolrStream(SolrQuery query) {
-		query.setRows(10000);
-		query.setSort("start_max", SolrQuery.ORDER.asc);
-		query.setFields("na_feature_id,locus_tag,start_max,end_min,strand,feature_type,product,gene,refseq_locus_tag");
-
-		return streamResponse(query);
 	}
 
 	public List<DNAFeature> getGenomicFeaturesFromSolrBean(SolrQuery query) {
@@ -1337,76 +1154,21 @@ public class DBSummary {
 			query.setFields("na_feature_id,locus_tag,start_max,end_min,strand,feature_type,product,gene,refseq_locus_tag");
 
 			// 1st q. get total rows
-			long tp1 = System.currentTimeMillis();
-
 			query.setRows(1);
 			long totalResults = solr.getServer().query(query).getResults().getNumFound();
 
-			long tp2 = System.currentTimeMillis();
-			System.out.println("first query: " + (tp2 - tp1) + " ms");
-
-			// long totalResults = 10000;
 			// 2nd Q. fetch
-			long tp3 = System.currentTimeMillis();
-
 			query.setRows((int) totalResults);
 			QueryResponse rsp = solr.getServer().query(query);
 
-			long tp4 = System.currentTimeMillis();
-			System.out.println("2nd query: " + (tp4 - tp3) + " ms");
-
 			// fetch
-			long tp5 = System.currentTimeMillis();
 			beans = rsp.getBeans(DNAFeature.class);
-			long tp6 = System.currentTimeMillis();
-			System.out.println("fetching all: " + (tp6 - tp5) + " ms, totalRows=" + beans.size());
 		}
 		catch (MalformedURLException | SolrServerException e) {
 			e.printStackTrace();
 		}
 
 		return beans;
-	}
-
-	/**
-	 *
-	 * @param query
-	 * @return
-	 * @deprecated
-	 */
-	public ArrayList<ResultType> getGenomicFeaturesFromSolr(SolrQuery query) {
-		ArrayList<ResultType> results = new ArrayList<ResultType>();
-		SolrInterface solr = new SolrInterface();
-
-		// common settings
-		query.setRows(10000);
-		query.setSort("start_max", SolrQuery.ORDER.asc);
-		query.setFields("na_feature_id,locus_tag,start_max,end_min,strand,feature_type,product,gene,refseq_locus_tag");
-
-		QueryResponse rsp = null;
-
-		try {
-			solr.setCurrentInstance(SolrCore.FEATURE);
-			long tp1 = System.currentTimeMillis();
-			rsp = solr.getServer().query(query);
-			long tp2 = System.currentTimeMillis();
-			System.out.println("first query: " + (tp2 - tp1) + " ms");
-		}
-		catch (MalformedURLException | SolrServerException e) {
-			e.printStackTrace();
-		}
-		long tp3 = System.currentTimeMillis();
-		SolrDocumentList docs = rsp.getResults();
-		for (Iterator<SolrDocument> iter = docs.iterator(); iter.hasNext();) {
-			SolrDocument obj = iter.next();
-			ResultType row = new ResultType();
-			row.putAll(obj);
-			results.add(row);
-		}
-		long tp4 = System.currentTimeMillis();
-		System.out.println("fetching all: " + (tp4 - tp3) + " ms, totalRows=" + results.size());
-
-		return results;
 	}
 
 	public ArrayList<Integer> getHistogram(HashMap<String, String> key) {
@@ -1425,7 +1187,7 @@ public class DBSummary {
 		query.setFacet(true);
 		query.setFacetMinCount(1);
 		query.addNumericRangeFacet("start_max", 0, 10000000, 10000);
-		// System.out.println("query:"+query.toString());
+
 		ArrayList<Integer> results = new ArrayList<Integer>();
 		SolrInterface solr = new SolrInterface();
 		QueryResponse qr = null;
@@ -1442,11 +1204,8 @@ public class DBSummary {
 				}
 			}
 		}
-		catch (MalformedURLException e) {
-			e.printStackTrace();
-		}
-		catch (SolrServerException e) {
-			e.printStackTrace();
+		catch (MalformedURLException | SolrServerException e) {
+			LOGGER.error(e.getMessage(), e);
 		}
 		return results;
 	}
@@ -1497,23 +1256,16 @@ public class DBSummary {
 		query.setRows(1000);
 		QueryResponse rsp = null;
 
-		// System.out.println(query.toString());
-
 		try {
 			solr.setCurrentInstance(SolrCore.FEATURE);
 			rsp = solr.getServer().query(query);
 		}
-		catch (MalformedURLException e) {
-			e.printStackTrace();
-		}
-		catch (SolrServerException e) {
-			e.printStackTrace();
+		catch (MalformedURLException | SolrServerException e) {
+			LOGGER.error(e.getMessage(), e);
 		}
 
 		SolrDocumentList docs = rsp.getResults();
-		for (Iterator<SolrDocument> iter = docs.iterator(); iter.hasNext();) {
-			SolrDocument obj = iter.next();
-
+		for (SolrDocument obj : docs) {
 			ResultType row = new ResultType();
 			row.putAll(obj);
 			if (src.equalsIgnoreCase("PATRIC")) {
@@ -1526,9 +1278,9 @@ public class DBSummary {
 		return result;
 	}
 
-	public HashMap<String, ResultType> getGenomeMetadata(HashSet<String> genomeNames) {
+	public Map<String, ResultType> getGenomeMetadata(Set<String> genomeNames) {
 
-		HashMap<String, ResultType> result = new HashMap<String, ResultType>();
+		HashMap<String, ResultType> result = new HashMap<>();
 		SolrInterface solr = new SolrInterface();
 
 		StringBuilder sb = new StringBuilder();
@@ -1536,7 +1288,7 @@ public class DBSummary {
 			if (sb.length() > 0) {
 				sb.append(" OR ");
 			}
-			sb.append("\"" + name + "\"");
+			sb.append("\"").append(name).append("\"");
 		}
 		if (sb.length() == 0) {
 			return null;
@@ -1548,22 +1300,17 @@ public class DBSummary {
 		query.setQuery(q);
 		query.setFields("genome_info_id,genome_name,isolation_country,host_name,disease,collection_date,completion_date");
 		QueryResponse rsp = null;
-		// System.out.println(query.toString());
 
 		try {
 			solr.setCurrentInstance(SolrCore.GENOME);
 			rsp = solr.getServer().query(query);
 		}
-		catch (MalformedURLException e) {
-			e.printStackTrace();
-		}
-		catch (SolrServerException e) {
-			e.printStackTrace();
+		catch (MalformedURLException | SolrServerException e) {
+			LOGGER.error(e.getMessage(), e);
 		}
 
 		SolrDocumentList docs = rsp.getResults();
-		for (Iterator<SolrDocument> iter = docs.iterator(); iter.hasNext();) {
-			SolrDocument obj = iter.next();
+		for (SolrDocument obj : docs) {
 			ResultType row = new ResultType();
 			row.putAll(obj);
 			if (obj.get("completion_date") != null) {
@@ -1663,8 +1410,8 @@ public class DBSummary {
 
 		StringBuilder results = new StringBuilder();
 		Object[] obj = null;
-		for (Iterator<?> iter = rset.iterator(); iter.hasNext();) {
-			obj = (Object[]) iter.next();
+		for (Object aRset : rset) {
+			obj = (Object[]) aRset;
 			if (results.length() > 0) {
 				results.append("," + obj[0].toString());
 			}
@@ -1698,7 +1445,7 @@ public class DBSummary {
 		List<?> rset = sqlQuery.list();
 		session.getTransaction().commit();
 
-		ArrayList<ResultType> results = new ArrayList<ResultType>();
+		ArrayList<ResultType> results = new ArrayList<>();
 		Object[] obj = null;
 		for (Iterator<?> iter = rset.iterator(); iter.hasNext();) {
 			obj = (Object[]) iter.next();
@@ -1999,7 +1746,6 @@ public class DBSummary {
 		@Override
 		public void streamSolrDocument(SolrDocument aDoc) {
 			currentPosition++;
-			// System.out.println("adding doc " + currentPosition + " of " + numFound);
 			queue.add(aDoc);
 			if (currentPosition == numFound) {
 				queue.add(new SolrDocument());

@@ -32,7 +32,6 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
-import javax.portlet.UnavailableException;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
@@ -44,10 +43,14 @@ import org.json.simple.JSONObject;
 import edu.vt.vbi.patric.circos.Circos;
 import edu.vt.vbi.patric.circos.CircosGenerator;
 import edu.vt.vbi.patric.common.SiteHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CircosGenomeViewerPortlet extends GenericPortlet {
 
 	CircosGenerator circosGenerator;
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(CircosGenomeViewerPortlet.class);
 
 	@Override
 	public void init(PortletConfig config) throws PortletException {
@@ -57,11 +60,11 @@ public class CircosGenomeViewerPortlet extends GenericPortlet {
 	}
 
 	@Override
-	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException, UnavailableException {
+	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 
 		response.setContentType("text/html");
 
-		PortletRequestDispatcher prd = null;
+		PortletRequestDispatcher prd;
 
 		new SiteHelper().setHtmlMetaElements(request, response, "Circos Genome Viewer");
 		response.setTitle("Circos Genome Viewer");
@@ -98,17 +101,16 @@ public class CircosGenomeViewerPortlet extends GenericPortlet {
 				else {
 					if (item.getFieldName().matches("file_(\\d+)$")) {
 						parameters.put("file_" + fileCount, item);
-						// System.out.println("file_" + fileCount + ", " + item.getFieldName() + ", " + item.getName());
 						fileCount++;
 					}
 				}
 			}
 		}
 		catch (FileUploadException e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 
-		System.out.println(parameters.toString());
+		LOGGER.debug(parameters.toString());
 
 		// Generate Circo Image
 		Circos circosConf = circosGenerator.createCircosImage(parameters);

@@ -13,8 +13,6 @@ try {
 	genomeId = Integer.parseInt(gId);
 }
 catch (Exception ex) {
-	System.out.println(ex.getMessage());
-	System.out.println(request.getParameterMap().toString());
 }
 
 if (genomeId > 0) {
