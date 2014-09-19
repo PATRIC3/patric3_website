@@ -21,6 +21,7 @@ import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import edu.vt.vbi.patric.beans.GenomeFeature;
 import org.apache.commons.io.IOUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -36,7 +37,6 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.lob.SerializableClob;
 
-import edu.vt.vbi.patric.beans.DNAFeature;
 import edu.vt.vbi.patric.common.SolrCore;
 import edu.vt.vbi.patric.common.SolrInterface;
 import org.slf4j.Logger;
@@ -1091,7 +1091,7 @@ public class DBSummary {
 		return results;
 	}
 
-	public List<DNAFeature> getDNAFeatures(HashMap<String, String> key) {
+	public List<GenomeFeature> getDNAFeatures(HashMap<String, String> key) {
 
 		// query by sequence_info_id (if available) or accession
 		String q = "";
@@ -1144,9 +1144,9 @@ public class DBSummary {
 		return results;
 	}
 
-	public List<DNAFeature> getGenomicFeaturesFromSolrBean(SolrQuery query) {
+	public List<GenomeFeature> getGenomicFeaturesFromSolrBean(SolrQuery query) {
 		SolrInterface solr = new SolrInterface();
-		List<DNAFeature> beans = null;
+		List<GenomeFeature> beans = null;
 
 		try {
 			solr.setCurrentInstance(SolrCore.FEATURE);
@@ -1162,7 +1162,7 @@ public class DBSummary {
 			QueryResponse rsp = solr.getServer().query(query);
 
 			// fetch
-			beans = rsp.getBeans(DNAFeature.class);
+			beans = rsp.getBeans(GenomeFeature.class);
 		}
 		catch (MalformedURLException | SolrServerException e) {
 			e.printStackTrace();

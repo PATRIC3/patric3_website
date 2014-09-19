@@ -25,7 +25,7 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.UnavailableException;
 
-import edu.vt.vbi.patric.beans.DNAFeature;
+import edu.vt.vbi.patric.beans.GenomeFeature;
 import edu.vt.vbi.patric.common.SolrInterface;
 import edu.vt.vbi.patric.dao.DBShared;
 import edu.vt.vbi.patric.dao.DBSummary;
@@ -53,7 +53,7 @@ public class FunctionalPropertiesPortlet extends GenericPortlet {
 		DBShared conn_shared = new DBShared();
 		DBSummary conn_summary = new DBSummary();
 
-		DNAFeature feature = null;
+		GenomeFeature feature = null;
 		String fId = null;
 
 		if (cType != null && cId != null && validContextId > 0 && cType.equals("feature")) {

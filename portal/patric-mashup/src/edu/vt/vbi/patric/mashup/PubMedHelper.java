@@ -24,7 +24,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Vector;
 
-import edu.vt.vbi.patric.beans.DNAFeature;
+import edu.vt.vbi.patric.beans.GenomeFeature;
 import edu.vt.vbi.patric.common.SolrInterface;
 import edu.vt.vbi.patric.dao.DBShared;
 import edu.vt.vbi.patric.dao.ResultType;
@@ -71,7 +71,7 @@ public class PubMedHelper {
 			// getting feature info from Solr
 
 			SolrInterface solr = new SolrInterface();
-			DNAFeature feature = solr.getFeature(key.get("feature_id"));
+			GenomeFeature feature = solr.getFeature(key.get("feature_id"));
 
 			String qScope = key.get("scope");
 
@@ -92,7 +92,7 @@ public class PubMedHelper {
 					org = feature.getGenomeName().toString().substring(0, offset1);
 				}
 
-				title = "(\"" + org.toLowerCase() + "\") AND (\"" + feature.getLocusTag();
+				title = "(\"" + org.toLowerCase() + "\") AND (\"" + feature.getAltLocusTag();
 
 				if (feature.hasProduct()) {
 					title += "\" OR \"" + feature.getProduct().toLowerCase() + "\"";
@@ -106,8 +106,8 @@ public class PubMedHelper {
 					title += " OR \"" + feature.getRefseqLocusTag() + "\"";
 				}
 
-				if (feature.hasRefseqProteinId()) {
-					title += " OR \"" + feature.getRefseqProteinId() + "\"";
+				if (feature.hasProteinId()) {
+					title += " OR \"" + feature.getProteinId() + "\"";
 				}
 
 				title += ")";

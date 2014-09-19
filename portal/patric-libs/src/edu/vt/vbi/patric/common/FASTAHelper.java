@@ -17,9 +17,9 @@ package edu.vt.vbi.patric.common;
 
 import java.util.ArrayList;
 
+import edu.vt.vbi.patric.beans.GenomeFeature;
 import org.apache.commons.lang.StringUtils;
 
-import edu.vt.vbi.patric.beans.DNAFeature;
 import edu.vt.vbi.patric.dao.DBShared;
 import edu.vt.vbi.patric.dao.ResultType;
 
@@ -69,12 +69,12 @@ public class FASTAHelper {
 		// ResultType hashID = conn_shared.getFastaIdentifiers(fid);
 		// String id = ">fid|" + hashID.get("na_feature_id") + "|locus|" + hashID.get("source_id") + "|   " + hashID.get("product") + "   ["
 		// + hashID.get("genome_name") + "]";
-		DNAFeature feature = solr.getFeature(fid);
+		GenomeFeature feature = solr.getFeature(fid);
 		StringBuffer id = new StringBuffer();
 		id.append(">fid|" + feature.getId());
-		if (feature.hasLocusTag()) {
+		if (feature.hasAltLocusTag()) {
 			id.append("|locus|");
-			id.append(feature.getLocusTag());
+			id.append(feature.getAltLocusTag());
 		}
 		if (feature.hasProduct()) {
 			id.append("|   ");

@@ -19,9 +19,9 @@ import javax.portlet.MimeResponse;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
+import edu.vt.vbi.patric.beans.GenomeFeature;
 import org.w3c.dom.Element;
 
-import edu.vt.vbi.patric.beans.DNAFeature;
 import edu.vt.vbi.patric.dao.DBShared;
 import edu.vt.vbi.patric.dao.ResultType;
 
@@ -265,10 +265,12 @@ public class SiteHelper {
 			}
 			else if (contextType.equals("feature")) {
 				SolrInterface solr = new SolrInterface();
-				DNAFeature feature = solr.getFeature(contextId);
+				GenomeFeature feature = solr.getFeature(contextId);
 				if (feature != null) {
-					strTitle += feature.getLocusTag() + ":" + feature.getProduct() + "::" + context;
-					strKeywords = context + ", " + feature.getLocusTag() + ":" + feature.getProduct() + ", PATRIC";
+					// strTitle += feature.getLocusTag() + ":" + feature.getProduct() + "::" + context;
+					// strKeywords = context + ", " + feature.getLocusTag() + ":" + feature.getProduct() + ", PATRIC";
+					strTitle += feature.getSeedId() + ":" + feature.getProduct() + "::" + context;
+					strKeywords = context + ", " + feature.getSeedId() + ":" + feature.getProduct() + ", PATRIC";
 				}
 			}
 		}

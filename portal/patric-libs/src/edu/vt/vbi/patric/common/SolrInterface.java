@@ -28,6 +28,7 @@ import java.util.TimeZone;
 
 import javax.portlet.PortletException;
 
+import edu.vt.vbi.patric.beans.GenomeFeature;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServer;
@@ -49,7 +50,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import edu.vt.vbi.patric.beans.DNAFeature;
 import edu.vt.vbi.patric.dao.ResultType;
 
 @SuppressWarnings("unchecked")
@@ -576,8 +576,6 @@ public class SolrInterface {
 	 * @param need
 	 * @param facet_fields
 	 * @param facet
-	 * @param tree_state
-	 * @param completion_counts
 	 * @return
 	 */
 	public JSONArray processStateAndTree(ResultType key, String need, JSONObject facet_fields, String facet, String state, int limit, boolean grouping)
@@ -1332,8 +1330,8 @@ public class SolrInterface {
 		return transformedDate;
 	}
 
-	public DNAFeature getFeature(String na_feature_id) {
-		DNAFeature feature = null;
+	public GenomeFeature getFeature(String na_feature_id) {
+		GenomeFeature feature = null;
 		try {
 			this.setCurrentInstance(SolrCore.FEATURE);
 		}
@@ -1343,7 +1341,7 @@ public class SolrInterface {
 
 		SolrQuery query = new SolrQuery();
 		query.setQuery("na_feature_id:" + na_feature_id);
-		List<DNAFeature> res = this.searchSolrRecords(DNAFeature.class, query);
+		List<GenomeFeature> res = this.searchSolrRecords(GenomeFeature.class, query);
 
 		if (!res.isEmpty()) {
 			feature = res.get(0);
@@ -1369,8 +1367,8 @@ public class SolrInterface {
 		return obj;
 	}
 
-	public DNAFeature getPATRICFeature(String na_feature_id) {
-		DNAFeature pf = null;
+	public GenomeFeature getPATRICFeature(String na_feature_id) {
+		GenomeFeature pf = null;
 
 		try {
 			this.setCurrentInstance(SolrCore.FEATURE);
@@ -1381,10 +1379,10 @@ public class SolrInterface {
 
 		SolrQuery query = new SolrQuery();
 		query.setQuery("na_feature_id:" + na_feature_id);
-		List<DNAFeature> res = this.searchSolrRecords(DNAFeature.class, query);
+		List<GenomeFeature> res = this.searchSolrRecords(GenomeFeature.class, query);
 
 		if (!res.isEmpty()) {
-			DNAFeature f = res.get(0);
+			GenomeFeature f = res.get(0);
 
 			if (f.getAnnotation().equals("PATRIC")) { // if this is PATRIC
 				pf = f;
@@ -1393,7 +1391,7 @@ public class SolrInterface {
 				SolrQuery query2 = new SolrQuery();
 				query2.setQuery("pos_group:" + f.getPosGroupInQuote() + " AND feature_type:" + f.getFeatureType() + " AND annotation:PATRIC");
 
-				List<DNAFeature> res2 = this.searchSolrRecords(DNAFeature.class, query2);
+				List<GenomeFeature> res2 = this.searchSolrRecords(GenomeFeature.class, query2);
 				if (!res2.isEmpty()) { // found PATRIC feature
 					pf = res2.get(0);
 				}
