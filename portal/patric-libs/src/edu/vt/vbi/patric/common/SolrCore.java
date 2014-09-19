@@ -1,11 +1,13 @@
 package edu.vt.vbi.patric.common;
 
 public enum SolrCore {
-	FEATURE("dnafeature"), SEQUENCE("sequenceinfo"), GENOME("genomesummary"), FIGFAM_DIC("figfam-dic"), EC("ecnumber"), GO("goterm"), PATHWAY(
-			"pathway"), TAXONOMY("taxonomy"), PROTEIN_INTERACTION("pig"), STRUCTURE("structural-genomics"), SPECIALTY_GENE("specialty-gene"), SPECIALTY_GENE_EVIDENCE(
-			"specialty-gene-evidence"), SPECIALTY_GENE_MAPPING("specialty-gene-mapping"), TRANSCRIPTOMICS_EXPERIMENT("genexp-experiment"), TRANSCRIPTOMICS_COMPARISON(
-			"genexp-sample"), TRANSCRIPTOMICS_GENE("genexp-gene"), PROTEOMICS_EXPERIMENT("proteomics-experiment"), PROTEOMICS_PROTEIN(
-			"proteomics-protein"), PROTEOMICS_PEPTIDE("proteomics-peptide");
+	FEATURE("genome_feature"), SEQUENCE("genome_sequence"), GENOME("genome"), FIGFAM_DIC("protein_family_ref"),
+	EC("ecnumber"), GO("goterm"), PATHWAY("pathway"), PATHWAY_REF("pathway_ref"), TAXONOMY("taxonomy"), PROTEIN_INTERACTION("pig"),
+	STRUCTURE("misc_niaid_gsc"),
+	SPECIALTY_GENE("sp_gene_ref"), SPECIALTY_GENE_EVIDENCE("sp_gene_evidence"), SPECIALTY_GENE_MAPPING("sp_gene"),
+	TRANSCRIPTOMICS_EXPERIMENT("transcriptomics_experiment"), TRANSCRIPTOMICS_COMPARISON("transcriptomics_sample"),
+	TRANSCRIPTOMICS_GENE("transcriptomics_gene"),
+	PROTEOMICS_EXPERIMENT("proteomics_experiment"), PROTEOMICS_PROTEIN("proteomics_protein"), PROTEOMICS_PEPTIDE("proteomics_peptide");
 
 	private String coreName;
 

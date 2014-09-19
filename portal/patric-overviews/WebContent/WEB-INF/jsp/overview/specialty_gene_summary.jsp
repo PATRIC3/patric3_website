@@ -14,7 +14,7 @@
 	
 	SolrQuery query = new SolrQuery();
 	if (cType.equals("taxon")) {
-		query.setFilterQueries( SolrCore.GENOME.getSolrCoreJoin("gid", "genome_info_id", "taxon_lineage_ids:" + cId));
+		query.setFilterQueries( SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + cId));
 	}
 	else { // genome
 		query.setFilterQueries("genome_info_id:" + cId);

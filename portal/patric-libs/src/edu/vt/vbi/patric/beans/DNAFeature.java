@@ -26,8 +26,10 @@ public class DNAFeature {
 	@Field("aa_length")
 	private int proteinLength;
 
-	@Field("na_feature_id")
-	private long id;
+	//@Field("na_feature_id")
+	//private long id;
+	@Field("feature_id")
+	private String id;
 
 	@Field("sequence_info_id")
 	private int sequenceInfoId;
@@ -38,10 +40,8 @@ public class DNAFeature {
 	@Field("locus_tag")
 	private String locusTag;
 
-	@Field("start_max")
 	private int start;
 
-	@Field("end_min")
 	private int end;
 
 	@Field("pseed_id")
@@ -136,7 +136,7 @@ public class DNAFeature {
 		return goTerm;
 	}
 
-	public long getId() {
+	public String getId() {
 		return id;
 	}
 
@@ -274,7 +274,7 @@ public class DNAFeature {
 		this.goTerm = goTerm;
 	}
 
-	public void setId(long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 

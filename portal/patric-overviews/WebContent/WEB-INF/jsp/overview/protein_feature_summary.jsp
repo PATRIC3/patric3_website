@@ -20,27 +20,27 @@
 	// set default params
 	SolrQuery query = new SolrQuery();
 	if (cType.equals("taxon")) {
-		query.setFilterQueries( SolrCore.GENOME.getSolrCoreJoin("gid", "gid", "taxon_lineage_ids:" + cId));
+		query.setFilterQueries( SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + cId));
 	}
 	else { // genome
 		query.setFilterQueries("gid:" + cId);
 	}
-	query.setFacet(true).setFacetMinCount(1).addFacetField("annotation_f");
+	query.setFacet(true).setFacetMinCount(1).addFacetField("annotation");
 
 
 	// hypothetical
-	query.setQuery("product:(hypothetical AND protein) AND feature_type_f:CDS");
+	query.setQuery("product:(hypothetical AND protein) AND feature_type:CDS");
 
 	QueryResponse qr = solr.getServer().query(query);
-	FacetField ff = qr.getFacetField("annotation_f");
+	FacetField ff = qr.getFacetField("annotation");
 	for (FacetField.Count fc: ff.getValues()) {
 		hypotheticalProteins.put(fc.getName(), fc.getCount());
 	}
 
 	// funtional assigned
-	query.setQuery("!product:(hypothetical AND protein) AND feature_type_f:CDS");
+	query.setQuery("!product:(hypothetical AND protein) AND feature_type:CDS");
 	qr = solr.getServer().query(query);
-	ff = qr.getFacetField("annotation_f");
+	ff = qr.getFacetField("annotation");
 	for (FacetField.Count fc: ff.getValues()) {
 		functionalProteins.put(fc.getName(), fc.getCount());
 	}
@@ -48,7 +48,7 @@
 	// ec assigned
 	query.setQuery("ec:[* TO *]");
 	qr = solr.getServer().query(query);
-	ff = qr.getFacetField("annotation_f");
+	ff = qr.getFacetField("annotation");
 	for (FacetField.Count fc: ff.getValues()) {
 		ecAssignedProteins.put(fc.getName(), fc.getCount());
 	}
@@ -56,7 +56,7 @@
 	// go assigned
 	query.setQuery("go:[* TO *]");
 	qr = solr.getServer().query(query);
-	ff = qr.getFacetField("annotation_f");
+	ff = qr.getFacetField("annotation");
 	for (FacetField.Count fc: ff.getValues()) {
 		goAssignedProteins.put(fc.getName(), fc.getCount());
 	}
@@ -64,16 +64,16 @@
 	// pathway assigned
 	query.setQuery("pathway:[* TO *]");
 	qr = solr.getServer().query(query);
-	ff = qr.getFacetField("annotation_f");
+	ff = qr.getFacetField("annotation");
 	for (FacetField.Count fc: ff.getValues()) {
 		pathwayAssignedProteins.put(fc.getName(), fc.getCount());
 	}
 
 	// figfam assigned
-	query.setQuery("figfam_id: [* TO *]");
+	query.setQuery("figfam_id:[* TO *]");
 	
 	qr = solr.getServer().query(query);
-	ff = qr.getFacetField("annotation_f");
+	ff = qr.getFacetField("annotation");
 	for (FacetField.Count fc: ff.getValues()) {
 		figfamAssignedProteins.put(fc.getName(), fc.getCount());
 	}

@@ -57,7 +57,7 @@ public class SolrInterface {
 
 	SolrCore core;
 
-	String server_staging = "http://macleod.vbi.vt.edu:8983";
+	String server_staging = "http://localhost:8983" ; // http://macleod.vbi.vt.edu:8983";
 
 	String server_production = "http://macleod.vbi.vt.edu:8080";
 
