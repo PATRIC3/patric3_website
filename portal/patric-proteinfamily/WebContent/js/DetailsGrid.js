@@ -17,8 +17,7 @@ function getExtraParams() {
 
 	var object = {}, Page = $Page, property = Page.getPageProperties(), hash = property.hash;
 
-	object["gid"] = getGID();
-	;
+	object["genome_id"] = getGID();
 	object["Keyword"] = (!hash.kW) ? '(*)' : "(" + hash.kW + ")";
 	object["figfam_id"] = getFigFam();
 

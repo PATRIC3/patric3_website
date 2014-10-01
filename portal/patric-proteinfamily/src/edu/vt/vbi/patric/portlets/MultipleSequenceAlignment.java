@@ -36,7 +36,9 @@ import edu.vt.vbi.patric.proteinfamily.PngWriter;
 
 import edu.vt.vbi.patric.proteinfamily.FIGfamData;
 
+
 public class MultipleSequenceAlignment extends GenericPortlet {
+
 	public void init(PortletConfig portletConfig) throws PortletException {
 		super.init(portletConfig);
 	}

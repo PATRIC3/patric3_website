@@ -284,10 +284,7 @@ function doAjaxNames(windowID, stateObject) {"use strict";
 	Ext.define('Genome_Store', {
 		extend : 'Ext.data.Model',
 		fields : [{
-			name : 'gid',
-			type : 'string'
-		}, {
-			name : 'genome_info_id',
+			name : 'genome_id',
 			type : 'string'
 		}, {
 			name : 'genome_name',
@@ -330,8 +327,8 @@ function doAjaxNames(windowID, stateObject) {"use strict";
 				totalProperty : 'total'
 			},
 			extraParams : {
-				keyword : 'gid:(' + stateObject.genomeIds.join(" OR ") + ")",
-				fields: (stateObject.genomeIds.length > 500)?"genome_info_id,genome_name":"",
+				keyword : 'genome_id:(' + stateObject.genomeIds.join(" OR ") + ")",
+				fields: (stateObject.genomeIds.length > 500)?"genome_id,genome_name":"genome_id,genome_name,genome_status,isolation_country,host_name,disease,collection_date,completion_date",
 				callType:'getGenomeDetails'
 			}
 		},
@@ -343,10 +340,10 @@ function doAjaxNames(windowID, stateObject) {"use strict";
 					items = this.data.items;
 					stateObject.genomeVSfilter = {};
 					for ( i = 0; i < items.length; i++) {
-						stateObject.genomeVSfilter[items[i].data.genome_info_id] = new GenomeVSFilterPair();
-						stateObject.genomeVSfilter[items[i].data.genome_info_id].init(i, items[i].data.genome_name);
+						stateObject.genomeVSfilter[items[i].data.genome_id] = new GenomeVSFilterPair();
+						stateObject.genomeVSfilter[items[i].data.genome_id].init(i, items[i].data.genome_name);
 						// stateObject.genomeNames[i] = items[i].data.genome_name;
-						stateObject.genomeIds[i] = items[i].data.genome_info_id;
+						// stateObject.genomeIds[i] = items[i].data.genome_id;
 						stateObject.filter += " ";
 					}
 
@@ -557,8 +554,11 @@ function catchGroupStats(windowID, ajaxHttp) {"use strict";
 	if(ajaxHttp.responseText){
 		rowData = Ext.JSON.decode(ajaxHttp.responseText);
 		
-		for(var key in rowData){
-			ordered.push(parseInt(key.split("FIG")[1]));
+		for(var key in rowData) {
+            var figfamId = key.split("FIG")[1];
+            if (figfamId != undefined) {
+                ordered.push(figfamId);
+            }
 		}
 		
 		ordered.sort(function(a, b) { return a - b;});
@@ -725,12 +725,12 @@ function catchSyntenyOrder(windowID, rs) {"use strict";
 }
 
 function GenomeColumnRenderer(value, metadata, record, rowIndex, colIndex, store) {
-	var Page = $Page, property = Page.getPageProperties(), windowID = property.name, stateObject = getStateObject(windowID), gid = record.data.genome_info_id, checked, genomeVSfilter;
+	var Page = $Page, property = Page.getPageProperties(), windowID = property.name, stateObject = getStateObject(windowID), genome_id = record.data.genome_id, checked, genomeVSfilter;
 
 	genomeVSfilter = stateObject.genomeVSfilter;
-	checked = genomeVSfilter[gid].getStatus();
+	checked = genomeVSfilter[genome_id].getStatus();
 
-	return '<input title=\"'+((colIndex == 0)?'Present in all families':(colIndex == 1)?'Absent from all families':'Either/Mixed')+'\" type=\"radio\" id=\"' + property.name + '_sc' + record.data.genome_info_id + '_' + colIndex + '\" ' + (colIndex == 0 && checked == '1' ? 'checked' : colIndex == 1 && checked == '0' ? 'checked' : colIndex == 2 && checked == ' ' ? 'checked' : '') + ' onclick=\"haveOrthoCareClick(\'' + property.name + '\', \'' + record.data.genome_info_id + '\', \'' + colIndex + '\')\"/>';
+	return '<input title=\"'+((colIndex == 0)?'Present in all families':(colIndex == 1)?'Absent from all families':'Either/Mixed')+'\" type=\"radio\" id=\"' + property.name + '_sc' + record.data.genome_id + '_' + colIndex + '\" ' + (colIndex == 0 && checked == '1' ? 'checked' : colIndex == 1 && checked == '0' ? 'checked' : colIndex == 2 && checked == ' ' ? 'checked' : '') + ' onclick=\"haveOrthoCareClick(\'' + property.name + '\', \'' + record.data.genome_id + '\', \'' + colIndex + '\')\"/>';
 }
 
 function haveOrthoCareClick(windowID, record_id, column) {"use strict";
@@ -908,7 +908,7 @@ function drawOrthoGroupTable(windowID) {
 function filterHeatmapData(stateObject, ds, windowID) {"use strict";
 
 	var keeps = [], items = Ext.getStore('ds_genome').data.items, stateObject = getStateObject(windowID);
-	var gridObject = getScratchObject(windowID), syntenyOrderStore = [], rowCount = ds.getTotalCount(), iMax = 0, clusterColumn = (stateObject.heatmapAxis == "Transpose") ? stateObject.ClusterRowOrder : stateObject.ClusterColumnOrder, clusterRow = (stateObject.heatmapAxis == "Transpose") ? stateObject.ClusterColumnOrder : stateObject.ClusterRowOrder, rowColor, labelColor, place, i, j, genome_info_id, genome_name, index, z, record, groupId, meta, colorStop = [],
+	var gridObject = getScratchObject(windowID), syntenyOrderStore = [], rowCount = ds.getTotalCount(), iMax = 0, clusterColumn = (stateObject.heatmapAxis == "Transpose") ? stateObject.ClusterRowOrder : stateObject.ClusterColumnOrder, clusterRow = (stateObject.heatmapAxis == "Transpose") ? stateObject.ClusterColumnOrder : stateObject.ClusterRowOrder, rowColor, labelColor, place, i, j, genome_id, genome_name, index, z, record, groupId, meta, colorStop = [],
 			orthoFilter = stateObject.filter;
 	rows = [], cols = [];
 
@@ -919,20 +919,20 @@ function filterHeatmapData(stateObject, ds, windowID) {"use strict";
 		place = 0;
 		for ( j = 0; j < clusterRow.length; j++) {
 			for ( i = 0; i < items.length; i++) {
-				genome_info_id = items[i].data.genome_info_id, index = stateObject.genomeVSfilter[genome_info_id].getIndex(), genome_name = stateObject.genomeVSfilter[genome_info_id].getGenomeName();
+				genome_id = items[i].data.genome_id, index = stateObject.genomeVSfilter[genome_id].getIndex(), genome_name = stateObject.genomeVSfilter[genome_id].getGenomeName();
 				if (orthoFilter.charAt(index) != '0') {
-					if (genome_info_id == clusterRow[j]) {
+					if (genome_id == clusterRow[j]) {
 						keeps.push(2 * index);
 						labelColor = ((i % 2) == 0) ? 0x000066 : null;
 						rowColor = ((i % 2) == 0) ? 0xF4F4F4 : 0xd6e4f4;
-						rows.push(new Row(place, genome_info_id, genome_name, labelColor, rowColor));
+						rows.push(new Row(place, genome_id, genome_name, labelColor, rowColor));
 
 						/*TI = {index: place, children: null, rowID: genomeIds[i], leaf: true};
 						 if(!Tree[orders[i]])
 						 Tree[orders[i]] = [];
 						 Tree[orders[i]].push(TI);*/
 
-						syntenyOrderStore.push([genome_info_id, genome_name]); ++place;
+						syntenyOrderStore.push([genome_id, genome_name]); ++place;
 					}
 				}
 			}
@@ -941,19 +941,19 @@ function filterHeatmapData(stateObject, ds, windowID) {"use strict";
 	} else {
 
 		for ( i = 0; i < items.length; i++) {
-			genome_info_id = items[i].data.genome_info_id, index = stateObject.genomeVSfilter[genome_info_id].getIndex(), genome_name = stateObject.genomeVSfilter[genome_info_id].getGenomeName();
+			genome_id = items[i].data.genome_id, index = stateObject.genomeVSfilter[genome_id].getIndex(), genome_name = stateObject.genomeVSfilter[genome_id].getGenomeName();
 
 			if (orthoFilter.charAt(index) != '0') {
 				keeps.push(2 * index);
 				labelColor = ((i % 2) == 0) ? 0x000066 : null;
 				rowColor = ((i % 2) == 0) ? 0xF4F4F4 : 0xd6e4f4;
 
-				rows.push(new Row(i, genome_info_id, genome_name, labelColor, rowColor));
+				rows.push(new Row(i, genome_id, genome_name, labelColor, rowColor));
 				/*	TI = {index: i, children: null, rowID: genomeIds[i], leaf: true};
 				 if(!Tree[orders[i]])
 				 Tree[orders[i]] = [];
 				 Tree[orders[i]].push(TI);*/
-				syntenyOrderStore.push([genome_info_id, genome_name]);
+				syntenyOrderStore.push([genome_id, genome_name]);
 
 			}
 		}

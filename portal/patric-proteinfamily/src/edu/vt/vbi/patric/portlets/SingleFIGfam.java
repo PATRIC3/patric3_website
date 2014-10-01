@@ -123,6 +123,7 @@ public class SingleFIGfam extends GenericPortlet {
 						sort.put("direction", sort_dir);
 					}
 				}
+				key.put("fields", "genome_id,genome_name,accession,alt_locus_tag,refseq_locus_tag,gene,annotation,feature_type,feature_id,start,end,na_length,strand,protein_id,aa_length,product,figfam_id");
 
 				JSONObject object = solr.getData(key, sort, null, start, end, false, false, false);
 

@@ -73,8 +73,8 @@ public class Aligner {
 		int minLength = Math.min(locusList.length, genomeList.length);
 		sequences = new SequenceData[minLength];
 		for (int i = 0; i < sequences.length; i++) {
-			sequences[i] = new SequenceData(locusList[i], genomeList[i], null);
-			(sequences[i]).fastaOrder = i;
+			sequences[i] = new SequenceData(genomeList[i], locusList[i], null);
+			(sequences[i]).setFastaOrder(i);
 		}
 		File toDrop = setPrefix();
 		toDrop.delete();
@@ -90,7 +90,7 @@ public class Aligner {
 		sequences = new SequenceData[minLength];
 		for (int i = 0; i < sequences.length; i++) {
 			sequences[i] = new SequenceData(locusList[i], genomeList[i], seqList[i]);
-			(sequences[i]).fastaOrder = i;
+			(sequences[i]).setFastaOrder(i);
 		}
 		File toDrop = setPrefix();
 		toDrop.delete();
@@ -110,7 +110,7 @@ public class Aligner {
 				BufferedWriter faaWrite = new BufferedWriter(new FileWriter(tmpFaa));
 				String[] genomeNames = new String[sequences.length];
 				for (int i = 0; i < sequences.length; i++) {
-					(sequences[i]).fastaOrder = i;
+					(sequences[i]).setFastaOrder(i);
 					genomeNames[i] = (sequences[i]).setFasta(50, faaWrite, aaRange);
 				}
 				faaWrite.close();
@@ -124,7 +124,6 @@ public class Aligner {
 				}
 
 				Arrays.sort(sequences);
-				// ExecUtilities.exec("muscle -fasta -stable -in " + tmpFaa.getAbsolutePath() + " -out " + prefix + "aga");
 				CommandResults cr = ExecUtilities.exec("muscle -fasta -stable -in " + tmpFaa.getAbsolutePath() + " -out " + prefix + "aga");
 				String[] stErr = cr.getStderr();
 				if (stErr.length <= 2) { // -stable is available up to v3.6
@@ -141,7 +140,7 @@ public class Aligner {
 					BufferedReader checker = new BufferedReader(new FileReader(trimAligned));
 					boolean empty = true;
 					String line = checker.readLine();
-					ArrayList<String> locusList = new ArrayList<>();
+					List<String> locusList = new ArrayList<>();
 					while (line != null) {
 						line = line.trim();
 						if (0 == line.length()) {
@@ -239,7 +238,7 @@ public class Aligner {
 				SequenceData nextData = getDataForLocus(msaLine);
 				if (nextData != null) {
 					if (0 < sequence.length()) {
-						writer.write("\t" + lastData.locus + "\t" + lastData.taxonName + "\t" + sequence.toString());
+						writer.write("\t" + lastData.getLocusTag() + "\t" + lastData.getTaxonName() + "\t" + sequence.toString());
 						sequence = new StringBuffer();
 						lastData = nextData;
 					}
@@ -253,7 +252,7 @@ public class Aligner {
 				msaLine = msaRead.readLine();
 			}
 			if (0 < sequence.length()) {
-				writer.write("\t" + lastData.locus + "\t" + lastData.taxonName + "\t" + sequence.toString());
+				writer.write("\t" + lastData.getLocusTag() + "\t" + lastData.getTaxonName() + "\t" + sequence.toString());
 
 				writer.write("\f" + rawAligned.getAbsolutePath());
 			}
@@ -305,7 +304,7 @@ public class Aligner {
 		String[] nameOrder = new String[sequences.length];
 
 		for (SequenceData sequence : sequences) {
-			int at = treeForm.getTipIndex((sequence).locus);
+			int at = treeForm.getTipIndex((sequence).getLocusTag());
 			nameOrder[at] = (sequence).getLongName();
 		}
 
@@ -373,17 +372,17 @@ public class Aligner {
 		SequenceData[] sortSave = sequences;
 		sequences = new SequenceData[sequences.length];
 		for (SequenceData aSortSave : sortSave) {
-			sequences[(aSortSave).fastaOrder] = aSortSave;
+			sequences[(aSortSave).getFastaOrder()] = aSortSave;
 		}
 		String[] expander = new String[sequences.length];
 		int maxLeft = 0;
-		String line = null;
+		String line;
 		for (int i = 0; i < sequences.length; i++) {
 			if (genomeTags) {
-				line = (sequences[i]).taxonName;
+				line = (sequences[i]).getTaxonName();
 			}
 			else {
-				line = (sequences[i]).locus;
+				line = (sequences[i]).getLocusTag();
 			}
 			int nextLength = line.length();
 			if (22 < nextLength) {

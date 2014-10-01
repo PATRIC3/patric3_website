@@ -50,13 +50,6 @@ public class FIGfam extends GenericPortlet {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(FIGfam.class);
 
-	public void init(PortletConfig portletConfig) throws PortletException {
-		super.init(portletConfig);
-		String k = "PATRIC_DB.cfg.xml";
-		HibernateHelper.buildSessionFactory(k, k);
-		FIGfamData.setSessionFactory(HibernateHelper.getSessionFactory(k));
-	}
-
 	public void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 		response.setContentType("text/html");
 
@@ -116,11 +109,11 @@ public class FIGfam extends GenericPortlet {
 	}
 
 	private String getKeyValue(String name, ResultType key) {
-		String result = key.get(name);
-		if (result == null) {
-			result = "";
+		if (key != null && key.containsKey(name) && key.get(name) != null) {
+			return key.get(name);
+		} else {
+			return "";
 		}
-		return result;
 	}
 
 	// async requests and responses are processed here
