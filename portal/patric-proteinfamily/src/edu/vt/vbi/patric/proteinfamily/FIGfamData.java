@@ -402,6 +402,8 @@ public class FIGfamData {
 	public void getGroupStats(ResourceRequest req, PrintWriter writer) throws IOException {
 		solr.setCurrentInstance(SolrCore.FEATURE);
 
+		// TODO: utilize heliosearch subfaceting and facet analytics to merge three queries as much as possible
+
 		// long start_ms, end_ms;
 		JSONObject figfams = new JSONObject();
 		List<String> figfamIdList = new ArrayList<>();
