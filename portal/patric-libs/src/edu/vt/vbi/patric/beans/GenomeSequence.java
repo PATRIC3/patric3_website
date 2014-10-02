@@ -17,6 +17,7 @@
 package edu.vt.vbi.patric.beans;
 
 import org.apache.solr.client.solrj.beans.Field;
+import org.json.simple.JSONObject;
 
 import java.util.Date;
 
@@ -68,6 +69,26 @@ public class GenomeSequence {
 
 	@Field
 	private int version;
+
+	public JSONObject toJSONObject() {
+		JSONObject json = new JSONObject();
+
+		json.put("genome_id", getGenomeId());
+		json.put("genome_name", getGenomeName());
+		// taxon_id
+		json.put("sequence_id", getId());
+		// p2_sequence_id
+		json.put("accession", getAccession());
+		// gi
+		json.put("sequence_type", getSequenceType());
+		json.put("topology", getTopology());
+		json.put("description", getDescription());
+		json.put("gc_content", getGcContent());
+		json.put("length", getLength());
+		// sequence, release_date, version
+
+		return json;
+	}
 
 	public String getGenomeId() {
 		return genomeId;

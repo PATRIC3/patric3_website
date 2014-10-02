@@ -16,6 +16,7 @@
 package edu.vt.vbi.patric.beans;
 
 import org.apache.solr.client.solrj.beans.Field;
+import org.json.simple.JSONObject;
 
 import java.util.List;
 
@@ -122,6 +123,40 @@ public class GenomeFeature {
 
 	@Field("ids")
 	private List<String> externalId;
+
+	public JSONObject toJSONObject() {
+		JSONObject json = new JSONObject();
+		json.put("genome_id", getGenomeId());
+		json.put("genome_name", getGenomeName());
+		json.put("taxon_id", getTaxonId());
+		json.put("sequence_id", getSequenceId());
+		json.put("accession", getAccession());
+		json.put("annotation", getAnnotation());
+		json.put("feature_type", getFeatureType());
+		json.put("feature_id", getId());
+		// p2_feature_id
+		json.put("alt_locus_tag", getAltLocusTag());
+		json.put("seed_id", getSeedId());
+		json.put("refseq_locus_tag", getRefseqLocusTag());
+		json.put("protein_id", getProteinId());
+		json.put("gene_id", getGeneId());
+		json.put("gi", getGi());
+		json.put("start", getStart());
+		json.put("end", getEnd());
+		json.put("strand", getStrand());
+		// location, segments
+		json.put("pos_group", getPosGroup());
+		json.put("na_length", getNaSequenceLength());
+		json.put("aa_length", getProteinLength());
+		// na_sequence, translation, aa_sequence_md5
+		json.put("gene", getGene());
+		json.put("product", getProduct());
+		json.put("refseq_product", getRefseqProduct());
+		json.put("figfam_id", getFigfamId());
+		// ec, pathway, go, uniprotkb_accession, ids
+
+		return json;
+	}
 
 	public String getAccession() {
 		return accession;
