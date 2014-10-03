@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2014 Virginia Polytechnic Institute and State University
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,22 +14,6 @@
  * limitations under the License.
  ******************************************************************************/
 package edu.vt.vbi.patric.portlets;
-
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.MalformedURLException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.portlet.GenericPortlet;
-import javax.portlet.PortletException;
-import javax.portlet.PortletRequestDispatcher;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
-import javax.portlet.ResourceRequest;
-import javax.portlet.ResourceResponse;
 
 import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.common.SiteHelper;
@@ -41,6 +25,15 @@ import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.portlet.*;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.MalformedURLException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class SequenceSummaryPortlet extends GenericPortlet {
 
@@ -93,7 +86,8 @@ public class SequenceSummaryPortlet extends GenericPortlet {
 					if (!genomes.isEmpty()) {
 						Genome genome = genomes.get(0);
 
-						genome.getGenomeLength(); genome.getChromosomes();
+						genome.getGenomeLength();
+						genome.getChromosomes();
 
 						request.setAttribute("genome", genome);
 
@@ -102,16 +96,17 @@ public class SequenceSummaryPortlet extends GenericPortlet {
 						prd.include(request, response);
 					}
 
-				} catch (MalformedURLException | SolrServerException e) {
+				}
+				catch (MalformedURLException | SolrServerException e) {
 					LOGGER.error(e.getMessage(), e);
 				}
 			}
 			else {
 				// taxon level
 
-				List<String> annotations = Arrays.asList("PATRIC", "RefSeq", "BRC1");
+				List<String> annotations = Arrays.asList("PATRIC", "RefSeq");
 
-				for (String annotation: annotations) {
+				for (String annotation : annotations) {
 
 					try {
 						Map<String, Long> counts = new HashMap<>();
@@ -128,9 +123,6 @@ public class SequenceSummaryPortlet extends GenericPortlet {
 						case "RefSeq":
 							query.setQuery("refseq_cds:[1 TO *]");
 							break;
-						case "BRC1":
-							query.setQuery("brc1_cds:[1 TO *]");
-							break;
 						default:
 							query.setQuery("*:*");
 							break;
@@ -146,14 +138,15 @@ public class SequenceSummaryPortlet extends GenericPortlet {
 
 						FacetField facetField = qr.getFacetField("genome_status");
 
-						for (FacetField.Count facetValue: facetField.getValues()) {
+						for (FacetField.Count facetValue : facetField.getValues()) {
 							counts.put(facetValue.getName(), facetValue.getCount());
 						}
 						counts.put("Total", qr.getResults().getNumFound());
 
 						// save to req
 						request.setAttribute(annotation, counts);
-					} catch (MalformedURLException | SolrServerException e) {
+					}
+					catch (MalformedURLException | SolrServerException e) {
 						LOGGER.error(e.getMessage(), e);
 					}
 				}

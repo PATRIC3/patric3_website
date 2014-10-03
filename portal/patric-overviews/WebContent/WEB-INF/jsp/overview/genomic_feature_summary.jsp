@@ -10,9 +10,8 @@ String viewOption = (String) request.getAttribute("viewOption");
 	<thead>
 		<tr>
 			<th width="40%"></th>
-			<th scope="col" width="20%">PATRIC</th>
-			<th scope="col" width="20%">BRC1</th>
-			<th scope="col" width="20%">RefSeq</th>
+			<th scope="col" width="30%">PATRIC</th>
+			<th scope="col" width="30%">RefSeq</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -25,17 +24,12 @@ String viewOption = (String) request.getAttribute("viewOption");
             Map<String, Long> counts = entry.getValue();
 
             alt = !alt;
-            String patric, brc, refseq;
+            String patric, refseq;
 
             if (counts.containsKey("PATRIC")) {
                 patric = "<a href=\"FeatureTable?" + contextLink + "&amp;featuretype=" + type + "&amp;annotation=PATRIC&amp;filtertype=\">" + counts.get("PATRIC") + "</a>";
             } else {
                 patric = "0";
-            }
-            if (counts.containsKey("BRC1")) {
-                brc = "<a href=\"FeatureTable?" + contextLink + "&amp;featuretype=" + type + "&amp;annotation=BRC&amp;filtertype=\">" + counts.get("BRC1") + "</a>";
-            } else {
-                brc = "0";
             }
             if (counts.containsKey("RefSeq")) {
                 refseq = "<a href=\"FeatureTable?" + contextLink + "&amp;featuretype=" + type + "&amp;annotation=RefSeq&amp;filtertype=\">" + counts.get("RefSeq") + "</a>";
@@ -46,7 +40,6 @@ String viewOption = (String) request.getAttribute("viewOption");
 			<tr <%=(alt)?"class=\"alt\"":"" %>>
 				<th scope="row"><%=type %></th>
 				<td class="right-align-text"><%=patric %></td>
-				<td class="right-align-text"><%=brc %></td>
 				<td class="right-align-text last"><%=refseq %></td>
 			</tr>
 		<%

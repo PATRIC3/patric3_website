@@ -71,7 +71,7 @@ public class GenomicFeatureSummaryPortlet extends GenericPortlet {
 				contextLink = "cType=taxon&amp;cId=" + contextId;
 			}
 
-			List<String> annotations = Arrays.asList("PATRIC", "RefSeq", "BRC1");
+			List<String> annotations = Arrays.asList("PATRIC", "RefSeq");
 			int maxFeatureCount = -1;
 			Set<String> allFeatureTypes = null;
 
