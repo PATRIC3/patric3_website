@@ -96,7 +96,7 @@ public class PhylogeneticTree extends GenericPortlet {
 				if (contextType.equals("genome")) {
 					solr.setCurrentInstance(SolrCore.GENOME);
 					SolrQuery query = new SolrQuery("genome_id:" + contextId);
-					query.setFields("taxonId");
+					query.setFields("taxon_id");
 
 					QueryResponse qr = solr.getServer().query(query);
 					List<Genome> genomes = qr.getBeans(Genome.class);
