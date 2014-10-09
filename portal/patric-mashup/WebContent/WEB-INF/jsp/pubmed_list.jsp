@@ -1,78 +1,19 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
-<%@ page import="java.util.Hashtable" %>
-<%@ page import="java.util.Vector" %>
-<%@ page import="java.util.Enumeration" %>
-<%@ page import="edu.vt.vbi.patric.beans.DNAFeature" %>
-<%@ page import="edu.vt.vbi.patric.mashup.PubMedHelper" %>
-<%@ page import="edu.vt.vbi.patric.dao.DBShared" %>
-<%@ page import="edu.vt.vbi.patric.dao.ResultType" %>
-<%@ page import="edu.vt.vbi.patric.common.SolrInterface" %>
-<%@ page import="org.json.simple.JSONObject" %>
-<%
-	String scopeUrl = "";
-	String qScope = request.getParameter("scope");
-	if (qScope!=null) {
-		scopeUrl = "&amp;scope="+qScope;
-	}
-	
-	String dateUrl = "";
-	String qDate = request.getParameter("time");
-	if (qDate!=null) {
-		dateUrl = "&amp;time="+qDate;
-	} else {
-		qDate = "a";
-	}
-	
-	String kwUrl = "";
-	String qKeyword = request.getParameter("keyword");
+<%@ page import="java.util.*" %><%
+String cType = request.getParameter("context_type");
+String cId = request.getParameter("context_id");
 
-	if (qKeyword!=null) {
-		kwUrl = "&amp;kw="+qKeyword;
-	} else {
-		qKeyword = "none";
-	}
-	
-	String cType = request.getParameter("context_type");
-	String cId = request.getParameter("context_id");	
-	String contextUrl = "cType="+cType+"&amp;cId="+cId;
-	
-	Hashtable <String, Vector<String>> hashKeyword = PubMedHelper.getKeywordHash();
-	DBShared dbh_shared = new DBShared();
-	String genome_name = "";
-	String feature_name = "";
-	String kleio_species = "";
-			
-	if (cType.equals("taxon")) {
-		kleio_species = dbh_shared.getOrganismName(cId);
-	} else if (cType.equals("genome")) {
-		if (qScope==null) {
-			qScope = "g";
-		}
-		ResultType names = dbh_shared.getNamesFromGenomeInfoId(cId);
-		genome_name = names.get("genome_name");
-		kleio_species = genome_name;
-		
-	} else if (cType.equals("feature")) {
-		if (qScope==null) {
-			qScope = "f";
-		}
-		SolrInterface solr = new SolrInterface();
-		DNAFeature feature = solr.getFeature(cId);
-		if (feature != null) {
-			genome_name = feature.getGenomeName();
+String scopeUrl = (String) request.getAttribute("scopeUrl");
+String qScope = (String) request.getAttribute("qScope");
+String dateUrl = (String) request.getAttribute("dateUrl");
+String qDate = (String) request.getAttribute("qDate");
+String kwUrl = (String) request.getAttribute("kwUrl");
+String qKeyword = (String) request.getAttribute("qKeyword");
+String contextUrl = (String) request.getAttribute("contextUrl");
 
-			if (feature.hasProduct()) {
-				feature_name = feature.getProduct();
-			} else if (feature.hasLocusTag()) {
-				feature_name = feature.getLocusTag();
-			}
-		}
-		if (feature_name.equals("")) {
-			kleio_species = genome_name;
-		} else {
-			kleio_species = feature_name;
-		}
-	}
+Map<String, List<String>> hashKeyword = (Map<String, List<String>>) request.getAttribute("hashKeyword");
+String genome_name = (String) request.getAttribute("genome_name");
+String feature_name = (String) request.getAttribute("feature_name");
 
 %>
 <div class="table-container" id="filter">
@@ -96,12 +37,7 @@
 
 <hr/>
 <h3>By Keyword:</h3>
-<%
-	String k = "";
-	Enumeration<String> e = hashKeyword.keys();
-	while (e.hasMoreElements()) {
-       	k = e.nextElement();
-	%>
+<% for (String k: hashKeyword.keySet()) { %>
 	<a id="keyword_<%=k%>" <%=(qKeyword.equals(k))?"class=\"curSel\"":"" %> href="javascript:loadPubMed('', '<%=k %>');" style="padding-left:15px"><%=k %></a><br/>
 <%	} %>
 	<a id="keyword_none" <%=(qKeyword.equals("")||qKeyword.equals("none"))?"class=\"curSel\"":"" %> href="javascript:loadPubMed('', 'none');" style="padding-left:15px">All</a><br/>
@@ -109,8 +45,7 @@
 
 <div id="SearchSummary">
 <p>PATRIC provides enhanced literature search and text mining techniques to identify 
-	genes, proteins, diseases, drugs, organisms, and other entities of interest. 
-	Text mining of annotated UK Medline abstracts is powered by NaCTeM.  
+	genes, proteins, diseases, drugs, organisms, and other entities of interest.
 	To learn more, please see 
 	<a href="http://enews.patricbrc.org/literature-faqs/" target="_blank">Literature FAQs</a>.
 </p></div>

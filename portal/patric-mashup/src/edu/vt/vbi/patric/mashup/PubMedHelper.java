@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2014 Virginia Polytechnic Institute and State University
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,62 +15,77 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.mashup;
 
+import edu.vt.vbi.patric.beans.Genome;
+import edu.vt.vbi.patric.beans.GenomeFeature;
+import edu.vt.vbi.patric.common.SolrCore;
+import edu.vt.vbi.patric.common.SolrInterface;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Vector;
-
-import edu.vt.vbi.patric.beans.GenomeFeature;
-import edu.vt.vbi.patric.common.SolrInterface;
-import edu.vt.vbi.patric.dao.DBShared;
-import edu.vt.vbi.patric.dao.ResultType;
+import java.util.*;
 
 public class PubMedHelper {
-	public static String getTitleString(HashMap<String, String> key) {
-		DBShared conn_shared = new DBShared();
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(PubMedHelper.class);
+
+	public static String getTitleString(Map<String, String> key) {
+
+		SolrInterface solr = new SolrInterface();
 		String title = null;
 
 		if (key.get("context").equalsIgnoreCase("taxon")) {
-			ArrayList<ResultType> taxon_names = conn_shared.getTaxonNames(key.get("ncbi_taxon_id"));
-			ResultType name = null;
-			ResultType scientific_name = null;
 
-			for (Iterator<ResultType> iter = taxon_names.iterator(); iter.hasNext();) {
-				name = iter.next();
-				if (name.containsKey("name_class") && !name.get("name_class").equals("")
-						&& name.get("name_class").equalsIgnoreCase("scientific name")) {
-					scientific_name = name;
+			try {
+				solr.setCurrentInstance(SolrCore.TAXONOMY);
+				SolrQuery query = new SolrQuery("taxon_id:" + key.get("taxon_id"));
+				query.setFields("taxon_name");
+
+				QueryResponse qr = solr.getServer().query(query);
+				SolrDocumentList sdl = qr.getResults();
+
+				for (SolrDocument doc : sdl) {
+					title = doc.get("taxon_name").toString();
 				}
 			}
-			if (scientific_name != null) {
-				title = scientific_name.get("name");
-			}
-			else {
-				title = "";
+			catch (MalformedURLException | SolrServerException e) {
+				LOGGER.error(e.getMessage(), e);
 			}
 		}
 		else if (key.get("context").equalsIgnoreCase("genome")) {
-			ResultType names = conn_shared.getNamesFromGenomeInfoId(key.get("genome_info_id"));
-			String organism_name = names.get("organism_name");
-			String genome_name = names.get("genome_name");
+
 			String qScope = key.get("scope");
 
-			if (qScope != null && qScope.equals("o")) {
-				title = organism_name;
+			try {
+				solr.setCurrentInstance(SolrCore.GENOME);
+				SolrQuery query = new SolrQuery("genome_id:" + key.get("genome_id"));
+				query.setFields("genome_name,organism_name");
+
+				QueryResponse qr = solr.getServer().query(query);
+				List<Genome> result = qr.getBeans(Genome.class);
+
+				for (Genome genome : result) {
+					if (qScope != null && qScope.equals("o")) {
+						title = genome.getOrganismName();
+					}
+					else {
+						title = genome.getGenomeName();
+					}
+				}
 			}
-			else {
-				title = genome_name;
+			catch (MalformedURLException | SolrServerException e) {
+				LOGGER.error(e.getMessage(), e);
 			}
 		}
 		else if (key.get("context").equalsIgnoreCase("feature")) {
 
-			// getting feature info from Solr
-
-			SolrInterface solr = new SolrInterface();
 			GenomeFeature feature = solr.getFeature(key.get("feature_id"));
 
 			String qScope = key.get("scope");
@@ -84,12 +99,12 @@ public class PubMedHelper {
 				int offset1 = feature.getGenomeName().indexOf(" ");
 				int offset2 = feature.getGenomeName().indexOf(" ", offset1 + 1);
 
-				String org = "";
+				String org;
 				if (offset2 > 0) {
 					org = feature.getGenomeName().substring(0, offset2);
 				}
 				else {
-					org = feature.getGenomeName().toString().substring(0, offset1);
+					org = feature.getGenomeName().substring(0, offset1);
 				}
 
 				title = "(\"" + org.toLowerCase() + "\") AND (\"" + feature.getAltLocusTag();
@@ -117,7 +132,7 @@ public class PubMedHelper {
 		return title;
 	}
 
-	public static String getPubmedQueryString(HashMap<String, String> key) throws NullPointerException {
+	public static String getPubmedQueryString(Map<String, String> key) throws NullPointerException {
 		String title = getTitleString(key);
 		if (title == null || title.equals("")) {
 			throw new NullPointerException("title is not defined");
@@ -131,11 +146,11 @@ public class PubMedHelper {
 		String qKeyword = key.get("keyword");
 
 		if (qKeyword != null && !qKeyword.equals("none")) {
-			Hashtable<String, Vector<String>> keywordhash = PubMedHelper.getKeywordHash();
-			Vector<String> querykeyv = keywordhash.get(qKeyword);
-			if (querykeyv != null) {
-				for (int i = 0; i < querykeyv.size(); i++) {
-					_str_kw = _str_kw + " or \"" + querykeyv.get(i) + "\"[ALL]";
+			Map<String, List<String>> hashKeyword = PubMedHelper.getKeywordHash();
+			List<String> listQuerykey = hashKeyword.get(qKeyword);
+			if (listQuerykey != null) {
+				for (String aQuerykey : listQuerykey) {
+					_str_kw = _str_kw + " or \"" + aQuerykey + "\"[ALL]";
 				}
 				pubmedquery = pubmedquery + " AND (\"" + qKeyword + "\"[ALL]" + _str_kw + ")";
 			}
@@ -144,140 +159,92 @@ public class PubMedHelper {
 		// date
 		String qDate = key.get("date");
 		if (qDate != null && !qDate.equals("")) {
-			if (qDate.equals("w")) {
+			switch (qDate) {
+			case "w":
 				pubmedquery = pubmedquery + " \"last 7 days\"[dp]";
-			}
-			else if (qDate.equals("m")) {
+				break;
+			case "m":
 				pubmedquery = pubmedquery + " \"last 1 months\"[dp]";
-			}
-			else if (qDate.equals("y")) {
+				break;
+			case "y":
 				pubmedquery = pubmedquery + " \"last 1 year\"[dp]";
-			}
-			else if (qDate.equals("f")) {
+				break;
+			case "f":
 				Date todayDate = new Date();
 				SimpleDateFormat sdfToday = new SimpleDateFormat("yyyy/MM/dd");
 				SimpleDateFormat sdfYear = new SimpleDateFormat("yyyy");
-				String strToday = sdfToday.format(todayDate).toString();
-				String strYear = sdfYear.format(todayDate).toString();
+				String strToday = sdfToday.format(todayDate);
+				String strYear = sdfYear.format(todayDate);
 				int intNextYear = Integer.parseInt(strYear) + 1;
 				pubmedquery = pubmedquery + " " + strToday + ":" + intNextYear + " [dp]";
+				break;
 			}
 		}
 		try {
-			pubmedquery = URLEncoder.encode(pubmedquery, "UTF8").toString();
+			pubmedquery = URLEncoder.encode(pubmedquery, "UTF8");
 		}
 		catch (Exception ex) {
+			LOGGER.error(ex.getMessage(), ex);
 		}
 
 		return pubmedquery;
 	}
 
-	public static Hashtable<String, Vector<String>> getKeywordHash() {
-		Hashtable<String, Vector<String>> keywordshash = new Hashtable<String, Vector<String>>();
-		Vector<String> keyword1 = new Vector<String>();
-		keyword1.add("drug");
-		keyword1.add("vaccine");
-		keyword1.add("theraputics");
-		keyword1.add("diagnostics");
-		keyword1.add("target");
-		keywordshash.put("Countermeasures", keyword1);
+	public static Map<String, List<String>> getKeywordHash() {
 
-		Vector<String> keyword2 = new Vector<String>();
-		keyword2.add("mass spectrometry");
-		keyword2.add("2D-gels");
-		keyword2.add("protein-protein interaction");
-		keywordshash.put("Proteomics", keyword2);
+		HashMap<String, List<String>> hash = new HashMap<>();
 
-		Vector<String> keyword3 = new Vector<String>();
-		keyword3.add("microarray");
-		keyword3.add("transcriptome");
-		keyword3.add("expression profiling");
-		keyword3.add("real time PCR");
-		keyword3.add("immune response");
-		keyword3.add("response to infection");
-		keyword3.add("host response");
-		keyword3.add("pathogenesis");
-		keyword3.add("virulence");
-		keyword3.add("disease response");
-		keywordshash.put("Gene expression", keyword3);
+		List<String> keyword1 = Arrays.asList("drug", "vaccine", "theraputics", "diagnostics", "target");
+		hash.put("Countermeasures", keyword1);
 
-		Vector<String> keyword4 = new Vector<String>();
-		keyword4.add("culture");
-		keyword4.add("microscopy");
-		keyword4.add("haemagglutination");
-		keyword4.add("complement fixation");
-		keyword4.add("ELISA");
-		keyword4.add("EIA");
-		keyword4.add("immune double diffusion");
-		keyword4.add("immunoelectrophoresis");
-		keyword4.add("latex agglutination");
-		keyword4.add("western blot");
-		keyword4.add("antibody");
-		keyword4.add("Polymerase chain reaction");
-		keyword4.add("PCR");
-		keyword4.add("PCR primer");
-		keyword4.add("western blot");
-		keywordshash.put("Diagnosis", keyword4);
+		List<String> keyword2 = Arrays.asList("mass spectrometry", "2D-gels", "protein-protein interaction");
+		hash.put("Proteomics", keyword2);
 
-		Vector<String> keyword6 = new Vector<String>();
-		keyword6.add("symptom");
-		keyword6.add("syndrome");
-		keyword6.add("prognosis");
-		keywordshash.put("Disease", keyword6);
+		List<String> keyword3 = Arrays
+				.asList("microarray", "transcriptome", "expression profiling", "real time PCR", "immune response", "response to infection",
+						"host response", "pathogenesis", "virulence", "disease response");
+		hash.put("Gene expression", keyword3);
 
-		Vector<String> keyword7 = new Vector<String>();
-		keywordshash.put("Pathogenesis", keyword7);
+		List<String> keyword4 = Arrays
+				.asList("culture", "microscopy", "haemagglutination", "complement fixation", "ELISA", "EIA", "immune double diffusion",
+						"immunoelectrophoresis", "latex agglutination", "western blot", "antibody", "Polymerase chain reaction", "PCR", "PCR primer",
+						"western blot");
+		hash.put("Diagnosis", keyword4);
 
-		Vector<String> keyword8 = new Vector<String>();
-		keywordshash.put("Prevention", keyword8);
+		List<String> keyword6 = Arrays.asList("symptom", "syndrome", "prognosis");
+		hash.put("Disease", keyword6);
 
-		Vector<String> keyword9 = new Vector<String>();
-		keywordshash.put("Host", keyword9);
+		List<String> keyword7 = new ArrayList<>();
+		hash.put("Pathogenesis", keyword7);
 
-		Vector<String> keyword10 = new Vector<String>();
-		keywordshash.put("Reservoir", keyword10);
+		List<String> keyword8 = new ArrayList<>();
+		hash.put("Prevention", keyword8);
 
-		Vector<String> keyword11 = new Vector<String>();
-		keywordshash.put("Transmission", keyword11);
+		List<String> keyword9 = new ArrayList<>();
+		hash.put("Host", keyword9);
 
-		Vector<String> keyword12 = new Vector<String>();
-		keywordshash.put("Genome", keyword12);
+		List<String> keyword10 = new ArrayList<>();
+		hash.put("Reservoir", keyword10);
 
-		Vector<String> keyword13 = new Vector<String>();
-		keywordshash.put("Taxonomy", keyword13);
+		List<String> keyword11 = new ArrayList<>();
+		hash.put("Transmission", keyword11);
 
-		Vector<String> keyword14 = new Vector<String>();
-		keyword14.add("outbreak");
-		keyword14.add("epidemic");
-		keywordshash.put("Epidemiology", keyword14);
+		List<String> keyword12 = new ArrayList<>();
+		hash.put("Genome", keyword12);
 
-		Vector<String> keyword15 = new Vector<String>();
-		keyword15.add("Microarray");
-		keyword15.add("Expression array");
-		keyword15.add("Gene expression");
-		keyword15.add("Expression profil");
-		keyword15.add("Genome variation profil");
-		keyword15.add("RNA profil");
-		keyword15.add("Tiling array");
-		keyword15.add("ArrayCGH");
-		keyword15.add("ChIP-chip");
-		keyword15.add("SAGE");
-		keyword15.add("RNA-Seq");
-		keyword15.add("Protein microarray");
-		keyword15.add("Protein array");
-		keyword15.add("Mass spec");
-		keyword15.add("Protein identification");
-		keyword15.add("Peptide identification");
-		keyword15.add("2D gel");
-		keyword15.add("Proteomics");
-		keyword15.add("Protein structure");
-		keyword15.add("three-dimensional structure");
-		keyword15.add("3D structure");
-		keyword15.add("NMR");
-		keyword15.add("X-ray diffraction");
+		List<String> keyword13 = new ArrayList<>();
+		hash.put("Taxonomy", keyword13);
 
-		keywordshash.put("Experiment Data", keyword15);
+		List<String> keyword14 = Arrays.asList("outbreak", "epidemic");
+		hash.put("Epidemiology", keyword14);
 
-		return keywordshash;
+		List<String> keyword15 = Arrays
+				.asList("Microarray", "Expression array", "Gene expression", "Expression profil", "Genome variation profil", "RNA profil",
+						"Tiling array", "ArrayCGH", "ChIP-chip", "SAGE", "RNA-Seq", "Protein microarray", "Protein array", "Mass spec",
+						"Protein identification", "Peptide identification", "2D gel", "Proteomics", "Protein structure",
+						"three-dimensional structure", "3D structure", "NMR", "X-ray diffraction");
+		hash.put("Experiment Data", keyword15);
+
+		return hash;
 	}
 }

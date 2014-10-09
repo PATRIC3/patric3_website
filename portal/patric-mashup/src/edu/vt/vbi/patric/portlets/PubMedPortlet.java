@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2014 Virginia Polytechnic Institute and State University
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,39 +15,106 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.portlets;
 
+import edu.vt.vbi.patric.beans.Genome;
+import edu.vt.vbi.patric.beans.GenomeFeature;
+import edu.vt.vbi.patric.common.SiteHelper;
+import edu.vt.vbi.patric.common.SolrInterface;
+import edu.vt.vbi.patric.mashup.EutilInterface;
+import edu.vt.vbi.patric.mashup.PubMedHelper;
+import org.json.simple.JSONObject;
+
+import javax.portlet.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
-
-import javax.portlet.GenericPortlet;
-import javax.portlet.PortletException;
-import javax.portlet.PortletRequestDispatcher;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
-import javax.portlet.ResourceRequest;
-import javax.portlet.ResourceResponse;
-import javax.portlet.UnavailableException;
-
-import org.json.simple.JSONObject;
-
-import edu.vt.vbi.patric.mashup.EutilInterface;
-import edu.vt.vbi.patric.mashup.PubMedHelper;
-import edu.vt.vbi.patric.common.SiteHelper;
+import java.util.List;
+import java.util.Map;
 
 public class PubMedPortlet extends GenericPortlet {
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.portlet.GenericPortlet#doView(javax.portlet.RenderRequest, javax.portlet.RenderResponse)
-	 */
 	@Override
-	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException, UnavailableException {
+	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 		new SiteHelper().setHtmlMetaElements(request, response, "Literature");
 		response.setContentType("text/html");
 		String cType = request.getParameter("context_type");
+		String cId = request.getParameter("context_id");
 
 		if (cType != null) {
+
+			String scopeUrl = "";
+			String qScope = request.getParameter("scope");
+			if (qScope != null) {
+				scopeUrl = "&amp;scope=" + qScope;
+			}
+
+			String dateUrl = "";
+			String qDate = request.getParameter("time");
+			if (qDate != null) {
+				dateUrl = "&amp;time=" + qDate;
+			}
+			else {
+				qDate = "a";
+			}
+
+			String kwUrl = "";
+			String qKeyword = request.getParameter("keyword");
+
+			if (qKeyword != null) {
+				kwUrl = "&amp;kw=" + qKeyword;
+			}
+			else {
+				qKeyword = "none";
+			}
+
+			String contextUrl = "cType=" + cType + "&amp;cId=" + cId;
+
+			Map<String, List<String>> hashKeyword = PubMedHelper.getKeywordHash();
+
+			SolrInterface solr = new SolrInterface();
+			String genome_name = "";
+			String feature_name = "";
+
+			if (cType.equals("taxon")) {
+
+			}
+			else if (cType.equals("genome")) {
+				if (qScope == null) {
+					qScope = "g";
+				}
+				Genome genome = solr.getGenome(cId);
+				genome_name = genome.getGenomeName();
+
+			}
+			else if (cType.equals("feature")) {
+				if (qScope == null) {
+					qScope = "f";
+				}
+
+				GenomeFeature feature = solr.getFeature(cId);
+				if (feature != null) {
+					genome_name = feature.getGenomeName();
+
+					if (feature.hasProduct()) {
+						feature_name = feature.getProduct();
+					}
+					else if (feature.hasAltLocusTag()) {
+						feature_name = feature.getAltLocusTag();
+					}
+				}
+			}
+
+			request.setAttribute("scopeUrl", scopeUrl);
+			request.setAttribute("qScope", qScope);
+			request.setAttribute("dateUrl", dateUrl);
+			request.setAttribute("qDate", qDate);
+			request.setAttribute("kwUrl", kwUrl);
+			request.setAttribute("qKeyword", qKeyword);
+			request.setAttribute("contextUrl", contextUrl);
+
+			request.setAttribute("hashKeyword", hashKeyword);
+			request.setAttribute("genome_name", genome_name);
+			request.setAttribute("feature_name", feature_name);
+
 			PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/pubmed_list.jsp");
 			prd.include(request, response);
 		}
@@ -94,12 +161,12 @@ public class PubMedPortlet extends GenericPortlet {
 				fId = cId;
 			}
 
-			HashMap<String, String> key = new HashMap<String, String>();
+			Map<String, String> key = new HashMap<>();
 			key.put("scope", qScope);
 			key.put("date", qDate);
 			key.put("keyword", qKeyword);
-			key.put("ncbi_taxon_id", tId);
-			key.put("genome_info_id", gId);
+			key.put("taxon_id", tId);
+			key.put("genome_id", gId);
 			key.put("feature_id", fId);
 			key.put("context", cType);
 
