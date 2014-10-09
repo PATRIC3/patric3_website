@@ -74,10 +74,7 @@ public class PubMedPortlet extends GenericPortlet {
 			String genome_name = "";
 			String feature_name = "";
 
-			if (cType.equals("taxon")) {
-
-			}
-			else if (cType.equals("genome")) {
+			if (cType.equals("genome")) {
 				if (qScope == null) {
 					qScope = "g";
 				}
@@ -148,17 +145,19 @@ public class PubMedPortlet extends GenericPortlet {
 
 		String cType = request.getParameter("context_type");
 		String cId = request.getParameter("context_id");
-		JSONObject jsonResult = null;
+		JSONObject jsonResult;
 
 		if (cType != null) {
-			if (cType.equals("taxon")) {
+			switch (cType) {
+			case "taxon":
 				tId = cId;
-			}
-			else if (cType.equals("genome")) {
+				break;
+			case "genome":
 				gId = cId;
-			}
-			else if (cType.equals("feature")) {
+				break;
+			case "feature":
 				fId = cId;
+				break;
 			}
 
 			Map<String, String> key = new HashMap<>();

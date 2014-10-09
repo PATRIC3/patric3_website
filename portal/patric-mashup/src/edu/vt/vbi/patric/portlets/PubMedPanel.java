@@ -135,6 +135,7 @@ public class PubMedPanel extends GenericPortlet {
 
 		}
 		catch (Exception ex) {
+			LOGGER.debug(ex.getMessage(), ex);
 			sb.append("<div> No pubmed record is available.</div>");
 		}
 
