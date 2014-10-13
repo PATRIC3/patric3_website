@@ -42,6 +42,8 @@ public class CRResultSet extends HashMap<Integer, CRTrack> {
 
 	private Set<String> genomeNames;
 
+	private Set<String> genomeIds;
+
 	private List<String> defaultTracks;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(CRResultSet.class);
@@ -55,6 +57,7 @@ public class CRResultSet extends HashMap<Integer, CRTrack> {
 
 				JSONArray tracks = (JSONArray) res.get(pin);
 				genomeNames = new HashSet<>();
+				genomeIds = new HashSet<>();
 				defaultTracks = new ArrayList<>();
 
 				for (Object track : tracks) {
@@ -63,6 +66,7 @@ public class CRResultSet extends HashMap<Integer, CRTrack> {
 					CRTrack crTrk = new CRTrack(tr);
 					super.put(crTrk.getRowID(), crTrk);
 					genomeNames.add(crTrk.getGenomeName());
+					genomeIds.add(crTrk.getGenomeID());
 					if (pinGenome.equals(crTrk.getGenomeID())) {
 						pinStrand = crTrk.findFeature(pin).getStrand();
 					}
@@ -84,6 +88,8 @@ public class CRResultSet extends HashMap<Integer, CRTrack> {
 	public Set<String> getGenomeNames() {
 		return genomeNames;
 	}
+
+	public Set<String> getGenomeIds() { return genomeIds; }
 
 	public void addToDefaultTracks(CRTrack crTrk) {
 		if (pinGenome.equals(crTrk.getGenomeID())) {

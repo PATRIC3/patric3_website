@@ -19,18 +19,17 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 public class CRTrack extends ArrayList<CRFeature> {
 
-	private static final long serialVersionUID = -7500241033679379068L;
-
 	private int rowID;
 
 	private String pin, genomeID, genomeName;
 
-	private Set<String> featureIDs;
+	private Set<String> SeedIds;
 
 	public CRTrack(JSONObject jsonTrack) {
 		rowID = Integer.parseInt(jsonTrack.get("row_id").toString());
@@ -38,11 +37,11 @@ public class CRTrack extends ArrayList<CRFeature> {
 		genomeID = jsonTrack.get("genome_id").toString();
 		genomeName = jsonTrack.get("genome_name").toString();
 		JSONArray jsonFeatures = (JSONArray) jsonTrack.get("features");
-		featureIDs = new HashSet<>();
+		SeedIds = new HashSet<>();
 		for (Object jsonFeature : jsonFeatures) {
 			CRFeature f = new CRFeature((JSONArray) jsonFeature);
 			super.add(f);
-			featureIDs.add(f.getfeatureID());
+			SeedIds.add(f.getfeatureID());
 		}
 	}
 
@@ -57,16 +56,9 @@ public class CRTrack extends ArrayList<CRFeature> {
 		return f;
 	}
 
-	public String getPSEEDIDs() {
+	public String getSeedIds() {
 
-		StringBuffer sb = new StringBuffer();
-		for (String id : featureIDs) {
-			if (sb.length() > 0) {
-				sb.append(" OR ");
-			}
-			sb.append("\"").append(id).append("\"");
-		}
-		return sb.toString();
+		return StringUtils.join(SeedIds, " OR ");
 	}
 
 	public void relocateFeatures(int window_size, String pin_strand) {

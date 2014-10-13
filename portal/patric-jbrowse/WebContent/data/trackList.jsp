@@ -5,7 +5,7 @@ response.setContentType("application/json");
 	"tracks": [
 		{
 			"type": "SequenceTrack",
-			"urlTemplate": "getSequence.jsp?accession={refseq}&chunk=",
+			"urlTemplate": "/portal/portal/patric/GenomeBrowser/GBWindow?action=b&cacheability=PAGE&mode=getSequence&sequence_id={refseq}&chunk=",
 			"key": "Reference sequence",
 			"label": "DNA",
 			"chunkSize": 20000,
@@ -13,7 +13,7 @@ response.setContentType("application/json");
 		}
 		,{
 			"type": "FeatureTrack",
-			"urlTemplate": "Feature.json.jsp?accession={refseq}&algorithm=PATRIC&format=.json",
+			"urlTemplate": "/portal/portal/patric/GenomeBrowser/GBWindow?action=b&cacheability=PAGE&mode=getTrackInfo&accession={refseq}&annotation=PATRIC",
 			"storeClass": "JBrowse/Store/SeqFeature/NCList",
 			"key": "PATRIC Annotation",
 			"label": "PATRICGenes",
@@ -32,7 +32,8 @@ response.setContentType("application/json");
 		}
 		, {
 			"type": "FeatureTrack",
-			"urlTemplate": "Feature.json.jsp?accession={refseq}&algorithm=RefSeq&format=.json",
+			"urlTemplate": "/portal/portal/patric/GenomeBrowser/GBWindow?action=b&cacheability=PAGE&mode=getTrackInfo&accession={refseq}&annotation=RefSeq",
+			"storeClass": "JBrowse/Store/SeqFeature/NCList",
 			"key": "RefSeq Annotation",
 			"label": "RefSeqGenes",
 			"style": {
@@ -49,26 +50,8 @@ response.setContentType("application/json");
 			"maxExportFeatures": 10000,
 			"maxExportSpan": 10000000
 		}
+		<%--
 		, {
-			"type": "FeatureTrack",
-			"urlTemplate": "Feature.json.jsp?accession={refseq}&algorithm=BRC&format=.json",
-			"key": "Legacy BRC Annotation",
-			"label": "LegacyGenes",
-			"style": {
-				"className": "feature3",
-				"label": "function( feature ) { return feature.get('locus_tag'); }"
-			},
-			"hooks": {
-				"modify": "function(track, feature, div) { div.style.backgroundColor = ['#98471c','#f39641','#f9d5b5'][feature.get('phase')];}"
-			},
-			"tooltip": "<div style='line-height:1.7em'><b>{locus_tag}</b><br>{product}<br>{type}: {start_str} .. {end} ({strand_str})<br> <i>Click for detail information</i></div>",
-			"metadata": {
-				"Description": "Legacy BRC annotated genes"
-			},
-			"maxExportFeatures": 10000,
-			"maxExportSpan": 10000000
-		}
-		<%--, {
 			"type": "JBrowse/View/Track/Alignments2",
 			"storeClass": "JBrowse/Store/SeqFeature/BAM",
 			"urlTemplate": "/rnaseq/datasets/e31f696dd5f4d830/display?to_ext=bam",

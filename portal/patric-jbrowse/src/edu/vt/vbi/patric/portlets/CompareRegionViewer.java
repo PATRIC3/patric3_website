@@ -15,32 +15,32 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.portlets;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.*;
-
-import javax.portlet.GenericPortlet;
-import javax.portlet.PortletException;
-import javax.portlet.PortletRequestDispatcher;
-import javax.portlet.PortletSession;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
-import javax.portlet.ResourceRequest;
-import javax.portlet.ResourceResponse;
-
+import edu.vt.vbi.patric.beans.Genome;
+import edu.vt.vbi.patric.beans.GenomeFeature;
+import edu.vt.vbi.patric.common.ExcelHelper;
+import edu.vt.vbi.patric.common.SiteHelper;
+import edu.vt.vbi.patric.common.SolrCore;
+import edu.vt.vbi.patric.common.SolrInterface;
+import edu.vt.vbi.patric.dao.DBSummary;
+import edu.vt.vbi.patric.dao.ResultType;
+import edu.vt.vbi.patric.jbrowse.CRFeature;
+import edu.vt.vbi.patric.jbrowse.CRResultSet;
+import edu.vt.vbi.patric.jbrowse.CRTrack;
+import org.apache.commons.lang.StringUtils;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.QueryResponse;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.theseed.servers.SAPserver;
 
-import edu.vt.vbi.patric.jbrowse.CRFeature;
-import edu.vt.vbi.patric.jbrowse.CRResultSet;
-import edu.vt.vbi.patric.jbrowse.CRTrack;
-import edu.vt.vbi.patric.common.ExcelHelper;
-import edu.vt.vbi.patric.common.SiteHelper;
-import edu.vt.vbi.patric.dao.DBSummary;
-import edu.vt.vbi.patric.dao.ResultType;
+import javax.portlet.*;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.util.*;
 
 public class CompareRegionViewer extends GenericPortlet {
 
@@ -59,47 +59,49 @@ public class CompareRegionViewer extends GenericPortlet {
 	public void serveResource(ResourceRequest request, ResourceResponse response) throws PortletException, IOException {
 		String mode = request.getParameter("mode");
 
-		if (mode.equals("getRefSeqs")) {
+		switch (mode) {
+		case "getRefSeqs":
 			printRefSeqInfo(request, response);
-		}
-		else if (mode.equals("getTrackList")) {
+			break;
+		case "getTrackList":
 			printTrackList(request, response);
-		}
-		else if (mode.equals("getTrackInfo")) {
+			break;
+		case "getTrackInfo":
 			printTrackInfo(request, response);
-		}
-		else if (mode.equals("downloadInExcel")) {
+			break;
+		case "downloadInExcel":
 			exportInExcelFormat(request, response);
-		}
-		else {
+			break;
+		default:
 			response.getWriter().write("wrong param");
+			break;
 		}
 	}
 
 	@SuppressWarnings("unchecked")
 	private void printRefSeqInfo(ResourceRequest request, ResourceResponse response) throws IOException {
 
-		String _cType = request.getParameter("cType");
-		String _cId = request.getParameter("cId");
-		String _feature = request.getParameter("feature"); // pin feature
-		String _window = request.getParameter("window"); // window size
-
-		DBSummary conn_summary = new DBSummary();
+		String contextType = request.getParameter("cType");
+		String contextId = request.getParameter("cId");
+		String pinFeatureSeedId = request.getParameter("feature"); // pin feature
+		String windowSize = request.getParameter("window"); // window size
 
 		// if pin feature is not given, retrieve from the database based on na_feature_id
-		if (_feature == null && (_cType != null && _cType.equals("feature") && _cId != null)) {
-			HashMap<String, ResultType> pseedMap = conn_summary.getPSeedMapping("PATRIC", _cId);
-			_feature = pseedMap.get(_cId).get("pseed_id");
+		if (pinFeatureSeedId == null && (contextType != null && contextType.equals("feature") && contextId != null)) {
+
+			SolrInterface solr = new SolrInterface();
+			GenomeFeature feature = solr.getFeature(contextId);
+			pinFeatureSeedId = feature.getSeedId();
 		}
 
-		if (_feature != null && _feature.equals("") == false && _window != null) {
+		if (pinFeatureSeedId != null && !pinFeatureSeedId.equals("") && windowSize != null) {
 
 			JSONObject seq = new JSONObject();
-			seq.put("length", (Integer.parseInt(_window)));
-			seq.put("name", _feature);
+			seq.put("length", (Integer.parseInt(windowSize)));
+			seq.put("name", pinFeatureSeedId);
 			seq.put("seqDir", "");
 			seq.put("start", 1);
-			seq.put("end", (Integer.parseInt(_window)));
+			seq.put("end", (Integer.parseInt(windowSize)));
 			seq.put("seqChunkSize", 20000);
 
 			JSONArray json = new JSONArray();
@@ -117,36 +119,39 @@ public class CompareRegionViewer extends GenericPortlet {
 	@SuppressWarnings("unchecked")
 	private void printTrackList(ResourceRequest request, ResourceResponse response) throws IOException {
 
-		String _cType = request.getParameter("cType");
-		String _cId = request.getParameter("cId");
-		String _feature = request.getParameter("feature"); // pin feature
-		String _window = request.getParameter("window"); // window size
+		String contextType = request.getParameter("cType");
+		String contextId = request.getParameter("cId");
+		String pinFeatureSeedId = request.getParameter("feature"); // pin feature
+		String windowSize = request.getParameter("window"); // window size
+
 		int _numRegion = Integer.parseInt(request.getParameter("regions")); // number of genomes to compare
 		int _numRegion_buffer = 10; // number of genomes to use as a buffer in case that PATRIC has no genome data,
 									// which was retrieved from API
 		String _key = "";
 
-		DBSummary conn_summary = new DBSummary();
+		// DBSummary conn_summary = new DBSummary();
+		SolrInterface solr = new SolrInterface();
 		PortletSession session = request.getPortletSession(true);
 
 		// if pin feature is not given, retrieve from the database based on na_feature_id
-		if (_feature == null && (_cType != null && _cType.equals("feature") && _cId != null)) {
-			HashMap<String, ResultType> pseedMap = conn_summary.getPSeedMapping("PATRIC", _cId);
-			_feature = pseedMap.get(_cId).get("pseed_id");
+		if (pinFeatureSeedId == null && (contextType != null && contextType.equals("feature") && contextId != null)) {
+
+			GenomeFeature feature = solr.getFeature(contextId);
+			pinFeatureSeedId = feature.getSeedId();
 		}
 
-		if (_feature != null && _feature.equals("") == false && _window != null) {
+		if (pinFeatureSeedId != null && !pinFeatureSeedId.equals("") && windowSize != null) {
 			CRResultSet crRS = null;
 
 			try {
 				SAPserver sapling = new SAPserver("http://servers.nmpdr.org/pseed/sapling/server.cgi");
-				crRS = new CRResultSet(_feature, sapling.compared_regions(_feature, _numRegion + _numRegion_buffer, Integer.parseInt(_window) / 2));
+				crRS = new CRResultSet(pinFeatureSeedId, sapling.compared_regions(pinFeatureSeedId, _numRegion + _numRegion_buffer, Integer.parseInt(windowSize) / 2));
 
 				Random g = new Random();
 				int random = g.nextInt();
 				_key = "key" + random;
 				session.setAttribute(_key, crRS);
-				session.setAttribute("window_size", _window);
+				session.setAttribute("window_size", windowSize);
 			}
 			catch (Exception ex) {
 				LOGGER.error(ex.getMessage(), ex);
@@ -159,24 +164,41 @@ public class CompareRegionViewer extends GenericPortlet {
 			trStyle.put("showLabels", false);
 			trStyle.put("label", "function( feature ) { return feature.get('locus_tag'); }");
 			JSONObject trHooks = new JSONObject();
-			// trHooks.put("modify",
-			// "function(track, feature, div) { div.style.backgroundColor = ['red','#C4BD97','#8DB3E2','#FBD5B5','#D7E3BC','#CCC1D9','#B7DDE8','#E5B9B7'][feature.get('phase')];}");
 			trHooks.put(
 					"modify",
 					"function(track, feature, div) { div.style.backgroundColor = ['red','#1F497D','#938953','#4F81BD','#9BBB59','#806482','#4BACC6','#F79646'][feature.get('phase')];}");
 
 			// query genome metadata
-			Map<String, ResultType> gMetaData = conn_summary.getGenomeMetadata(crRS.getGenomeNames());
+			// Map<String, ResultType> gMetaData = conn_summary.getGenomeMetadata(crRS.getGenomeNames());
+			List<Genome> patricGenomes = null;
+			try {
+				solr.setCurrentInstance(SolrCore.GENOME);
+
+				SolrQuery query = new SolrQuery("genome_id:(" + StringUtils.join(crRS.getGenomeIds(), " OR ") + ")");
+				query.setFields("genome_id,genome_name,isolation_country,host_name,disease,collection_date,completion_date");
+				query.setRows(_numRegion + _numRegion_buffer);
+
+				QueryResponse qr = solr.getServer().query(query);
+				patricGenomes = qr.getBeans(Genome.class);
+
+			} catch (MalformedURLException | SolrServerException e) {
+				LOGGER.error(e.getMessage(), e);
+			}
 
 			int count_genomes = 1;
-			if (crRS != null && crRS.getGenomeNames().size() > 0) {
+			if (crRS.getGenomeNames().size() > 0) {
 				for (Integer idx : crRS.keySet()) {
 					if (count_genomes > _numRegion) {
 						break;
 					}
 					CRTrack crTrack = crRS.get(idx);
-					int chk = conn_summary.getPSeedGenomeCount(crTrack.getGenomeID());
-					if (chk > 0) {
+					Genome currentGenome = null;
+					for (Genome genome: patricGenomes) {
+						if (genome.getId().equals(crTrack.getGenomeID())) {
+							currentGenome = genome;
+						}
+					}
+					if (currentGenome != null) {
 						count_genomes++;
 						crRS.addToDefaultTracks(crTrack);
 						JSONObject tr = new JSONObject();
@@ -191,22 +213,23 @@ public class CompareRegionViewer extends GenericPortlet {
 						tr.put("label", "CR" + idx);
 						tr.put("dataKey", _key);
 						JSONObject metaData = new JSONObject();
-						ResultType g = gMetaData.get(crTrack.getGenomeName());
-						if (g != null && g.containsKey("isolation_country")) {
-							metaData.put("Isolation Country", g.get("isolation_country"));
+
+						if (currentGenome.getIsolationCountry() != null) {
+							metaData.put("Isolation Country", currentGenome.getIsolationCountry());
 						}
-						if (g != null && g.containsKey("host_name")) {
-							metaData.put("Host Name", g.get("host_name"));
+						if (currentGenome.getHostName() != null) {
+							metaData.put("Host Name", currentGenome.getHostName());
 						}
-						if (g != null && g.containsKey("disease")) {
-							metaData.put("Disease", g.get("disease"));
+						if (currentGenome.getDisease() != null) {
+							metaData.put("Disease", currentGenome.getDisease());
 						}
-						if (g != null && g.containsKey("collection_date")) {
-							metaData.put("Collection Date", g.get("collection_date"));
+						if (currentGenome.getCollectionDate() != null) {
+							metaData.put("Collection Date", currentGenome.getCollectionDate());
 						}
-						if (g != null && g.containsKey("completion_date")) {
-							metaData.put("Completion Date", g.get("completion_date"));
+						if (currentGenome.getCompletionDate() != null) {
+							metaData.put("Completion Date", currentGenome.getCompletionDate());
 						}
+
 						tr.put("metadata", metaData);
 						tracks.add(tr);
 					}
@@ -243,7 +266,7 @@ public class CompareRegionViewer extends GenericPortlet {
 
 		String pin_strand = crRS.getPinStrand();
 		CRTrack crTrack = crRS.get(Integer.parseInt(_rowID));
-		String pseed_ids = crTrack.getPSEEDIDs();
+		String pseed_ids = crTrack.getSeedIds();
 
 		int features_count = 0;
 		try {
@@ -252,16 +275,16 @@ public class CompareRegionViewer extends GenericPortlet {
 			features_count = crTrack.size();
 		}
 		catch (Exception ex) {
-
+			LOGGER.error(ex.getMessage(), ex);
 		}
 
 		DBSummary conn_summary = new DBSummary();
-		HashMap<String, ResultType> pseedMap = conn_summary.getPSeedMapping("pseed", pseed_ids);
+		Map<String, ResultType> pseedMap = conn_summary.getPSeedMapping("seed", pseed_ids);
 
 		// formatting
 		JSONArray nclist = new JSONArray();
-		CRFeature feature = null;
-		ResultType feature_patric = null;
+		CRFeature feature;
+		ResultType feature_patric;
 		for (int i = 0; i < features_count; i++) {
 
 			feature = crTrack.get(i);
@@ -269,24 +292,29 @@ public class CompareRegionViewer extends GenericPortlet {
 
 			if (feature_patric != null) {
 
-				JSONArray f = new JSONArray();
-				f.add(0);
-				f.add(feature.getStartPosition());
-				f.add(feature.getStartString());
-				f.add(feature.getEndPosition());
-				f.add((feature.getStrand().equalsIgnoreCase("-")) ? -1 : 1);
-				f.add(feature.getStrand());
-				f.add(feature_patric.get("na_feature_id"));
-				f.add(feature_patric.get("locus_tag"));
-				f.add("PATRIC");
-				f.add(feature_patric.get("feature_type"));
-				f.add(feature_patric.get("product").replace("\"", "\\\""));
-				f.add(feature_patric.get("gene"));
-				f.add(feature_patric.get("refseq_locus_tag"));
-				f.add(feature_patric.get("genome_name"));
-				f.add(feature_patric.get("accession"));
-				f.add(feature.getPhase());
-				nclist.add(f);
+				JSONArray alist = new JSONArray();
+
+				alist.addAll(Arrays.asList(0,
+						feature.getStartPosition(),
+						feature.getStartString(),
+						feature.getEndPosition(),
+						(feature.getStrand().equals("+") ? 1 : -1),
+						feature.getStrand(),
+
+						feature_patric.get("feature_id"),
+						feature_patric.get("alt_locus_tag"),
+						"PATRIC",
+						feature_patric.get("feature_type"),
+						feature_patric.get("product"),
+
+						feature_patric.get("gene"),
+						feature_patric.get("refseq_locus_tag"),
+						feature_patric.get("genome_name"),
+						feature_patric.get("accession"),
+						feature.getPhase()
+				));
+
+				nclist.add(alist);
 			}
 		}
 		// formatter.close();
@@ -321,13 +349,13 @@ public class CompareRegionViewer extends GenericPortlet {
 		String _key = request.getParameter("key");
 		CRResultSet crRS = (CRResultSet) session.getAttribute(_key);
 
-		CRTrack crTrack = null;
-		CRFeature crFeature = null;
-		String genome_name = null;
+		CRTrack crTrack;
+		CRFeature crFeature;
+		String genome_name;
 
-		List<String> _tbl_header = new ArrayList<String>();
-		List<String> _tbl_field = new ArrayList<String>();
-		List<ResultType> _tbl_source = new ArrayList<ResultType>();
+		List<String> _tbl_header = new ArrayList<>();
+		List<String> _tbl_field = new ArrayList<>();
+		List<ResultType> _tbl_source = new ArrayList<>();
 
 		_tbl_header.addAll(Arrays.asList("Genome Name", "Feature", "Start", "End", "Strand", "FigFam", "Product", "Group"));
 		_tbl_field.addAll(Arrays.asList("genome_name", "feature_id", "start", "end", "strand", "figfam_id", "product", "group_id"));
@@ -336,8 +364,8 @@ public class CompareRegionViewer extends GenericPortlet {
 			for (Integer idx : crRS.keySet()) {
 				crTrack = crRS.get(idx);
 				genome_name = crTrack.getGenomeName();
-				for (int i = 0; i < crTrack.size(); i++) {
-					crFeature = crTrack.get(i);
+				for (Object aCrTrack : crTrack) {
+					crFeature = (CRFeature) aCrTrack;
 					ResultType f = new ResultType();
 					f.put("genome_name", genome_name);
 					f.put("feature_id", crFeature.getfeatureID());

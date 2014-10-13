@@ -4,7 +4,7 @@ String cId = request.getParameter("context_id");
 
 String params = "";
 if (cType!=null && cId!=null) {
-	params = "?cType="+cType+"&cId="+cId;
+	params = "&cType="+cType+"&cId="+cId;
 }
 String urlRoot = "/patric-jbrowse/jbrowse/";
 
@@ -25,7 +25,7 @@ String urlRoot = "/patric-jbrowse/jbrowse/";
 			var dataRoot = queryParams.data || '/patric-jbrowse/data';
 			var config = {
 				containerID: "GenomeBrowser",
-				refSeqs: dataRoot + "/RefSeqs.jsp<%=params%>",
+				refSeqs: "/portal/portal/patric/GenomeBrowser/GBWindow?action=b&cacheability=PAGE&mode=getRefSeqs<%=params%>",
 				baseUrl: dataRoot + '/',
 				browserRoot: '<%=urlRoot%>',
 				include: [
