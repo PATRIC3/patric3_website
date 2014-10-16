@@ -248,7 +248,7 @@ public class FIGfamData {
 
 	public String getGenomeIdsForTaxon(String taxon) {
 		String genomeIds = null;
-		SolrQuery query = new SolrQuery("rast_cds:[1 TO *] AND taxon_lineage_ids:" + taxon);
+		SolrQuery query = new SolrQuery("patric_cds:[1 TO *] AND taxon_lineage_ids:" + taxon);
 		query.addField("genome_id");
 		query.setRows(500000);
 		QueryResponse qr;
@@ -365,7 +365,7 @@ public class FIGfamData {
 		String cId = req.getParameter("context_id");
 		String keyword = "";
 		if (cType != null && cType.equals("taxon") && cId != null && !cId.equals("")) {
-			keyword = "rast_cds:[1 TO *] AND taxon_lineage_ids:" + cId;
+			keyword = "patric_cds:[1 TO *] AND taxon_lineage_ids:" + cId;
 		}
 		else if (req.getParameter("keyword") != null) {
 			keyword = req.getParameter("keyword");
