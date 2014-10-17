@@ -1,74 +1,45 @@
-<%@ page import="edu.vt.vbi.patric.dao.DBShared" 
-%><%@ page import="edu.vt.vbi.patric.dao.DBSummary" 
-%><%@ page import="edu.vt.vbi.patric.dao.ResultType" 
-%><%@ page import="java.util.List" 
-%><%@ page import="edu.vt.vbi.patric.common.SolrInterface" 
-%><%@ page import="org.json.simple.JSONObject" 
+<%@ page import="java.util.*"
+%><%@ page import="edu.vt.vbi.patric.beans.Genome"
 %><%
+List<Map<String, Object>> lineage = (List<Map<String, Object>>) request.getAttribute("lineage");
+boolean isBelowGenus = (Boolean) request.getAttribute("isBelowGenus");
+boolean hasPATRICAnnotation = (Boolean) request.getAttribute("hasPATRICAnnotation");
+Genome context = (Genome) request.getAttribute("context");
 
-String gId = request.getParameter("context_id");
-int genomeId = -1;
-
-try {
-	genomeId = Integer.parseInt(gId);
-}
-catch (Exception ex) {
-}
-
-if (genomeId > 0) {
-
-	DBShared conn_shared = new DBShared();
-	DBSummary conn_summary = new DBSummary();
-	SolrInterface solr = new SolrInterface();
-	JSONObject context = solr.getGenome(gId);
-	String tId = null;
-	if (context.get("ncbi_tax_id") != null) {
-		tId = context.get("ncbi_tax_id").toString();
-	}
-	int taxonId = Integer.parseInt(tId);
-	boolean hasPATRICAnnotation = (Integer.parseInt(context.get("rast_cds").toString()) > 0);
-	
-	List<ResultType> parents = conn_shared.getTaxonParentTree(tId);
-	List<ResultType> phylotree = conn_summary.getOrderInTaxonomy(taxonId);
-	ResultType node = null;
-	String flag = "";
-	%>
+String gId = context.getId();
+String flag = "";
+%>
 	<nav class="breadcrumbs left">
 		<ul class="inline no-decoration">
 		<%
-		for (int i=parents.size()-1; i>=0; i--) {
-			node = parents.get(i);
-			if (node.get("rank").equalsIgnoreCase("superkingdom") ||
-					node.get("rank").equalsIgnoreCase("phylum") ||
-					node.get("rank").equalsIgnoreCase("class") ||
-					node.get("rank").equalsIgnoreCase("order") ||
-					node.get("rank").equalsIgnoreCase("family") ||
-					node.get("rank").equalsIgnoreCase("genus") ) {
+		for (Map<String, Object> node: lineage) {
+
+            String rank = node.get("rank").toString();
+			if (rank.equalsIgnoreCase("superkingdom") || rank.equalsIgnoreCase("phylum") || rank.equalsIgnoreCase("class") ||
+					rank.equalsIgnoreCase("order") || rank.equalsIgnoreCase("family") || rank.equalsIgnoreCase("genus")) {
 				flag = "";
 			} else {
 				flag = "full";
 			}
 			%>
 			<li class="<%=flag %>" style="<%=flag.equals("")?"":"display:none" %>">
-				<a href="Taxon?cType=taxon&amp;cId=<%=node.get("ncbi_tax_id") %>" title="taxonomy rank:<%=node.get("rank")%>"><%=node.get("name")%></a>
+				<a href="Taxon?cType=taxon&amp;cId=<%=node.get("taxonId") %>" title="taxonomy rank:<%=node.get("rank")%>"><%=node.get("name")%></a>
 			</li>
 			<%
 		}
 		%>
-			<li><%=context.get("genome_name")%> <img id="breadcrumb_btn" alt="expand or shrink bread crumb" src="/patric/images/spacer.gif" onclick="toggleBreadcrumb()" class="toggleButton toggleButtonHide" /></li>
+			<li><%=context.getGenomeName()%> <img id="breadcrumb_btn" alt="expand or shrink bread crumb" src="/patric/images/spacer.gif" onclick="toggleBreadcrumb()" class="toggleButton toggleButtonHide" /></li>
 		</ul>
 	</nav>
 	<div id="utilitybox" class="smallest right no-underline-links">
-		<a class="double-arrow-link" href="ftp://ftp.patricbrc.org/patric2/genomes/<%=context.get("common_name") %>/" target="_blank">Download genome data</a>
+		<a class="double-arrow-link" href="ftp://ftp.patricbrc.org/patric2/genomes/<%=context.getCommonName() %>/" target="_blank">Download genome data</a>
 	</div>
 	<div class="clear"></div>
 
 	<article class="tabs">
 		<ul class="tab-headers no-decoration"> 	
 			<li id="tabs_genomeoverview" class="first"><a href="Genome?cType=genome&amp;cId=<%=gId %>"><span>Overview</span></a></li>
-			<% if (phylotree.size()>0) { %>
 			<li id="tabs_phylogeny"><a href="Phylogeny?cType=genome&amp;cId=<%=gId %>"><span>Phylogeny</span></a></li>
-			<% } %>
 			<li id="tabs_genomebrowser"><a href="GenomeBrowser?cType=genome&amp;cId=<%=gId %>&amp;loc=0..10000&amp;tracks=DNA,PATRICGenes,RefSeqGenes"><span>Genome Browser</span></a></li>
 			<li id="tabs_circosviewer"><a href="CircosGenomeViewer?cType=genome&amp;cId=<%=gId %>"><span>Circular Viewer</span></a></li>
 			<li id="tabs_featuretable"><a href="FeatureTable?cType=genome&amp;cId=<%=gId %>&amp;featuretype=&amp;annotation=PATRIC&amp;filtertype=" 
@@ -87,4 +58,3 @@ if (genomeId > 0) {
 			<li id="tabs_literature"><a href="Literature?cType=genome&amp;cId=<%=gId %>&amp;time=a&amp;kw=none"><span>Literature</span></a></li>
 		</ul>
 	</article>
-<% } %>

@@ -1,9 +1,9 @@
-<%@ page import="edu.vt.vbi.patric.dao.DBShared" 
-%><%@ page import="edu.vt.vbi.patric.dao.ResultType" 
-%><%@ page import="java.util.List" 
+<%@ page import="java.util.*"
 %><%
 String tId = request.getParameter("context_id");
-String windowID = request.getAttribute("WindowID").toString();
+int taxonId = Integer.parseInt(tId);
+String windowID = (String) request.getAttribute("WindowID");
+List<Map<String, Object>> lineage = (List<Map<String, Object>>) request.getAttribute("lineage");
 
 String presearchtext = "<li><a href=\"Tools\">Searches & Tools</a></li> ";
 
@@ -44,24 +44,19 @@ if (windowID.indexOf("ECSearch") >=1) {
 	text = "<li></li>";
 }
 
-DBShared conn_shared = new DBShared();
-List<ResultType> parents = conn_shared.getTaxonParentTree(tId);
-
-if (parents != null && parents.size() > 0) {
-	
+if (!lineage.isEmpty()) {
 %>
 	<nav class="breadcrumbs left">
 		<ul class="inline no-decoration">
 		<%
-		ResultType node = null;
 		String flag = "";
 		boolean expandable = true;
-		if (parents.size() <= 6) {
+		if (lineage.size() <= 6) {
 			expandable = false;
 		}
-		for (int i=parents.size()-1; i>=0; i--) {
-			node = parents.get(i);
-			if (i==0) { 
+		for (Map<String, Object> node: lineage) {
+
+			if ((Integer) node.get("taxonId") == taxonId) {
 				%>
 				<li><%=node.get("name")%>
 					<% if (expandable) { %>
@@ -70,19 +65,20 @@ if (parents != null && parents.size() > 0) {
 				</li>
 				<%
 			} else {
-				if (!expandable || (node.get("rank").equalsIgnoreCase("superkingdom") ||
-						node.get("rank").equalsIgnoreCase("phylum") ||
-						node.get("rank").equalsIgnoreCase("class") ||
-						node.get("rank").equalsIgnoreCase("order") ||
-						node.get("rank").equalsIgnoreCase("family") ||
-						node.get("rank").equalsIgnoreCase("genus") )) {
+    			String rank = node.get("rank").toString();
+				if (!expandable || (rank.equalsIgnoreCase("superkingdom") ||
+                        rank.equalsIgnoreCase("phylum") ||
+                        rank.equalsIgnoreCase("class") ||
+                        rank.equalsIgnoreCase("order") ||
+                        rank.equalsIgnoreCase("family") ||
+                        rank.equalsIgnoreCase("genus") )) {
 					flag = "";
 				} else {
 					flag = "full";
 				}
 				%>
 				<li class="<%=flag %>" style="<%=flag.equals("")?"":"display:none" %>">
-					<a href="Taxon?cType=taxon&amp;cId=<%=node.get("ncbi_tax_id") %>" title="taxonomy rank:<%=node.get("rank")%>"><%=node.get("name")%></a>
+					<a href="Taxon?cType=taxon&amp;cId=<%=node.get("taxonId") %>" title="taxonomy rank:<%=node.get("rank")%>"><%=node.get("name")%></a>
 				</li>
 				<%
 			}

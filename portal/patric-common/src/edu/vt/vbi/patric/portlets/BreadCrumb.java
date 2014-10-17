@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2014 Virginia Polytechnic Institute and State University
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,50 +15,41 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.portlets;
 
+import edu.vt.vbi.patric.beans.Genome;
+import edu.vt.vbi.patric.beans.GenomeFeature;
+import edu.vt.vbi.patric.beans.Taxonomy;
+import edu.vt.vbi.patric.cache.ENewsGenerator;
+import edu.vt.vbi.patric.common.OrganismTreeBuilder;
+import edu.vt.vbi.patric.common.SolrInterface;
+import edu.vt.vbi.patric.dao.*;
+import org.hibernate.jmx.StatisticsService;
+import org.json.simple.JSONArray;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.management.MBeanServer;
+import javax.management.MBeanServerFactory;
+import javax.management.ObjectName;
+import javax.portlet.*;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
-import javax.management.ObjectName;
-import javax.portlet.GenericPortlet;
-import javax.portlet.PortletException;
-import javax.portlet.PortletRequestDispatcher;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
-
-import org.hibernate.jmx.StatisticsService;
-import org.json.simple.JSONArray;
-
-import edu.vt.vbi.patric.cache.ENewsGenerator;
-import edu.vt.vbi.patric.common.OrganismTreeBuilder;
-import edu.vt.vbi.patric.dao.DBDisease;
-import edu.vt.vbi.patric.dao.DBPIG;
-import edu.vt.vbi.patric.dao.DBPRC;
-import edu.vt.vbi.patric.dao.DBPathways;
-import edu.vt.vbi.patric.dao.DBSearch;
-import edu.vt.vbi.patric.dao.DBShared;
-import edu.vt.vbi.patric.dao.DBSummary;
-import edu.vt.vbi.patric.dao.DBTranscriptomics;
-import edu.vt.vbi.patric.dao.HibernateHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.List;
+import java.util.Map;
 
 public class BreadCrumb extends GenericPortlet {
 
-	private final boolean initCache = true;
+	private final boolean initCache = false;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(BreadCrumb.class);
 
 	@Override
 	public void init() throws PortletException {
 		super.init();
-		// now it should refer to [jboss-instance]/conf/PATRIC_DB.cfg.xml
-		//
+
 		String k = "PATRIC_DB.cfg.xml";
 		HibernateHelper.buildSessionFactory(k, k);
 		DBShared.setSessionFactory(HibernateHelper.getSessionFactory(k));
@@ -70,7 +61,7 @@ public class BreadCrumb extends GenericPortlet {
 		DBPRC.setSessionFactory(HibernateHelper.getSessionFactory(k));
 		DBTranscriptomics.setSessionFactory(HibernateHelper.getSessionFactory(k));
 		try {
-			ArrayList<MBeanServer> list = MBeanServerFactory.findMBeanServer(null);
+			List<MBeanServer> list = MBeanServerFactory.findMBeanServer(null);
 			MBeanServer server = list.get(0);
 			ObjectName on = new ObjectName("Hibernate:type=statistics,application=PATRIC2");
 			StatisticsService mBean = new StatisticsService();
@@ -83,7 +74,7 @@ public class BreadCrumb extends GenericPortlet {
 
 		// create cache for Genome Selector (all bacteria level)
 		if (initCache) {
-			HashMap<String, String> key = new HashMap<>();
+			Map<String, String> key = new HashMap<>();
 			key.put("ncbi_taxon_id", "2");
 
 			try (BufferedWriter out = new BufferedWriter(new FileWriter(getPortletContext().getRealPath("txtree-bacteria.js")))) {
@@ -144,6 +135,7 @@ public class BreadCrumb extends GenericPortlet {
 		response.setContentType("text/html");
 
 		String cType = request.getParameter("context_type");
+		String cId = request.getParameter("context_id");
 		String bm = request.getParameter("breadcrumb_mode");
 		if (bm == null) {
 			bm = "";
@@ -165,6 +157,24 @@ public class BreadCrumb extends GenericPortlet {
 
 			request.setAttribute("WindowID", windowID);
 
+			List<Map<String, Object>> lineage = new ArrayList<>();
+			SolrInterface solr = new SolrInterface();
+			Taxonomy taxonomy = solr.getTaxonomy(Integer.parseInt(cId));
+			List<Integer> taxonIds = taxonomy.getLineageIds();
+			List<String> txNames = taxonomy.getLineageNames();
+			List<String> txRanks = taxonomy.getLineageRanks();
+
+			for (Integer txId : taxonIds) {
+				int idx = taxonIds.indexOf(txId);
+				Map<String, Object> taxon = new HashMap<>();
+				taxon.put("taxonId", txId);
+				taxon.put("name", txNames.get(idx));
+				taxon.put("rank", txRanks.get(idx));
+
+				lineage.add(taxon);
+			}
+			request.setAttribute("lineage", lineage);
+
 			PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/breadcrumb/other_tabs.jsp");
 			prd.include(request, response);
 
@@ -178,14 +188,115 @@ public class BreadCrumb extends GenericPortlet {
 				writer.close();
 			}
 			else if (cType.equals("feature")) {
+
+				boolean hasPATRICAnnotation = false;
+				List<Map<String, Object>> lineage = new ArrayList<>();
+
+				SolrInterface solr = new SolrInterface();
+
+				GenomeFeature feature = solr.getPATRICFeature(cId);
+				int taxonId = feature.getTaxonId();
+
+				if (feature.getAnnotation().equals("PATRIC")) {
+					hasPATRICAnnotation = true;
+				}
+
+				Taxonomy taxonomy = solr.getTaxonomy(taxonId);
+				List<Integer> taxonIds = taxonomy.getLineageIds();
+				List<String> txNames = taxonomy.getLineageNames();
+				List<String> txRanks = taxonomy.getLineageRanks();
+
+				for (Integer txId : taxonIds) {
+					int idx = taxonIds.indexOf(txId);
+					Map<String, Object> taxon = new HashMap<>();
+					taxon.put("taxonId", txId);
+					taxon.put("name", txNames.get(idx));
+					taxon.put("rank", txRanks.get(idx));
+
+					lineage.add(taxon);
+				}
+
+				request.setAttribute("lineage", lineage);
+				request.setAttribute("hasPATRICAnnotation", hasPATRICAnnotation);
+				request.setAttribute("feature", feature);
+
 				PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/breadcrumb/feature_tabs.jsp");
 				prd.include(request, response);
 			}
 			else if (cType.equals("genome")) {
+
+				List<Map<String, Object>> lineage = new ArrayList<>();
+				boolean isBelowGenus = false;
+				boolean hasPATRICAnnotation = false;
+
+				SolrInterface solr = new SolrInterface();
+
+				Genome genome = solr.getGenome(cId);
+				int taxonId = genome.getTaxonId();
+				if (genome.getPatricCds() > 0) {
+					hasPATRICAnnotation = true;
+				}
+
+				Taxonomy taxonomy = solr.getTaxonomy(taxonId);
+
+				List<Integer> txIds = taxonomy.getLineageIds();
+				List<String> txNames = taxonomy.getLineageNames();
+				List<String> txRanks = taxonomy.getLineageRanks();
+
+				for (Integer txId : txIds) {
+					int idx = txIds.indexOf(txId);
+					Map<String, Object> taxon = new HashMap<>();
+					taxon.put("taxonId", txId);
+					taxon.put("name", txNames.get(idx));
+					taxon.put("rank", txRanks.get(idx));
+
+					if (txRanks.get(idx).equals("genus")) {
+						isBelowGenus = true;
+					}
+					lineage.add(taxon);
+				}
+
+				LOGGER.trace("{},{}", lineage, isBelowGenus);
+
+				request.setAttribute("lineage", lineage);
+				request.setAttribute("isBelowGenus", isBelowGenus);
+				request.setAttribute("hasPATRICAnnotation", hasPATRICAnnotation);
+				request.setAttribute("context", genome);
+
 				PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/breadcrumb/genome_tabs.jsp");
 				prd.include(request, response);
 			}
 			else if (cType.equals("taxon")) {
+
+				List<Map<String, Object>> lineage = new ArrayList<>();
+				boolean isBelowGenus = false;
+
+				SolrInterface solr = new SolrInterface();
+
+				Taxonomy taxonomy = solr.getTaxonomy(Integer.parseInt(cId));
+
+				List<Integer> txIds = taxonomy.getLineageIds();
+				List<String> txNames = taxonomy.getLineageNames();
+				List<String> txRanks = taxonomy.getLineageRanks();
+
+				for (Integer taxonId : txIds) {
+					int idx = txIds.indexOf(taxonId);
+					Map<String, Object> taxon = new HashMap<>();
+					taxon.put("taxonId", taxonId);
+					taxon.put("name", txNames.get(idx));
+					taxon.put("rank", txRanks.get(idx));
+
+					if (txRanks.get(idx).equals("genus")) {
+						isBelowGenus = true;
+					}
+					lineage.add(taxon);
+				}
+
+				LOGGER.trace("{},{}", lineage, isBelowGenus);
+
+				request.setAttribute("lineage", lineage);
+				request.setAttribute("isBelowGenus", isBelowGenus);
+
 				PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/breadcrumb/taxon_tabs.jsp");
 				prd.include(request, response);
 			}

@@ -18,7 +18,7 @@
 	key.put("keyword", keyword);
 
 	if (taxonId != null && taxonId.equals("") == false) {
-		key.put("join", SolrCore.GENOME.getSolrCoreJoin("gid", "gid", "taxon_lineage_ids:" + taxonId));
+		key.put("join", SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + taxonId));
 	}
 
 	JSONObject object = solr.getData(key, null, facet, 0, 0, true, false, false);

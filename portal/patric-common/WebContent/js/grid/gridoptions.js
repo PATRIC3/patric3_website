@@ -60,10 +60,7 @@ function createCheckBox(name) {
 //defining renderer
 function renderGenomeName(value, metadata, record, rowIndex, colIndex, store) {
 	metadata.tdAttr = 'data-qtip="' + value + '" data-qclass="x-tip"';
-	if (record.data.genome_info_id == null || record.data.genome_info_id == "0" || record.data.genome_info_id == "")
-		return Ext.String.format('<a href="Genome?cType=genome&cId={0}">{1}</a>', record.data.gid, value);
-	else
-		return Ext.String.format('<a href="Genome?cType=genome&cId={0}">{1}</a>', record.data.genome_info_id, value);
+	return Ext.String.format('<a href="Genome?cType=genome&cId={0}">{1}</a>', record.data.genome_id, value);
 }
 
 function BasicRenderer(value, metadata, record, rowIndex, colIndex, store) {
@@ -104,13 +101,14 @@ function renderLocusTag(value, metadata, record, rowIndex, colIndex, store) {
 
 	if (value != null && value != "") {
 		if (value[0].indexOf("<em ") >= 0) {
-			metadata.tdAttr = 'data-qtip="' + record.data.locus_tag + '" data-qclass="x-tip"';
-		} else
+			metadata.tdAttr = 'data-qtip="' + record.data.alt_locus_tag + '" data-qclass="x-tip"';
+		} else {
 			metadata.tdAttr = 'data-qtip="' + value + '" data-qclass="x-tip"';
-		return Ext.String.format('<a href="Feature?cType=feature&cId={0}">{1}</a>', record.data.na_feature_id, value);
-	} else if (record.data.na_feature_id != null) {
-		metadata.tdAttr = 'data-qtip="fid:' + record.data.na_feature_id + '" data-qclass="x-tip"';
-		return Ext.String.format('<a href="Feature?cType=feature&cId={0}">fid:{0}</a>', record.data.na_feature_id);
+		}
+		return Ext.String.format('<a href="Feature?cType=feature&cId={0}">{1}</a>', record.data.feature_id, value);
+	} else if (record.data.feature_id != null) {
+		metadata.tdAttr = 'data-qtip="fid:' + record.data.feature_id + '" data-qclass="x-tip"';
+		return Ext.String.format('<a href="Feature?cType=feature&cId={0}">fid:{0}</a>', record.data.feature_id);
 	} else {
 		return "";
 	}

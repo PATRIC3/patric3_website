@@ -1,23 +1,21 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <%
-String ncbi_taxon_id = null;
-String genome_info_id = null;
+String taxonId = "";
+String genomeId = "";
 
 String cType = request.getParameter("context_type");
 String cId = request.getParameter("context_id");
 
 if (cType.equals("taxon")) {
-	ncbi_taxon_id = cId;
+	taxonId = cId;
 } else if (cType.equals("genome")) {
-	genome_info_id = cId;
+	genomeId = cId;
 }
 
 String featuretype = request.getParameter("featuretype");
 String annotation = request.getParameter("annotation");
 String filtertype = request.getParameter("filtertype");
 
-if (ncbi_taxon_id == null) { ncbi_taxon_id = ""; }
-if (genome_info_id == null) { genome_info_id = ""; }
 if (featuretype == null || featuretype.equals("")) { featuretype = "CDS"; }
 if (annotation == null || annotation.equals("")) { annotation = "PATRIC"; }
 if (filtertype == null || filtertype.equals("")) { filtertype = ""; }
@@ -28,8 +26,8 @@ if (filtertype == null || filtertype.equals("")) { filtertype = ""; }
 	<input type="hidden" id="cId" name="cId" value="<%=cId %>" />
 	<input type="hidden" id="tablesource" name="tablesource" value="Feature" />
 	<input type="hidden" id="fileformat" name="fileformat" value="" />
-	<input type="hidden" id="taxonId" name="taxonId" value="<%=ncbi_taxon_id%>" />
-	<input type="hidden" id="genomeId" name="genomeId" value="<%=genome_info_id%>" />
+	<input type="hidden" id="taxonId" name="taxonId" value="<%=taxonId%>" />
+	<input type="hidden" id="genomeId" name="genomeId" value="<%=genomeId%>" />
 	<input type="hidden" id="sort" name="sort" value="" />
 	<input type="hidden" id="dir" name="dir" value="" />
 	
@@ -92,17 +90,17 @@ Ext.onReady(function()
 		scm:[[checkbox,
 			{text:'Genome Name',		dataIndex:'genome_name',		orig_hidden_value: ("<%=cType%>" == "genome"),	hidden: ("<%=cType%>" == "genome")?true:false, flex:2,	renderer:renderGenomeName},
 			{text:'Accession',			dataIndex:'accession',			orig_hidden_value: true,	hidden: true,	flex:1, renderer:renderAccession},
-			{text:'Locus Tag',			dataIndex:'locus_tag',			orig_hidden_value: false,	flex:2, renderer:renderLocusTag},
+			{text:'Locus Tag',			dataIndex:'alt_locus_tag',			orig_hidden_value: false,	flex:2, renderer:renderLocusTag},
 			{text:'RefSeq Locus Tag',	dataIndex:'refseq_locus_tag',	orig_hidden_value: false,	flex:2, renderer:BasicRenderer},
 			{text:'Gene Symbol',		dataIndex:'gene',				orig_hidden_value: false,	flex:1, renderer:BasicRenderer},
-			{text:'Genome Browser',		dataIndex:'na_feature_id',		orig_hidden_value: true,	hidden: true,	align:'center', flex:1, sortable: false, renderer:renderGenomeBrowserByFeature},
+			{text:'Genome Browser',		dataIndex:'feature_id',		orig_hidden_value: true,	hidden: true,	align:'center', flex:1, sortable: false, renderer:renderGenomeBrowserByFeature},
 			{text:'Annotation',			dataIndex:'annotation',			orig_hidden_value: true,	hidden: true,	flex:1, renderer:BasicRenderer},
 			{text:'Feature Type',		dataIndex:'feature_type',		orig_hidden_value: true,	hidden: true,	flex:1, renderer:BasicRenderer}, 
-			{text:'Start',				dataIndex:'start_max',			orig_hidden_value: true,	hidden: true,	flex:1, align:'right', renderer:BasicRenderer},
-			{text:'End', 				dataIndex:'end_min', 			orig_hidden_value: true,	hidden: true,	flex:1, align:'right', renderer:BasicRenderer},
+			{text:'Start',				dataIndex:'start',			orig_hidden_value: true,	hidden: true,	flex:1, align:'right', renderer:BasicRenderer},
+			{text:'End', 				dataIndex:'end', 			orig_hidden_value: true,	hidden: true,	flex:1, align:'right', renderer:BasicRenderer},
 			{text:'Length (NT)',		dataIndex:'na_length',			orig_hidden_value: true,	hidden: true,	flex:1, align:'right', renderer:BasicRenderer},
 			{text:'Strand',				dataIndex:'strand',				orig_hidden_value: true,	hidden: true,	flex:1, align:'right', renderer:BasicRenderer},
-			{text:'Protein ID',			dataIndex:'refseq_protein_id',	orig_hidden_value: true,	hidden: true,	flex:1, align:'right', renderer:BasicRenderer},
+			{text:'Protein ID',			dataIndex:'protein_id',	orig_hidden_value: true,	hidden: true,	flex:1, align:'right', renderer:BasicRenderer},
 			{text:'Length (AA)',		dataIndex:'aa_length',			orig_hidden_value: true,	hidden: true,	flex:1, align:'right', renderer:BasicRenderer},
 			{text:'Anticodon',			dataIndex:'anticodon',			orig_hidden_value: true,	hidden: true,	flex:1, renderer:BasicRenderer},
 			{text:'Product Description',dataIndex:'product',			orig_hidden_value: false,	flex:4, renderer:BasicRenderer},
@@ -128,7 +126,7 @@ Ext.onReady(function()
 			property: 'genome_name',
 			direction:'ASC'
 			},{
-			property: 'locus_tag',
+			property: 'alt_locus_tag',
 			direction:'ASC'
 		}]],
 		hash:{
@@ -168,7 +166,7 @@ function getContext() {
 }
 
 function getGID(){
-	return '<%=genome_info_id %>';
+	return '<%=genomeId %>';
 }
 //]]
 </script>

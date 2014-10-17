@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2014 Virginia Polytechnic Institute and State University
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,27 +15,8 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.portlets;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.portlet.GenericPortlet;
-import javax.portlet.PortletException;
-import javax.portlet.PortletSession;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
-import javax.portlet.ResourceRequest;
-import javax.portlet.ResourceResponse;
-
+import edu.vt.vbi.patric.common.*;
+import edu.vt.vbi.patric.dao.ResultType;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.BasicResponseHandler;
@@ -44,15 +25,14 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-
-import edu.vt.vbi.patric.common.PolyomicHandler;
-import edu.vt.vbi.patric.common.SolrCore;
-import edu.vt.vbi.patric.common.SolrInterface;
-import edu.vt.vbi.patric.common.UIPreference;
-import edu.vt.vbi.patric.common.Workspace;
-import edu.vt.vbi.patric.dao.ResultType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.portlet.*;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class WorkspacePortlet extends GenericPortlet {
 
@@ -242,7 +222,7 @@ public class WorkspacePortlet extends GenericPortlet {
 					// Speical expception. if group is created from feature level, but user wanted to stop as Genome group,
 					// convert feature IDs to Genome IDs
 					if (grp_type.equals("Feature") && (grp_element != null && grp_element.equals("Genome"))
-							&& (tracks != null && tracks.equals("") == false)) {
+							&& (tracks != null && !tracks.equals(""))) {
 
 						SolrInterface solr = new SolrInterface();
 						solr.setCurrentInstance(SolrCore.FEATURE);
@@ -252,7 +232,7 @@ public class WorkspacePortlet extends GenericPortlet {
 						if (GIDs.size() > 0) {
 							for (Object g : GIDs) {
 								JSONObject genome = (JSONObject) g;
-								if (gid.equals("") == false) {
+								if (!gid.equals("")) {
 									gid += ",";
 								}
 								gid += genome.get("value");
@@ -270,7 +250,7 @@ public class WorkspacePortlet extends GenericPortlet {
 								Set<Integer> trackIds = ws.addTracks(grp_type, tracks);
 								// add mappings
 								for (int trackId : trackIds) {
-									if (ws.isMappingExist(tagId, trackId) == false) {
+									if (!ws.isMappingExist(tagId, trackId)) {
 										ws.addMapping(tagId, trackId);
 									}
 								}
@@ -291,7 +271,7 @@ public class WorkspacePortlet extends GenericPortlet {
 									trackId = ws.addTrack(grp_type, tracks);
 								}
 								// add mapping
-								if (ws.isMappingExist(tagId, trackId) == false) {
+								if (!ws.isMappingExist(tagId, trackId)) {
 									ws.addMapping(tagId, trackId);
 								}
 								// add tags
@@ -778,7 +758,7 @@ public class WorkspacePortlet extends GenericPortlet {
 					}
 
 					// reading USER Experiments
-					PolyomicHandler polyomic = null;
+					PolyomicHandler polyomic;
 					JSONObject resUser = null;
 					if (request.getUserPrincipal() != null) {
 						polyomic = getPolyomicHandler(request);
@@ -792,7 +772,7 @@ public class WorkspacePortlet extends GenericPortlet {
 					key.put("limitParam", request.getParameter("limit"));
 					if (request.getParameter("sort") != null
 							&& (request.getParameter("sort").contains("\"property\":\"source\"") || request.getParameter("sort").contains(
-									"\"property\":\"organism\""))) {
+							"\"property\":\"organism\""))) {
 						// solr does not support sorting on multi-valued fields
 						// source fields does not exist in solr config
 						key.put("sortParam", null);
@@ -1176,7 +1156,8 @@ public class WorkspacePortlet extends GenericPortlet {
 						res = solr.getFeaturesByID(key);
 						items = (JSONArray) res.get("results");
 
-						out_sb.append("Feature Id\tGenome Name\tAccession\tLocus Tag\tRefSeq Locus Tag\tAnnotation\tFeature Type\tStart\tEnd\tLength(NT)\tStrand\t");
+						out_sb.append(
+								"Feature Id\tGenome Name\tAccession\tLocus Tag\tRefSeq Locus Tag\tAnnotation\tFeature Type\tStart\tEnd\tLength(NT)\tStrand\t");
 						out_sb.append("Protein Id\tLength(AA)\tGene Symbol\tProduct\n");
 
 						for (int i = 0; i < items.size(); i++) {
@@ -1185,16 +1166,16 @@ public class WorkspacePortlet extends GenericPortlet {
 							out_sb.append(item.get("genome_name") + "\t");
 							out_sb.append(item.get("accession") + "\t");
 							out_sb.append(item.get("locus_tag") + "\t");
-							out_sb.append((item.get("refseq_locus_tag")!=null?item.get("refseq_locus_tag"):"") + "\t");
+							out_sb.append((item.get("refseq_locus_tag") != null ? item.get("refseq_locus_tag") : "") + "\t");
 							out_sb.append(item.get("annotation") + "\t");
 							out_sb.append(item.get("feature_type") + "\t");
 							out_sb.append(item.get("start_max") + "\t");
 							out_sb.append(item.get("end_min") + "\t");
 							out_sb.append(item.get("na_length") + "\t");
 							out_sb.append(item.get("strand") + "\t");
-							out_sb.append((item.get("protein_id")!=null?item.get("protein_id"):"") + "\t");
+							out_sb.append((item.get("protein_id") != null ? item.get("protein_id") : "") + "\t");
 							out_sb.append(item.get("aa_length") + "\t");
-							out_sb.append((item.get("gene")!=null?item.get("gene"):"") + "\t");
+							out_sb.append((item.get("gene") != null ? item.get("gene") : "") + "\t");
 							out_sb.append(item.get("product") + "\n");
 							// out_sb.append("\n");
 						}
@@ -1210,11 +1191,11 @@ public class WorkspacePortlet extends GenericPortlet {
 							out_sb.append(item.get("genome_info_id") + "\t");
 							out_sb.append(item.get("genome_name") + "\t");
 							out_sb.append(item.get("genome_status") + "\t");
-							out_sb.append((item.get("host_name")!=null?item.get("host_name"):"") + "\t");
-							out_sb.append((item.get("disease")!=null?item.get("disease"):"") + "\t");
-							out_sb.append((item.get("isolation_country")!=null?item.get("isolation_country"):"") + "\t");
-							out_sb.append((item.get("collection_date")!=null?item.get("collection_date"):"") + "\t");
-							out_sb.append((item.get("completion_date")!=null?item.get("completion_date"):"") + "\n");
+							out_sb.append((item.get("host_name") != null ? item.get("host_name") : "") + "\t");
+							out_sb.append((item.get("disease") != null ? item.get("disease") : "") + "\t");
+							out_sb.append((item.get("isolation_country") != null ? item.get("isolation_country") : "") + "\t");
+							out_sb.append((item.get("collection_date") != null ? item.get("collection_date") : "") + "\t");
+							out_sb.append((item.get("completion_date") != null ? item.get("completion_date") : "") + "\n");
 						}
 					}
 					else if (groupType.equals("ExpressionExperiment")) {
@@ -1241,12 +1222,12 @@ public class WorkspacePortlet extends GenericPortlet {
 						}
 
 						out_sb.append("Experiment Id\tSource\tTitle\tData Type\tAccession\n");
-						
-						if (tracksPATRIC.size() >0) {
+
+						if (tracksPATRIC.size() > 0) {
 							Map<String, Object> keyPATRIC = new HashMap<>();
 							keyPATRIC.put("tracks", tracksPATRIC);
 							res = solr.getExperimentsByID(keyPATRIC);
-							
+
 							items = (JSONArray) res.get("results");
 							for (int i = 0; i < items.size(); i++) {
 								item = (JSONObject) items.get(i);
@@ -1254,10 +1235,10 @@ public class WorkspacePortlet extends GenericPortlet {
 								out_sb.append("PATRIC\t");
 								out_sb.append(item.get("title") + "\t");
 								out_sb.append("Transcriptomics\t"); // TODO: modify later
-								out_sb.append((item.get("accession")!=null?item.get("accession"):"") + "\n");
+								out_sb.append((item.get("accession") != null ? item.get("accession") : "") + "\n");
 							}
 						}
-						
+
 						if (collectionIds.size() > 0) {
 							PolyomicHandler polyomic = null;
 							polyomic = getPolyomicHandler(request);
@@ -1269,8 +1250,8 @@ public class WorkspacePortlet extends GenericPortlet {
 								out_sb.append(item.get("expid") + "\t");
 								out_sb.append("me\t");
 								out_sb.append(item.get("title") + "\t");
-								out_sb.append((item.get("data_type")!=null?item.get("data_type"):"") + "\t");
-								out_sb.append((item.get("accession")!=null?item.get("accession"):"") + "\n");
+								out_sb.append((item.get("data_type") != null ? item.get("data_type") : "") + "\t");
+								out_sb.append((item.get("accession") != null ? item.get("accession") : "") + "\n");
 							}
 						}
 					}

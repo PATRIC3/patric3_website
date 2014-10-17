@@ -3,7 +3,7 @@ function createLoadComboBoxes() {
 	var Page = $Page, property = Page.getPageProperties(), object = {};
 
 	Ext.create('Ext.form.ComboBox', {
-		id : 'cb_feature_type_f',
+		id : 'cb_feature_type',
 		renderTo : 'f_feature_type',
 		fieldLabel : 'Feature Type',
 		displayField : 'name',
@@ -19,7 +19,7 @@ function createLoadComboBoxes() {
 	});
 
 	Ext.create('Ext.form.ComboBox', {
-		id : 'cb_annotation_f',
+		id : 'cb_annotation',
 		renderTo : 'f_annotation',
 		fieldLabel : 'Annotation',
 		displayField : 'name',
@@ -82,7 +82,7 @@ function FillComboBoxes(data) {
 
 		ds.sort(sortRowsData("name"));
 		d = {};
-		d["name"] = (i == "annotation_f") ? "ALL" : "ALL Feature Types";
+		d["name"] = (i == "annotation") ? "ALL" : "ALL Feature Types";
 		d["value"] = "ALL";
 		ds.push(d);
 
@@ -106,7 +106,7 @@ function sortRowsData(value) {
 function filterFeatureTable() {
 	var Page = $Page, property = Page.getPageProperties(), hash = property.hash;
 
-	hash.aP[0] = 1, hash.fT = Ext.getCmp("cb_feature_type_f").getValue(), hash.alg = Ext.getCmp("cb_annotation_f").getValue(), hash.kW = Ext.getCmp("tb_keyword").getValue(),
+	hash.aP[0] = 1, hash.fT = Ext.getCmp("cb_feature_type").getValue(), hash.alg = Ext.getCmp("cb_annotation").getValue(), hash.kW = Ext.getCmp("tb_keyword").getValue(),
 	//hash.key = Math.floor(Math.random()*1001);
 	hash.key = +Date.now();
 	property.reconfigure = true;
@@ -121,14 +121,14 @@ function loadFBCD() {
 	SetLoadParameters();
 
 	function setInputs() {
-		if (Ext.getCmp("cb_feature_type_f") && Ext.getCmp("cb_feature_type_f").getStore().data.items.length > 0) {
-			Ext.getCmp("cb_feature_type_f").setValue(hash.fT);
-			Ext.getCmp("cb_annotation_f").setValue(hash.alg);
+		if (Ext.getCmp("cb_feature_type") && Ext.getCmp("cb_feature_type").getStore().data.items.length > 0) {
+			Ext.getCmp("cb_feature_type").setValue(hash.fT);
+			Ext.getCmp("cb_annotation").setValue(hash.alg);
 			Ext.getCmp("tb_keyword").setValue(hash.kW); clearTimeout(timeoutId);
 		}
 	}
 
-	if (!Ext.getCmp("cb_feature_type_f") && !Ext.getCmp("cb_annotation_f")) {
+	if (!Ext.getCmp("cb_feature_type") && !Ext.getCmp("cb_annotation")) {
 		timeoutId = setInterval(setInputs, 1000);
 	} else {
 		setInputs();
@@ -214,7 +214,7 @@ function getSelectedFeatures() {"use strict";
 	var Page = $Page, property = Page.getPageProperties(), sl = Page.getCheckBox().getSelections(), i, fids = property.fids;
 
 	for ( i = 0; i < sl.length; i++)
-		fids.push(sl[i].data.na_feature_id);
+		fids.push(sl[i].data.feature_id);
 }
 
 function DownloadFile() {"use strict";
