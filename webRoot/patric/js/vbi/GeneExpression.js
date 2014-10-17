@@ -6,9 +6,8 @@
  */
 Ext.define('VBI.GeneExpression.model.CategoryCount', {
 	extend: 'Ext.data.Model',
-	idProperty: 'rownum',
+	idProperty: 'cateory',
 	fields: [
-		{name: 'rownum', type: 'int'},
 		{name: 'category', type: 'string'},
 		{name: 'count', type: 'int'}
 	]
@@ -28,7 +27,7 @@ Ext.define('VBI.GeneExpression.model.Gene', {
 		{name:'exp_pavg', type:'float', useNull:false}, {name:'exp_pratio', type:'float', useNull:false}, 
 		{name:'exp_zscore', type:'float', useNull:false},
 		'exp_name', 'exp_channels', 'exp_timepoint', 'exp_organism', 'exp_strain', 'exp_mutant', 'exp_condition', 'pmid',
-		'na_feature_id', 'patric_locus_tag', 'figfam_id', 
+		'feature_id', 'patric_locus_tag', 'figfam_id', 
 		{name:'exp_geneid', type:'int'}
 	]
 });/**
@@ -41,40 +40,30 @@ Ext.define('VBI.GeneExpression.store.Conditions', {
 	extend: 'Ext.data.Store',
 	model: 'VBI.GeneExpression.model.CategoryCount',
 	proxy: {
-		type: 'ajax',
-		url: '/portal/portal/patric/TranscriptomicsGeneExp/TranscriptomicsGeneExpWindow?action=b&cacheability=PAGE',
-		extraParams: {
-			storeType: 'condition'
-		},
-		pageParam: undefined,
-		startParam: undefined,
-		limitParam: undefined,
+		type: 'memory',
 		reader: {
 			type: 'json',
-			root: 'exp_stat'
-		},
-		noCache: false
+			root: 'condition'
+		}
 	},
-	autoLoad: true,
 	listeners: {
 		beforeload: function(me, operation, eOpts) {
 			me.proxy.extraParams = Ext.Object.merge(me.proxy.extraParams, VBI.GeneExpression.param);
 		},
-		load: function(me, records, successful, eOpts) {
+		datachanged: function(me) {
 			// copy top 5 data points (exclude N/A) to ConditionsTop5 store
-			if (successful) {
-				var data = new Array();
-				for (i=0; i<records.length; i++) {
-					if (records[i].get("rownum") < 7) {
-						if (records[i].get("category")!="N/A") {
-							data[i] = records[i].data;
-						}
+			var records = me.data.items;
+			var data = new Array();
+			for (i=0; i<records.length; i++) {
+				if (i < 7) {
+					if (records[i].get("category")!="N/A") {
+						data[i] = records[i].data;
 					}
 				}
-				data = Ext.Array.splice(Ext.Array.clean(data), 0, 5);
-				Ext.getStore('ConditionsTop5').loadData(data);
-				Ext.getStore('ConditionsTop5').sort('count', 'ASC');
 			}
+			data = Ext.Array.splice(Ext.Array.clean(data), 0, 5);
+			Ext.getStore('ConditionsTop5').loadData(data);
+			Ext.getStore('ConditionsTop5').sort('count', 'ASC');
 		}
 	}
 });/**
@@ -99,14 +88,14 @@ Ext.define('VBI.GeneExpression.store.Genes', {
 		type: 'ajax',
 		url: '/portal/portal/patric/TranscriptomicsGeneExp/TranscriptomicsGeneExpWindow?action=b&cacheability=PAGE',
 		extraParams: {
-			storeType: 'features'
+			storeType: 'summary'
 		},
 		pageParam: undefined,
 		startParam: undefined,
 		limitParam: undefined,
 		reader: {
 			type: 'json',
-			root: 'results'
+			root: 'features'
 		},
 		noCache: false
 	},
@@ -115,50 +104,20 @@ Ext.define('VBI.GeneExpression.store.Genes', {
 		beforeload: function(store, operation, eOpts) {
 			store.proxy.extraParams = Ext.Object.merge(store.proxy.extraParams, VBI.GeneExpression.param);
 		},
-		load: function(){
+		load: function(store, records, successful){
 			this.updateRecordCount();
+
+			Ext.getStore('Strains').loadRawData(store.proxy.reader.jsonData);
+			Ext.getStore('Mutants').loadRawData(store.proxy.reader.jsonData);
+			Ext.getStore('Conditions').loadRawData(store.proxy.reader.jsonData);
+			Ext.getStore('LogRatios').loadRawData(store.proxy.reader.jsonData);
+			Ext.getStore('ZScores').loadRawData(store.proxy.reader.jsonData);
 		}
 	},
 	updateRecordCount: function() {
 		count = this.getCount();
 		(count==1) ? countStr=count+' comparison' : countStr=count+' comparisons';
 		Ext.getCmp('filterReport').setText("<b>"+countStr+"</b>");
-	},
-	filterField: function(fieldname, cutoff) {
-		this.filter([
-			Ext.create('Ext.util.Filter', {
-				filterFn: function(item) {
-					if (item.get(fieldname)>=cutoff || item.get(fieldname)<=(-1)*cutoff) {
-						return true;
-					} else {
-						return false;
-					}
-				}
-			})
-		]);
-	},
-	filterOnFly: function(param) {
-		this.clearFilter();
-		if (param.keyword != null && param.keyword != "") {
-			//this.filter("exp_name", param.keyword);
-			this.filter([
-				Ext.create('Ext.util.Filter', {property: "exp_name", value: param.keyword, root: 'data', anyMatch: true})
-			]);
-			// TODO: add search on accession, strain, mutant, condition, and timepoint, (pmid if possible)
-		}
-		if (param.log_ratio > 0) {
-			this.filterField("exp_pratio", param.log_ratio);
-		}
-		if (param.zscore > 0) {
-			this.filterField("exp_zscore", param.zscore);
-		}
-		//other filters
-		/*
-		if (param.accession != null && param.accession != "") {
-			this.filter("exp_accession", param.accession);
-		}*/
-		
-		this.updateRecordCount();
 	}
 });
 /**
@@ -171,21 +130,14 @@ Ext.define('VBI.GeneExpression.store.LogRatios', {
 	extend: 'Ext.data.Store',
 	model: 'VBI.GeneExpression.model.CategoryCount',
 	proxy: {
-		type: 'ajax',
-		url: '/portal/portal/patric/TranscriptomicsGeneExp/TranscriptomicsGeneExpWindow?action=b&cacheability=PAGE',
-		extraParams: {
-			storeType: 'log_ratio'
-		},
-		pageParam: undefined,
-		startParam: undefined,
-		limitParam: undefined,
+		type: 'memory',
 		reader: {
 			type: 'json',
-			root: 'exp_stat'
+			root: 'log_ratio'
 		},
 		noCache: false
 	},
-	autoLoad: true,
+	autoLoad: false,
 	listeners: {
 		beforeload: function(me, operation, eOpts) {
 			me.proxy.extraParams = Ext.Object.merge(me.proxy.extraParams, VBI.GeneExpression.param);
@@ -206,40 +158,32 @@ Ext.define('VBI.GeneExpression.store.Mutants', {
 	extend: 'Ext.data.Store',
 	model: 'VBI.GeneExpression.model.CategoryCount',
 	proxy: {
-		type: 'ajax',
-		url: '/portal/portal/patric/TranscriptomicsGeneExp/TranscriptomicsGeneExpWindow?action=b&cacheability=PAGE',
-		extraParams: {
-			storeType: 'mutant'
-		},
-		pageParam: undefined,
-		startParam: undefined,
-		limitParam: undefined,
+		type: 'memory',
 		reader: {
 			type: 'json',
-			root: 'exp_stat'
-		},
-		noCache: false
+			root: 'mutant'
+		}
 	},
-	autoLoad: true,
+	autoLoad: false,
 	listeners: {
 		beforeload: function(me, operation, eOpts) {
 			me.proxy.extraParams = Ext.Object.merge(me.proxy.extraParams, VBI.GeneExpression.param);
 		},
-		load: function(me, records, successful, eOpts) {
+		datachanged: function(me) {
 			// copy top 5 data points (exclude N/A) to Top5 store
-			if (successful) {
-				var data = new Array();
-				for (i=0; i<records.length; i++) {
-					if (records[i].get("rownum") < 7) {
-						if (records[i].get("category")!="N/A") {
-							data[i] = records[i].data;
-						}
+
+			var records = me.data.items;
+			var data = new Array();
+			for (i=0; i<records.length; i++) {
+				if (i < 7) {
+					if (records[i].get("category")!="N/A") {
+						data[i] = records[i].data;
 					}
 				}
-				data = Ext.Array.splice(Ext.Array.clean(data), 0, 5);
-				Ext.getStore('MutantsTop5').loadData(data);
-				Ext.getStore('MutantsTop5').sort('count', 'ASC');
 			}
+			data = Ext.Array.splice(Ext.Array.clean(data), 0, 5);
+			Ext.getStore('MutantsTop5').loadData(data);
+			Ext.getStore('MutantsTop5').sort('count', 'ASC');
 		}
 	}
 });
@@ -262,43 +206,33 @@ Ext.define('VBI.GeneExpression.store.Strains', {
 	extend: 'Ext.data.Store',
 	model: 'VBI.GeneExpression.model.CategoryCount',
 	proxy: {
-		type: 'ajax',
-		url: '/portal/portal/patric/TranscriptomicsGeneExp/TranscriptomicsGeneExpWindow?action=b&cacheability=PAGE',
-		extraParams: {
-			storeType: 'strain'
-		},
-		pageParam: undefined,
-		startParam: undefined,
-		limitParam: undefined,
+		type: 'memory',
 		reader: {
 			type: 'json',
-			root: 'exp_stat'
-		},
-		noCache: false
+			root: 'strain'
+		}
 	},
-	autoLoad: true,
 	listeners: {
 		beforeload: function(me, operation, eOpts) {
 			me.proxy.extraParams = Ext.Object.merge(me.proxy.extraParams, VBI.GeneExpression.param);
 			Ext.get("CategoryPieStrain").mask("loading");
 		},
-		load: function(me, records, successful, eOpts) {
+		datachanged: function(me) {
 			Ext.get("CategoryPieStrain").unmask();
 			
 			// copy top 5 data points (exclude N/A) to Top5 store
-			if (successful) {
-				var data = new Array();
-				for (i=0; i<records.length; i++) {
-					if (records[i].get("rownum") < 7) {
-						if (records[i].get("category")!="N/A") {
-							data[i] = records[i].data;
-						}
+			var records = me.data.items;
+			var data = new Array();
+			for (i=0; i<records.length; i++) {
+				if (i < 7) {
+					if (records[i].get("category")!="N/A") {
+						data[i] = records[i].data;
 					}
 				}
-				data = Ext.Array.splice(Ext.Array.clean(data), 0, 5);
-				Ext.getStore('StrainsTop5').loadData(data);
-				Ext.getStore('StrainsTop5').sort('count', 'ASC');
 			}
+			data = Ext.Array.splice(Ext.Array.clean(data), 0, 5);
+			Ext.getStore('StrainsTop5').loadData(data);
+			Ext.getStore('StrainsTop5').sort('count', 'ASC');
 		}
 		
 	}
@@ -310,8 +244,7 @@ Ext.define('VBI.GeneExpression.store.Strains', {
  */
 Ext.define('VBI.GeneExpression.store.StrainsTop5', {
 	extend: 'Ext.data.Store',
-	model: 'VBI.GeneExpression.model.CategoryCount',
-	autoLoad: false
+	model: 'VBI.GeneExpression.model.CategoryCount'
 });/**
  * @class VBI.GeneExpression.store.ZScores
  * @extends Ext.data.Store
@@ -322,24 +255,10 @@ Ext.define('VBI.GeneExpression.store.ZScores', {
 	extend: 'Ext.data.Store',
 	model: 'VBI.GeneExpression.model.CategoryCount',
 	proxy: {
-		type: 'ajax',
-		url: '/portal/portal/patric/TranscriptomicsGeneExp/TranscriptomicsGeneExpWindow?action=b&cacheability=PAGE',
-		extraParams: {
-			storeType: 'z_score'
-		},
-		pageParam: undefined,
-		startParam: undefined,
-		limitParam: undefined,
+		type: 'memory',
 		reader: {
 			type: 'json',
-			root: 'exp_stat'
-		},
-		noCache: false
-	},
-	autoLoad: true,
-	listeners: {
-		beforeload: function(store, operation, eOpts) {
-			store.proxy.extraParams = Ext.Object.merge(store.proxy.extraParams, VBI.GeneExpression.param);
+			root: 'z_score'
 		}
 	}
 });
@@ -819,49 +738,30 @@ Ext.define('VBI.GeneExpression.controller.ViewController', {
 			},
 			'featuregrid > toolbar button': {
 				downloadGrid: this.downloadGrid
-			}/*,
-			'categorypiechart': {
-				filter: this.doFilter
-			}*/
+			}
 		})
 	},
 	resetFilter: function() {
-		var param = new Object({keyword:'', threshold:'', strain:'', mutant:'', condition:''});
+		var param = new Object({keyword:'', log_ratio:'', zscore:'', strain:'', mutant:'', condition:''});
 		VBI.GeneExpression.param = Ext.Object.merge(VBI.GeneExpression.param, param);
 		
 		// reload
-		Ext.getStore('Genes').clearFilter();
-		Ext.getStore('Genes').updateRecordCount();
-		Ext.getStore('LogRatios').load();
-		Ext.getStore('ZScores').load();
-		Ext.getStore('Strains').load();
-		Ext.getStore('Mutants').load();
-		Ext.getStore('Conditions').load();
+		Ext.getStore('Genes').load();
 	},
 	doFilter: function(param) {
 		if (param != null) {
 			VBI.GeneExpression.param = Ext.Object.merge(VBI.GeneExpression.param, param);
 		}
 		
-		Ext.getStore('Genes').filterOnFly(VBI.GeneExpression.param);
-		Ext.getStore('LogRatios').load();
-		Ext.getStore('ZScores').load();
-		Ext.getStore('Strains').load();
-		Ext.getStore('Mutants').load();
-		Ext.getStore('Conditions').load();
+		Ext.getStore('Genes').load();
 	},
 	showAll: function() {
-		var param = new Object({sampleId:'', keyword:'', threshold:'', strain:'', mutant:'', condition:''});
+		var param = new Object({sampleId:'', keyword:'', log_ratio:'', zscore:'', strain:'', mutant:'', condition:''});
 		VBI.GeneExpression.param = Ext.Object.merge(VBI.GeneExpression.param, param);
 		
 		// reload
 		Ext.getStore('Genes').proxy.extraParams = Ext.Object.merge(Ext.getStore('Genes').proxy.extraParams, VBI.GeneExpression.param);
 		Ext.getStore('Genes').load();
-		Ext.getStore('LogRatios').load();
-		Ext.getStore('ZScores').load();
-		Ext.getStore('Strains').load();
-		Ext.getStore('Mutants').load();
-		Ext.getStore('Conditions').load();
 	},
 	downloadGrid: function(type) {
 		
@@ -870,7 +770,7 @@ Ext.define('VBI.GeneExpression.controller.ViewController', {
 		Ext.Array.each(store.getRange(), function(item) {
 			idList.push(item.get('pid'));
 		});
-		var fids = {"na_feature_id":VBI.GeneExpression.param.featureId, "pid": idList.join(',')};
+		var fids = {"feature_id":VBI.GeneExpression.param.featureId, "pid": idList.join(',')};
 		
 		Ext.getDom("fTableForm").action = "/patric-searches-and-tools/jsp/grid_download_handler.jsp";
 		Ext.getDom("fTableForm").target = "";

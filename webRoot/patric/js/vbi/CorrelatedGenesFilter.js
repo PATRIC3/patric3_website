@@ -65,7 +65,7 @@ Ext.onReady(function () {
 
 					property.hash.cutoffValue	= this.ownerCt.getComponent("cutoffValue").getValue();
 					property.hash.cutoffDir	= this.ownerCt.getComponent("cutoffDir").getValue();
-					property.hash.cutoffValue *= (property.hash.cutoffDir=="positive")?1:-1;
+					//property.hash.cutoffValue *= (property.hash.cutoffDir=="positive")?1:-1;
 
 					property.sort[0][0].property = 'correlation',
 					property.sort[0][0].direction = (cutoffDir=="positive")?'DESC':'ASC';
