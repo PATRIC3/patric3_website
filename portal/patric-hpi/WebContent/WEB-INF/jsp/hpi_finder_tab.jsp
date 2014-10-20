@@ -1,18 +1,19 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <%@ page import="edu.vt.vbi.patric.common.SolrInterface" %>
+<%@ page import="edu.vt.vbi.patric.beans.Genome" %>
 <%@ page import="org.json.simple.JSONObject" %>
 <%
 String cType = request.getParameter("context_type");
 String cId = request.getParameter("context_id");
 String taxon_id = cId;
 String hpi_only = request.getParameter("hpi_only");
-//String my_url = "http://patricbrc.org/patric/pig/viewer/index.html?";
+
 String my_url = "/patric/pig/viewer/index.html?";
 String hp_ppi_checked = "";
 String ppi_checked = "";
 
 if (hpi_only == null) {
-	hpi_only="false";
+	hpi_only = "false";
 }
 
 if (hpi_only.equals("true")) {
@@ -26,9 +27,8 @@ else {
 
 if (cType.equals("genome")) {
 	SolrInterface solr = new SolrInterface();
-	JSONObject context = new JSONObject();
-	context = solr.getGenome(cId);
-	taxon_id = context.get("ncbi_tax_id").toString();
+	Genome context = solr.getGenome(cId);
+	taxon_id = "" + context.getTaxonId();
 
 	my_url = my_url + "taxids=" + taxon_id + "&hpisOnly=" + hpi_only + "&btwnOnly=false&page=1&w=1100&h=800";
 } 
