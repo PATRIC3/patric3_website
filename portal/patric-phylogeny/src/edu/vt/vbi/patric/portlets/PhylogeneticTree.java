@@ -48,12 +48,13 @@ public class PhylogeneticTree extends GenericPortlet {
 		// update genome-id mapping cache
 		try {
 			solr = new SolrInterface();
-			solr.setCurrentInstance(SolrCore.GENOME);
 
 			SolrQuery query = new SolrQuery("*:*");
 			query.setFields("genome_name,genome_id");
+			long countGenome = solr.getSolrServer(SolrCore.GENOME).query(query).getResults().getNumFound();
 
-			QueryResponse qr = solr.getServer().query(query);
+			query.setRows((int) countGenome);
+			QueryResponse qr = solr.getSolrServer(SolrCore.GENOME).query(query);
 			List<Genome> genomes = qr.getBeans(Genome.class);
 
 			StringBuilder sb = new StringBuilder();
@@ -94,11 +95,11 @@ public class PhylogeneticTree extends GenericPortlet {
 
 			try {
 				if (contextType.equals("genome")) {
-					solr.setCurrentInstance(SolrCore.GENOME);
+
 					SolrQuery query = new SolrQuery("genome_id:" + contextId);
 					query.setFields("taxon_id");
 
-					QueryResponse qr = solr.getServer().query(query);
+					QueryResponse qr = solr.getSolrServer(SolrCore.GENOME).query(query);
 					List<Genome> genomes = qr.getBeans(Genome.class);
 
 					for (Genome genome : genomes) {
@@ -109,12 +110,10 @@ public class PhylogeneticTree extends GenericPortlet {
 					taxonId = Integer.parseInt(contextId);
 				}
 
-				solr.setCurrentInstance(SolrCore.TAXONOMY);
-
 				// Step1. has Order in lineage?
 				SolrQuery query = new SolrQuery("taxon_id:" + taxonId + " AND lineage_ranks:order");
 				query.setFields("lineage_ids,lineage_names,lineage_ranks");
-				QueryResponse qr = solr.getServer().query(query);
+				QueryResponse qr = solr.getSolrServer(SolrCore.TAXONOMY).query(query);
 
 				SolrDocumentList sdl = qr.getResults();
 				for (SolrDocument doc : sdl) {
@@ -142,7 +141,7 @@ public class PhylogeneticTree extends GenericPortlet {
 							"lineage_ids:" + taxonId + " AND taxon_rank:order AND taxon_id:(" + StringUtils.join(phylogenyOrderIds, " OR ") + ")");
 					query.setFields("taxon_id,taxon_name,taxon_rank");
 					query.setRows(100);
-					qr = solr.getServer().query(query);
+					qr = solr.getSolrServer(SolrCore.TAXONOMY).query(query);
 
 					sdl = qr.getResults();
 					for (SolrDocument doc : sdl) {
