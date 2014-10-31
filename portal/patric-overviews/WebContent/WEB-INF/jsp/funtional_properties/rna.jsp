@@ -1,8 +1,7 @@
-<%@ page import="edu.vt.vbi.patric.dao.ResultType" %>
-<%
+<%@ page import="edu.vt.vbi.patric.dao.ResultType" %><%
+
 ResultType summary = (ResultType) request.getAttribute("rna");
 %>
-
 <h4>RNA Properties</h4>
 <table class="basic stripe far2x">
 <tbody>

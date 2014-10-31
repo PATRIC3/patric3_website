@@ -30,7 +30,7 @@ if (cType!=null && cType.equals("taxon")) {
 			title="Protein Family Sorter allows you to identify and filter sets of protein families associated with specified Phylum, Classes, Orders, Families, Genus, Species or Genomes.">
 		Protein Family Sorter</a>
 	</li>
-		
+<%--
 	<li><a href="GOSearch<%=param%>" class="tools-icon icon-gosearch" 
 			title="The Gene Ontology (GO) project, part of a major bioinformatics initiative, provides an ontology of defined terms representing gene product properties. The GO Search tool enables researchers to locate proteins annotated with specified GO criteria.">
 		GO Search</a>
@@ -39,5 +39,5 @@ if (cType!=null && cType.equals("taxon")) {
 	<li><a href="ECSearch<%=param%>" class="tools-icon icon-ecsearch" 
 			title="The Enzyme Commission (EC) number is a numerical classification scheme for enzymes based on the chemical reactions they catalyze. The EC Search tool enables researchers to locate proteins annotated with specified EC criteria.">
 		EC Search</a>
-	</li>
+	</li>--%>
 </ul>

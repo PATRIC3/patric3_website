@@ -20,12 +20,6 @@ var metadataGenomeSummaryValue = [{
 	name : 'Type Strain',
 	text : 'type_strain'
 }, {
-	name : 'Project Status',
-	text : 'project_status'
-}, {
-	name : 'Availability',
-	text : 'availability'
-}, {
 	name : 'Completion Date',
 	text : 'completion_date'
 }, {
@@ -66,11 +60,8 @@ var metadataGenomeSummaryValue = [{
 	name : 'GC Content',
 	text : 'gc_content'
 }, {
-	name : 'RAST CDS',
-	text : 'rast_cds'
-}, {
-	name : 'BRC CDS',
-	text : 'brc_cds'
+	name : 'PATRIC CDS',
+	text : 'patric_cds'
 }, {
 	name : 'RefSeq CDS',
 	text : 'refseq_cds'
@@ -573,9 +564,9 @@ function renderListGenome(value, p, record) {
 		text += "<div style=\"line-height:1.5; white-space: normal !important; float:left; width:700px;\">";
 
 		if (data.highlight && data.highlight.genome_name)
-			text += Ext.String.format('<a style=\"font-size:14px;\" href="Genome?cType=genome&cId={0}">{1}</a>', data.genome_info_id, data.highlight.genome_name);
+			text += Ext.String.format('<a style=\"font-size:14px;\" href="Genome?cType=genome&cId={0}">{1}</a>', data.genome_id, data.highlight.genome_name);
 		else
-			text += Ext.String.format('<a style=\"font-size:14px;\" href="Genome?cType=genome&cId={0}">{1}</a>', data.genome_info_id, data.genome_name);
+			text += Ext.String.format('<a style=\"font-size:14px;\" href="Genome?cType=genome&cId={0}">{1}</a>', data.genome_id, data.genome_name);
 
 		text += "<br/><span style=\"color: #C60;\">";
 
@@ -661,7 +652,7 @@ function renderListGenome(value, p, record) {
 		}
 
 		for ( i = 0; i < metadataGenomeSummaryValue.length; i++) {
-			if (data.highlight[metadataGenomeSummaryValue[i].text]) {
+			if (data.highlight != undefined && data.highlight[metadataGenomeSummaryValue[i].text]) {
 				if (brflag == false) {
 					text += "<br/>";
 					brflag = true;
@@ -828,7 +819,7 @@ function getSelectedFeatures() {"use strict";
 
 	if (which == 1) {
 		for ( i = 0; i < sl.length; i++) {
-			fids.push(sl[i].data.genome_info_id);
+			fids.push(sl[i].data.genome_id);
 		}
 		property.gridType = "Genome";
 	} else if (which == 3) {
@@ -838,7 +829,7 @@ function getSelectedFeatures() {"use strict";
 		property.gridType = "ExpressionExperiment";
 	}else {
 		for ( i = 0; i < sl.length; i++) {
-			fids.push(sl[i].data.na_feature_id);
+			fids.push(sl[i].data.feature_id);
 		}
 		property.gridType = "Feature";
 	}

@@ -44,11 +44,10 @@ public class PubMedHelper {
 		if (key.get("context").equalsIgnoreCase("taxon")) {
 
 			try {
-				solr.setCurrentInstance(SolrCore.TAXONOMY);
 				SolrQuery query = new SolrQuery("taxon_id:" + key.get("taxon_id"));
 				query.setFields("taxon_name");
 
-				QueryResponse qr = solr.getServer().query(query);
+				QueryResponse qr = solr.getSolrServer(SolrCore.TAXONOMY).query(query);
 				SolrDocumentList sdl = qr.getResults();
 
 				for (SolrDocument doc : sdl) {
@@ -64,11 +63,10 @@ public class PubMedHelper {
 			String qScope = key.get("scope");
 
 			try {
-				solr.setCurrentInstance(SolrCore.GENOME);
 				SolrQuery query = new SolrQuery("genome_id:" + key.get("genome_id"));
 				query.setFields("genome_name,organism_name");
 
-				QueryResponse qr = solr.getServer().query(query);
+				QueryResponse qr = solr.getSolrServer(SolrCore.GENOME).query(query);
 				List<Genome> result = qr.getBeans(Genome.class);
 
 				for (Genome genome : result) {

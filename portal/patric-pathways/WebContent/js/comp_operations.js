@@ -103,22 +103,23 @@ function boxData(options){
 }
 
 function getAlgorithm(pass, reverse){
-	if(reverse){
-		if(pass == "RAST" || pass == "PATRIC")
-			return "RAST";
-		else if(pass == "Curation" || pass == "Legacy BRC" || pass == "BRC")
-			return "Curation";
-		else
-			return "RefSeq";
-	}else{
-		if(pass == "RAST" || pass == "PATRIC")
-			return "PATRIC";
-		else if(pass == "Curation" || pass == "Legacy BRC" || pass == "BRC")
-			return "BRC";
-		else if(pass == "RefSeq")
-			return "RefSeq";
-	}
-	return null;
+    return pass;
+//	if(reverse){
+//		if(pass == "RAST" || pass == "PATRIC")
+//			return "RAST";
+//		else if(pass == "Curation" || pass == "Legacy BRC" || pass == "BRC")
+//			return "Curation";
+//		else
+//			return "RefSeq";
+//	}else{
+//		if(pass == "RAST" || pass == "PATRIC")
+//			return "PATRIC";
+//		else if(pass == "Curation" || pass == "Legacy BRC" || pass == "BRC")
+//			return "BRC";
+//		else if(pass == "RefSeq")
+//			return "RefSeq";
+//	}
+//	return null;
 }
 
 function drawMap(type){
@@ -150,7 +151,7 @@ function drawMap(type){
 	    		Ext.getCmp('kegg-panel').unmask();
 	    	}else{
 	    		createStructure(decoded);
-	    		(dm == "feature" || dm == "featurelist")?drawMap("feature_info_id"):(cType == "ec" || dm == "ec")?drawMap("ec_number"):(createDom(),pNS.boxes.paint(),Ext.getCmp('kegg-panel').unmask());
+	    		(dm == "feature" || dm == "featurelist")?drawMap("feature_id"):(cType == "ec" || dm == "ec")?drawMap("ec_number"):(createDom(),pNS.boxes.paint(),Ext.getCmp('kegg-panel').unmask());
 	    	}
 		}
 	});
@@ -320,14 +321,14 @@ function getURLforPATH(obj){
 		cType = Ext.getDom("cType")?Ext.getDom("cType").value:"",
 		cId = Ext.getDom("cId")?Ext.getDom("cId").value:"",		
 		dm = Ext.getDom("dm")?Ext.getDom("dm").value:"",
-		feature_info_id = Ext.getDom("feature_info_id")?Ext.getDom("feature_info_id").value:"",
+		feature_id = Ext.getDom("feature_id")?Ext.getDom("feature_id").value:"",
 		ec_number = Ext.getDom("ec_number")?Ext.getDom("ec_number").value:"",
 		pretext = "<br> <a href=\"CompPathwayMap?",
 		posttext = "&map="+map+"&algorithm="+algorithm+"\" />Click here to view map "+map+"</a>";
 	
 	if(cType === "taxon"){
 		if(dm === "feature")
-			text = pretext+"cType="+cType+"&dm="+dm+"&cId="+taxonId+"&feature_info_id="+feature_info_id+"&pk="+pk+posttext;
+			text = pretext+"cType="+cType+"&dm="+dm+"&cId="+taxonId+"&feature_id="+feature_id+"&pk="+pk+posttext;
 		else if(dm === "ec")
 			text = pretext+"cType="+cType+"&dm="+dm+"&cId="+taxonId+"&ec_number="+ec_number+"&pk="+pk+posttext;
 		else

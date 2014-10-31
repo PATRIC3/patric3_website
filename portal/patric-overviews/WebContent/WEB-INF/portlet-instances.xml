@@ -120,12 +120,6 @@
 	</deployment>
 	<deployment>
 		<instance>
-			<instance-id>OrganismSummaryInstance</instance-id>
-			<portlet-ref>OrganismSummaryPortlet</portlet-ref>
-		</instance>
-	</deployment>
-	<deployment>
-		<instance>
 			<instance-id>CircosGenomeViewerInstance</instance-id>
 			<portlet-ref>CircosGenomeViewerPortlet</portlet-ref>
 		</instance>

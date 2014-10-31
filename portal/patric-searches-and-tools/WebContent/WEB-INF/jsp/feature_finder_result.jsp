@@ -117,7 +117,7 @@ Ext.onReady(function()
 			property: 'genome_name',
 			direction:'ASC'
 		},{
-			property: 'locus_tag',
+			property: 'alt_locus_tag',
 			direction:'ASC'
 		}]],
 		hash:{
@@ -139,7 +139,7 @@ Ext.onReady(function()
 			{header:'Locus Tag',			dataIndex:'locus_tag', 			flex:2, renderer:renderLocusTag},
 			{header:'RefSeq Locus Tag',		dataIndex:'refseq_locus_tag', 	flex:2, renderer:renderLocusTag},
 			{header:'Gene Symbol',			dataIndex:'gene', 				flex:1, align:'center', renderer:BasicRenderer},
-			{header:'Genome Browser',		dataIndex:'na_feature_id',		flex:1, align:'center', hidden:true, renderer:renderGenomeBrowserByFeature},
+			{header:'Genome Browser',		dataIndex:'feature_id', 		flex:1, align:'center', hidden:true, renderer:renderGenomeBrowserByFeature},
 			{header:'Annotation',			dataIndex:'annotation', 		flex:1, align:'center', hidden:true, renderer:BasicRenderer},
 			{header:'Feature Type',			dataIndex:'feature_type',		flex:1, align:'center', hidden:true, renderer:BasicRenderer},
 			{header:'Start',				dataIndex:'start_max',			flex:1, align:'center', hidden:true, renderer:BasicRenderer},

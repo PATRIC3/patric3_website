@@ -30,6 +30,8 @@ import javax.portlet.RenderResponse;
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
 
+import edu.vt.vbi.patric.beans.Genome;
+import edu.vt.vbi.patric.beans.Taxonomy;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -62,6 +64,35 @@ public class AntibioticResistanceGeneSearch extends GenericPortlet {
 			prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/antibiotic_resistance_gene_search_result.jsp");
 		}
 		else {
+
+			String contextType = request.getParameter("context_type");
+			String contextId = request.getParameter("context_id");
+			Taxonomy taxonomy = null;
+			String organismName = null;
+
+			// LOGGER.debug("AntibioticResistanceGeneSearch: {}", contextId);
+
+			if (contextId == null || contextId.equals("")) {
+				throw new PortletException("Important parameter (cId) is missing");
+			}
+
+			SolrInterface solr = new SolrInterface();
+
+			if (contextType.equals("taxon")) {
+				taxonomy = solr.getTaxonomy(Integer.parseInt(contextId));
+				organismName = taxonomy.getTaxonName();
+			}
+			else if (contextType.equals("genome")) {
+				Genome genome = solr.getGenome(contextId);
+				taxonomy = solr.getTaxonomy(genome.getTaxonId());
+				organismName = genome.getGenomeName();
+			}
+
+			request.setAttribute("taxonId", taxonomy.getId());
+			request.setAttribute("organismName", organismName);
+			request.setAttribute("cType", contextType);
+			request.setAttribute("cId", contextId);
+
 			prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/antibiotic_resistance_gene_search.jsp");
 		}
 		prd.include(request, response);
@@ -194,14 +225,15 @@ public class AntibioticResistanceGeneSearch extends GenericPortlet {
 						sort.put("direction", sort_dir);
 					}
 				}
-
+				key.put("fields", "genome_id,genome_name,taxon_id,feature_id,alt_locus_tag,refseq_locus_tag,gene,product,property,source,property_source,source_id,organism,function,classification,pmid,query_coverage,subject_coverage,identity,e_value,same_species,same_genus,same_genome,evidence");
 				// add join condition
 				if (taxonId != null && !taxonId.equals("")) {
 					key.put("taxonId", taxonId);
 				}
 				if (key.containsKey("taxonId") && key.get("taxonId") != null) {
-					key.put("join", SolrCore.GENOME.getSolrCoreJoin("gid", "genome_info_id", "taxon_lineage_ids:" + key.get("taxonId")));
+					key.put("join", SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + key.get("taxonId")));
 				}
+
 				JSONObject object = solr.getData(key, sort, facet, start, end, facet != null, hl, false);
 
 				JSONObject obj = (JSONObject) object.get("response");

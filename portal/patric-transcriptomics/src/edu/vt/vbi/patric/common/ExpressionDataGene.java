@@ -16,6 +16,7 @@
 package edu.vt.vbi.patric.common;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
@@ -23,28 +24,29 @@ import org.slf4j.LoggerFactory;
 
 public class ExpressionDataGene {
 
-	String refseq_locus_tag = null;
+	String refseq_locus_tag;
 
-	JSONObject samples = new JSONObject();
+	JSONObject samples;
 
-	String sample_order_binary = "";
+	String sample_order_binary;
 
 	int up = 0;
 
 	int down = 0;
 
-	String na_feature_id = null;
+	String feature_id;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ExpressionDataGene.class);
 
 	public ExpressionDataGene(JSONObject data) {
+		samples = new JSONObject();
 		this.refseq_locus_tag = (data.get("refseq_locus_tag") != null) ? data.get("refseq_locus_tag").toString() : data.get("exp_locus_tag")
 				.toString();
-		this.na_feature_id = data.get("na_feature_id").toString();
+		this.feature_id = data.get("feature_id").toString();
 	}
 
 	@SuppressWarnings("unchecked")
-	public void addSamplestoGene(JSONObject gene_data, HashMap<String, String> sample_data) {
+	public void addSamplestoGene(JSONObject gene_data, Map<String, String> sample_data) {
 
 		String sample = gene_data.get("pid").toString();
 		String log_ratio = "", z_score = "";
@@ -55,7 +57,7 @@ public class ExpressionDataGene {
 			log_ratio = gene_data.get("log_ratio").toString();
 		}
 		else {
-			LOGGER.trace(gene_data.get("na_feature_id").toString());
+			LOGGER.trace(gene_data.get("feature_id").toString());
 		}
 
 		if (!this.IsSamplePushed(sample)) {
@@ -125,8 +127,8 @@ public class ExpressionDataGene {
 		return this.refseq_locus_tag;
 	}
 
-	public String getNAFeatureID() {
-		return this.na_feature_id;
+	public String getFeatureID() {
+		return this.feature_id;
 	}
 
 	public JSONObject getSamples() {

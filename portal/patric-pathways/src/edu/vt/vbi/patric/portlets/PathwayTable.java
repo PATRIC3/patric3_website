@@ -17,9 +17,10 @@ package edu.vt.vbi.patric.portlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.List;
+import java.net.MalformedURLException;
+import java.util.*;
 
+import javax.management.Query;
 import javax.portlet.GenericPortlet;
 import javax.portlet.PortletException;
 import javax.portlet.PortletRequestDispatcher;
@@ -28,6 +29,14 @@ import javax.portlet.RenderResponse;
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
 
+import edu.vt.vbi.patric.common.SolrCore;
+import edu.vt.vbi.patric.common.SolrInterface;
+import org.apache.commons.lang.StringUtils;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -54,6 +63,7 @@ public class PathwayTable extends GenericPortlet {
 	public void serveResource(ResourceRequest request, ResourceResponse response) throws PortletException, IOException {
 
 		response.setContentType("application/json");
+		SolrInterface solr = new SolrInterface();
 
 		int start = Integer.parseInt(request.getParameter("start"));
 		int end = start + Integer.parseInt(request.getParameter("limit"));
@@ -92,21 +102,81 @@ public class PathwayTable extends GenericPortlet {
 		if (request.getParameter("id") != null) {
 			key.put("na_feature_id", request.getParameter("id"));
 		}
-		DBPathways conn_pathways = new DBPathways();
-		int count_total = Integer.parseInt(conn_pathways.getFeaturePathwayCount(key));
-		List<ResultType> items = conn_pathways.getPathwayList(key, sort, start, end);
+//		DBPathways conn_pathways = new DBPathways();
+//		int count_total = Integer.parseInt(conn_pathways.getFeaturePathwayCount(key));
+//		List<ResultType> items = conn_pathways.getPathwayList(key, sort, start, end);
+
+//		row.put("pathway_id", obj[0]);
+//		row.put("na_feature_id", obj[1]);
+//		row.put("pathway_name", obj[2]);
+//
+//		row.put("pathway_class", temp[1]);
+//		row.put("algorithm", "Legacy BRC");
+//
+//		row.put("ec_number", obj[5]);
+//		row.put("occurrence", obj[6]);
+//		row.put("ec_name", obj[7]);
+//		row.put("taxon_id", obj[8]);
+//		row.put("genome_info_id", obj[9]);
+
+		int count_total = 0;
+		JSONArray results = new JSONArray();
+		List<String> pathwayKeys = new ArrayList<>();
+		Map<String, Integer> mapOccurrence = new HashMap<>();
+		try {
+			SolrQuery query = new SolrQuery("feature_id:" + request.getParameter("id"));
+			query.setRows(10000);
+			QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query);
+			SolrDocumentList sdl = qr.getResults();
+			count_total = (int) sdl.getNumFound();
+
+			for (SolrDocument doc: sdl) {
+				String pathwayKey = "(pathway_id:" + doc.get("pathway_id").toString() + " AND ec_number:" + doc.get("ec_number").toString() + ")";
+
+				pathwayKeys.add(pathwayKey);
+			}
+
+			SolrQuery queryRef = new SolrQuery(StringUtils.join(pathwayKeys, " OR "));
+			queryRef.setFields("pathway_id,ec_number,occurrence");
+			queryRef.setRows(pathwayKeys.size());
+			QueryResponse qrRef = solr.getSolrServer(SolrCore.PATHWAY_REF).query(queryRef);
+
+			for (SolrDocument doc: qrRef.getResults()) {
+				mapOccurrence.put(doc.get("pathway_id") + "_" + doc.get("ec_number"), (Integer) doc.get("occurrence"));
+			}
+
+			for (SolrDocument doc: sdl) {
+				JSONObject item = new JSONObject();
+				item.put("pathway_id", doc.get("pathway_id"));
+				item.put("feature_id", doc.get("feature_id"));
+				item.put("pathway_name", doc.get("pathway_name"));
+				item.put("pathway_class", doc.get("pathway_class"));
+				item.put("algorithm", doc.get("annotation"));
+				item.put("ec_number", doc.get("ec_number"));
+				item.put("ec_name", doc.get("ec_description"));
+				item.put("taxon_id", doc.get("taxon_id"));
+				item.put("genome_id", doc.get("genome_id"));
+
+				item.put("occurrence", mapOccurrence.get(doc.get("pathway_id") + "_" + doc.get("ec_number")));
+
+				results.add(item);
+			}
+		}
+		catch (MalformedURLException | SolrServerException e) {
+			LOGGER.error(e.getMessage(), e);
+		}
 
 		JSONObject jsonResult = new JSONObject();
 
 		try {
 
 			jsonResult.put("total", count_total);
-			JSONArray results = new JSONArray();
-			for (ResultType item : items) {
-				JSONObject obj = new JSONObject();
-				obj.putAll(item);
-				results.add(obj);
-			}
+//			JSONArray results = new JSONArray();
+//			for (ResultType item : items) {
+//				JSONObject obj = new JSONObject();
+//				obj.putAll(item);
+//				results.add(obj);
+//			}
 			jsonResult.put("results", results);
 		}
 		catch (Exception ex) {

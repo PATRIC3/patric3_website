@@ -1,7 +1,6 @@
 <%@ page import="java.util.*"
 %><%
-String tId = request.getParameter("context_id");
-int taxonId = Integer.parseInt(tId);
+int taxonId = (Integer) request.getAttribute("taxonId");
 String windowID = (String) request.getAttribute("WindowID");
 List<Map<String, Object>> lineage = (List<Map<String, Object>>) request.getAttribute("lineage");
 
@@ -89,7 +88,7 @@ if (!lineage.isEmpty()) {
 			<%=text %>
 		</ul>
 	</nav>
-	<div id="utilitybox" class="smallest right no-underline-links"><a class="double-arrow-link" href="Downloads?cType=taxon&amp;cId=<%=tId %>" target="_blank">Download genome data</a></div>
+	<div id="utilitybox" class="smallest right no-underline-links"><a class="double-arrow-link" href="Downloads?cType=taxon&amp;cId=<%=taxonId %>" target="_blank">Download genome data</a></div>
 	<div class="clear"></div>
 <% } else { %>
 	<nav class="breadcrumbs">

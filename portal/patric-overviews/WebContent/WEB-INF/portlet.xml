@@ -259,18 +259,6 @@
 		<supported-public-render-parameter>context_type</supported-public-render-parameter>
 		<supported-public-render-parameter>context_id</supported-public-render-parameter>
 		<supported-public-render-parameter>keyword</supported-public-render-parameter>
-	</portlet>		
-	<!-- organism summary -->
-	<portlet>
-		<portlet-name>OrganismSummaryPortlet</portlet-name>
-		<portlet-class>edu.vt.vbi.patric.portlets.OrganismSummaryPortlet</portlet-class>
-		<supports>
-			<mime-type>text/html</mime-type>
-			<portlet-mode>VIEW</portlet-mode>
-		</supports>
-		<portlet-info>
-			<title>Organisms We Study</title>
-		</portlet-info>
 	</portlet>
 	<portlet>
 		<portlet-name>CircosGenomeViewerPortlet</portlet-name>

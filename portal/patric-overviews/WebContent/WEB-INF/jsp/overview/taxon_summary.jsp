@@ -1,35 +1,15 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" 
-%><%@ page import="edu.vt.vbi.patric.dao.DBShared" 
-%><%@ page import="edu.vt.vbi.patric.dao.DBSearch" 
-%><%@ page import="edu.vt.vbi.patric.dao.ResultType" 
-%><%@ page import="java.util.*" 
+%><%@ page import="java.util.*"
 %><%
+List<Map<String, Object>> lineage = (List<Map<String, Object>>) request.getAttribute("lineage");
+
 String tId = request.getParameter("context_id");
 String gid = "";
 String keyword = "(*)";
 if (tId != null) {
-	DBSearch conn_search = new DBSearch();
-	DBShared conn_shared = new DBShared();
+    int taxonId = Integer.parseInt(tId);
 
-	// Added for Metadata
-	// -----------
-	if(!tId.equals("2")){
-		ArrayList<ResultType> items = conn_search.getTaxonIdList(tId, "taxon", "", "", "");
-		if (items.size() > 0) {
-			gid += items.get(0).get("id");
-			for (int i = 1; i < items.size(); i++) {
-				gid += "##" + items.get(i).get("id");
-			}
-		}
-	}
-	//------------
-
-	ArrayList<ResultType> parents = null;
-	ResultType name = null;
-
-	parents = conn_shared.getTaxonParentTree(tId);
-	
-	if (parents != null && parents.size()>0) { 
+    if (!lineage.isEmpty()) {
 	%>
 
 	<table class="basic stripe far2x" id="data-table">
@@ -42,11 +22,11 @@ if (tId != null) {
 		<th scope="row">Lineage</th>
 		<td>
 		<%
-		for (int i=parents.size()-1; i>=0; i--) 
-		{
-			name = parents.get(i);
-			%><a href="Taxon?cType=taxon&amp;cId=<%=name.get("ncbi_tax_id")%>" title="taxonomy rank:<%=name.get("rank")%>"><%=name.get("name")%></a> <%
-			if (i>0) {
+		for (Map<String, Object> node: lineage) {
+
+			%><a href="Taxon?cType=taxon&amp;cId=<%=node.get("taxonId")%>" title="taxonomy rank:<%=node.get("rank")%>"><%=node.get("name")%></a> <%
+
+			if ((Integer) node.get("taxonId") != taxonId) {
 			%> &gt; <%
 			}
 		}

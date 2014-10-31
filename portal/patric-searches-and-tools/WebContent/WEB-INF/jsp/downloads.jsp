@@ -73,7 +73,7 @@ if(request.getUserPrincipal() == null){
 			<h3><img src="/patric/images/number2.gif" alt="2" height="14" width="14" /> Choose Annotation Source</h3>
 			<div class="far queryblock">
 				<input id="annotation_patric" type="checkbox" name="algorithm" value=".PATRIC" checked="checked"/> <label for="annotation_patric">PATRIC</label>
-				<input id="annotation_brc" type="checkbox" name="algorithm" value=".BRC"/> <label for="annotation_brc">Legacy BRC</label>
+<%--			<input id="annotation_brc" type="checkbox" name="algorithm" value=".BRC"/> <label for="annotation_brc">Legacy BRC</label>--%>
 				<input id="annotation_refseq" type="checkbox" name="algorithm" value=".RefSeq"/> <label for="annotation_refseq">RefSeq</label>
 			</div>
 			
@@ -141,9 +141,9 @@ function download() {
 		Ext.getDom("genomeId").value = "";
 		
 		Ext.Ajax.request({
-			url: "/patric-searches-and-tools/jsp/get_genome_count.jsp",
+			url: "/portal/portal/patric/Downloads/DownloadsWindow?action=b&cacheability=PAGE",
 			method: 'GET',
-			params: {taxonId:Ext.getDom("taxonId").value, data_source:Ext.getDom("finalalgorithm").value},
+			params: {mode:"getGenomeCount", taxonId:Ext.getDom("taxonId").value, data_source:Ext.getDom("finalalgorithm").value},
 			success: function(response, opts) {
 				size = response.responseText;
 				if(size > 100){
@@ -162,9 +162,9 @@ function download() {
 		if("<%=cId%>" != "" && "<%=cId%>" != null && (tabs.getSelectedInString() == null || tabs.getSelectedInString() == "")){
 			
 			Ext.Ajax.request({
-				url: "/patric-searches-and-tools/jsp/get_genome_count.jsp",
+				url: "/portal/portal/patric/Downloads/DownloadsWindow?action=b&cacheability=PAGE",
 				method: 'GET',
-				params: {taxonId:Ext.getDom("taxonId").value, data_source:Ext.getDom("finalalgorithm").value},
+				params: {mode:"getGenomeCount", taxonId:Ext.getDom("taxonId").value, data_source:Ext.getDom("finalalgorithm").value},
 				success: function(response, opts) {
 					size = response.responseText;
 					if(size > 100) {

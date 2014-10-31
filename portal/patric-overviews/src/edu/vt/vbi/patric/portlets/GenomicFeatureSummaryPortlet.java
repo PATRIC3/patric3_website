@@ -19,6 +19,7 @@ import edu.vt.vbi.patric.common.SolrCore;
 import edu.vt.vbi.patric.common.SolrInterface;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.LBHttpSolrServer;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.slf4j.Logger;
@@ -71,6 +72,9 @@ public class GenomicFeatureSummaryPortlet extends GenericPortlet {
 				contextLink = "cType=taxon&amp;cId=" + contextId;
 			}
 
+			SolrInterface solr = new SolrInterface();
+			LBHttpSolrServer lbHttpSolrServer = solr.getSolrServer(SolrCore.FEATURE);
+
 			List<String> annotations = Arrays.asList("PATRIC", "RefSeq");
 			int maxFeatureCount = -1;
 			Set<String> allFeatureTypes = null;
@@ -100,10 +104,7 @@ public class GenomicFeatureSummaryPortlet extends GenericPortlet {
 				query.setRows(0).setFacet(true).setFacetMinCount(1).addFacetField("feature_type");
 
 				try {
-					SolrInterface solr = new SolrInterface();
-					solr.setCurrentInstance(SolrCore.FEATURE);
-
-					QueryResponse qr = solr.getServer().query(query);
+					QueryResponse qr = lbHttpSolrServer.query(query);
 
 					FacetField facetField = qr.getFacetField("feature_type");
 
@@ -118,7 +119,7 @@ public class GenomicFeatureSummaryPortlet extends GenericPortlet {
 					}
 
 				}
-				catch (MalformedURLException | SolrServerException e) {
+				catch (SolrServerException e) {
 					LOGGER.error(e.getMessage(), e);
 				}
 			}

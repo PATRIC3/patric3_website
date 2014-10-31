@@ -54,10 +54,10 @@ function flashCellClicked(flashObjectID, colID, rowID) {
 	var algorithm = Ext.getDom("algorithm").value,
 		temp;	
 			
-	if(algorithm == "PATRIC")
-		algorithm = "RAST";
-	else if(algorithm == "Legacy BRC" || algorithm == "BRC")
-		algorithm = "Curation";
+//	if(algorithm == "PATRIC")
+//		algorithm = "RAST";
+//	else if(algorithm == "Legacy BRC" || algorithm == "BRC")
+//		algorithm = "Curation";
 
 	if(axis == "Transpose"){
 		temp = colID;
@@ -99,10 +99,10 @@ function catchLocusTags(colID, rowID, responseText) {
 		na_idList.push(responseText.genes[i].genes);
 	}
 			
-	if(algorithm == "PATRIC")
-		algorithm = "RAST";
-	else if(algorithm == "Legacy BRC" || algorithm == "BRC")
-		algorithm = "Curation";
+//	if(algorithm == "PATRIC")
+//		algorithm = "RAST";
+//	else if(algorithm == "Legacy BRC" || algorithm == "BRC")
+//		algorithm = "Curation";
 	
 	if (0 < memberCount) {
 		putInCart =
@@ -246,10 +246,10 @@ function flashCellsSelected(flashObjectID, affectedColumns, affectedRows) {
 		affectedRows = temp;
 	}
 	
-	if(algorithm == "PATRIC")
-		algorithm = "RAST";
-	else if(algorithm == "Legacy BRC")
-		algorithm = "Curation";
+//	if(algorithm == "PATRIC")
+//		algorithm = "RAST";
+//	else if(algorithm == "Legacy BRC")
+//		algorithm = "Curation";
 	
 	for (i=0; i < affectedRows.length; i++) {
 		selectEcs.push("'"+affectedRows[i]+"'");
@@ -516,10 +516,10 @@ function flipAxises() {
 function flashColSelected(flashObjectID,colID) {
 	var algorithm = Ext.getDom("algorithm").value;	
 	
-	if(algorithm == "PATRIC")
-		algorithm = "RAST";
-	else if(algorithm == "Legacy BRC" || algorithm == "BRC")
-		algorithm = "Curation";
+//	if(algorithm == "PATRIC")
+//		algorithm = "RAST";
+//	else if(algorithm == "Legacy BRC" || algorithm == "BRC")
+//		algorithm = "Curation";
 		
 		
 	Ext.Ajax.request({
@@ -540,10 +540,10 @@ function flashColSelected(flashObjectID,colID) {
 function flashRowSelected(flashObjectID,rowID) {
   	var algorithm = Ext.getDom("algorithm").value;	
 	
-	if(algorithm == "PATRIC")
-		algorithm = "RAST";
-	else if(algorithm == "Legacy BRC" || algorithm == "BRC")
-		algorithm = "Curation";
+//	if(algorithm == "PATRIC")
+//		algorithm = "RAST";
+//	else if(algorithm == "Legacy BRC" || algorithm == "BRC")
+//		algorithm = "Curation";
 		
 		
 	Ext.Ajax.request({

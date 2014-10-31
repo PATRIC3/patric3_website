@@ -1,45 +1,14 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" 
 %><%@ page import="java.util.*" 
-%><%@ page import="edu.vt.vbi.patric.dao.DBShared" 
-%><%@ page import="edu.vt.vbi.patric.dao.DBTranscriptomics" 
-%><%@ page import="edu.vt.vbi.patric.dao.ResultType" 
 %><%
 
-	String cType = request.getParameter("context_type");
-	String cId = request.getParameter("context_id");
-	String kw = (request.getParameter("keyword") != null)?request.getParameter("keyword"):"";
-	if(kw != null && (kw.startsWith("/") || kw.startsWith("#"))){
-		kw = "";
-	}
-	String tId = null;
-	
-	DBTranscriptomics conn_transcriptopics = new DBTranscriptomics();
-	
-	String keyword = "(*)";
-	String filter = "";
-	String eid = "NA";
-	
-	if (cType.equals("taxon") && cId.equals("2")) {
-		filter = "*";
-		eid = "";
-	} else {
-		ArrayList<String> items = null;
-		if (cType.equals("taxon")) {
-			items = conn_transcriptopics.getEIDs(cId);
-		} else if (cType.equals("genome")) {
-			items = conn_transcriptopics.getEIDsFromGenomeID(cId);
-		}
-		
-		if (items != null && items.size()>0) {
-			eid = items.get(0);
-			for (int i = 1; i < items.size(); i++) {
-				eid += "##" + items.get(i);
-			}
-		} else {
-			eid = "0";
-		}
-		filter = eid;
-	}
+String cType = request.getParameter("context_type");
+String cId = request.getParameter("context_id");
+
+String keyword = (String) request.getAttribute("keyword");
+String kw = (String) request.getAttribute("kw");
+String eid = (String) request.getAttribute("eid");
+String filter = (String) request.getAttribute("filter");
 %>
 <div style="display:none">
 <form id="fTableForm" action="#" method="post">

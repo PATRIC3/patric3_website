@@ -15,15 +15,14 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.common;
 
+import edu.vt.vbi.patric.beans.Genome;
+import edu.vt.vbi.patric.beans.GenomeFeature;
+import edu.vt.vbi.patric.beans.Taxonomy;
+import org.w3c.dom.Element;
+
 import javax.portlet.MimeResponse;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
-
-import edu.vt.vbi.patric.beans.GenomeFeature;
-import org.w3c.dom.Element;
-
-import edu.vt.vbi.patric.dao.DBShared;
-import edu.vt.vbi.patric.dao.ResultType;
 
 public class SiteHelper {
 
@@ -213,13 +212,12 @@ public class SiteHelper {
 
 		String csgid = "Bacillus|Listeria|Staphylococcus|Streptococcus|Clostridium|Coxiella|Escherichia|Francisella|Salmonella|Shigella|Vibrio|Yersinia|Campylobacter|Helicobacter";
 
-		if (name.equals("ssgcid")) {
+		switch (name) {
+		case "ssgcid":
 			return ssgcid;
-		}
-		else if (name.equals("csgid")) {
+		case "csgid":
 			return csgid;
-		}
-		else {
+		default:
 			return "";
 		}
 	}
@@ -233,45 +231,39 @@ public class SiteHelper {
 		String strKeywords = "";
 		String contextType = req.getParameter("context_type");
 		String contextId = req.getParameter("context_id");
-		int validContextId = -1;
 
-		try {
-			validContextId = Integer.parseInt(contextId);
-		}
-		catch (NumberFormatException ex) {
-		}
-
-		if (contextType != null && contextId != null && validContextId > 0) {
+		if (contextType != null && contextId != null) {
 			// Get taxon/genome/feature info
-			DBShared db_shared = new DBShared();
-			ResultType org = new ResultType();
+			SolrInterface solr = new SolrInterface();
 
-			if (contextType.equals("taxon")) {
-				org = db_shared.getNamesFromTaxonId(validContextId);
-				if (org != null) {
-					strTitle += org.get("name") + "::" + context;
-					strKeywords = context + ", " + org.get("name") + ", PATRIC";
+			switch (contextType) {
+			case "taxon":
+
+				Taxonomy taxonomy = solr.getTaxonomy(Integer.parseInt(contextId));
+				if (taxonomy != null) {
+					strTitle += taxonomy.getTaxonName() + "::" + context;
+					strKeywords = context + ", " + taxonomy.getTaxonName() + ", PATRIC";
 				}
 				else {
 					strTitle += context;
 				}
-			}
-			else if (contextType.equals("genome")) {
-				org = db_shared.getNamesFromGenomeInfoId(contextId);
-				if (org != null) {
-					strTitle += org.get("genome_name") + "::" + context;
-					strKeywords = context + ", " + org.get("genome_name") + ", PATRIC";
+				break;
+			case "genome":
+
+				Genome genome = solr.getGenome(contextId);
+				if (genome != null) {
+					strTitle += genome.getGenomeName() + "::" + context;
+					strKeywords = context + ", " + genome.getGenomeName() + ", PATRIC";
 				}
-			}
-			else if (contextType.equals("feature")) {
-				SolrInterface solr = new SolrInterface();
+				break;
+			case "feature":
+
 				GenomeFeature feature = solr.getFeature(contextId);
 				if (feature != null) {
-					// strTitle += feature.getLocusTag() + ":" + feature.getProduct() + "::" + context;
-					// strKeywords = context + ", " + feature.getLocusTag() + ":" + feature.getProduct() + ", PATRIC";
 					strTitle += feature.getSeedId() + ":" + feature.getProduct() + "::" + context;
 					strKeywords = context + ", " + feature.getSeedId() + ":" + feature.getProduct() + ", PATRIC";
 				}
+				break;
 			}
 		}
 		else {

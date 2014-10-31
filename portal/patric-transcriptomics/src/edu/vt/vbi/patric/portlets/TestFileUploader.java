@@ -124,7 +124,7 @@ public class TestFileUploader extends GenericPortlet {
 
 			DBTranscriptomics dbomics = new DBTranscriptomics();
 
-			JSONArray sample = dbomics.getSamples(sampleId, expId);
+			JSONArray sample = null;// = dbomics.getSamples(sampleId, expId);
 
 			String colFlag = "true";
 			if (colFlag.equals("true")) {
@@ -155,7 +155,7 @@ public class TestFileUploader extends GenericPortlet {
 			jsonResult.put(ExpressionDataCollection.CONTENT_SAMPLE + "Total", sample.size());
 			jsonResult.put(ExpressionDataCollection.CONTENT_SAMPLE, sample);
 
-			JSONArray data = dbomics.getGenes(sampleId, expId);
+			JSONArray data = null;// = dbomics.getGenes(sampleId, expId);
 
 			if (colFlag.equals("true")) {
 				/*
@@ -230,14 +230,14 @@ public class TestFileUploader extends GenericPortlet {
 			JSONObject a = new JSONObject();
 
 			a.put("refseq_locus_tag", value.getRefSeqLocusTag());
-			a.put("na_feature_id", value.getNAFeatureID());
+			a.put("feature_id", value.getFeatureID());
 			value.setSampleBinary(samples);
 			a.put("sample_binary", value.getSampleBinary());
 			a.put("sample_size", value.getSampleCounts());
 			a.put("samples", value.getSamples());
 
-			idList += value.getNAFeatureID() + ",";
-			temp.put(value.getNAFeatureID(), a);
+			idList += value.getFeatureID() + ",";
+			temp.put(value.getFeatureID(), a);
 		}
 
 		/*

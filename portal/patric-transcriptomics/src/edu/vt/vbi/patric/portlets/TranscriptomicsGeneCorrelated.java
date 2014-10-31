@@ -28,21 +28,16 @@ import edu.vt.vbi.patric.common.SiteHelper;
 
 public class TranscriptomicsGeneCorrelated extends GenericPortlet {
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.portlet.GenericPortlet#doView(javax.portlet.RenderRequest, javax.portlet.RenderResponse)
-	 */
 	@Override
-	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException, UnavailableException {
+	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 
 		response.setContentType("text/html");
 		response.setTitle("Transcriptomics Feature");
 
 		new SiteHelper().setHtmlMetaElements(request, response, "Transcriptomics Correlated Genes");
 
-		PortletRequestDispatcher prd = null;
-		prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/CorrelatedGenes.jsp");
+
+		PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/CorrelatedGenes.jsp");
 		prd.include(request, response);
 	}
 }

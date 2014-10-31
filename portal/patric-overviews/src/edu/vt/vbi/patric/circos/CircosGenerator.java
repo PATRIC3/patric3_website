@@ -71,7 +71,7 @@ public class CircosGenerator {
 		else {
 			// 1. Create instance and set configs
 			Circos circos = new Circos(appDir);
-			circos.setGenomeId(parameters.get("gid").toString());
+			circos.setGenomeId(parameters.get("genome_id").toString());
 
 			// Record whether to include GC content track or not
 			if (parameters.containsKey("gc_content_plot_type")) {
@@ -132,7 +132,7 @@ public class CircosGenerator {
 	}
 
 	private Circos getGenomeData(Circos circosConf, Map<String, Object> parameters) {
-		String gId = parameters.get("gid").toString();
+		String genomeId = parameters.get("genome_id").toString();
 		List<String> defaultDataTracks = new ArrayList<>();
 		List<String> defaultTrackNames = new ArrayList<>();
 		defaultDataTracks.addAll(Arrays.asList("cds_forward", "cds_reverse", "rna_both", "misc_both"));
@@ -161,7 +161,7 @@ public class CircosGenerator {
 				strand = null;
 			}
 
-			genomeData.put(parameter, circosData.getFeatures(gId, featureType, strand, null));
+			genomeData.put(parameter, circosData.getFeatures(genomeId, featureType, strand, null));
 			trackNames.put(parameter, defaultTrackNames.get(idx));
 		}
 
@@ -199,7 +199,7 @@ public class CircosGenerator {
 			if (parameters.containsKey("custom_track_keyword_" + trackNum)) {
 				keywords = parameters.get("custom_track_keyword_" + trackNum).toString();
 			}
-			genomeData.put(customTrackName, circosData.getFeatures(gId, featureType, strand, keywords));
+			genomeData.put(customTrackName, circosData.getFeatures(genomeId, featureType, strand, keywords));
 			trackNames.put(customTrackName, featureType.toUpperCase() + " " + StringUtils.capitalize(paramStrand) + ": " + keywords);
 		}
 
@@ -233,7 +233,7 @@ public class CircosGenerator {
 			String fileName = "/" + track.replace("_", ".") + ".txt";
 			try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(dirData + fileName)))) {
 				for (Map<String, Object> gene : featureData) {
-					writer.format("%s\t%d\t%d\tid=%d\n", gene.get("accession"), gene.get("start_max"), gene.get("end_min"), gene.get("na_feature_id"));
+					writer.format("%s\t%d\t%d\tid=%s\n", gene.get("accession"), gene.get("start"), gene.get("end"), gene.get("feature_id"));
 				}
 			}
 			catch (IOException e) {

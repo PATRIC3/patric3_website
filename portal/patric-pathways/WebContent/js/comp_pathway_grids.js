@@ -5,11 +5,11 @@ Ext.define('Pathway', {
 			{name:'pathway_id',	type:'string'},
 			{name:'pathway_name',	type:'string'},
 			{name:'pathway_class',	type:'string'},
-			{name:'genome_count',	type:'string'},
-			{name:'ec_count',	type:'string'},
-			{name:'gene_count',		type:'string'},
-			{name:'ec_cons',	type:'string'},
-			{name:'gene_cons',	type:'string'},
+			{name:'genome_count',	type:'int'},
+			{name:'ec_count',	type:'int'},
+			{name:'gene_count',		type:'int'},
+			{name:'ec_cons',	type:'int'},
+			{name:'gene_cons',	type:'int'},
 			{name:'algorithm',	type:'string'}
 		]
 	});
@@ -24,8 +24,8 @@ Ext.define('Ec', {
 		{name:'algorithm',	type:'string'},
 		{name:'ec_number',	type:'string'},
 		{name:'ec_name',		type:'string'},
-		{name:'genome_count',	type:'string'},
-		{name:'gene_count',	type:'string'},
+		{name:'genome_count',	type:'int'},
+		{name:'gene_count',	type:'int'},
 		{name:'algorithm',	type:'string'}
 	]
 });
@@ -36,8 +36,9 @@ Ext.define('Feature', {
 		{name:'idx',	type:'string'},
 		{name:'genome_name',	type:'string'},
 		{name:'accession',	type:'string'},
-		{name:'locus_tag',	type:'string'},
-		{name:'na_feature_id',	type:'string'},
+		{name:'alt_locus_tag',	type:'string'},
+		{name:'seed_id',    type:'string'},
+		{name:'feature_id',	type:'string'},
 		{name:'algorithm',	type:'string'},
 		{name:'gene',		type:'string'},
 		{name:'product',	type:'string'},
@@ -45,7 +46,7 @@ Ext.define('Feature', {
 		{name:'pathway_name',	type:'string'},
 		{name:'ec_number',	type:'string'},
 		{name:'ec_name',	type:'string'},
-		{name:'genome_info_id',	type:'string'}
+		{name:'genome_id',	type:'string'}
 	]
 });
 
@@ -169,10 +170,6 @@ function createLoadComboBoxes(){
 	    listeners:{
 	         'select': function(combo, records, eOpts){
 	        	hash.ecN = records[0].get("value").toLowerCase() == "all"?"":records[0].get("value");
-	        	/*
-	        	loadCombo("cb_pClass", "parent");
-	        	loadCombo("cb_pId", "pathway");
-	        	*/
 	        	loadCombo("cb_alg", "algorithm");
 	         }
 	    }
@@ -191,9 +188,9 @@ function createLoadComboBoxes(){
 	    store: Ext.create('Ext.data.Store', {
 	    	fields:['name', 'value'],
 	    	data:[{"name":"ALL", "value":"ALL"},
-	    	      {"name":"PATRIC", "value":"RAST"},
+	    	      {"name":"PATRIC", "value":"PATRIC"},
 	    	      {"name":"RefSeq", "value":"RefSeq"},
-	    	      {"name":"Legacy BRC", "value":"Curation"}]
+	    	      {"name":"BRC1", "value":"BRC1"}]
 	    }),
 	    queryMode: 'local',
 	    listeners:{
@@ -260,7 +257,20 @@ function getExtraParams(){
 function CallBack(){
 	var Page = $Page;
 	
-	writeBreadCrumb();
+	// writeBreadCrumb(); //TODO: read from grid result
+	var property = Page.getPageProperties(), hash = property.hash
+	var summary = Ext.getDom('grid_result_summary');
+    var uniqueCount = Page.getGrid().store.proxy.reader.rawData.unique;
+    if (hash.aT == 0) {
+        summary.innerHTML = "<b> " + uniqueCount + " unique pathway(s) found</b><br/>";
+    }
+    else if (hash.aT == 1) {
+        summary.innerHTML = "<b>" + uniqueCount + " unique EC Number(s) found</b><br/>"; // in" + response.responseText +"pathway(s) </b><br/>";
+    }
+    else if (hash.aT == 2) {
+        summary.innerHTML = "<b>" + uniqueCount + " unique gene(s) found</b><br/>";// in"+response.responseText+" pathway(s)</b><br/>";
+    }
+
 	if(Page.getGrid().sortchangeOption)
 		Page.getGrid().setSortDirectionColumnHeader();
 }
@@ -275,7 +285,8 @@ function ShowECTab(pathway_id, pathway_name, pathway_class, algorithm){
 	hash.aP[1] = 1,
 	hash.pId = pathway_id,
 	(property.gridType == "Table")?hash.pClass = pathway_class:"",
-	hash.alg = algorithm == "PATRIC"?"RAST":algorithm == "Legacy BRC"?"Curation":algorithm,
+//	hash.alg = algorithm == "PATRIC"?"RAST":algorithm == "Legacy BRC"?"Curation":algorithm,
+    hash.alg = algorithm,
 	hash.cwP = true,
 	hash.cwEC = false,
 	(property.pageType == "Finder" && Ext.getDom("search_on").value == "Ec_Number")?"":hash.ecN = '',
@@ -295,7 +306,8 @@ function ShowFeatureTab(pathway_id, pathway_name, pathway_class, ec_number, algo
 	hash.aP[2] = 1,
 	hash.pId = pathway_id,
 	(property.gridType == "Table")?hash.pClass = pathway_class:"",
-	hash.alg = algorithm == "PATRIC"?"RAST":algorithm == "Legacy BRC"?"Curation":algorithm,
+//	hash.alg = algorithm == "PATRIC"?"RAST":algorithm == "Legacy BRC"?"Curation":algorithm,
+    hash.alg = algorithm,
 	hash.cwP = (ec_number?false:true),
 	hash.cwEC = (ec_number?true:false),
 	ec_number?hash.ecN = ec_number:"",
@@ -319,7 +331,8 @@ function filter() {
 	hash.aP[hash.aT] = 1,
 	hash.cwP = (pId.toLowerCase() == "all")?false:true,
 	hash.cwEC = (ecN.toLowerCase() == "all")?false:true,
-	hash.alg = (alg.toLowerCase() == "all")?"":alg=="PATRIC"?"RAST":alg == "Legacy BRC"?"Curation":alg,
+//	hash.alg = (alg.toLowerCase() == "all")?"":alg=="PATRIC"?"RAST":alg == "Legacy BRC"?"Curation":alg,
+    hash.alg = alg,
 	hash.pId = (pId.toLowerCase() == "all")?"":pId,
 	hash.pClass = (pClass.toLowerCase() == "all")?"":pClass,
 	hash.ecN = (ecN.toLowerCase() == "all")?"":ecN,
@@ -338,7 +351,8 @@ function SetComboBoxes(){
 	
 	function setInputs(){
 		if(pId.getStore().data.items.length > 0 && pClass.getStore().data.items.length  > 0 && ecN.getStore().data.items.length > 0){
-			(hash.alg == "")?alg.setValue("ALL"):alg.setValue(hash.alg == "RAST"?"PATRIC":hash.alg == "Curation"?"Legacy BRC":hash.alg),
+//			(hash.alg == "")?alg.setValue("ALL"):alg.setValue(hash.alg == "RAST"?"PATRIC":hash.alg == "Curation"?"Legacy BRC":hash.alg),
+            (hash.alg == "")?alg.setValue("ALL"):alg.setValue(hash.alg),
 			(hash.pId == "")?pId.setValue("ALL"):pId.setValue(hash.pId),
 			(hash.pClass == "")?pClass.setValue("ALL"):pClass.setValue(hash.pClass),
 			(hash.ecN == "")?ecN.setValue("ALL"):ecN.setValue(hash.ecN);
@@ -369,7 +383,7 @@ function loadCombo(id, need){
 	obj["need"] = need;
 	
 	Ext.Ajax.request({
-	    url: "/patric-pathways/jsp/filter_populate.jsp",
+	    url: "CompPathwayTable/CompPathwayTableWindow?action=b&cacheability=PAGE&need=filter",
 	    method: 'POST',
 	    params: {val:Ext.JSON.encode(obj)},
 	    success: function(response, opts){
@@ -402,29 +416,29 @@ function renderAvgECCount(value, metadata, record, rowIndex, colIndex, store) {
 function renderPathwayName(value, metadata, record, rowIndex, colIndex, store){
 	metadata.tdAttr = 'data-qtip="'+record.data.pathway_name+'" data-qclass="x-tip"';
 	if(!Ext.getDom("pk"))
-		return Ext.String.format('<a href=CompPathwayMap?cType={0}&amp;cId={1}&amp;dm=&amp;feature_info_id=&amp;ec_number=&amp;map={2}&amp;pk={3}&amp;algorithm={4}>{5}</a>', Ext.getDom("cType").value, Ext.getDom("cId").value, record.data.pathway_id, '', record.data.algorithm, record.data.pathway_name);
+		return Ext.String.format('<a href=CompPathwayMap?cType={0}&amp;cId={1}&amp;dm=&amp;feature_id=&amp;ec_number=&amp;map={2}&amp;pk={3}&amp;algorithm={4}>{5}</a>', Ext.getDom("cType").value, Ext.getDom("cId").value, record.data.pathway_id, '', record.data.algorithm, record.data.pathway_name);
 	else
-		return Ext.String.format('<a href=CompPathwayMap?cType=&amp;cId=&amp;dm=&amp;feature_info_id=&amp;ec_number=&amp;map={0}&amp;pk={1}&amp;algorithm={2}>{3}</a>', record.data.pathway_id, Ext.getDom("pk").value, record.data.algorithm, record.data.pathway_name);
+		return Ext.String.format('<a href=CompPathwayMap?cType=&amp;cId=&amp;dm=&amp;feature_id=&amp;ec_number=&amp;map={0}&amp;pk={1}&amp;algorithm={2}>{3}</a>', record.data.pathway_id, Ext.getDom("pk").value, record.data.algorithm, record.data.pathway_name);
 	
 }
 
 function renderPathwayFeature(value, metadata, record, rowIndex, colIndex, store){
 	metadata.tdAttr = 'data-qtip="'+record.data.pathway_name+'" data-qclass="x-tip"';
 	if(!Ext.getDom("pk"))
-		return Ext.String.format('<a href=CompPathwayMap?cType={0}&amp;cId={1}&amp;dm=feature&amp;feature_info_id={2}&amp;ec_number=&amp;map={3}&amp;algorithm={4}>{5}</a>', Ext.getDom("cType").value, Ext.getDom("cId").value, record.data.na_feature_id,  record.data.pathway_id, record.data.algorithm, record.data.pathway_name);
+		return Ext.String.format('<a href=CompPathwayMap?cType={0}&amp;cId={1}&amp;dm=feature&amp;feature_id={2}&amp;ec_number=&amp;map={3}&amp;algorithm={4}>{5}</a>', Ext.getDom("cType").value, Ext.getDom("cId").value, record.data.feature_id,  record.data.pathway_id, record.data.algorithm, record.data.pathway_name);
 
 	else
-		return Ext.String.format('<a href=CompPathwayMap?cType=&amp;cId=&amp;dm=feature&amp;feature_info_id={0}&amp;ec_number=&amp;map={1}&amp;pk={2}&amp;algorithm={3}>{4}</a>', record.data.na_feature_id, record.data.pathway_id,  Ext.getDom("pk").value, record.data.algorithm, record.data.pathway_name);
+		return Ext.String.format('<a href=CompPathwayMap?cType=&amp;cId=&amp;dm=feature&amp;feature_id={0}&amp;ec_number=&amp;map={1}&amp;pk={2}&amp;algorithm={3}>{4}</a>', record.data.feature_id, record.data.pathway_id,  Ext.getDom("pk").value, record.data.algorithm, record.data.pathway_name);
 	
 }
 
 function renderPathwayEc(value, metadata, record, rowIndex, colIndex, store){
 	metadata.tdAttr = 'data-qtip="'+record.data.pathway_name+'" data-qclass="x-tip"';
 	if(!Ext.getDom("pk"))
-		return Ext.String.format('<a href=CompPathwayMap?cType={0}&amp;cId={1}&amp;dm=ec&amp;ec_number={2}&amp;feature_info_id=&amp;map={3}&amp;pk=&amp;algorithm={4}>{5}</a>', Ext.getDom("cType").value, Ext.getDom("cId").value, record.data.ec_number, record.data.pathway_id, record.data.algorithm, record.data.pathway_name);
+		return Ext.String.format('<a href=CompPathwayMap?cType={0}&amp;cId={1}&amp;dm=ec&amp;ec_number={2}&amp;feature_id=&amp;map={3}&amp;pk=&amp;algorithm={4}>{5}</a>', Ext.getDom("cType").value, Ext.getDom("cId").value, record.data.ec_number, record.data.pathway_id, record.data.algorithm, record.data.pathway_name);
 		
 	else
-		return Ext.String.format('<a href=CompPathwayMap?cType=&amp;cId=&amp;dm=ec&amp;ec_number={0}&amp;feature_info_id=&amp;map={1}&amp;pk={2}&amp;algorithm={3}>{4}</a>', record.data.ec_number, record.data.pathway_id,  Ext.getDom("pk").value, record.data.algorithm, record.data.pathway_name);
+		return Ext.String.format('<a href=CompPathwayMap?cType=&amp;cId=&amp;dm=ec&amp;ec_number={0}&amp;feature_id=&amp;map={1}&amp;pk={2}&amp;algorithm={3}>{4}</a>', record.data.ec_number, record.data.pathway_id,  Ext.getDom("pk").value, record.data.algorithm, record.data.pathway_name);
 	
 }
 
@@ -454,52 +468,58 @@ function getSelectedFeatures(actiontype, showdownload, fastatype, to){
 		i,
 		fids = property.fids;
 			
-	if(property.pageType == "Finder"){
+	if (property.pageType == "Finder") {
 		if(Ext.getDom("genomeId").value != ""){
 			cId =  Ext.getDom("genomeId").value;
 			cType = "genome";
-		}else {
+		}
+		else {
 			cId =  Ext.getDom("taxonId").value;
 			cType = "taxon";
 		}
-	}else{
+	}
+	else {
 		cType = Ext.getDom("cType").value;
 		cId = Ext.getDom("cId").value;
 	}
 	
-	if(hash.aT != "2"){
-					
+	if (hash.aT != "2") {
+
 		for (i=0; i<sl.length; i++) {
-			pid.push("'" +sl[i].data.pathway_id+"'");
-			
-			if(sl[i].data.algorithm == "PATRIC")
-				aid.push("'RAST'");
-			else if(sl[i].data.algorithm == "Legacy BRC")
-				aid.push("'Curation'");
-			else
-				aid.push("'RefSeq'");
+			pid.push(sl[i].data.pathway_id);
+
+			aid.push(sl[i].data.algorithm);
+//			if(sl[i].data.algorithm == "PATRIC")
+//				aid.push("'RAST'");
+//			else if(sl[i].data.algorithm == "Legacy BRC")
+//				aid.push("'Curation'");
+//			else
+//				aid.push("'RefSeq'");
 						
 			if (hash.aT == "1")
-				ecid.push("'" + sl[i].data.ec_number +"'");		
+				ecid.push(sl[i].data.ec_number);
 		}
 		
 		if(Ext.getDom("ecN").value)
-	    	ecid.push("'" + Ext.getDom("ecN").value +"'");
+	    	ecid.push(Ext.getDom("ecN").value);
 		
 		Ext.Ajax.request({
 		    url: "/patric-pathways/jsp/get_na_feature_ids.json.jsp",
 		    method: 'POST',
-		    params: {cId:cId, cType:cType, map:pid.join(","), algorithm:aid.join(","), ec_number:ecid.join(",")},
+		    params: {cId:cId, cType:cType, map:pid.join(" OR "), algorithm:aid.join(" OR "), ec_number:ecid.join(" OR ")},
 		    success: function(response, opts) {
-		    	var na_features = Ext.JSON.decode(response.responseText);			
-		    	for(i = 0; i < na_features.genes.length; i++)
-		    		fids.push(na_features.genes[i].genes);		    	
+		        var resp = Ext.JSON.decode(response.responseText);
+                for (i = 0; i < resp.length; i++) {
+                    fids.push(resp[i]);
+                }
+		    	// var na_features = Ext.JSON.decode(response.responseText);
+		    	// for(i = 0; i < na_features.genes.length; i++)
+		    	//	fids.push(na_features.genes[i].genes);
 			}
 		});
-		
-	}else{
+	} else {
 		for (i=0; i<sl.length;i++) {
-			fids.push(sl[i].data.na_feature_id);
+			fids.push(sl[i].data.feature_id);
 		}
 	}
 }

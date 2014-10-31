@@ -1,69 +1,16 @@
-<%@ page import="java.util.*" 
-%><%@ page import="edu.vt.vbi.patric.beans.DNAFeature" 
-%><%@ page import="edu.vt.vbi.patric.common.SiteHelper" 
-%><%@ page import="edu.vt.vbi.patric.dao.DBShared" 
-%><%@ page import="edu.vt.vbi.patric.dao.DBSummary" 
-%><%@ page import="edu.vt.vbi.patric.dao.ResultType" 
-%><%@ page import="edu.vt.vbi.patric.common.SolrInterface" 
-%><%@ page import="edu.vt.vbi.patric.common.SolrCore" 
-%><%@ page import="org.json.simple.JSONObject" 
-%><%@ page import="org.json.simple.JSONArray" 
+<%@ page import="java.util.*"
+%><%@ page import="edu.vt.vbi.patric.beans.GenomeFeature"
+%><%@ page import="edu.vt.vbi.patric.common.SiteHelper"
 %><%
-
-String fId = request.getParameter("context_id");
-ResultType refseqInfo = null;
-String refseqLink = null;
-String refseqLocusTag = null;
-DNAFeature feature = null;
-JSONArray relatedFeatures = new JSONArray();
-SolrInterface solr = new SolrInterface();
-
-if (fId!=null) {	
-	// getting feature info from Solr 	
-	feature = solr.getPATRICFeature(fId);
-}
+GenomeFeature feature = (GenomeFeature) request.getAttribute("feature");
+List<GenomeFeature> listReleateFeatures = (List<GenomeFeature>) request.getAttribute("listReleateFeatures");
+List<String> listUniprotkbAccessions = (List<String>) request.getAttribute("listUniprotkbAccessions");
+List<Map<String, String>> listUniprotIds = (List<Map<String, String>>) request.getAttribute("listUniprotIds");
+String refseqLink = (String) request.getAttribute("refseqLink");
+String refseqLocusTag = (String) request.getAttribute("refseqLocusTag");
+Map<String, String> virulenceFactor = (Map<String, String>) request.getAttribute("virulenceFactor");
 
 if (feature != null) {
-	
-	// get related annotations
-	JSONArray sortParam = new JSONArray();
-	JSONObject sort1 = new JSONObject();
-	sort1.put("property", "annotation_sort");
-	sort1.put("direction", "asc");
-	sortParam.add(sort1);
-	
-	HashMap<String, String> opt = new HashMap<String, String>();
-	opt.put("sort", sortParam.toJSONString());
-	
-	relatedFeatures = solr.searchSolrRecords("pos_group:\"" + feature.getPosGroup() + "\"", opt);
-	
-	//TODO: need to migrate to solr query
-	DBSummary conn_summary = new DBSummary();
-	
-	String uniprot_link = "";
-	String uniprot_accession = "";
-	ArrayList<ResultType> uniprot = null;
-	
-	if (feature.getAnnotation().equals("PATRIC")) {
-		// TODO: cannot replace to solr since solr does not have entire uniprot IDs
-		uniprot = conn_summary.getUniprotAccession(Long.toString(feature.getId()));
-		
-		if (uniprot != null && uniprot.size() > 0) {
-			uniprot_accession = uniprot.get(0).get("uniprotkb_accession");
-		}
-	}
-	
-	if (feature.getAnnotation().equals("PATRIC")) {
-		refseqInfo = conn_summary.getRefSeqInfo("PATRIC", Long.toString(feature.getId()));
-
-		if (refseqInfo.get("gene_id")!=null && refseqInfo.get("gene_id").equals("") == false) {
-			refseqLink = SiteHelper.getExternalLinks("ncbi_gene").replace("&","&amp;")+refseqInfo.get("gene_id");
-		}
-		refseqLocusTag = feature.getRefseqLocusTag();
-	} 
-	else if (feature.getAnnotation().equals("RefSeq")) {
-		refseqLocusTag = feature.getLocusTag();
-	}
 %>
 	<% if (feature.getAnnotation().equals("RefSeq")) { %>
 	<div class="close2x" id="note_refseq_only_feature"><b>NOTE:</b> There is no corresponding PATRIC feature. Comparative tools are not available at this time.</div>
@@ -73,9 +20,9 @@ if (feature != null) {
 		<tr>
 			<th scope="row" style="width:20%">Gene ID</th>
 			<td>
-				<% if (feature.getAnnotation().equals("PATRIC") && feature.hasLocusTag()) { %>
+				<% if (feature.getAnnotation().equals("PATRIC") && feature.hasAltLocusTag()) { %>
 					<span><b>PATRIC</b></span>: 
-					<span><%=feature.getLocusTag() %> </span>
+					<span><%=feature.getAltLocusTag() %> </span>
 					&nbsp;&nbsp;&nbsp;&nbsp;
 				<% } %>
 				
@@ -94,33 +41,36 @@ if (feature != null) {
 		<tr>
 			<th scope="row">Protein ID</th>
 			<td>
-				<% if (feature.hasRefseqProteinId()) { %>
+				<% if (feature.hasProteinId()) { %>
 					<span><b>RefSeq</b></span>:
-					<% if (refseqInfo != null) { %>
-						<span><a href="<%=SiteHelper.getExternalLinks("ncbi_protein")+refseqInfo.get("gi_number")%>" target="_blank"><%=feature.getRefseqProteinId() %></a></span>
+					<% if (feature.getGi() > 0) { %>
+						<span><a href="<%=SiteHelper.getExternalLinks("ncbi_protein")+feature.getGi()%>" target="_blank"><%=feature.getProteinId() %></a></span>
 					<% } else { %>
-						<span><%=feature.getRefseqProteinId() %></span>
+						<span><%=feature.getProteinId() %></span>
 					<% } %>
 					&nbsp;&nbsp;&nbsp;&nbsp;
 				<% } %>
-				<% if (uniprot != null && uniprot.size() > 0) { %>
+				<% if (listUniprotkbAccessions != null && listUniprotIds != null) { %>
 				<span><b>UnitProt</b></span>: 
-				<span><a href="<%=SiteHelper.getExternalLinks("UniProtKB-Accession") %><%=uniprot_accession %>" target="_blank"><%=uniprot_accession %></a></span>
-				&nbsp;&nbsp;
-				<span> <a href="#" onclick="toggleLayer('uniprot_detail');return false;"><%=uniprot.size() %> IDs are mapped</a></span>
+				<span><% for (String uniprotkbAccession: listUniprotkbAccessions) { %>
+				    <a href="<%=SiteHelper.getExternalLinks("UniProtKB-Accession") %><%=uniprotkbAccession %>" target="_blank"><%=uniprotkbAccession %></a>&nbsp;
+				    <% } %>
+			    </span>
+				&nbsp;
+				<span> <a href="#" onclick="toggleLayer('uniprot_detail');return false;"><%=listUniprotIds.size() %> IDs are mapped</a></span>
 				<div id="uniprot_detail" class="table-container" style="display:none">
 					<table class="basic">
-					<% for (int u=0; u<uniprot.size(); u++) { %>
+					<% for (Map<String, String> uniprot: listUniprotIds) { %>
 					<tr>
-						<th scope="row" style="width:20%"><%=uniprot.get(u).get("id_type") %></th>
+						<th scope="row" style="width:20%"><%=uniprot.get("idType") %></th>
 						<td><%
-							uniprot_link = SiteHelper.getExternalLinks(uniprot.get(u).get("id_type").trim()).replace("&","&amp;");
-							if (uniprot_link != "" && uniprot.get(u).get("id_type").matches("HOGENOM|OMA|ProtClustDB|eggNOG")) {
-								%><a href="<%=uniprot_link%><%=uniprot_accession %>" target="_blank"><%=uniprot.get(u).get("id") %></a><%
+							String uniprot_link = SiteHelper.getExternalLinks(uniprot.get("idType")).replace("&","&amp;");
+							if (uniprot_link != "" && uniprot.get("idType").matches("HOGENOM|OMA|ProtClustDB|eggNOG")) {
+								%><a href="<%=uniprot_link%><%=uniprot.get("Accession")  %>" target="_blank"><%=uniprot.get("idValue") %></a><%
 							} else if (uniprot_link != "") {
-								%><a href="<%=uniprot_link%><%=uniprot.get(u).get("id") %>" target="_blank"><%=uniprot.get(u).get("id") %></a><%
+								%><a href="<%=uniprot_link%><%=uniprot.get("idValue") %>" target="_blank"><%=uniprot.get("idValue") %></a><%
 							} else {
-								%><%=uniprot.get(u).get("id") %><%
+								%><%=uniprot.get("idValue") %><%
 							}
 						%></td>
 					</tr>
@@ -133,18 +83,9 @@ if (feature != null) {
 		</tr>
 		<%
 		// check Virulence factor
-		solr.setCurrentInstance(SolrCore.SPECIALTY_GENE);
-		ResultType key = new ResultType();
-		key.put("keyword", "source: PATRIC_VF AND (locus_tag: " + feature.getLocusTag() + (feature.hasRefseqLocusTag()?" OR locus_tag: " + feature.getRefseqLocusTag() + ")": ")"));
-	
-		JSONObject res = solr.getData(key, null, null, 0, 1, false, false, false);
-
-		int numFound = Integer.parseInt(((JSONObject)res.get("response")).get("numFound").toString());
-
-		if (numFound > 0) {
-			JSONArray specialtyGeneProperties = (JSONArray)((JSONObject)res.get("response")).get("docs");
-			JSONObject sp = (JSONObject) specialtyGeneProperties.get(0);
-			%><tr><td colspan="2"><span class="label-box-orange">VF</span> This gene is identified as a virulence factor by PATRIC based on literature curation. <a href="SpecialtyGeneEvidence?source=<%=sp.get("source") %>&sourceId=<%=sp.get("source_id") %>">See details</a></td></tr><%
+		if (virulenceFactor != null) {
+			%><tr><td colspan="2"><span class="label-box-orange">VF</span> This gene is identified as a virulence factor by PATRIC based on literature curation.
+			<a href="SpecialtyGeneEvidence?source=<%=virulenceFactor.get("source") %>&sourceId=<%=virulenceFactor.get("sourceId") %>">See details</a></td></tr><%
 		}
 		%>
 	</tbody>
@@ -175,18 +116,18 @@ if (feature != null) {
 		</tr>
 	</thead>
 	<tbody>
-	<% for (Object obj: relatedFeatures) { JSONObject an = (JSONObject) obj; %>
+	<% for (GenomeFeature aFeature: listReleateFeatures) { %>
 		<tr>
-			<td><%=an.get("annotation") %></td>
-			<td><%=(an.get("locus_tag")!=null)?an.get("locus_tag"):"-" %></td>
-			<td class="right-align-text"><%=an.get("start_max") %></td>
-			<td class="right-align-text"><%=an.get("end_min") %></td>
-			<td class="right-align-text"><%=an.get("na_length") %></td>
-			<td class="right-align-text"><%=(an.get("aa_length")!=null)?an.get("aa_length"):"-" %></td>
-			<td><% if (an.get("product")!=null) { %>
-					<%=an.get("product")%>
-				<% } else if (an.get("feature_type").equals("CDS") == false) { %>
-					(feature type: <%=an.get("feature_type") %>)
+			<td><%=aFeature.getAnnotation() %></td>
+			<td><%=aFeature.hasAltLocusTag()?aFeature.getAltLocusTag():"-" %></td>
+			<td class="right-align-text"><%=aFeature.getStart() %></td>
+			<td class="right-align-text"><%=aFeature.getEnd() %></td>
+			<td class="right-align-text"><%=aFeature.getNaSequenceLength() %></td>
+			<td class="right-align-text"><%=(aFeature.getProteinLength() > 0)?aFeature.getProteinLength():"-" %></td>
+			<td><% if (aFeature.hasProduct()) { %>
+					<%=aFeature.getProduct() %>
+				<% } else if (aFeature.getFeatureType().equals("CDS") == false) { %>
+					(feature type: <%=aFeature.getFeatureType() %>)
 				<% } else { %>
 					-
 				<% } %>

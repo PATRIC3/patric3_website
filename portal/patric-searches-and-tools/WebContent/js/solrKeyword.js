@@ -1,29 +1,20 @@
 Ext.define('Feature', {
 	extend : 'Ext.data.Model',
 	fields : [{
-		name : 'genome_info_id',
-		type : 'int'
-	}, {
-		name : 'gid',
-		type : 'int'
-	}, {
-		name : 'genome_name',
+		name : 'genome_id',
 		type : 'string'
 	}, {
-		name : 'genome_name_sort',
+		name : 'genome_name',
 		type : 'string'
 	}, {
 		name : 'accession',
 		type : 'string'
 	}, {
-		name : 'locus_tag',
+		name : 'alt_locus_tag',
 		type : 'string'
 	}, {
-		name : 'locus_tag_sort',
+		name : 'feature_id',
 		type : 'string'
-	}, {
-		name : 'na_feature_id',
-		type : 'int'
 	}, {
 		name : 'annotation',
 		type : 'string'
@@ -31,10 +22,10 @@ Ext.define('Feature', {
 		name : 'feature_type',
 		type : 'string'
 	}, {
-		name : 'start_max',
+		name : 'start',
 		type : 'int'
 	}, {
-		name : 'end_min',
+		name : 'end',
 		type : 'int'
 	}, {
 		name : 'na_length',
@@ -43,7 +34,7 @@ Ext.define('Feature', {
 		name : 'strand',
 		type : 'string'
 	}, {
-		name : 'refseq_protein_id',
+		name : 'protein_id',
 		type : 'string'
 	}, {
 		name : 'aa_length',
@@ -61,16 +52,10 @@ Ext.define('Feature', {
 		name : 'product',
 		type : 'string'
 	}, {
-		name : 'product_sort',
-		type : 'string'
-	}, {
 		name : 'refseq_locus_tag',
 		type : 'string'
 	}, {
-		name : 'refseq_locus_tag_sort',
-		type : 'string'
-	}, {
-		name : 'pseed_id',
+		name : 'seed_id',
 		type : 'string'
 	}, {
 		name : 'highlight'
@@ -86,10 +71,10 @@ Ext.define('Genome', {
 		name : 'genome_name',
 		type : 'string'
 	}, {
-		name : 'genome_info_id',
+		name : 'p2_genome_id',
 		type : 'string'
 	}, {
-		name : 'gid',
+		name : 'genome_id',
 		type : 'string'
 	}, {
 		name : 'genome_status',
@@ -134,10 +119,10 @@ Ext.define('Genome', {
 		name : 'complete',
 		type : 'string'
 	}, {
-		name : 'rast_cds',
+		name : 'patric_cds',
 		type : 'int'
 	}, {
-		name : 'brc_cds',
+		name : 'brc1_cds',
 		type : 'int'
 	}, {
 		name : 'refseq_cds',
@@ -152,7 +137,7 @@ Ext.define('Genome', {
 		name : 'contigs',
 		type : 'int'
 	}, {
-		name : 'ncbi_tax_id',
+		name : 'taxon_id',
 		type : 'int'
 	}, {
 		name : 'organism_name',
@@ -291,13 +276,10 @@ Ext.define('Sequence', {
 		name : 'genome_name',
 		type : 'string'
 	}, {
-		name : 'genome_info_id',
+		name : 'genome_id',
 		type : 'string'
 	}, {
-		name : 'gid',
-		type : 'string'
-	}, {
-		name : 'sid',
+		name : 'sequence_id',
 		type : 'string'
 	}, {
 		name : 'accession',
@@ -307,6 +289,9 @@ Ext.define('Sequence', {
 		type : 'string'
 	}, {
 		name : 'sequence_type',
+		type : 'string'
+	}, {
+		name : 'topology',
 		type : 'string'
 	}, {
 		name : 'gc_content',
@@ -525,10 +510,10 @@ Ext.define('Figfam', {
 Ext.define('Cart', {
 	extend : 'Ext.data.Model',
 	fields : [{
-		name : 'na_feature_id',
+		name : 'feature_id',
 		type : 'string'
 	}, {
-		name : 'genome_info_id',
+		name : 'genome_id',
 		type : 'string'
 	}, {
 		name : 'gid',
@@ -581,9 +566,6 @@ Ext.define('Experiment', {
 	}, {
 		name : 'release_date',
 		type : 'string'
-	}, {
-		name : 'rownum',
-		type : 'int'
 	}, {
 		name : 'samples',
 		type : 'int'
@@ -774,17 +756,17 @@ Ext.define('SpecialtyGene', {
 
 Ext.define('SpecialtyGeneMapping', {
 	extend : 'Ext.data.Model',
-	fields : [{name: 'genome_info_id', type: 'int'}, 'genome_name', {name: 'ncbi_tax_id', type: 'int'}, {name: 'na_feature_id', type: 'int'},
-	          'locus_tag', 'refseq_locus_tag', 'gene', 'product', 
+	fields : ['genome_id', 'genome_name', {name: 'taxon_id', type: 'int'}, 'feature_id',
+	          'alt_locus_tag', 'refseq_locus_tag', 'gene', 'product',
 	          'property', 'source', 'source_id', 'organism', 'function', 'classification', 'pmid', 'assertion', 
 	          {name: 'query_coverage', type: 'int'}, {name: 'subject_coverage', type: 'int'}, {name: 'identity', type: 'int'}, 'e_value', 'evidence']
 });
 
 var configuration = {};
 configuration['Genome'] = {
-	display_facets : ['genome_status_f', 'isolation_country_f', 'host_name_f', 'disease_f', 'collection_date_f', 'completion_date'],
+	display_facets : ['genome_status', 'isolation_country', 'host_name', 'disease', 'collection_date', 'completion_date'],
 	display_facets_texts : ['Genome Status', 'Isolation Country', 'Host Name', 'Disease', 'Collection Date', 'Completion Date'],
-	all_facets : ['Keyword', 'genome_status_f', 'isolation_country_f', 'host_name_f', 'disease_f', 'collection_date_f', 'completion_date', 'genome_status', 'isolation_country', 'host_name', 'disease', 'collection_date', 'gid', 'annotation'],
+	all_facets : ['Keyword', 'genome_status', 'isolation_country', 'host_name', 'disease', 'collection_date', 'completion_date', 'genome_id', 'annotation', 'taxon_id'],
 	search_fields : [{
 		value : 'Keyword',
 		text : 'Keyword'
@@ -807,18 +789,18 @@ configuration['Genome'] = {
 		value : 'completion_date',
 		text : 'Completion Date'
 	}],
-	sort_fields : ['isolation_country', 'host_name', 'disease'],
+	sort_fields : [],
 	url : '/portal/portal/patric/GenomeFinder/GenomeFinderWindow?action=b&cacheability=PAGE'
 };
 
 configuration['Sequence'] = {
-	sort_fields : ['genome_name', 'accession', 'description']
+	sort_fields : []
 };
 
 configuration['Feature'] = {
-	display_facets : ['annotation_f', 'feature_type_f'],
+	display_facets : ['annotation', 'feature_type'],
 	display_facets_texts : ['Annotation', 'Feature Type'],
-	all_facets : ['Keyword', 'feature_type', 'annotation', 'feature_type_f', 'annotation_f', 'gid', 'go', 'ec', 'pathway', 'figfam_id'],
+	all_facets : ['Keyword', 'feature_type', 'annotation', 'genome_id', 'go', 'ec', 'pathway', 'figfam_id'],
 	search_fields : [{
 		value : 'Keyword',
 		text : 'Keyword'
@@ -832,7 +814,7 @@ configuration['Feature'] = {
 		value : 'sequence_status',
 		text : 'Sequence Status'
 	}],
-	sort_fields : ['genome_name', 'locus_tag', 'refseq_locus_tag', 'product'],
+	sort_fields : ['annotation'],
 	url : '/portal/portal/patric/GenomicFeature/GenomicFeatureWindow?action=b&cacheability=PAGE'
 };
 
@@ -860,7 +842,7 @@ configuration['SpecialtyGene'] = {
 configuration['AntibioticResistanceGeneMapping'] = {
 	display_facets : ['source', 'evidence'],
 	display_facets_texts : ['Source', 'Evidence'],
-	all_facets : ['Keyword', 'property', 'source', 'evidence', 'classification', 'genome_info_id'],
+	all_facets : ['Keyword', 'property', 'source', 'evidence', 'classification', 'genome_id'],
 	search_fields : [{
 		value : 'Keyword',
 		text : 'Keyword'
@@ -881,7 +863,7 @@ configuration['AntibioticResistanceGeneMapping'] = {
 configuration['SpecialtyGeneMapping'] = {
 	display_facets : ['property', 'source', 'evidence'],
 	display_facets_texts : ['Property', 'Source', 'Evidence'],
-	all_facets : ['Keyword', 'property', 'source', 'evidence', 'genome_info_id'],
+	all_facets : ['Keyword', 'property', 'source', 'evidence', 'genome_id'],
 	search_fields : [{
 		value : 'Keyword',
 		text : 'Keyword'
@@ -901,7 +883,7 @@ configuration['SpecialtyGeneMapping'] = {
 	sort_fields : [],
 	url : '/portal/portal/patric/SpecialtyGeneSearch/SpecialtyGeneSearchWindow?action=b&cacheability=PAGE'
 };
-
+/*
 configuration['GO'] = {
 	display_facets : ['annotation_f', 'go_id_f', 'go_term_f'],
 	display_facets_texts : ['Annotation', 'GO Term ID', 'GO Term Description'],
@@ -943,11 +925,11 @@ configuration['EC'] = {
 	sort_fields : ['genome_name', 'locus_tag', 'ec_name', 'ec_number', 'product'],
 	url : '/portal/portal/patric/ECSearch/ECSearchWindow?action=b&cacheability=PAGE'
 };
-
+*/
 configuration['GlobalTaxonomy'] = {
-	display_facets : ['taxon_rank_f', 'genomes_f'],
+	display_facets : ['taxon_rank', 'genomes_f'],
 	display_facets_texts : ['Taxon Rank', 'Genomes'],
-	all_facets : ['Keyword', 'taxon_rank_f', 'genomes_f'],
+	all_facets : ['Keyword', 'taxon_rank', 'genomes_f'],
 	search_fields : ['taxon_name'],
 	url : '/portal/portal/patric/GlobalTaxonomy/GlobalTaxonomyWindow?action=b&cacheability=PAGE'
 };
@@ -986,9 +968,9 @@ function constructKeyword(object, name) {
 		if (facet == "annotation" && name == "Genome") {
 
 			if (object[facet] != null && (object[facet] == "PATRIC" || object[facet] == "RAST"))
-				keyword += " AND (rast_cds:[1 TO *])";
-			else if (object[facet] != null && (object[facet] == "Legacy BRC" || object[facet] == "BRC"))
-				keyword += " AND (brc_cds:[1 TO *])";
+				keyword += " AND (patric_cds:[1 TO *])";
+			else if (object[facet] != null && (object[facet] == "Legacy BRC" || object[facet] == "BRC" || object[facet] == "BRC1"))
+				keyword += " AND (brc1_cds:[1 TO *])";
 			else if (object[facet] != null && object[facet] == "RefSeq")
 				keyword += " AND (refseq_cds:[1 TO *])";
 

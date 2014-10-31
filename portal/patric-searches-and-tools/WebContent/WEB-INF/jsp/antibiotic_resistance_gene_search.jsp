@@ -1,42 +1,11 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" 
 %><%@ page import="edu.vt.vbi.patric.common.OrganismTreeBuilder" 
-%><%@ page import="edu.vt.vbi.patric.dao.DBSummary" 
-%><%@ page import="edu.vt.vbi.patric.dao.DBShared" 
-%><%@ page import="edu.vt.vbi.patric.dao.ResultType" 
-%><%@ page import="java.util.*" 
+%><%@ page import="java.util.*"
 %><%
-DBSummary conn_summary = new DBSummary();
-DBShared conn_shared = new DBShared();
-HashMap<String, String> key = new HashMap<String,String>();
-// TODO: if organismId or genomeId is given, set key attribute to that it is selected.
-String ncbi_taxon_id = null;
-String cType = request.getParameter("context_type");
-String cId = request.getParameter("context_id");
-if (cType!=null && cId!=null) {
-	if (cType.equals("taxon") && !cId.equals("")) {
-		ncbi_taxon_id = cId;
-		key.put("ncbi_taxon_id", ncbi_taxon_id);
-	}else if (cType.equals("taxon")){
-		ncbi_taxon_id = "2";
-		key.put("ncbi_taxon_id", ncbi_taxon_id);
-	}
-	if (cType.equals("genome") && !cId.equals("")) {
-		ResultType names = conn_shared.getNamesFromGenomeInfoId(cId);
-		ncbi_taxon_id = names.get("ncbi_taxon_id");
-		key.put("genome_info_id", cId);
-	}
-}
-
-String name = "";
-
-if(cId == null || cId.equals(""))
-	name = "Bacteria";
-else{
-	if(cType.equals("taxon"))
-		name = conn_shared.getOrganismName(cId);
-	else if (cType.equals("genome"))
-		name = conn_shared.getGenomeName(cId);	
-}
+int taxonId = (Integer) request.getAttribute("taxonId");
+String organismName = (String) request.getAttribute("organismName");
+String cType = (String) request.getAttribute("cType");
+String cId = (String) request.getAttribute("cId");
 
 boolean loggedIn = false;
 if(request.getUserPrincipal() == null){
@@ -64,7 +33,7 @@ if(request.getUserPrincipal() == null){
 		<form action="#" onsubmit="return false;">
 
 		<label class="left" for="keyword">Keyword:</label>
-		<textarea class="right" id="keyword" name="keyword" rows="5" cols="30"><%=(key!=null && key.containsKey("keyword") && !key.get("keyword").equalsIgnoreCase(""))?key.get("keyword"):""%></textarea>
+		<textarea class="right" id="keyword" name="keyword" rows="5" cols="30"><%--=(key!=null && key.containsKey("keyword") && !key.get("keyword").equalsIgnoreCase(""))?key.get("keyword"):""--%></textarea>
 		<div class="clear"></div>
 		
 		<span class="small bold"><b>Examples</b></span>
@@ -119,8 +88,8 @@ Ext.onReady(function(){
 		width: 480,
 		height: 550,
 		border:false,
-		parentTaxon: <%=(ncbi_taxon_id==null)?"2":ncbi_taxon_id %>,
-		organismName:'<%=name%>'
+		parentTaxon: <%=taxonId %>,
+		organismName:'<%=organismName%>'
 	});
 });
 //]]>

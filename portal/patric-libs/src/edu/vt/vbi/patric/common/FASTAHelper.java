@@ -15,87 +15,78 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.common;
 
-import java.util.ArrayList;
-
 import edu.vt.vbi.patric.beans.GenomeFeature;
 import org.apache.commons.lang.StringUtils;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import edu.vt.vbi.patric.dao.DBShared;
-import edu.vt.vbi.patric.dao.ResultType;
+import java.net.MalformedURLException;
+import java.util.List;
 
 public class FASTAHelper {
 
-	static DBShared conn_shared = new DBShared(); // TODO: remove this when NA Sequence is added to solr
-
 	static SolrInterface solr = new SolrInterface();
 
-	public static String getFASTANASequence(String fid) {
-		ArrayList<ResultType> sequences = conn_shared.getFastaNASequence(fid);
-		String na_sequence = "";
+	private static final Logger LOGGER = LoggerFactory.getLogger(FASTAHelper.class);
 
-		if (sequences.size() > 1) {
-			for (int i = 0; i < sequences.size(); i++) {
-				na_sequence += sequences.get(i).get("na_sequence");
+	public static String getFASTASequence(List<String> featureIds, String type) {
+		StringBuilder fasta = new StringBuilder();
+
+		try {
+			SolrQuery query = new SolrQuery("feature_id:(" + StringUtils.join(featureIds, " OR ") + ")");
+			query.setFields("feature_id,seed_id,product,genome_name,na_sequence,aa_sequence");
+			query.setRows(featureIds.size());
+
+			QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query);
+			List<GenomeFeature> features = qr.getBeans(GenomeFeature.class);
+
+			for (GenomeFeature feature: features) {
+
+				if (type.equals("dna") || type.equals("both")) {
+					fasta.append(">fid|").append(feature.getId());
+					if (feature.hasSeedId()) {
+						fasta.append("|locus|").append(feature.getSeedId());
+					}
+					if (feature.hasProduct()) {
+						fasta.append("|   ").append(feature.getProduct());
+					}
+					fasta.append("   [").append(feature.getGenomeName()).append("]");
+
+					fasta.append("\n");
+					if (feature.hasNaSequence()) {
+						fasta.append(StringHelper.chunk_split(feature.getNaSequence(), 60, "\n"));
+					}
+				}
+
+				if (type.equals("both")) {
+					fasta.append("\n");
+				}
+
+				if (type.equals("protein") || type.equals("both")) {
+					fasta.append(">fid|").append(feature.getId());
+					if (feature.hasSeedId()) {
+						fasta.append("|locus|").append(feature.getSeedId());
+					}
+					if (feature.hasProduct()) {
+						fasta.append("|   ").append(feature.getProduct());
+					}
+					fasta.append("   [").append(feature.getGenomeName()).append("]");
+
+					fasta.append("\n");
+					if (feature.hasAaSequence()) {
+						fasta.append(StringHelper.chunk_split(feature.getAaSequence(), 60, "\n"));
+					}
+				}
+				fasta.append("\n");
 			}
-		}
-		else if (sequences.size() == 1) {
-			na_sequence = sequences.get(0).get("na_sequence");
+
+		} catch (MalformedURLException | SolrServerException e) {
+			LOGGER.error(e.getMessage(), e);
 		}
 
-		if (sequences.get(0).get("is_reversed").equalsIgnoreCase("1")) {
-			na_sequence = getComplement(na_sequence);
-		}
-		if (na_sequence.length() > 0) {
-			na_sequence = StringHelper.chunk_split(na_sequence, 60, "\n");
-			return getFASTAIdentifier(fid) + "\n" + na_sequence;
-		}
-		else {
-			return "";
-		}
-	}
-
-	public static String getFASTAAASequence(String fid) {
-		String aa_sequence = conn_shared.getFastaAASequence(fid);
-		if (aa_sequence != null && aa_sequence.length() > 0) {
-			aa_sequence = StringHelper.chunk_split(aa_sequence, 60, "\n");
-			return getFASTAIdentifier(fid) + "\n" + aa_sequence;
-		}
-		else {
-			return "";
-		}
-	}
-
-	public static String getFASTAIdentifier(String fid) {
-		// ResultType hashID = conn_shared.getFastaIdentifiers(fid);
-		// String id = ">fid|" + hashID.get("na_feature_id") + "|locus|" + hashID.get("source_id") + "|   " + hashID.get("product") + "   ["
-		// + hashID.get("genome_name") + "]";
-		GenomeFeature feature = solr.getFeature(fid);
-		StringBuffer id = new StringBuffer();
-		id.append(">fid|" + feature.getId());
-		if (feature.hasAltLocusTag()) {
-			id.append("|locus|");
-			id.append(feature.getAltLocusTag());
-		}
-		if (feature.hasProduct()) {
-			id.append("|   ");
-			id.append(feature.getProduct());
-		}
-		id.append("   [");
-		id.append(feature.getGenomeName());
-		id.append("]");
-
-		return id.toString();
-	}
-
-	public static String getComplement(String sequence) {
-		String reversed = StringUtils.reverse(sequence.toLowerCase());
-		reversed = reversed.replace('a', 'x');
-		reversed = reversed.replace('t', 'a');
-		reversed = reversed.replace('x', 't');
-		reversed = reversed.replace('c', 'x');
-		reversed = reversed.replace('g', 'c');
-		reversed = reversed.replace('x', 'g');
-
-		return reversed;
+		return fasta.toString();
 	}
 }

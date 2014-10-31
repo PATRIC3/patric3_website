@@ -103,7 +103,7 @@ Ext.onReady(function() {
 			property: 'genome_name',
 			direction:'ASC'
 		},{
-			property: 'locus_tag',
+			property: 'alt_locus_tag',
 			direction:'ASC'
 		}]],
 		hash:{
@@ -124,7 +124,7 @@ Ext.onReady(function() {
 			{header:'Evidence',				dataIndex:'evidence',			flex:1, align:'center'},
 			{header:'Source',				dataIndex:'source', 			flex:1, align:'center', renderer:renderSource},
 			{header:'Genome Name',			dataIndex:'genome_name',		flex:2, renderer:renderGenomeName <%=cType.equals("genome")?", hidden:true":""%>},
-			{header:'Locus Tag',			dataIndex:'locus_tag', 			flex:2, renderer:renderLocusTag, align:'center'},
+			{header:'Locus Tag',			dataIndex:'alt_locus_tag', 			flex:2, renderer:renderLocusTag, align:'center'},
 			{header:'RefSeq Locus Tag',		dataIndex:'refseq_locus_tag',	flex:1, align:'center', renderer:BasicRenderer},
 			{header:'Source ID',			dataIndex:'source_id', 			flex:1, align:'center', renderer:renderSourceId},
 			{header:'Source Organism',		dataIndex:'organism', 			flex:1, align:'center', renderer:BasicRenderer, hidden:true},

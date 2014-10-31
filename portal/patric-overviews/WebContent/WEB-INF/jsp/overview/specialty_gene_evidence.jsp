@@ -1,72 +1,18 @@
-<%@ page import="java.util.ArrayList" 
-%><%@ page import="java.util.Arrays"
-%><%@ page import="java.util.HashMap"
-%><%@ page import="edu.vt.vbi.patric.dao.ResultType" 
-%><%@ page import="edu.vt.vbi.patric.beans.DNAFeature" 
-%><%@ page import="edu.vt.vbi.patric.common.SolrInterface" 
-%><%@ page import="edu.vt.vbi.patric.common.SolrCore" 
-%><%@ page import="edu.vt.vbi.patric.common.SiteHelper" 
+<%@ page import="java.util.*"
+%><%@ page import="edu.vt.vbi.patric.beans.GenomeFeature"
+%><%@ page import="edu.vt.vbi.patric.common.SiteHelper"
 %><%@ page import="org.json.simple.JSONObject"
-%><%@ page import="org.json.simple.JSONArray"
 %><%
-String source = request.getParameter("sp_source");
-String sourceId = request.getParameter("sp_source_id"); //lmo0433, Rv3875
+String source = (String) request.getAttribute("source");
+String sourceId = (String) request.getAttribute("sourceId");
 
+Map<String, Object> gene = (Map<String, Object>) request.getAttribute("gene");
+List<String> properties = (List<String>) request.getAttribute("properties");
+List<String> headers = (List<String>) request.getAttribute("headers");
+GenomeFeature feature = (GenomeFeature) request.getAttribute("feature");
+int cntHomolog = (Integer) request.getAttribute("cntHomolog");
+List<Map<String, Object>> specialtyGeneEvidence = (List<Map<String, Object>>) request.getAttribute("specialtyGeneEvidence");
 
-if (source != null && source.equals("") == false && sourceId != null && sourceId.equals("") == false) {
-
-	SolrInterface solr = new SolrInterface();
-	ResultType key = new ResultType();
-
-	// get properties of gene
-	solr.setCurrentInstance(SolrCore.SPECIALTY_GENE);
-	key.put("keyword", "source: " + source + " AND source_id: " + sourceId);
-	JSONObject res = solr.getData(key, null, null, 0, 1, false, false, false);
-	JSONArray genes = (JSONArray)((JSONObject)res.get("response")).get("docs");
-	JSONObject gene = (JSONObject) genes.get(0);
-	ArrayList<String> properties = new ArrayList<String>(Arrays.asList("property", "source", "source_id", "gene_name", "organism", "product", "gi", "gene_id"));
-	ArrayList<String> headers = new ArrayList<String>(Arrays.asList("Property", "Source", "Source ID", "Gene", "Organism", "Product", "GI Number", "Gene ID"));
-	
-	// get PATRIC feature
-	solr.setCurrentInstance(SolrCore.SPECIALTY_GENE_MAPPING);
-	key.put("keyword", "source: " + source + " AND source_id: " + sourceId + " AND evidence: Literature");
-	res = solr.getData(key, null, null, 0, 1, false, false, false);
-	JSONArray mappings = (JSONArray)((JSONObject)res.get("response")).get("docs");
-	DNAFeature feature = null;
-	if (mappings.size() > 0) {
-		JSONObject mapping = (JSONObject) mappings.get(0);
-		String na_feature_id = mapping.get("na_feature_id").toString();
-		feature = solr.getPATRICFeature(na_feature_id);
-	}
-	else {
-		solr.setCurrentInstance(SolrCore.FEATURE);
-		key.put("keyword", "locus_tag: " + sourceId);
-		res = solr.getData(key, null, null, 0, 1, false, false, false);
-		JSONArray features = (JSONArray)((JSONObject)res.get("response")).get("docs");
-
-		if (features.size() > 0) {
-			JSONObject mapping = (JSONObject) features.get(0);
-			String na_feature_id = mapping.get("na_feature_id").toString();
-			feature = solr.getPATRICFeature(na_feature_id);
-		}
-	}
-	
-	// get Homolog count
-	solr.setCurrentInstance(SolrCore.SPECIALTY_GENE_MAPPING);
-	key.put("keyword", "source: " + source + " AND source_id: " + sourceId);
-	res = solr.getData(key, null, null, 0, -1, false, false, false);
-	int cntHomolog = Integer.parseInt(((JSONObject)res.get("response")).get("numFound").toString());
-
-	// get list of evidence
-	solr.setCurrentInstance(SolrCore.SPECIALTY_GENE_EVIDENCE);
-	key.put("keyword", "source:"+ source + " AND source_id:" + sourceId);
-		// sort by Organism, Host, Classification
-	HashMap<String, String >sort = new HashMap<String, String>();
-	sort.put("field", "specific_organism, specific_host, classification");
-	sort.put("direction", "asc");
-	
-	res = solr.getData(key, sort, null, 0, -1, false, false, false);
-	JSONArray specialtyGeneEvidence = (JSONArray)((JSONObject)res.get("response")).get("docs");
 %>
 	<h3 class="section-title normal-case close2x"><span class="wrap">Specialty Genes &gt; <%=gene.get("property") %> &gt; <%=gene.get("source") %> &gt; <%=gene.get("source_id") %> </span></h3>
 	<table class="basic stripe far2x">
@@ -115,10 +61,12 @@ if (source != null && source.equals("") == false && sourceId != null && sourceId
 		</tr>
 	</thead>
 	<tbody>
-		<% for (int i = 0; i < specialtyGeneEvidence.size(); i++) { 
-			JSONObject obj = (JSONObject) specialtyGeneEvidence.get(i); 
+		<%
+		boolean alt = false;
+		for (Map<String, Object> obj: specialtyGeneEvidence) {
+		    alt = !alt;
 		%>
-		<tr <%=(i%2==0)?" class=\"alt\"":"" %>>
+		<tr <%=(alt)?" class=\"alt\"":"" %>>
 			<td><%=(obj.get("specific_organism")!=null)?obj.get("specific_organism"):"&nbsp;" %></td>
 			<td><%=(obj.get("specific_host")!=null)?obj.get("specific_host"):"&nbsp;" %></td>
 			<td><%=(obj.get("classification")!=null)?obj.get("classification"):"&nbsp;" %></td>
@@ -128,6 +76,3 @@ if (source != null && source.equals("") == false && sourceId != null && sourceId
 		<% } %>
 	</tbody>
 	</table>
-<% } else { %>
-	Missing parameters
-<% } %>

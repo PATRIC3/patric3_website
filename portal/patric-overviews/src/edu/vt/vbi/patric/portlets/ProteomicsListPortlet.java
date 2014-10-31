@@ -17,6 +17,7 @@ package edu.vt.vbi.patric.portlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -355,7 +356,8 @@ public class ProteomicsListPortlet extends GenericPortlet {
 				key.put("fields", "peptide_sequence");
 				JSONObject object = solr.getData(key, null, facet, 0, -1, false, false, false);
 				object = (JSONObject) object.get("response");
-				object.put("aa", FASTAHelper.getFASTAAASequence(na_feature_id));
+				// object.put("aa", FASTAHelper.getFASTAAASequence(na_feature_id));
+				object.put("aa", FASTAHelper.getFASTASequence(Arrays.asList(na_feature_id), "protein"));
 
 				response.setContentType("application/json");
 				PrintWriter writer = response.getWriter();

@@ -3,7 +3,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>patricbrc</artifactId>
 	<packaging>ear</packaging>
-	<version>14.3-201406</version>
+	<version>15-alpha</version>
 	<name>PATRICBRC EAR</name>
 	<parent>
 		<groupId>edu.vt.vbi.patric</groupId>

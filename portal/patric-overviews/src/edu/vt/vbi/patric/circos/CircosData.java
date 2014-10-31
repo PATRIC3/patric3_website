@@ -1,11 +1,17 @@
 package edu.vt.vbi.patric.circos;
 
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import edu.vt.vbi.patric.beans.Genome;
+import edu.vt.vbi.patric.beans.GenomeFeature;
+import edu.vt.vbi.patric.beans.GenomeSequence;
+import edu.vt.vbi.patric.common.SolrCore;
+import edu.vt.vbi.patric.common.SolrInterface;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.SortClause;
 import org.apache.solr.client.solrj.SolrServer;
@@ -19,21 +25,15 @@ import org.slf4j.LoggerFactory;
 
 public class CircosData {
 
-	private String baseUrlSolr;
+	SolrInterface solr;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(CircosData.class);
 
 	public CircosData() {
-		boolean isProduction = System.getProperty("solr.isProduction", "false").equals("true");
-		if (isProduction) {
-			baseUrlSolr = "http://macleod.vbi.vt.edu:8080/solr/";
-		}
-		else {
-			baseUrlSolr = "http://macleod.vbi.vt.edu:8983/solr/";
-		}
+		solr = new SolrInterface();
 	}
 
-	public List<Map<String, Object>> getFeatures(String genome_info_id, String feature_type, String strand, String keyword) {
+	public List<Map<String, Object>> getFeatures(String genome_id, String feature_type, String strand, String keyword) {
 		List<Map<String, Object>> docs = new LinkedList<>();
 
 		Map<String, String> solrQueryByType = new HashMap<>();
@@ -42,87 +42,87 @@ public class CircosData {
 		solrQueryByType.put("misc", "!(feature_type:*RNA OR feature_type:CDS OR feature_type:source)");
 
 		SolrQuery query = new SolrQuery();
-		query.setQuery("gid:" + genome_info_id + ((keyword != null) ? " AND (" + keyword + ")" : "")
+		query.setQuery("genome_id:" + genome_id + ((keyword != null) ? " AND (" + keyword + ")" : "")
 				+ ((strand != null) ? " AND strand:\"" + strand + "\"" : ""));
-		query.addFilterQuery("annotation_f:PATRIC AND " + solrQueryByType.get(feature_type));
-		query.setFields("accession, start_max, end_min, sequence_info_id, gid, na_feature_id");
-		List<SortClause> sorts = new ArrayList<>();
-		sorts.add(SortClause.create("accession", SolrQuery.ORDER.asc));
-		sorts.add(SortClause.create("start_max", SolrQuery.ORDER.asc));
-		query.setSorts(sorts);
+		query.addFilterQuery("annotation:PATRIC AND " + solrQueryByType.get(feature_type));
+		query.setFields("accession,start,end,sequence_id,genome_id,feature_id");
+
+		query.addSort(SortClause.create("accession", SolrQuery.ORDER.asc));
+		query.addSort(SortClause.create("start", SolrQuery.ORDER.asc));
+
 		query.setRows(10000);
 
-		LOGGER.debug("SolrRequest [DNAFeature]{}", query.toString());
-		QueryResponse qr;
-		try {
-			SolrServer solrServer = new HttpSolrServer(baseUrlSolr + "dnafeature");
-			qr = solrServer.query(query);
-			SolrDocumentList sdl = qr.getResults();
+		LOGGER.debug("{}", query.toString());
 
-			for (SolrDocument sd : sdl) {
-				HashMap<String, Object> doc = new HashMap<String, Object>();
-				doc.put("accession", sd.get("accession"));
-				doc.put("start_max", sd.get("start_max"));
-				doc.put("end_min", sd.get("end_min"));
-				doc.put("sequence_info_id", sd.get("sequence_info_id"));
-				doc.put("gid", sd.get("gid"));
-				doc.put("na_feature_id", sd.get("na_feature_id"));
+		try {
+			QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query);
+
+			List<GenomeFeature> features = qr.getBeans(GenomeFeature.class);
+
+			for (GenomeFeature feature: features) {
+				HashMap<String, Object> doc = new HashMap<>();
+				doc.put("accession", feature.getAccession());
+				doc.put("start", feature.getStart());
+				doc.put("end", feature.getEnd());
+				doc.put("sequence_id", feature.getSequenceId());
+				doc.put("genome_id", feature.getGenomeId());
+				doc.put("feature_id", feature.getId());
 				docs.add(doc);
 			}
 		}
-		catch (SolrServerException e) {
+		catch (MalformedURLException | SolrServerException e) {
 			LOGGER.error(e.getMessage(), e);
 		}
 		return docs;
 	}
 
-	public List<Map<String, Object>> getAccessions(String genome_info_id) {
+	public List<Map<String, Object>> getAccessions(String genome_id) {
 		List<Map<String, Object>> accessions = new LinkedList<>();
 
 		SolrQuery query = new SolrQuery();
-		query.setQuery("gid:" + genome_info_id);
-		query.setFields("genome_name, accession, length, sequence");
+		query.setQuery("genome_id:" + genome_id);
+		query.setFields("genome_name,accession,length,sequence");
 		query.setSort("accession", SolrQuery.ORDER.asc);
 		query.setRows(10000);
 
 		LOGGER.debug("SolrRequest [SequenceInfo]{}", query.toString());
-		QueryResponse qr;
-		try {
-			SolrServer solrServer = new HttpSolrServer(baseUrlSolr + "sequenceinfo");
-			qr = solrServer.query(query);
-			SolrDocumentList sdl = qr.getResults();
-			for (SolrDocument sd : sdl) {
-				HashMap<String, Object> doc = new HashMap<String, Object>();
 
-				doc.put("accession", sd.get("accession"));
-				doc.put("length", sd.get("length"));
-				doc.put("sequence", sd.get("sequence"));
+		try {
+			QueryResponse qr = solr.getSolrServer(SolrCore.SEQUENCE).query(query);
+			List<GenomeSequence> sequences = qr.getBeans(GenomeSequence.class);
+			for (GenomeSequence sequence: sequences) {
+				HashMap<String, Object> doc = new HashMap<>();
+
+				doc.put("accession", sequence.getAccession());
+				doc.put("length", sequence.getLength());
+				doc.put("sequence", sequence.getSequence());
 				accessions.add(doc);
 			}
 		}
-		catch (SolrServerException e) {
+		catch (MalformedURLException | SolrServerException e) {
 			LOGGER.error(e.getMessage(), e);
 		}
 		return accessions;
 	}
 
-	public String getGenomeName(String genome_info_id) {
+	public String getGenomeName(String genome_id) {
 		String genomeName = null;
+
 		SolrQuery query = new SolrQuery();
-		query.setQuery("gid:" + genome_info_id);
+		query.setQuery("genome_id:" + genome_id);
 		query.setFields("genome_name");
 
-		LOGGER.debug("SolrRequest [GenomeSummary]{}", query.toString());
-		QueryResponse qr;
+		LOGGER.debug("{}", query.toString());
+
 		try {
-			SolrServer solrServer = new HttpSolrServer(baseUrlSolr + "genomesummary");
-			qr = solrServer.query(query);
-			SolrDocumentList sdl = qr.getResults();
-			for (SolrDocument sd : sdl) {
-				genomeName = sd.get("genome_name").toString();
+			QueryResponse qr = solr.getSolrServer(SolrCore.GENOME).query(query);
+
+			List<Genome> genomes = qr.getBeans(Genome.class);
+			for (Genome genome: genomes) {
+				genomeName = genome.getGenomeName();
 			}
 		}
-		catch (SolrServerException e) {
+		catch (MalformedURLException | SolrServerException e) {
 			LOGGER.error(e.getMessage(), e);
 		}
 		return genomeName;

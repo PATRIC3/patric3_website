@@ -436,11 +436,12 @@ public class DBSummary {
 	 * 
 	 * @param key filtering condition such as data_source and ncbi_taxon_id
 	 * @return count of complete genomes (cnt_complete), wgs (cnt_wgs), plasmid (cnt_plasmid), and all genomes (cnt_all).
+	 * @deprecated
 	 */
 	public ResultType getGenomeCount(Map<String, String> key) {
 
-		String sql = "select nvl(sum(decode(gs.complete,'Complete',1,0)),0) complete_cnt, " + "		nvl(sum(decode(gs.complete,'WGS',1,0)),0) wgs_cnt, "
-				+ "		nvl(sum(decode(gs.complete,'Plasmid',1,0)),0) plasmid_cnt, " + "		count(*) all_cnt " + "	from app.genomesummary gs, ("
+		String sql = "select nvl(sum(decode(gs.complete,'Complete',1,0)),0) complete_cnt, nvl(sum(decode(gs.complete,'WGS',1,0)),0) wgs_cnt, "
+				+ "		nvl(sum(decode(gs.complete,'Plasmid',1,0)),0) plasmid_cnt,  count(*) all_cnt from app.genomesummary gs, ("
 				+ getTaxonIdsInTaxonSQL("?") + ") tx " + "	where gs.ncbi_tax_id = tx.ncbi_tax_id ";
 
 		if (key.get("data_source").equalsIgnoreCase("RefSeq")) {
@@ -481,6 +482,7 @@ public class DBSummary {
 	 * 
 	 * @param key filtering condition such as genome_info_id, ncbi_taxon_id, and view (<code>full|abbreviated</code>).
 	 * @return genomic feature counts in RAST (patric), Legacy BRC (brc), and RefSeq (refseq) annotation.
+	 * @deprecated
 	 */
 	public ArrayList<ResultType> getNAFeatureSummary(HashMap<String, String> key) {
 		String sql = "select name, sum(rast) patric, sum(brc) brc, sum(refseq) refseq from app.featuresummary " + "	where ";
@@ -1059,156 +1061,127 @@ public class DBSummary {
 	 * @param key filtering condition such as genoem_info_id or feature_info_id
 	 * @return sequence info (sequence_info_id, na_sequence_id, accession, length)
 	 */
-	public ArrayList<ResultType> getRefSeqs(HashMap<String, String> key) {
-		String sql = "";
-		if (key.containsKey("genome_info_id") && key.get("genome_info_id") != null) {
-			sql = "	select sequence_info_id, na_sequence_id, accession, length " + "	from cas.sequenceinfo " + "	where genome_info_id = "
-					+ key.get("genome_info_id") + " order by accession ";
-		}
-		else if (key.containsKey("feature_info_id") && key.get("feature_info_id") != null) {
-			sql = "	select si.sequence_info_id, si.na_sequence_id, si.accession, si.length " + "	from app.dnafeature nf, cas.sequenceinfo si "
-					+ "	where nf.sequence_info_id = si.sequence_info_id and na_feature_id = " + key.get("feature_info_id");
-		}
+//	public ArrayList<ResultType> getRefSeqs(HashMap<String, String> key) {
+//		String sql = "";
+//		if (key.containsKey("genome_info_id") && key.get("genome_info_id") != null) {
+//			sql = "	select sequence_info_id, na_sequence_id, accession, length " + "	from cas.sequenceinfo " + "	where genome_info_id = "
+//					+ key.get("genome_info_id") + " order by accession ";
+//		}
+//		else if (key.containsKey("feature_info_id") && key.get("feature_info_id") != null) {
+//			sql = "	select si.sequence_info_id, si.na_sequence_id, si.accession, si.length " + "	from app.dnafeature nf, cas.sequenceinfo si "
+//					+ "	where nf.sequence_info_id = si.sequence_info_id and na_feature_id = " + key.get("feature_info_id");
+//		}
+//
+//		Session session = factory.getCurrentSession();
+//		session.beginTransaction();
+//		SQLQuery q = session.createSQLQuery(sql);
+//
+//		List<?> rset = q.list();
+//		session.getTransaction().commit();
+//
+//		ArrayList<ResultType> results = new ArrayList<ResultType>();
+//		Object[] obj = null;
+//		for (Iterator<?> iter = rset.iterator(); iter.hasNext();) {
+//			obj = (Object[]) iter.next();
+//			ResultType row = new ResultType();
+//			row.put("sequence_info_id", obj[0]);
+//			row.put("na_sequence_id", obj[1]);
+//			row.put("accession", obj[2]);
+//			row.put("length", obj[3]);
+//			results.add(row);
+//		}
+//		return results;
+//	}
 
-		Session session = factory.getCurrentSession();
-		session.beginTransaction();
-		SQLQuery q = session.createSQLQuery(sql);
+//	public List<GenomeFeature> getDNAFeatures(HashMap<String, String> key) {
+//
+//		// query by sequence_info_id (if available) or accession
+//		String q = "";
+//		if (key.containsKey("sid") && key.get("sid") != null) {
+//			q += "sequence_id:" + key.get("sid");
+//		}
+//		else {
+//			q += "accession:\"" + key.get("accession") + "\"";
+//		}
+//		// filter by annotation and feature type (if provided)
+//		String fq = "annotation:" + key.get("algorithm");
+//		if (key.containsKey("type")) {
+//			fq += " AND feature_type:" + key.get("type");
+//		}
+//		fq += " AND !(feature_type:source)";
+//
+//		SolrQuery query = new SolrQuery();
+//		query.setQuery(q);
+//		query.setFilterQueries(fq);
+//
+//		return getGenomicFeaturesFromSolrBean(query);
+//	}
 
-		List<?> rset = q.list();
-		session.getTransaction().commit();
+//	public List<GenomeFeature> getGenomicFeaturesFromSolrBean(SolrQuery query) {
+//		SolrInterface solr = new SolrInterface();
+//		List<GenomeFeature> beans = null;
+//
+//		try {
+//			solr.setCurrentInstance(SolrCore.FEATURE);
+//			query.setSort("start", SolrQuery.ORDER.asc);
+//			query.setFields("feature_id,alt_locus_tag,start,end,strand,feature_type,product,gene,refseq_locus_tag,seed_id");
+//
+//			// 1st q. get total rows
+//			query.setRows(1);
+//			long totalResults = solr.getServer().query(query).getResults().getNumFound();
+//
+//			// 2nd Q. fetch
+//			query.setRows((int) totalResults);
+//			QueryResponse rsp = solr.getServer().query(query);
+//
+//			// fetch
+//			beans = rsp.getBeans(GenomeFeature.class);
+//		}
+//		catch (MalformedURLException | SolrServerException e) {
+//			e.printStackTrace();
+//		}
+//
+//		return beans;
+//	}
 
-		ArrayList<ResultType> results = new ArrayList<ResultType>();
-		Object[] obj = null;
-		for (Iterator<?> iter = rset.iterator(); iter.hasNext();) {
-			obj = (Object[]) iter.next();
-			ResultType row = new ResultType();
-			row.put("sequence_info_id", obj[0]);
-			row.put("na_sequence_id", obj[1]);
-			row.put("accession", obj[2]);
-			row.put("length", obj[3]);
-			results.add(row);
-		}
-		return results;
-	}
-
-	public List<GenomeFeature> getDNAFeatures(HashMap<String, String> key) {
-
-		// query by sequence_info_id (if available) or accession
-		String q = "";
-		if (key.containsKey("sid") && key.get("sid") != null) {
-			q += "sequence_info_id:" + key.get("sid");
-		}
-		else {
-			q += "accession:\"" + key.get("accession") + "\"";
-		}
-		// filter by annotation and feature type (if provided)
-		String fq = "annotation:" + key.get("algorithm");
-		if (key.containsKey("type")) {
-			fq += " AND feature_type:" + key.get("type");
-		}
-		fq += " AND !(feature_type:source)";
-
-		SolrQuery query = new SolrQuery();
-		query.setQuery(q);
-		query.setFilterQueries(fq);
-
-		return getGenomicFeaturesFromSolrBean(query);
-	}
-
-	/**
-	 * @deprecated
-	 * @param query
-	 * @return
-	 */
-	public ArrayList<ResultType> streamResponse(SolrQuery query) {
-		ArrayList<ResultType> results = new ArrayList<>();
-		SolrInterface solr = new SolrInterface();
-		final BlockingQueue<SolrDocument> tmpQueue = new LinkedBlockingQueue<>();
-		try {
-			solr.setCurrentInstance(SolrCore.FEATURE);
-			solr.getServer().queryAndStreamResponse(query, new StreamCallbackHandler(tmpQueue));
-
-			SolrDocument tmpDoc;
-			do {
-				tmpDoc = tmpQueue.take();
-				ResultType row = new ResultType();
-				row.putAll(tmpDoc);
-				if (row.isEmpty() == false) {
-					results.add(row);
-				}
-			} while (!tmpDoc.isEmpty());
-		}
-		catch (SolrServerException | IOException | InterruptedException e) {
-			e.printStackTrace();
-		}
-		return results;
-	}
-
-	public List<GenomeFeature> getGenomicFeaturesFromSolrBean(SolrQuery query) {
-		SolrInterface solr = new SolrInterface();
-		List<GenomeFeature> beans = null;
-
-		try {
-			solr.setCurrentInstance(SolrCore.FEATURE);
-			query.setSort("start_max", SolrQuery.ORDER.asc);
-			query.setFields("na_feature_id,locus_tag,start_max,end_min,strand,feature_type,product,gene,refseq_locus_tag");
-
-			// 1st q. get total rows
-			query.setRows(1);
-			long totalResults = solr.getServer().query(query).getResults().getNumFound();
-
-			// 2nd Q. fetch
-			query.setRows((int) totalResults);
-			QueryResponse rsp = solr.getServer().query(query);
-
-			// fetch
-			beans = rsp.getBeans(GenomeFeature.class);
-		}
-		catch (MalformedURLException | SolrServerException e) {
-			e.printStackTrace();
-		}
-
-		return beans;
-	}
-
-	public ArrayList<Integer> getHistogram(HashMap<String, String> key) {
-
-		String q = "accession:" + key.get("accession") + " AND sequence_info_id:" + key.get("sid");
-		String fq = "annotation:" + key.get("algorithm");
-		if (key.containsKey("type")) {
-			fq += " AND feature_type:" + key.get("type");
-		}
-		fq += " AND !(feature_type:source)";
-
-		SolrQuery query = new SolrQuery();
-		query.setQuery(q);
-		query.setFilterQueries(fq);
-		query.setRows(0);
-		query.setFacet(true);
-		query.setFacetMinCount(1);
-		query.addNumericRangeFacet("start_max", 0, 10000000, 10000);
-
-		ArrayList<Integer> results = new ArrayList<Integer>();
-		SolrInterface solr = new SolrInterface();
-		QueryResponse qr = null;
-		try {
-			solr.setCurrentInstance(SolrCore.FEATURE);
-			qr = solr.getServer().query(query);
-
-			for (RangeFacet<?, ?> range : qr.getFacetRanges()) {
-				List<RangeFacet.Count> rangeEntries = range.getCounts();
-				if (rangeEntries != null) {
-					for (RangeFacet.Count fcount : rangeEntries) {
-						results.add(fcount.getCount());
-					}
-				}
-			}
-		}
-		catch (MalformedURLException | SolrServerException e) {
-			LOGGER.error(e.getMessage(), e);
-		}
-		return results;
-	}
+//	public List<Integer> getHistogram(Map<String, String> key) {
+//
+//		String q = "accession:" + key.get("accession"); // + " AND sequence_info_id:" + key.get("sid");
+//		String fq = "annotation:" + key.get("algorithm");
+//		if (key.containsKey("type")) {
+//			fq += " AND feature_type:" + key.get("type");
+//		}
+//		fq += " AND !(feature_type:source)";
+//
+//		SolrQuery query = new SolrQuery();
+//		query.setQuery(q);
+//		query.setFilterQueries(fq);
+//		query.setRows(0);
+//		query.setFacet(true);
+//		query.setFacetMinCount(1);
+//		query.addNumericRangeFacet("start", 0, 10000000, 10000);
+//
+//		List<Integer> results = new ArrayList<>();
+//		SolrInterface solr = new SolrInterface();
+//
+//		try {
+//			solr.setCurrentInstance(SolrCore.FEATURE);
+//			QueryResponse qr = solr.getServer().query(query);
+//
+//			for (RangeFacet<?, ?> range : qr.getFacetRanges()) {
+//				List<RangeFacet.Count> rangeEntries = range.getCounts();
+//				if (rangeEntries != null) {
+//					for (RangeFacet.Count fcount : rangeEntries) {
+//						results.add(fcount.getCount());
+//					}
+//				}
+//			}
+//		}
+//		catch (MalformedURLException | SolrServerException e) {
+//			LOGGER.error(e.getMessage(), e);
+//		}
+//		return results;
+//	}
 
 	/**
 	 * Counts features that match the given genomeID. This is used for CompareReginoViewer to decide whether there are features matching to a given
@@ -1237,28 +1210,27 @@ public class DBSummary {
 	 * @param IDs IDs
 	 * @return list of features (na_feature_id, pseed_id, source_id, start, end, strand, na_length, aa_length, product, genome_name, accession)
 	 */
-	public HashMap<String, ResultType> getPSeedMapping(String src, String IDs) {
+	public Map<String, ResultType> getPSeedMapping(String src, String IDs) {
 
-		HashMap<String, ResultType> result = new HashMap<String, ResultType>();
+		Map<String, ResultType> result = new HashMap<>();
 		SolrInterface solr = new SolrInterface();
 
 		String q = null;
 		if (src.equalsIgnoreCase("PATRIC")) {
-			q = "na_feature_id:(" + IDs + ")";
+			q = "feature_id:(" + IDs + ")";
 		}
 		else {
-			q = "pseed_id:(" + IDs + ")";
+			q = "seed_id:(" + IDs + ")";
 		}
 
 		SolrQuery query = new SolrQuery();
 		query.setQuery(q);
-		query.setFields("na_feature_id,pseed_id,locus_tag,start_max,end_min,strand,feature_type,product,gene,refseq_locus_tag,genome_name,accession");
+		query.setFields("feature_id,seed_id,alt_locus_tag,start,end,strand,feature_type,product,gene,refseq_locus_tag,genome_name,accession");
 		query.setRows(1000);
 		QueryResponse rsp = null;
 
 		try {
-			solr.setCurrentInstance(SolrCore.FEATURE);
-			rsp = solr.getServer().query(query);
+			rsp = solr.getSolrServer(SolrCore.FEATURE).query(query);
 		}
 		catch (MalformedURLException | SolrServerException e) {
 			LOGGER.error(e.getMessage(), e);
@@ -1269,60 +1241,60 @@ public class DBSummary {
 			ResultType row = new ResultType();
 			row.putAll(obj);
 			if (src.equalsIgnoreCase("PATRIC")) {
-				result.put(row.get("na_feature_id"), row);
+				result.put(row.get("feature_id"), row);
 			}
 			else {
-				result.put(row.get("pseed_id"), row);
+				result.put(row.get("seed_id"), row);
 			}
 		}
 		return result;
 	}
 
-	public Map<String, ResultType> getGenomeMetadata(Set<String> genomeNames) {
-
-		HashMap<String, ResultType> result = new HashMap<>();
-		SolrInterface solr = new SolrInterface();
-
-		StringBuilder sb = new StringBuilder();
-		for (String name : genomeNames) {
-			if (sb.length() > 0) {
-				sb.append(" OR ");
-			}
-			sb.append("\"").append(name).append("\"");
-		}
-		if (sb.length() == 0) {
-			return null;
-		}
-
-		String q = "genome_name:(" + sb.toString() + ")";
-
-		SolrQuery query = new SolrQuery();
-		query.setQuery(q);
-		query.setFields("genome_info_id,genome_name,isolation_country,host_name,disease,collection_date,completion_date");
-		QueryResponse rsp = null;
-
-		try {
-			solr.setCurrentInstance(SolrCore.GENOME);
-			rsp = solr.getServer().query(query);
-		}
-		catch (MalformedURLException | SolrServerException e) {
-			LOGGER.error(e.getMessage(), e);
-		}
-
-		SolrDocumentList docs = rsp.getResults();
-		for (SolrDocument obj : docs) {
-			ResultType row = new ResultType();
-			row.putAll(obj);
-			if (obj.get("completion_date") != null) {
-				row.put("completion_date", solr.transformDate((Date) obj.get("completion_date")));
-			}
-			else {
-				row.put("completion_date", "");
-			}
-			result.put(row.get("genome_name"), row);
-		}
-		return result;
-	}
+//	public Map<String, ResultType> getGenomeMetadata(Set<String> genomeNames) {
+//
+//		HashMap<String, ResultType> result = new HashMap<>();
+//		SolrInterface solr = new SolrInterface();
+//
+//		StringBuilder sb = new StringBuilder();
+//		for (String name : genomeNames) {
+//			if (sb.length() > 0) {
+//				sb.append(" OR ");
+//			}
+//			sb.append("\"").append(name).append("\"");
+//		}
+//		if (sb.length() == 0) {
+//			return null;
+//		}
+//
+//		String q = "genome_name:(" + sb.toString() + ")";
+//
+//		SolrQuery query = new SolrQuery();
+//		query.setQuery(q);
+//		query.setFields("genome_info_id,genome_name,isolation_country,host_name,disease,collection_date,completion_date");
+//		QueryResponse rsp = null;
+//
+//		try {
+//			solr.setCurrentInstance(SolrCore.GENOME);
+//			rsp = solr.getServer().query(query);
+//		}
+//		catch (MalformedURLException | SolrServerException e) {
+//			LOGGER.error(e.getMessage(), e);
+//		}
+//
+//		SolrDocumentList docs = rsp.getResults();
+//		for (SolrDocument obj : docs) {
+//			ResultType row = new ResultType();
+//			row.putAll(obj);
+//			if (obj.get("completion_date") != null) {
+//				row.put("completion_date", solr.transformDate((Date) obj.get("completion_date")));
+//			}
+//			else {
+//				row.put("completion_date", "");
+//			}
+//			result.put(row.get("genome_name"), row);
+//		}
+//		return result;
+//	}
 
 	// / End of Genome Browser SQLs
 
@@ -1572,36 +1544,34 @@ public class DBSummary {
 	/**
 	 * Finds taxonomy rank "Genus" for a given taxon node.
 	 * 
-	 * @param id RefSeq Locus Tag
+	 * @param refseq_locus_tag RefSeq Locus Tag
 	 * @return comments
 	 */
-	public ArrayList<ResultType> getTBAnnotation(String id) {
+	public List<Map<String, Object>> getTBAnnotation(String refseq_locus_tag) {
 		String sql = "select distinct locus_tag, property, value, evidence_code, comments, source" + "	from app.tbcap_annotation "
 				+ "	where locus_tag = :refseq_locus_tag and property != 'Interaction'" + "	order by property asc, evidence_code asc ";
 
 		Session session = factory.getCurrentSession();
 		session.beginTransaction();
 		SQLQuery q = session.createSQLQuery(sql);
-		q.setString("refseq_locus_tag", id);
+		q.setString("refseq_locus_tag", refseq_locus_tag);
 
 		q.addScalar("locus_tag", Hibernate.STRING).addScalar("property", Hibernate.STRING).addScalar("value", Hibernate.STRING);
 		q.addScalar("evidence_code", Hibernate.STRING).addScalar("comments", Hibernate.STRING).addScalar("source", Hibernate.STRING);
-		// q.setCacheable(true);
 
-		List<?> rset = q.list();
-		// session.getTransaction().commit();
+		List<Object[]> rset = q.list();
 
-		ArrayList<ResultType> results = new ArrayList<ResultType>();
-		Object[] obj = null;
-		for (Iterator<?> iter = rset.iterator(); iter.hasNext();) {
-			obj = (Object[]) iter.next();
-			ResultType row = new ResultType();
+		List<Map<String, Object>> results = new ArrayList<>();
+		for (Object[] obj: rset) {
+
+			Map<String, Object> row = new HashMap<>();
 			row.put("locus", obj[0]);
 			row.put("property", obj[1]);
 			row.put("value", obj[2]);
 			row.put("evidencecode", obj[3]);
 			row.put("comment", obj[4]);
 			row.put("source", obj[5]);
+
 			results.add(row);
 		}
 
@@ -1609,26 +1579,25 @@ public class DBSummary {
 		sql = "select distinct locus_tag, property, value, evidence_code, comments, source" + "	from app.tbcap_annotation "
 				+ "	where locus_tag = :refseq_locus_tag and property = 'Interaction' " + "	order by value asc, evidence_code asc ";
 
-		// session = factory.getCurrentSession();
-		// session.beginTransaction();
 		q = session.createSQLQuery(sql);
-		q.setString("refseq_locus_tag", id);
+		q.setString("refseq_locus_tag", refseq_locus_tag);
 
 		q.addScalar("locus_tag", Hibernate.STRING).addScalar("property", Hibernate.STRING).addScalar("value", Hibernate.STRING);
 		q.addScalar("evidence_code", Hibernate.STRING).addScalar("comments", Hibernate.STRING).addScalar("source", Hibernate.STRING);
 
 		rset = q.list();
-		session.getTransaction().commit();
+//		session.getTransaction().commit();
 
-		for (Iterator<?> iter = rset.iterator(); iter.hasNext();) {
-			obj = (Object[]) iter.next();
-			ResultType row = new ResultType();
+		for (Object[] obj: rset) {
+
+			Map<String, Object> row = new HashMap<>();
 			row.put("locus", obj[0]);
 			row.put("property", obj[1]);
 			row.put("value", obj[2]);
 			row.put("evidencecode", obj[3]);
 			row.put("comment", obj[4]);
 			row.put("source", obj[5]);
+
 			results.add(row);
 		}
 

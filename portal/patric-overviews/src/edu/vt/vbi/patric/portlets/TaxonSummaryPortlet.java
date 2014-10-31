@@ -17,36 +17,77 @@ package edu.vt.vbi.patric.portlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.portlet.GenericPortlet;
 import javax.portlet.PortletException;
 import javax.portlet.PortletRequestDispatcher;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
-import javax.portlet.UnavailableException;
 
 import edu.vt.vbi.patric.common.SiteHelper;
+import edu.vt.vbi.patric.common.SolrCore;
+import edu.vt.vbi.patric.common.SolrInterface;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TaxonSummaryPortlet extends GenericPortlet {
 
-	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException, UnavailableException {
+	private static final Logger LOGGER = LoggerFactory.getLogger(TaxonSummaryPortlet.class);
+
+	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 
 		new SiteHelper().setHtmlMetaElements(request, response, "Taxon Overview");
 
 		response.setContentType("text/html");
 		String cType = request.getParameter("context_type");
 		String cId = request.getParameter("context_id");
-		int validContextId = -1;
 
-		if (cId != null) {
+		if (cType != null && cId != null && cType.equals("taxon")) {
+
+			List<Map<String, Object>> lineage = null;
+
+			SolrInterface solr = new SolrInterface();
+
 			try {
-				validContextId = Integer.parseInt(cId);
-			}
-			catch (NumberFormatException ex) {
-			}
-		}
+				SolrQuery query = new SolrQuery("taxon_id:" + cId);
+				QueryResponse qr = solr.getSolrServer(SolrCore.TAXONOMY).query(query);
 
-		if (cType != null && cId != null && validContextId > 0 && cType.equals("taxon")) {
+				SolrDocumentList sdl = qr.getResults();
+
+				for (SolrDocument doc: sdl) {
+					lineage = new ArrayList<>();
+
+					List<Integer> txIds = (List<Integer>) doc.get("lineage_ids");
+					List<String> txNames = (List<String>)doc.get("lineage_names");
+					List<String> txRanks = (List<String>)doc.get("lineage_ranks");
+
+					for (Integer taxonId: txIds) {
+						int idx = txIds.indexOf(taxonId);
+						Map<String, Object> taxon = new HashMap<>();
+						taxon.put("taxonId", taxonId);
+						taxon.put("name", txNames.get(idx));
+						taxon.put("rank", txRanks.get(idx));
+
+						lineage.add(taxon);
+					}
+				}
+
+			} catch (MalformedURLException | SolrServerException e) {
+				LOGGER.error(e.getMessage(), e);
+			}
+
+			request.setAttribute("lineage", lineage);
+
 			PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/overview/taxon_summary.jsp");
 			prd.include(request, response);
 		}

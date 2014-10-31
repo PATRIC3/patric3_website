@@ -1784,7 +1784,7 @@ function submitFASTA(windowID, actionType, fastaType) {
 
 function catchFastaIds(windowID, actionType, fastaType, ajaxHttp) {
 	var toSubmit = document.getElementById(windowID + "_fTableForm");
-	toSubmit.action = "/patric-common/jsp/fasta_download_handler.jsp";
+	toSubmit.action = "/portal/portal/patric/FeatureTable/FeatureTableWindow?action=b&cacheability=PAGE&mode=fasta";
 	toSubmit.fastaaction.value = actionType;
 	toSubmit.fastascope.value = "Selected";
 	toSubmit.fastatype.value = fastaType;

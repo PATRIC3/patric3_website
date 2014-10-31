@@ -79,22 +79,19 @@ function renderAccession(value, metadata, record, rowIndex, colIndex, store) {
 }
 
 function renderGenomeBrowserByFeature(value, metadata, record, rowIndex, colIndex, store) {
-	//metadata.tdAttr = 'data-qtip="Genome Browser" data-qclass="x-tip"';
-	var tracks = "DNA,PATRICGenes,RefSeqGenes", window_start = Math.max(0, (record.data.start_max - 1000)), window_end = parseInt(record.data.end_min) + 1000;
 
-	return Ext.String.format('<a href="GenomeBrowser?cType=feature&cId={0}&loc={2}..{3}&tracks={4}"><img src="/patric/images/icon_genome_browser.gif"  alt="Genome Browser" style="margin:-4px" /></a>', value, record.data.accession, window_start, window_end, tracks);
+	var tracks = "DNA,PATRICGenes,RefSeqGenes", window_start = Math.max(0, (record.data.start - 1000)), window_end = parseInt(record.data.end) + 1000;
+	return Ext.String.format('<a href="GenomeBrowser?cType=feature&cId={0}&loc={1}:{2}..{3}&tracks={4}"><img src="/patric/images/icon_genome_browser.gif"  alt="Genome Browser" style="margin:-4px" /></a>', value, record.data.sequence_id, window_start, window_end, tracks);
 }
 
 function renderGenomeBrowserBySequence(value, metadata, record, rowIndex, colIndex, store) {
-	//metadata.tdAttr = 'data-qtip="Genome Browser" data-qclass="x-tip"';
 	var tracks = "DNA,PATRICGenes,RefSeqGenes";
-	return Ext.String.format('<a href="GenomeBrowser?cType=genome&cId={0}&loc={1}:{2}..{3}&tracks={4}"><img src="/patric/images/icon_genome_browser.gif" alt="Genome Browser" style="margin:-4px" /></a>', (record.data.genome_info_id == 0) ? record.data.gid : record.data.genome_info_id, "sid|"+value+"|accn|"+record.data.accession, 0, 10000, tracks);
+	return Ext.String.format('<a href="GenomeBrowser?cType=genome&cId={0}&loc={1}:{2}..{3}&tracks={4}"><img src="/patric/images/icon_genome_browser.gif" alt="Genome Browser" style="margin:-4px" /></a>', record.data.genome_id, value, 0, 10000, tracks);
 }
 
 function renderGenomeBrowserByGenome(alue, metadata, record, rowIndex, colIndex, store) {
-	//metadata.tdAttr = 'data-qtip="Genome Browser" data-qclass="x-tip"';
 	var tracks = "DNA,PATRICGenes,RefSeqGenes";
-	return Ext.String.format('<a href="GenomeBrowser?cType=genome&cId={0}&loc={2}..{3}&tracks={4}"><img src="/patric/images/icon_genome_browser.gif" alt="Genome Browser" style="margin:-4px" /></a>', record.data.genome_info_id, '', 0, 10000, tracks);
+	return Ext.String.format('<a href="GenomeBrowser?cType=genome&cId={0}&loc={2}..{3}&tracks={4}"><img src="/patric/images/icon_genome_browser.gif" alt="Genome Browser" style="margin:-4px" /></a>', record.data.genome_id, '', 0, 10000, tracks);
 }
 
 function renderLocusTag(value, metadata, record, rowIndex, colIndex, store) {
@@ -112,6 +109,11 @@ function renderLocusTag(value, metadata, record, rowIndex, colIndex, store) {
 	} else {
 		return "";
 	}
+}
+
+function renderSeedId(value, metadata, record) {
+    metadata.tdAttr = 'data-qtip="' + value + '" data-qclass="x-tip"';
+    return Ext.String.format('<a href="Feature?cType=feature&cId={1}">{0}</a>', value, record.data.feature_id);
 }
 
 function renderRefSeqID(value, metadata, record, rowIndex, colIndex, store) {
@@ -218,7 +220,7 @@ function DoFastaOperation() {"use strict";
 
 	var Page = $Page, property = Page.getPageProperties(), fids = property.fids;
 
-	Ext.getDom("fTableForm").action = "/patric-common/jsp/fasta_download_handler.jsp";
+	Ext.getDom("fTableForm").action = "/portal/portal/patric/FeatureTable/FeatureTableWindow?action=b&cacheability=PAGE&mode=fasta";
 	Ext.getDom("fastaaction").value = arguments[1];
 	Ext.getDom("fastascope").value = "Selected";
 	Ext.getDom("fastatype").value = arguments[2];

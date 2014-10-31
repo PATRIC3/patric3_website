@@ -1,7 +1,5 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" 
-%><%@ page import="java.util.*" 
-%><%@ page import="edu.vt.vbi.patric.dao.DBSearch"
-%><%@ page import="edu.vt.vbi.patric.dao.ResultType" 
+%><%@ page import="java.util.*"
 %><%
 	String cType = request.getParameter("context_type");
 	String cId = request.getParameter("context_id");
@@ -18,33 +16,18 @@
 		status = "";
 	if (algorithm == null)
 		algorithm = "";
-	DBSearch db_search = new DBSearch();
 	
 	String keyword = "(*)";
 	String gid = "NA";	
 	String taxonId = "";
-	if(cId.equals("2") && (algorithm != null && algorithm.equals(""))){
-		keyword= "(*)";
-		gid = "";
-	}
-	else {
-		if (cType.equals("taxon")) {
-			gid = "";
-			taxonId = cId;
-		}
-		else if (cType.equals("genome")) {
-			gid = cId;
-		}
-		/*
-		ArrayList<ResultType> items = db_search.getTaxonIdList(cId, cType, "", "", "");
 
-		if(items.size() > 0){
-			gid = items.get(0).get("id");
-			for (int i = 1; i < items.size(); i++) {
-				gid += "##" + items.get(i).get("id");
-			}
-		}*/
-	}
+    if (cType.equals("taxon")) {
+        gid = "";
+        taxonId = cId;
+    }
+    else if (cType.equals("genome")) {
+        gid = cId;
+    }
 
 %>
 <div style="display:none">
@@ -198,10 +181,10 @@ function updateCharts(data) {
 	graphSpaceGenomeStatus.changeData(data);
 }
 var initializeCharts = function(data) {
-	graphSpaceDisease = createGraphSpaceBarAndPie('disease', 'disease_f', 'Diseases', data);
-	graphSpaceHostName = createGraphSpaceBarAndPie('host-name', 'host_name_f', 'Host Name', data);
-	graphSpaceIsolationCountry = createGraphSpaceBarAndPie('isolation-country', 'isolation_country_f', 'Isolation Country', data);
-	graphSpaceGenomeStatus = createGraphSpaceBarAndPie('genome-status', 'genome_status_f', 'Genome Status', data);
+	graphSpaceDisease = createGraphSpaceBarAndPie('disease', 'disease', 'Diseases', data);
+	graphSpaceHostName = createGraphSpaceBarAndPie('host-name', 'host_name', 'Host Name', data);
+	graphSpaceIsolationCountry = createGraphSpaceBarAndPie('isolation-country', 'isolation_country', 'Isolation Country', data);
+	graphSpaceGenomeStatus = createGraphSpaceBarAndPie('genome-status', 'genome_status', 'Genome Status', data);
 	
 	graphSpaceDisease();
 	graphSpaceHostName();
@@ -265,7 +248,7 @@ Ext.onReady(function () {
 		cartType: '',
 		scm: [[checkbox,
 			{header:'Organism Name',		dataIndex:'genome_name',		flex:2, renderer:renderGenomeName}, 
-			{header:'NCBI Taxon ID',		dataIndex:'ncbi_tax_id',		flex:1, hidden:true, align:'right'},
+			{header:'NCBI Taxon ID',		dataIndex:'taxon_id',		flex:1, hidden:true, align:'right'},
 			{header:'Genome Status',		dataIndex:'genome_status',		flex:1, align:'center'}, 
 			{header:'Genome Browser',		dataIndex:'genome_browser', 	flex:1,	align:'center', sortable:false, renderer:renderGenomeBrowserByGenome},
 			{header:'Size',					dataIndex:'genome_length',		flex:1, align:'right',  hidden:true},
@@ -273,8 +256,8 @@ Ext.onReady(function () {
 			{header:'Plasmids',				dataIndex:'plasmids',			flex:1, align:'center', hidden:true},
 			{header:'Contigs',				dataIndex:'contigs',			flex:1, align:'center', hidden:true},
 			{header:'Sequences',			dataIndex:'sequences',			flex:1, align:'center', hidden:true, renderer:renderTotal},
-			{header:'PATRIC CDS',			dataIndex:'rast_cds',			flex:1, align:'center', renderer:renderCDS_Count_RAST},
-			{header:'Legacy BRC CDS',		dataIndex:'brc_cds',			flex:1, align:'center', hidden:true, renderer:renderCDS_Count_BRC},
+			{header:'PATRIC CDS',			dataIndex:'patric_cds',			flex:1, align:'center', renderer:renderCDS_Count_RAST},
+			{header:'BRC1 CDS',	        	dataIndex:'brc1_cds',			flex:1, align:'center', hidden:true, renderer:renderCDS_Count_BRC},
 			{header:'RefSeq CDS',			dataIndex:'refseq_cds',			flex:1, align:'center', hidden:true, renderer:renderCDS_Count_RefSeq},
 			{header:'Isolation Country',	dataIndex:'isolation_country', 	flex:1, align:'center'},
 			{header:'Host Name',			dataIndex:'host_name',			flex:1, align:'center'},
@@ -288,8 +271,6 @@ Ext.onReady(function () {
 			{header:'Pathovar',				dataIndex:'pathovar',			flex:1, align:'center', hidden:true},
 			{header:'Culture Collection',	dataIndex:'culture_collection', flex:1, align:'center', hidden:true},
 			{header:'Type Strain',			dataIndex:'type_strain',		flex:1, align:'center', hidden:true},
-			{header:'Project Status', 		dataIndex:'project_status', 	flex:1, align:'center', hidden:true},
-			{header:'Availability', 		dataIndex:'availability', 		flex:1, align:'center', hidden:true},
 			{header:'Sequencing Center',	dataIndex:'sequencing_centers', flex:1, align:'center', hidden:true},
 			{header:'Publication', 			dataIndex:'publication',		flex:1, align:'center', hidden:true},
 			{header:'NCBI Project ID', 		dataIndex:'ncbi_project_id',	flex:1, align:'center', hidden:true},
@@ -324,13 +305,14 @@ Ext.onReady(function () {
 			{header:'Habitat',				dataIndex:'habitat',			flex:1, align:'center', hidden:true},
 			{header:'Others',				dataIndex:'comments',			flex:1, align:'center', hidden:true}],
 			[checkbox,
-			{text:"Genome Name",		dataIndex:'genome_name', 		flex:3, renderer:renderGenomeName},
-			{text:"Accession",			dataIndex:'accession',			flex:1, renderer:renderAccession},
-			{text:"Genome Browser",		dataIndex:'sid',				flex:1, align:'center', sortable:false, renderer:renderGenomeBrowserBySequence},
-			{text:"Length (bp)",		dataIndex:'length', 			flex:1, align:'right', renderer:BasicRenderer},
-			{text:"Sequence Type",		dataIndex:'sequence_type',		flex:1, align:'center', renderer:BasicRenderer},
-			{text:"GC Content (%)",		dataIndex:'gc_content',			flex:1, align:'center', renderer:BasicRenderer},
-			{text:"Description",		dataIndex:'description',		flex:2, renderer:BasicRenderer}]],
+			{header:"Genome Name",		dataIndex:'genome_name', 		flex:3, renderer:renderGenomeName},
+			{header:"Accession",			dataIndex:'accession',			flex:1, renderer:renderAccession},
+			{header:"Genome Browser",		dataIndex:'sequence_id',			flex:1, align:'center', sortable:false, renderer:renderGenomeBrowserBySequence},
+			{header:"Length (bp)",		dataIndex:'length', 			flex:1, align:'right', renderer:BasicRenderer},
+			{header:"GC Content (%)",		dataIndex:'gc_content',			flex:1, align:'center', renderer:BasicRenderer},
+			{header:"Sequence Type",		dataIndex:'sequence_type',		flex:1, align:'center', renderer:BasicRenderer},
+			{header:"Topology",   		dataIndex:'topology',		    flex:1, align:'center', renderer:BasicRenderer},
+			{header:"Description",		dataIndex:'description',		flex:2, renderer:BasicRenderer}]],
 		plugin:true,
 		plugintype:"checkbox",
 		extraParams:getExtraParams,
@@ -415,7 +397,7 @@ function getOriginalKeyword(hash){
 	if('<%=gid%>' != 'NA' && '<%=gid%>' != '')
 		genome_list_object["gid"] =  '<%=gid%>';
 	if('<%=status%>' != '')
-		genome_list_object["genome_status_f"] =  '<%=status%>';
+		genome_list_object["genome_status"] =  '<%=status%>';
 	if('<%=algorithm%>' != '')
 		genome_list_object["annotation"] =  '<%=algorithm%>';
 	if(hash && hash.kW != '')

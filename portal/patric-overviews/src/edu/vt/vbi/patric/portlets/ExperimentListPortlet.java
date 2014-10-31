@@ -17,9 +17,8 @@ package edu.vt.vbi.patric.portlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.net.MalformedURLException;
+import java.util.*;
 
 import javax.portlet.GenericPortlet;
 import javax.portlet.PortletException;
@@ -29,8 +28,13 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
-import javax.portlet.UnavailableException;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -53,12 +57,86 @@ public class ExperimentListPortlet extends GenericPortlet {
 	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 
 		response.setContentType("text/html");
-		PortletRequestDispatcher prd = null;
 
 		new SiteHelper().setHtmlMetaElements(request, response, "Experiment List");
 		response.setTitle("Experiment List");
-		prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/experiment/list.jsp");
-		prd.include(request, response);
+
+		String cType = request.getParameter("context_type");
+		String cId = request.getParameter("context_id");
+
+		if (cType != null && cId != null) {
+			String kw = (request.getParameter("keyword") != null) ? request.getParameter("keyword") : "";
+			if (kw != null && (kw.startsWith("/") || kw.startsWith("#"))) {
+				kw = "";
+			}
+
+			// DBTranscriptomics conn_transcriptopics = new DBTranscriptomics();
+			SolrInterface solr = new SolrInterface();
+
+			String keyword = "(*)";
+			String filter = "";
+			String eid = "NA";
+
+			if (cType.equals("taxon") && cId.equals("2")) {
+				filter = "*";
+				eid = "";
+			}
+			else {
+				List<String> items = new ArrayList<>();
+				if (cType.equals("taxon")) {
+
+					try {
+						SolrQuery query = new SolrQuery("*:*");
+						query.setRows(10000);
+						query.setFields("eid");
+						query.setFilterQueries(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_ids", "taxon_lineage_ids:" + cId));
+
+						QueryResponse qr = solr.getSolrServer(SolrCore.TRANSCRIPTOMICS_EXPERIMENT).query(query);
+						SolrDocumentList sdl = qr.getResults();
+
+						for (SolrDocument doc: sdl) {
+							items.add(doc.get("eid").toString());
+						}
+
+					} catch (MalformedURLException | SolrServerException e) {
+						LOGGER.error(e.getMessage(), e);
+					}
+				}
+				else if (cType.equals("genome")) {
+
+					try {
+						SolrQuery query = new SolrQuery("genome_ids:" + cId);
+						query.setRows(10000);
+						query.setFields("eid");
+
+						QueryResponse qr = solr.getSolrServer(SolrCore.TRANSCRIPTOMICS_EXPERIMENT).query(query);
+						SolrDocumentList sdl = qr.getResults();
+
+						for (SolrDocument doc: sdl) {
+							items.add(doc.get("eid").toString());
+						}
+					} catch (MalformedURLException | SolrServerException e) {
+						LOGGER.error(e.getMessage(), e);
+					}
+				}
+
+				if (items.size() > 0) {
+					eid = StringUtils.join(items, "##");
+				}
+				else {
+					eid = "0";
+				}
+				filter = eid;
+			}
+
+			request.setAttribute("keyword", keyword);
+			request.setAttribute("kw", kw);
+			request.setAttribute("eid", eid);
+			request.setAttribute("filter", filter);
+
+			PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/experiment/list.jsp");
+			prd.include(request, response);
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -197,6 +275,7 @@ public class ExperimentListPortlet extends GenericPortlet {
 					sort.put("direction", sort_dir);
 				}
 				solr.setCurrentInstance(SolrCore.TRANSCRIPTOMICS_COMPARISON);
+				key.put("fields", "eid,expid,accession,pid,samples,expname,release_date,pmid,organism,strain,mutant,timepoint,condition,genes,sig_log_ratio,sig_z_score");
 
 				JSONObject object = solr.getData(key, sort, facet, start, end, false, false, false);
 
@@ -246,7 +325,7 @@ public class ExperimentListPortlet extends GenericPortlet {
 				int start = Integer.parseInt(start_id);
 				int end = Integer.parseInt(limit);
 
-				HashMap<String, String> sort = null;
+				Map<String, String> sort = null;
 				if (request.getParameter("sort") != null) {
 					// sorting
 					JSONParser a = new JSONParser();
@@ -272,7 +351,7 @@ public class ExperimentListPortlet extends GenericPortlet {
 						sort.put("direction", sort_dir);
 					}
 				}
-
+				key.put("fields", "eid,expid,accession,institution,pi,author,pmid,release_date,title,organism,strain,mutant,timeseries,condition,samples,platform,genes");
 				JSONObject object = solr.getData(key, sort, facet, start, end, true, hl, false);
 
 				JSONObject obj = (JSONObject) object.get("response");

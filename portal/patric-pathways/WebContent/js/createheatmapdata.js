@@ -61,7 +61,7 @@ function processData_GenomeColumn(flash_data){
 			flag = false;
 			for(k = 0; k < flash_data.data.length; k++){
 	
-				 if(rows[j].rowID == flash_data.data[k].ec_number && flash_data.data[k].genome_info_id == flash_data.genomes[i].genome_info_id){
+				 if(rows[j].rowID == flash_data.data[k].ec_number && flash_data.data[k].genome_id == flash_data.genomes[i].genome_id){
 					 					 
 					 hexString += flash_data.data[k].gene_count;
 					 flag = true;	
@@ -86,7 +86,7 @@ function processData_GenomeColumn(flash_data){
 		labelColor = ((i % 2) == 0) ? 0x000066 : null;
 		rowColor = ((i % 2) == 0) ? 0xF4F4F4 : 0xd6e4f4;
 
-		cols[i] = new Column(i, flash_data.genomes[i].genome_info_id, flash_data.genomes[i].genome_name, hexString, labelColor, rowColor, {'instances': "",'families': "",'min': "0",'max': "0"});
+		cols[i] = new Column(i, flash_data.genomes[i].genome_id, flash_data.genomes[i].genome_name, hexString, labelColor, rowColor, {'instances': "",'families': "",'min': "0",'max': "0"});
 			
 	}
 

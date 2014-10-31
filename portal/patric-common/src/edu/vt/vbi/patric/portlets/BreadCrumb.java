@@ -159,7 +159,14 @@ public class BreadCrumb extends GenericPortlet {
 
 			List<Map<String, Object>> lineage = new ArrayList<>();
 			SolrInterface solr = new SolrInterface();
-			Taxonomy taxonomy = solr.getTaxonomy(Integer.parseInt(cId));
+			Taxonomy taxonomy = null;
+			if (cType.equals("taxon")) {
+				taxonomy = solr.getTaxonomy(Integer.parseInt(cId));
+			}
+			else if (cType.equals("genome")) {
+				Genome genome = solr.getGenome(cId);
+				taxonomy = solr.getTaxonomy(genome.getTaxonId());
+			}
 			List<Integer> taxonIds = taxonomy.getLineageIds();
 			List<String> txNames = taxonomy.getLineageNames();
 			List<String> txRanks = taxonomy.getLineageRanks();
@@ -174,6 +181,7 @@ public class BreadCrumb extends GenericPortlet {
 				lineage.add(taxon);
 			}
 			request.setAttribute("lineage", lineage);
+			request.setAttribute("taxonId", taxonomy.getId());
 
 			PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/breadcrumb/other_tabs.jsp");
 			prd.include(request, response);

@@ -169,16 +169,13 @@ public class CompareRegionViewer extends GenericPortlet {
 					"function(track, feature, div) { div.style.backgroundColor = ['red','#1F497D','#938953','#4F81BD','#9BBB59','#806482','#4BACC6','#F79646'][feature.get('phase')];}");
 
 			// query genome metadata
-			// Map<String, ResultType> gMetaData = conn_summary.getGenomeMetadata(crRS.getGenomeNames());
 			List<Genome> patricGenomes = null;
 			try {
-				solr.setCurrentInstance(SolrCore.GENOME);
-
 				SolrQuery query = new SolrQuery("genome_id:(" + StringUtils.join(crRS.getGenomeIds(), " OR ") + ")");
 				query.setFields("genome_id,genome_name,isolation_country,host_name,disease,collection_date,completion_date");
 				query.setRows(_numRegion + _numRegion_buffer);
 
-				QueryResponse qr = solr.getServer().query(query);
+				QueryResponse qr = solr.getSolrServer(SolrCore.GENOME).query(query);
 				patricGenomes = qr.getBeans(Genome.class);
 
 			} catch (MalformedURLException | SolrServerException e) {

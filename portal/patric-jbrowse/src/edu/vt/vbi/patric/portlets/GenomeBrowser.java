@@ -88,9 +88,7 @@ public class GenomeBrowser extends GenericPortlet {
 
 		try {
 			SolrInterface solr = new SolrInterface();
-			solr.setCurrentInstance(SolrCore.SEQUENCE);
-
-			QueryResponse qr = solr.getServer().query(query);
+			QueryResponse qr = solr.getSolrServer(SolrCore.SEQUENCE).query(query);
 			List<GenomeSequence> sequences = qr.getBeans(GenomeSequence.class);
 
 			for (GenomeSequence sequence: sequences) {
@@ -135,14 +133,11 @@ public class GenomeBrowser extends GenericPortlet {
 				}
 				double avgCount = sum.doubleValue() / histogram.size();
 
-
-				solr.setCurrentInstance(SolrCore.FEATURE);
-
 				SolrQuery query = new SolrQuery("accession:" + accession + " AND annotation:" + annotation + " AND !(feature_type:source)");
 				query.setRows(10000);
 				query.addSort("start", SolrQuery.ORDER.asc);
 
-				QueryResponse qr = solr.getServer().query(query);
+				QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query);
 				List<GenomeFeature> features = qr.getBeans(GenomeFeature.class);
 
 				for (GenomeFeature f: features) {
@@ -270,12 +265,10 @@ public class GenomeBrowser extends GenericPortlet {
 		SolrInterface solr = new SolrInterface();
 		String SequenceString = null;
 		try {
-			solr.setCurrentInstance(SolrCore.SEQUENCE);
-
 			SolrQuery query = new SolrQuery("sequence_id:" + sequenceId);
 			query.setFields("sequence");
 
-			QueryResponse qr = solr.getServer().query(query);
+			QueryResponse qr = solr.getSolrServer(SolrCore.SEQUENCE).query(query);
 			List<GenomeSequence> sequences = qr.getBeans(GenomeSequence.class);
 
 			for (GenomeSequence sequence: sequences) {
@@ -312,8 +305,7 @@ public class GenomeBrowser extends GenericPortlet {
 		SolrInterface solr = new SolrInterface();
 
 		try {
-			solr.setCurrentInstance(SolrCore.FEATURE);
-			QueryResponse qr = solr.getServer().query(query);
+			QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query);
 
 			for (RangeFacet range : qr.getFacetRanges()) {
 				List<RangeFacet.Count> rangeEntries = range.getCounts();

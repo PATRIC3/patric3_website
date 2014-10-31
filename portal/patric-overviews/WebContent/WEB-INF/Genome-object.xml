@@ -51,7 +51,7 @@
 				<region>left</region>
 				<height>1</height>
 			</window>
-			<window>
+<!--			<window>
 				<window-name>ExperimentSummaryWindow</window-name>
 				<content>
 					<content-type>portlet</content-type>
@@ -59,7 +59,7 @@
 				</content>
 				<region>left</region>
 				<height>2</height>
-			</window>
+			</window>-->
 			<window>
 				<window-name>PubMedPanelWindow</window-name>
 				<content>

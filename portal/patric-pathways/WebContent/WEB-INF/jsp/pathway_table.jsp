@@ -1,9 +1,6 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet"%>
 <%@ page import="java.util.*" %>
-<%@ page import="edu.vt.vbi.patric.dao.DBPathways" %>
-<%@ page import="edu.vt.vbi.patric.dao.ResultType" %>
 <%
-DBPathways conn_summary = new DBPathways();
 String cId = request.getParameter("context_id");
 %>
 
@@ -51,8 +48,8 @@ Ext.onReady(function () {
 			{name:'occurrence',	type:'string'},
 			{name:'ec_name',		type:'string'},
 			{name:'taxon_id',	type:'string'},
-			{name:'na_feature_id',	type:'string'},
-			{name:'genome_info_id',	type:'string'}
+			{name:'feature_id',	type:'string'},
+			{name:'genome_id',	type:'string'}
 		]
 	});
 	
@@ -114,15 +111,8 @@ function CallBack(){
 }
 
 function renderPathwayName(value, p, record){
-	
-	var render_algorithm = "";
 
-	if(record.data.algorithm == "Legacy BRC" )
-		render_algorithm = "BRC";
-	else
-		render_algorithm = record.data.algorithm;
-
-	return Ext.String.format("<a href=\"CompPathwayMap?cType=genome&cId={0}&dm=feature&feature_info_id={1}&map={2}&algorithm={3}&ec_number=\">{4}</a>", record.data.genome_info_id, record.data.na_feature_id, record.data.pathway_id, render_algorithm, record.data.pathway_name);
+	return Ext.String.format("<a href=\"CompPathwayMap?cType=genome&cId={0}&dm=feature&feature_id={1}&map={2}&algorithm={3}&ec_number=\">{4}</a>", record.data.genome_id, record.data.feature_id, record.data.pathway_id, record.data.algorithm, record.data.pathway_name);
 
 }
 

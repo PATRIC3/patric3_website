@@ -15,34 +15,22 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.portlets;
 
-import java.io.IOException;
-
-import javax.portlet.GenericPortlet;
-import javax.portlet.PortletException;
-import javax.portlet.PortletRequestDispatcher;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
-import javax.portlet.UnavailableException;
-
 import edu.vt.vbi.patric.common.SiteHelper;
+
+import javax.portlet.*;
+import java.io.IOException;
 
 public class GenomeListPortlet extends GenericPortlet {
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.portlet.GenericPortlet#doView(javax.portlet.RenderRequest, javax.portlet.RenderResponse)
-	 */
 	@Override
-	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException, UnavailableException {
+	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 
 		response.setContentType("text/html");
 
-		PortletRequestDispatcher prd = null;
-
 		new SiteHelper().setHtmlMetaElements(request, response, "Genome List");
 		response.setTitle("Genome List");
-		prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/genome_list.jsp");
+
+		PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/genome_list.jsp");
 		prd.include(request, response);
 	}
 }

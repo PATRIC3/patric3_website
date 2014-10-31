@@ -51,7 +51,7 @@ Ext.onReady(function () {
 		Ext.Ajax.request({
 			url: "/portal/portal/patric/GenomeFinder/GenomeFinderWindow?action=b&cacheability=PAGE",
 			method: 'GET',
-			params: {need:"from_genome", keyword:'<%=cId%>'},
+			params: {need:"getGenome", id:'<%=cId%>'},
 			success: function(response, opts) {
 				decoded = Ext.JSON.decode(response.responseText);
 				InsertTable();
@@ -132,12 +132,15 @@ function InsertTable(){
 							&& decoded[metadataGenomeSummaryValue[metadataGenomeSummaryID[i]][j].text] != "-") {
 						//console.log(metadataGenomeSummaryValue[metadataGenomeSummaryID[i]][j].value.replace("\"","")); // e.g. genbank_accessions
 						//console.log(decoded[metadataGenomeSummaryValue[metadataGenomeSummaryID[i]][j].value.replace("\"","")]); // e.g. CP003782.1
-						cell.innerHTML = "<a href=\""
-							+ Ext.String.format(metadataGenomeSummaryValue[metadataGenomeSummaryID[i]][j].link, decoded[metadataGenomeSummaryValue[metadataGenomeSummaryID[i]][j].value].toString().replace("\"",""))
-							+ "\""
-							+ " class=\""+ metadataGenomeSummaryValue[metadataGenomeSummaryID[i]][j].linkClass + "\""
-							+ " target=_blank>" 
-							+ decoded[metadataGenomeSummaryValue[metadataGenomeSummaryID[i]][j].text] + "</a>";
+						//console.log(metadataGenomeSummaryValue[metadataGenomeSummaryID[i]][j].link, decoded[metadataGenomeSummaryValue[metadataGenomeSummaryID[i]][j].value]);
+						if (metadataGenomeSummaryValue[metadataGenomeSummaryID[i]][j].link, decoded[metadataGenomeSummaryValue[metadataGenomeSummaryID[i]][j].value] != undefined) {
+                            cell.innerHTML = "<a href=\""
+                                + Ext.String.format(metadataGenomeSummaryValue[metadataGenomeSummaryID[i]][j].link, decoded[metadataGenomeSummaryValue[metadataGenomeSummaryID[i]][j].value].toString().replace("\"",""))
+                                + "\""
+                                + " class=\""+ metadataGenomeSummaryValue[metadataGenomeSummaryID[i]][j].linkClass + "\""
+                                + " target=_blank>"
+                                + decoded[metadataGenomeSummaryValue[metadataGenomeSummaryID[i]][j].text] + "</a>";
+                        }
 					}
 					else {
 						cell.innerHTML = "<span class=\"nowrap\">"+decoded[metadataGenomeSummaryValue[metadataGenomeSummaryID[i]][j].text]+"</span>";

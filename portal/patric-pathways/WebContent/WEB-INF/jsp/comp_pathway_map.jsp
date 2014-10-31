@@ -1,111 +1,33 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet"%>
 <%@ page import="java.util.*" %>
-<%@ page import="edu.vt.vbi.patric.dao.DBPathways" %>
-<%@ page import="edu.vt.vbi.patric.dao.ResultType" %>
 <%@ page import="javax.portlet.PortletSession" %>
 <portlet:defineObjects/>
 <%
+String cType = (String) request.getAttribute("cType");
+String cId = (String) request.getAttribute("cId");
+String taxonId = (String) request.getAttribute("taxonId");
+String genomeId = (String) request.getAttribute("genomeId");
+String algorithm = (String) request.getAttribute("algorithm");
 
-DBPathways conn_pathways = new DBPathways();
-ResultType item = null;
-ArrayList<ResultType> ecAssignments = null;
-ArrayList<ResultType> taxongenomecounts = null;
+String map = (String) request.getAttribute("map");
+String dm = (String) request.getAttribute("dm");
+String pk = (String) request.getAttribute("pk");
+String feature_id = (String) request.getAttribute("feature_id");
 
-String pk = request.getParameter("param_key") != null || request.getParameter("param_key") != ""?request.getParameter("param_key"):"",
-	dm = request.getParameter("display_mode") != null || request.getParameter("display_mode") != ""?request.getParameter("display_mode"):"",
-	cType = request.getParameter("context_type") != null || request.getParameter("context_type") != ""?request.getParameter("context_type"):"",
-	map = request.getParameter("map") != null || request.getParameter("map") != ""?request.getParameter("map"):"",
-	algorithm = request.getParameter("algorithm") != null || request.getParameter("algorithm") != ""?request.getParameter("algorithm"):"",
-	cId = request.getParameter("context_id") != null || request.getParameter("context_id") != ""?request.getParameter("context_id"):"",
-	ec_number = request.getParameter("ec_number") != null || request.getParameter("ec_number") != ""?request.getParameter("ec_number"):"",
-	feature_info_id = request.getParameter("feature_info_id") != null || request.getParameter("feature_info_id") != ""?request.getParameter("feature_info_id"):"",
-	ec_names = "",
-	occurrences = "",
-	genomeId = "",
-	taxonId = "",
-	taxongenomecount_patric = "0",
-	taxongenomecount_brc = "0",
-	taxongenomecount_refseq = "0",
-	pathway_name = "",
-	pathway_class = "",
-	definition = "",
-	attributes = conn_pathways.getPathwayAttributes(map);
+String ec_number = (String) request.getAttribute("ec_number");
+String ec_names = (String) request.getAttribute("ec_names");
+String occurrences = (String) request.getAttribute("occurrences");
 
-if(algorithm != null && !algorithm.equals("")){
-	if(algorithm.equals("BRC") || algorithm.equals("Legacy BRC") || algorithm.equals("Legacy"))
-		algorithm = "Curation";
-	else if(algorithm.equals("PATRIC"))
-		algorithm = "RAST";
-}	
-	
-if(cType == null || cType.equals("")){	
-	ResultType key = (ResultType) portletSession.getAttribute("key"+pk, PortletSession.APPLICATION_SCOPE);
-	
-	if(key != null && key.containsKey("genomeId") && !key.get("genomeId").toString().equals("")){
-		taxonId = "";
-		genomeId = key.get("genomeId");
-		taxongenomecounts = new DBPathways().getTaxonGenomeCount(genomeId, "genomelist");
-	} else{
-		if(key != null && key.containsKey("taxonId") && !key.get("taxonId").toString().equals("")){
-			taxonId = key.get("taxonId");
-		}else{
-			taxonId = "2";
-		}
-		taxongenomecounts = new DBPathways().getTaxonGenomeCount(taxonId, "taxon");
-		genomeId = "";
-	}
-	
-	if(key != null && key.containsKey("feature_info_id")){
-		feature_info_id = key.get("feature_info_id");
-	}	
-	
-}else if(cType.equals("taxon")){
-	genomeId = "";
-	if(cId == null || cId == "")
-		taxonId = "2";
-	else
-		taxonId = cId;
-	taxongenomecounts = new DBPathways().getTaxonGenomeCount(taxonId, "taxon");	
-}else if(cType.equals("genome")){
-	taxonId = "";
-	genomeId = cId;
-	taxongenomecounts = new DBPathways().getTaxonGenomeCount(genomeId, "genome");
-}
+int taxongenomecount_patric = (Integer) request.getAttribute("taxongenomecount_patric");
+int taxongenomecount_brc1 = (Integer) request.getAttribute("taxongenomecount_brc1");
+int taxongenomecount_refseq = (Integer) request.getAttribute("taxongenomecount_refseq");
 
-if(dm != null && dm.equals("ec")){
-	ecAssignments = new DBPathways().EC2ECProperties(ec_number, map);
-	for ( Iterator<ResultType> iter = ecAssignments.iterator(); iter.hasNext(); ) {
-		item = iter.next();
-		ec_names = item.get("description");
-		occurrences = item.get("occurrence");
-	}
-}else if(dm != null && dm.equals("feature")){
-	ecAssignments = new DBPathways().aaSequence2ECAssignments(feature_info_id, map);
-	for ( Iterator<ResultType> iter = ecAssignments.iterator(); iter.hasNext(); ) {
-		item = iter.next();
-		ec_number = item.get("ec_number");
-		ec_names = item.get("description");
-		occurrences = item.get("occurrence") ;
-	}
-}
-
-for(int i =0; i < taxongenomecounts.size(); i++){
-	ResultType g = (ResultType) taxongenomecounts.get(i);	
-	if(g.get("algorithm").equals("RAST")){
-		taxongenomecount_patric = g.get("count");
-	}else if(g.get("algorithm").equals("Curation")){
-		taxongenomecount_brc = g.get("count");
-	}else if(g.get("algorithm").equals("RefSeq")){
-		taxongenomecount_refseq = g.get("count");
-	}
-}
-
-definition = attributes.split(";")[2];
-pathway_name = attributes.split(";")[0];
-pathway_class = attributes.split(";")[1];
-
+String definition = (String) request.getAttribute("definition");
+String pathway_name = (String) request.getAttribute("pathway_name");
+String pathway_class = (String) request.getAttribute("pathway_class");
 %>
 <style>
+/*
 	.idvg-legend {
 		background-color: transparent;
 	}
@@ -193,7 +115,7 @@ table.checkbox td {
 	padding-top:3px;
 	padding-bottom:3px;
 }
-
+*/
 </style>
 
 <form id="fMapForm" action="#" method="post">
@@ -203,14 +125,14 @@ table.checkbox td {
 	<input type="hidden" id="taxonId" name="taxonId" value="<%=taxonId%>" />
 	<input type="hidden" id="algorithm" name="algorithm" value="<%=algorithm %>" />
 	<input type="hidden" id="taxongenomecount_patric" name="taxongenomecount_patric" value="<%=taxongenomecount_patric%>" />
-	<input type="hidden" id="taxongenomecount_brc" name="taxongenomecount_brc" value="<%=taxongenomecount_brc%>" />
+	<input type="hidden" id="taxongenomecount_brc1" name="taxongenomecount_brc1" value="<%=taxongenomecount_brc1%>" />
 	<input type="hidden" id="taxongenomecount_refseq" name="taxongenomecount_refseq" value="<%=taxongenomecount_refseq%>" />
 	<input type="hidden" id="genomeId" name="genomeId" value="<%=genomeId%>" />
 	<input type="hidden" id="map" name="map" value="<%=map %>" /> 
 	<input type="hidden" id="definition" name="definition" value="<%=definition %>" />
 	<input type="hidden" id="ec_number" name="ec_number" value="<%=ec_number %>" /> 
 	<input type="hidden" id="ec_names" name="ec_names" value="<%=ec_names %>" /> 
-	<input type="hidden" id="feature_info_id" name="feature_info_id" value="<%=feature_info_id %>" />
+	<input type="hidden" id="feature_id" name="feature_id" value="<%=feature_id %>" />
 	<input type="hidden" id="data" name="data" value="" />
 	<input type="hidden" id="pk" name="pk" value="<%=pk %>" /> 
 	<input type="hidden" id="mapaction" name="mapaction"/>
@@ -441,9 +363,9 @@ Ext.onReady(function(){
 	  				refresh("PATRIC");
 				}
 			},{
-				text: 'Legacy BRC',
+				text: 'BRC1',
 				handler: function(){
-					refresh("Legacy BRC");
+					refresh("BRC1");
 				}
 			},{
 				text: 'RefSeq',
@@ -466,9 +388,9 @@ Ext.onReady(function(){
 					refreshHeatmap("PATRIC");  				
 				}
 			},{
-				text: 'Legacy BRC',
+				text: 'BRC1',
 				handler: function(){
-					refreshHeatmap("Legacy BRC"); 
+					refreshHeatmap("BRC1");
 				}
 			},{
 				text: 'RefSeq',
@@ -510,8 +432,8 @@ Ext.onReady(function(){
 					
 					if(Ext.getCmp('kegg-panel')){		
 
-						if(getAlgorithm(Ext.getDom("algorithm").value) == "BRC")
-		            		Ext.getCmp('kegg_matrix_panel_div').getDockedItems()[1].items.items[1].btnEl.dom.childNodes[0].childNodes[0].innerHTML = "Legacy BRC";
+						if(getAlgorithm(Ext.getDom("algorithm").value) == "BRC1")
+		            		Ext.getCmp('kegg_matrix_panel_div').getDockedItems()[1].items.items[1].btnEl.dom.childNodes[0].childNodes[0].innerHTML = "BRC1";
 		            	else
 		            		Ext.getCmp('kegg_matrix_panel_div').getDockedItems()[1].items.items[1].btnEl.dom.childNodes[0].childNodes[0].innerHTML = getAlgorithm(Ext.getDom("algorithm").value);						
 	  					
@@ -546,8 +468,8 @@ Ext.onReady(function(){
 			            	firstload = false;
 			            	processData_GenomeColumn("refresh");
 		            	}
-		            	if(getAlgorithm(Ext.getDom("algorithm").value) == "BRC")
-		            		Ext.getCmp('heatmap-panel').getDockedItems()[1].items.items[1].btnEl.dom.childNodes[0].childNodes[0].innerHTML = "Legacy BRC";
+		            	if(getAlgorithm(Ext.getDom("algorithm").value) == "BRC1")
+		            		Ext.getCmp('heatmap-panel').getDockedItems()[1].items.items[1].btnEl.dom.childNodes[0].childNodes[0].innerHTML = "BRC";
 		            	else
 		            		Ext.getCmp('heatmap-panel').getDockedItems()[1].items.items[1].btnEl.dom.childNodes[0].childNodes[0].innerHTML = getAlgorithm(Ext.getDom("algorithm").value);
 		            	

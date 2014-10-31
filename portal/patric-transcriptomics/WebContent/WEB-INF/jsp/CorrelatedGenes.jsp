@@ -49,10 +49,10 @@ Ext.onReady(function()
 
 	Ext.define('Correlation', {
 		extend: 'Ext.data.Model',
-		idProperty: 'na_feature_id',
+		idProperty: 'feature_id',
 		fields: [
-			{name:'genome_info_id', type:'int'}, 'genome_name', 'accession', 'locus_tag', 
-			{name:'na_feature_id', type:'int'}, {name:'start_max', type:'int'}, {name:'end_min', type:'int'}, 
+			'genome_id', 'genome_name', 'accession', 'alt_locus_tag',
+			'feature_id', {name:'start', type:'int'}, {name:'end', type:'int'},
 			{name:'na_length', type:'int'}, {name:'correlation', type:'float'}, {name:'count', type:'int'},
 			{name:'strand', type:'int'}, 'product', 'refseq_locus_tag', 'gene', 'annotation', 'feature_type', 'protein_id', 'aa_length'
 		]
@@ -69,19 +69,19 @@ Ext.onReady(function()
 		scm:[[checkbox,
 				{text:'Genome Name',		dataIndex:'genome_name',		flex:3,	align:'center', renderer:renderGenomeName},
 				{text:'Accession',			dataIndex:'accession',			flex:1,	hidden:true, align:'center', renderer:renderAccession},
-				{text:'Locus Tag',			dataIndex:'locus_tag',			flex:2,	align:'center', renderer:renderLocusTag},
+				{text:'Locus Tag',			dataIndex:'alt_locus_tag',		flex:2,	align:'center', renderer:renderLocusTag},
 				{text:'RefSeq Locus Tag',	dataIndex:'refseq_locus_tag',	flex:2,	align:'center', renderer:BasicRenderer},
 				{text:'Gene Symbol',		dataIndex:'gene',				flex:1,	align:'center', renderer:BasicRenderer},
 				{text:'Annotation',			dataIndex:'annotation',			flex:1, hidden:true, renderer:BasicRenderer}, 
 				{text:'Feature Type',		dataIndex:'feature_type',		flex:1, hidden:true, renderer:BasicRenderer},
-				{text:'Start',				dataIndex:'start_max',			flex:1,	hidden:true, align:'right'},
-				{text:'End',				dataIndex:'end_min',			flex:1,	hidden:true, align:'right'},
+				{text:'Start',				dataIndex:'start',  			flex:1,	hidden:true, align:'right'},
+				{text:'End',				dataIndex:'end',	    		flex:1,	hidden:true, align:'right'},
 				{text:'Length(NT)',			dataIndex:'na_length',			flex:1,	hidden:true, align:'right'},
 				{text:'Strand',				dataIndex:'strand',				flex:1,	hidden:true, align:'center', renderer:renderStrand},
 				{text:'Protein ID',			dataIndex:'protein_id',			flex:1, hidden:true, renderer:BasicRenderer}, 
 				{text:'Length (AA)',		dataIndex:'aa_length',			flex:1, hidden:true, align:'right', renderer:BasicRenderer},
 				{text:'Product Description',dataIndex:'product',			flex:3,	align:'left',	renderer:BasicRenderer},
-				{text:'Correlation',		dataIndex:'correlation',		flex:1, align:'center'},
+				{text:'Correlation',		dataIndex:'correlation',		flex:1, align:'center', renderer:Ext.util.Format.numberRenderer('0.000')},
 				{text:'Comparisons',		dataIndex:'count',				flex:1,	align:'right'}
 			]],
 		extraParams:getExtraParams,
@@ -95,15 +95,15 @@ Ext.onReady(function()
 			cutoffDir:'positive',
 			cutoffValue:'0.4'
 		},
-		remoteSort:true,
+		remoteSort:false,
 		fids: [],
 		gridType: "Feature",
 		current_hash: window.location.hash?window.location.hash.substring(1):"",
 		url: ['/portal/portal/patric/TranscriptomicsGeneExp/TranscriptomicsGeneExpWindow?action=b&cacheability=PAGE'],
 		loaderFunction: function(){loadFBCD();},
 		stateId: ['correlated'],
-		border: true,
-		pagingBarMsg: ['Displaying features {0} - {1} of {2}']
+		brder: true /*,
+		pagingBarMsg: ['Displaying features {0} - {1} of {2}']*/
 	};
 	
 	SetPageProperties(pageProperties),
@@ -122,6 +122,7 @@ function loadFBCD() {
 	Ext.getCmp("PATRICGridFilterPanel").child("#cutoffValue").setValue( Math.abs(hash.cutoffValue));
 	Ext.getCmp("PATRICGridFilterPanel").child("#cutoffDir").setValue(hash.cutoffDir);
 	loadGrid();
+	//$Page.getGrid().getStore().sort([{'property':'correlation','direction':'desc'}]);
 }
 
 function getExtraParams(){
@@ -146,7 +147,6 @@ function CallBack(){
 	if(Page.getGrid().sortchangeOption)
 		Page.getGrid().setSortDirectionColumnHeader();
 	Ext.getDom("grid_result_summary").innerHTML = '<b>'+Page.getStore(which).getTotalCount()+' features found</b>';
-	
 }
 
 function DownloadFile(type){
@@ -171,7 +171,7 @@ function getSelectedFeatures() {
 		fids = property.fids;
 	
 	for (i=0; i<sl.length;i++) 
-		fids.push(sl[i].data.na_feature_id);
+		fids.push(sl[i].data.feature_id);
 };
 
 function renderStrand(value, metadata, record, rowIndex, colIndex, store) {

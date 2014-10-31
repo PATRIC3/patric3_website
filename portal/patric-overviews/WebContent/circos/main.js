@@ -36,8 +36,8 @@ Ext.onReady(function() {
         title: 'Default tracks',
         items: [{
           xtype: 'hiddenfield',
-          name: 'gid',
-          value: genome_info_id
+          name: 'genome_id',
+          value: genome_id
         }, {
           xtype: 'checkboxfield',
           boxLabel: 'Chromosomes / Plasmids / Contigs',
@@ -465,7 +465,7 @@ function addFileTrack() {
 }
 function linkFeature(id) {
   Ext.Ajax.request({
-    url: ds_url + '/dnafeature/' + id,
+    url: ds_url + '/genome_feature/' + id,
     success: function(rs) {
       createPopup(JSON.parse(rs.responseText));
     }
@@ -572,7 +572,7 @@ function createTooltip() {
         beforeshow: function updateTipBody(tip) {
           if (tip.html === "") {
             Ext.Ajax.request({
-              url: ds_url + '/dnafeature/' + tooltipId,
+              url: ds_url + '/genome_feature/' + tooltipId,
               success: function(rs) {
                 var feature = JSON.parse(rs.responseText);
                 var strFeature = Ext.String.format("{0}{1}{2}", feature.locus_tag, (feature.refseq_locus_tag != null ? " | "

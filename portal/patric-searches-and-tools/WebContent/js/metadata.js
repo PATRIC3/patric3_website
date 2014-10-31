@@ -52,14 +52,6 @@ metadataGenomeSummaryValue['Organism_Info'] = [{
 	style : 'none'
 }];
 metadataGenomeSummaryValue['Project_Info'] = [{
-	name : 'Project Status',
-	text : 'project_status',
-	style : 'none'
-}, {
-	name : 'Availability',
-	text : 'availability',
-	style : 'none'
-}, {
 	name : 'Sequencing Center',
 	text : 'sequencing_centers',
 	style : 'none'
@@ -150,14 +142,14 @@ metadataGenomeSummaryValue['Sequence_Info'] = [{
 	text : 'gc_content',
 	style : 'none'
 }, {
-	name : 'RAST CDS',
-	text : 'rast_cds',
+	name : 'PATRIC CDS',
+	text : 'patric_cds',
 	style : 'none',
 	link : 'FeatureTable?cType=taxon&cId={0}&featuretype=CDS&annotation=PATRIC&filtertype=',
 	value: 'ncbi_tax_id'
 }, {
-	name : 'BRC CDS',
-	text : 'brc_cds',
+	name : 'BRC1 CDS',
+	text : 'brc1_cds',
 	style : 'none',
 	link : 'FeatureTable?cType=taxon&cId={0}&featuretype=CDS&annotation=BRC&filtertype=',
 	value: 'ncbi_tax_id'

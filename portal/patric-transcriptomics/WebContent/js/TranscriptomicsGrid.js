@@ -16,7 +16,7 @@ function TranscriptomicsGrid(gridId, stateObject, instance) {
 			name : 'exp_locus_tag',
 			type : 'string'
 		}, {
-			name : 'locus_tag',
+			name : 'alt_locus_tag',
 			type : 'string'
 		}, {
 			name : 'patric_product',
@@ -25,16 +25,16 @@ function TranscriptomicsGrid(gridId, stateObject, instance) {
 			name : 'patric_accession',
 			type : 'string'
 		}, {
-			name : 'start_max',
+			name : 'start',
 			type : 'int'
 		}, {
-			name : 'end_min',
+			name : 'end',
 			type : 'int'
 		}, {
 			name : 'strand',
 			type : 'string'
 		}, {
-			name : 'na_feature_id',
+			name : 'feature_id',
 			type : 'string'
 		}, {
 			name : 'genome_name',
@@ -237,7 +237,7 @@ function pickPanel() {
 				header : 'Locus Tag',
 				sortable : true,
 				flex : 1,
-				dataIndex : 'locus_tag',
+				dataIndex : 'alt_locus_tag',
 				renderer : renderGeneLevelPage
 			}, {
 				header : 'RefSeq Locus Tag',
@@ -263,7 +263,7 @@ function pickPanel() {
 				flex : 1,
 				hidden : true,
 				align : 'right',
-				dataIndex : 'start_max',
+				dataIndex : 'start',
 				renderer : BasicRenderer
 			}, {
 				header : 'End',
@@ -271,7 +271,7 @@ function pickPanel() {
 				flex : 1,
 				hidden : true,
 				align : 'right',
-				dataIndex : 'end_min',
+				dataIndex : 'end',
 				renderer : BasicRenderer
 			}, {
 				header : 'Strand',

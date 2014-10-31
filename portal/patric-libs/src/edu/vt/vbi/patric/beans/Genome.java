@@ -47,6 +47,9 @@ public class Genome {
 
 	// taxonomy related fields: taxon_lineage_ids, taxon_lineage_names, kingdom, phylum, class, order, family, genus, species
 
+	@Field("genus")
+	private String genus;
+
 	@Field("genome_status")
 	private String genomeStatus;
 
@@ -74,13 +77,11 @@ public class Genome {
 	@Field("reference_genome")
 	private String referenceGenome;
 
-
 	@Field("completion_date")
 	private Date completionDate;
 
 	@Field("publication")
 	private String publication;
-
 
 	@Field("ncbi_project_id")
 	private String ncbiProjectId;
@@ -93,7 +94,6 @@ public class Genome {
 
 	@Field("refseq_accessions")
 	private String refseqAccessions;
-
 
 	@Field("sequencing_centers")
 	private String sequencingCenters;
@@ -109,7 +109,6 @@ public class Genome {
 
 	@Field("assembly_method")
 	private String assemblyMethod;
-
 
 	@Field("chromosomes")
 	private int chromosomes;
@@ -129,13 +128,14 @@ public class Genome {
 	@Field("gc_content")
 	private float gcContent;
 
+	@Field("patric_cds")
+	private int patricCds;
 
-	@Field("rast_cds")
-	private int rastCds;
+	@Field("brc1_cds")
+	private int brc1Cds;
 
 	@Field("refseq_cds")
 	private int refseqCds;
-
 
 	@Field("isolation_site")
 	private String isolationSite;
@@ -167,7 +167,6 @@ public class Genome {
 	@Field("depth")
 	private String depth;
 
-
 	@Field("host_name")
 	private String hostName;
 
@@ -185,7 +184,6 @@ public class Genome {
 
 	@Field("body_sample_subsite")
 	private String bodySampleSubsite;
-
 
 	@Field("gram_stain")
 	private String gramStain;
@@ -214,10 +212,8 @@ public class Genome {
 	@Field("habitat")
 	private String habitat;
 
-
 	@Field("disease")
 	private List<String> disease;
-
 
 	@Field("comments")
 	private String comments;
@@ -266,7 +262,8 @@ public class Genome {
 		json.put("genome_length", getGenomeLength());
 		json.put("gc_content", getGcContent());
 
-		json.put("rast_cds", getRastCds());
+		json.put("patric_cds", getPatricCds());
+		json.put("brc1_cds", getBrc1Cds());
 		json.put("refseq_cds", getRefseqCds());
 
 		json.put("isolation_site", getIsolationSite());
@@ -352,6 +349,10 @@ public class Genome {
 		this.taxonId = taxonId;
 	}
 
+	public String getGenus() { return genus; }
+
+	public void setGenus(String genus) { this.genus = genus; }
+
 	public String getGenomeStatus() {
 		return genomeStatus;
 	}
@@ -427,7 +428,8 @@ public class Genome {
 	public String getCompletionDate() {
 		if (completionDate != null) {
 			return dfCompletionDate.format(completionDate);
-		} else {
+		}
+		else {
 			return null;
 		}
 	}
@@ -564,12 +566,20 @@ public class Genome {
 		this.gcContent = gcContent;
 	}
 
-	public int getRastCds() {
-		return rastCds;
+	public int getPatricCds() {
+		return patricCds;
 	}
 
-	public void setRastCds(int rastCds) {
-		this.rastCds = rastCds;
+	public void setPatricCds(int patricCds) {
+		this.patricCds = patricCds;
+	}
+
+	public int getBrc1Cds() {
+		return brc1Cds;
+	}
+
+	public void setBrc1Cds(int brc1Cds) {
+		this.brc1Cds = brc1Cds;
 	}
 
 	public int getRefseqCds() {
@@ -794,5 +804,25 @@ public class Genome {
 
 	public void setComments(String comments) {
 		this.comments = comments;
+	}
+
+	public boolean hasCollectionDate() {
+		return (this.collectionDate != null);
+	}
+
+	public boolean hasCompletionDate() {
+		return (this.completionDate != null);
+	}
+
+	public boolean hasHostName() {
+		return (this.hostName != null);
+	}
+
+	public boolean hasDisease() {
+		return (this.disease != null);
+	}
+
+	public boolean hasIsolationCountry() {
+		return (this.isolationCountry != null);
 	}
 }

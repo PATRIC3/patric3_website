@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2014 Virginia Polytechnic Institute and State University
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,37 +15,58 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.portlets;
 
+import edu.vt.vbi.patric.beans.GenomeFeature;
+import edu.vt.vbi.patric.common.SolrInterface;
+import edu.vt.vbi.patric.dao.DBSummary;
+import org.slf4j.LoggerFactory;
+
+import javax.portlet.*;
 import java.io.IOException;
 import java.io.PrintWriter;
-import javax.portlet.GenericPortlet;
-import javax.portlet.PortletException;
-import javax.portlet.PortletRequestDispatcher;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
-import javax.portlet.UnavailableException;
+import java.util.List;
+import java.util.Map;
 
 public class FeatureCommentsPortlet extends GenericPortlet {
 
-	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException, UnavailableException {
+	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(FeatureCommentsPortlet.class);
+
+	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 
 		response.setContentType("text/html");
 		String cType = request.getParameter("context_type");
 		String cId = request.getParameter("context_id");
-		int validContextId = -1;
 
-		if (cId != null) {
-			try {
-				validContextId = Integer.parseInt(cId);
+		if (cType != null && cId != null && cType.equals("feature")) {
+
+			List<Map<String, Object>> listAnnotation = null;
+			SolrInterface solr = new SolrInterface();
+
+			GenomeFeature feature = solr.getPATRICFeature(cId);
+
+			if (feature != null) {
+
+				DBSummary conn_summary = new DBSummary();
+				String refseqLocusTag = feature.getRefseqLocusTag();
+
+				if (refseqLocusTag != null) {
+					listAnnotation = conn_summary.getTBAnnotation(refseqLocusTag);
+				}
+
+				if (listAnnotation != null && !listAnnotation.isEmpty()) {
+
+					LOGGER.trace("{}", listAnnotation);
+
+					request.setAttribute("listAnnotation", listAnnotation);
+
+					PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/overview/feature_comments.jsp");
+					prd.include(request, response);
+				}
+				else {
+					PrintWriter writer = response.getWriter();
+					writer.write("<!-- no feature comment found -->");
+					writer.close();
+				}
 			}
-			catch (NumberFormatException ex) {
-			}
-		}
-
-		PortletRequestDispatcher prd = null;
-
-		if (cType != null && cId != null && validContextId > 0 && cType.equals("feature")) {
-			prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/overview/feature_comments.jsp");
-			prd.include(request, response);
 		}
 		else {
 			PrintWriter writer = response.getWriter();

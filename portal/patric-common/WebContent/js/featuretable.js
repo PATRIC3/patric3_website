@@ -42,20 +42,23 @@ function createLoadComboBoxes() {
 		labelWidth : 60
 	});
 
-	var context = getContext(), taxonId;
+	var context = getContext(), taxonId, genomeId;
 	if (context.type == "taxon" && context.id != "") {
 		taxonId = context.id;
+		genomeId = "";
 	} else {
 		taxonId = "";
-		object["gid"] = getGID();
+		// object["gid"] = context.id; // getGID();
+		genomeId = context.id;
 	}
 
 	Ext.Ajax.request({
-		url : '/patric-common/jsp/featuretable_filter_populate.jsp',
+		url: "/portal/portal/patric/FeatureTable/FeatureTableWindow?action=b&cacheability=PAGE&mode=filter",
 		method : 'POST',
 		params : {
 			keyword : constructKeyword(object, property.name),
 			taxonId: taxonId,
+			genomeId: genomeId,
 			facet : JSON.stringify({
 				"facet" : configuration[property.name].display_facets.join(","),
 				"facet_text" : configuration[property.name].display_facets_texts.join(",")
@@ -156,12 +159,13 @@ function getExtraParams() {
 
 	var object = {}, filter = {}, filter2 = {}, Page = $Page, property = Page.getPageProperties(), hash = property.hash;
 
-	var context = getContext(), taxonId;
+	var context = getContext(), taxonId, genomeId;
 	if (context.type == "taxon" && context.id != "") {
 		taxonId = context.id;
+		genomeId = "";
 	} else {
 		taxonId = "";
-		filter["gid"] = getGID();
+		genomeId = context.id;
 	}
 
 	if (hash.alg && hash.alg.toLowerCase() != "all")
@@ -192,6 +196,7 @@ function getExtraParams() {
 		need : "featurewofacet",
 		keyword : constructKeyword(object, property.name),
 		taxonId : taxonId,
+		genomeId : genomeId,
 		facet : JSON.stringify({
 			"facet" : configuration[property.name].display_facets.join(","),
 			"facet_text" : configuration[property.name].display_facets_texts.join(",")

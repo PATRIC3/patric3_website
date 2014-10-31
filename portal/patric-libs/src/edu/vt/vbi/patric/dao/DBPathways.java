@@ -34,7 +34,7 @@ import edu.vt.vbi.patric.dao.ResultType;
 
 @SuppressWarnings("unchecked")
 public class DBPathways {
-	private final static String[] hexDigits = { "00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "0A", "0B", "0C", "0D", "0E", "0F", "10",
+	public final static String[] hexDigits = { "00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "0A", "0B", "0C", "0D", "0E", "0F", "10",
 			"11", "12", "13", "14", "15", "16", "17", "18", "19", "1A", "1B", "1C", "1D", "1E", "1F", "20", "21", "22", "23", "24", "25", "26", "27",
 			"28", "29", "2A", "2B", "2C", "2D", "2E", "2F", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "3A", "3B", "3C", "3D", "3E",
 			"3F", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "4A", "4B", "4C", "4D", "4E", "4F", "50", "51", "52", "53", "54", "55",
@@ -930,7 +930,7 @@ public class DBPathways {
 
 	}
 
-	public int getCompPathwayPathwayCount(HashMap<String, String> key) {
+	public int getCompPathwayPathwayCount(Map<String, String> key) {
 
 		String sql = "";
 
@@ -1296,11 +1296,11 @@ public class DBPathways {
 	// -----------------------------------------------------------------------------------------------
 	// -----------------------------------------------------------------------------------------------
 
-	public ArrayList<ResultType> getCompPathwayFeatureCoordinates(HashMap<String, String> key, int start, int end) {
+	public ArrayList<ResultType> getCompPathwayFeatureCoordinates(Map<String, String> key, int start, int end) {
 
 		String sql = "SELECT distinct d.map_name, d.coordinate_x, d.coordinate_y " + "	FROM sres.ecpathwayenzymeclass d, app.pathwaysummary ps ";
 
-		List<?> lstGId = Arrays.asList(key.get("feature_info_id").toString().split(","));
+		List<?> lstGId = Arrays.asList(key.get("feature_info_id").split(","));
 		sql += "	WHERE ps.na_feature_id in (";
 
 		if (lstGId.size() > 500) {
@@ -1330,7 +1330,7 @@ public class DBPathways {
 		q.setString("map", key.get("map"));
 
 		ScrollableResults scr = q.scroll();
-		ArrayList<ResultType> results = new ArrayList<ResultType>();
+		ArrayList<ResultType> results = new ArrayList<>();
 
 		Object[] obj = null;
 
@@ -1355,7 +1355,7 @@ public class DBPathways {
 
 	}
 
-	public ArrayList<ResultType> getCompPathwayEcCoordinates(HashMap<String, String> key, int start, int end) {
+	public ArrayList<ResultType> getCompPathwayEcCoordinates(Map<String, String> key, int start, int end) {
 
 		String sql = "SELECT distinct d.map_name, d.coordinate_x, d.coordinate_y " + "	FROM sres.ecpathwayenzymeclass d, app.pathwaysummary ps "
 				+ "	WHERE ps.ec_number = d.map_name " + "	AND d.ec_pathway_id = ps.ec_pathway_id" + "	AND d.map_name = :ec_number"
@@ -1393,7 +1393,7 @@ public class DBPathways {
 		return results;
 	}
 
-	public ArrayList<ResultType> getCompPathwayCoordinates(HashMap<String, String> key, int start, int end) {
+	public List<ResultType> getCompPathwayCoordinates(Map<String, String> key, int start, int end) {
 
 		String sql = "SELECT distinct d.map_name, d.coordinate_x, d.coordinate_y, ps.algorithm, ps.ec_name, "
 				+ "	count(distinct(ps.genome_info_id)) genome_count " + "	FROM sres.ecpathwayenzymeclass d, app.pathwaysummary ps, "
@@ -1438,7 +1438,7 @@ public class DBPathways {
 		return results;
 	}
 
-	public String getCompPathwayPathwayIdsSQL(HashMap<?, ?> key) {
+	public String getCompPathwayPathwayIdsSQL(Map<?, ?> key) {
 
 		String sql = "";
 
@@ -1449,7 +1449,7 @@ public class DBPathways {
 		return sql;
 	}
 
-	public ArrayList<ResultType> getCompPathwayPathwayIds(HashMap<String, String> key, int start, int end) {
+	public List<ResultType> getCompPathwayPathwayIds(Map<String, String> key, int start, int end) {
 
 		String sql = "SELECT " + "	distinct ps.pathway_id, " + "	ps.pathway_name, " + "	ps.algorithm " + "	FROM app.pathwaysummary ps, "
 				+ CompleteGenomeSQL(key) + "	WHERE ps.genome_info_id = gs.genome_info_id ";
@@ -1462,7 +1462,7 @@ public class DBPathways {
 		q = bindCompSQLValues(q, key);
 		q.setTimeout(SQL_TIMEOUT);
 		ScrollableResults scr = q.scroll();
-		ArrayList<ResultType> results = new ArrayList<ResultType>();
+		ArrayList<ResultType> results = new ArrayList<>();
 
 		Object[] obj = null;
 
@@ -1813,7 +1813,7 @@ public class DBPathways {
 		return results;
 	}
 
-	public String getCompPathwayMapGridSQL(HashMap<String, String> key, String where) {
+	public String getCompPathwayMapGridSQL(Map<String, String> key, String where) {
 
 		String sql = "";
 
@@ -1834,7 +1834,7 @@ public class DBPathways {
 		return sql;
 	}
 
-	public ArrayList<ResultType> getCompPathwayMapGridList(HashMap<String, String> key, HashMap<String, String> sort, int start, int end) {
+	public List<ResultType> getCompPathwayMapGridList(Map<String, String> key, HashMap<String, String> sort, int start, int end) {
 
 		String sql = getCompPathwayMapGridSQL(key, "function");
 

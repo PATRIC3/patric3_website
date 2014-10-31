@@ -169,14 +169,14 @@ function CallBack() {
 	}
 }
 
-function getSelectedFeatures() {"use strict";
-
-	var Page = $Page, property = Page.getPageProperties(), sl = Page.getCheckBox().getSelections(), i, fids = property.fids;
-
-	for ( i = 0; i < sl.length; i++) {
-		fids.push(sl[i].data.na_feature_id);
-	}
-}
+//function getSelectedFeatures() {"use strict";
+//
+//	var Page = $Page, property = Page.getPageProperties(), sl = Page.getCheckBox().getSelections(), i, fids = property.fids;
+//
+//	for ( i = 0; i < sl.length; i++) {
+//		fids.push(sl[i].data.feature_id);
+//	}
+//}
 
 function renderSourceId(value, metadata, record, rowIndex, colIndex, store) {
 	metadata.tdAttr = 'data-qtip="' + value + '" data-qclass="x-tip"';
@@ -193,29 +193,7 @@ function renderHomologCount(value, metadata, record, rowIndex, colIndex, store) 
 		return value;
 	}
 }
-/*
-function renderSameGenusCount(value, metadata, record, rowIndex, colIndex, store) {
-	if (value != "" && value != 0) {
-		return Ext.String.format('<a href="SpecialtyGeneList?cType=taxon&cId=2&kw=source:{1}+source_id:{2}+same_genus:1">{0}</a>', value, record.data.source, record.data.source_id);
-	} else {
-		return value;
-	}
-}
-function renderSameSpeciesCount(value, metadata, record, rowIndex, colIndex, store) {
-	if (value != "" && value != 0) {
-		return Ext.String.format('<a href="SpecialtyGeneList?cType=taxon&cId=2&kw=source:{1}+source_id:{2}+same_species:1">{0}</a>', value, record.data.source, record.data.source_id);
-	} else {
-		return value;
-	}
-}
-function renderSameGenomeCount(value, metadata, record, rowIndex, colIndex, store) {
-	if (value != "" && value != 0) {
-		return Ext.String.format('<a href="SpecialtyGeneList?cType=taxon&cId=2&kw=source:{1}+source_id:{2}+same_genome:1">{0}</a>', value, record.data.source, record.data.source_id);
-	} else {
-		return value;
-	}
-}
-*/
+
 //Download File
 //BEGIN
 

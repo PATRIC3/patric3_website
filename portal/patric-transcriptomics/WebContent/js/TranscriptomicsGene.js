@@ -709,7 +709,7 @@ function filterTranscriptomicsTableData(windowID) {"use strict";
 				}
 
 				if (sample_flag) {
-					tableData[kept] = [nextRow.refseq_locus_tag, nextRow.locus_tag, nextRow.patric_product, nextRow.patric_accession, nextRow.start_max, nextRow.end_min, nextRow.strand, nextRow.na_feature_id, nextRow.genome_name, nextRow.gene, total_samples, up_r, down_r, nextRow.sample_binary, windowID];
+					tableData[kept] = [nextRow.refseq_locus_tag, nextRow.alt_locus_tag, nextRow.patric_product, nextRow.patric_accession, nextRow.start_max, nextRow.end_min, nextRow.strand, nextRow.feature_id, nextRow.genome_name, nextRow.gene, total_samples, up_r, down_r, nextRow.sample_binary, windowID];
 					kept++;
 				}
 			}
@@ -750,7 +750,7 @@ function filterHeatmapData(windowID) {"use strict";
 		for ( j = 0; j < clusterColumn.length; j++) {
 			for ( i = 0; i < transcriptomicsRows.length; i++) {
 				nextRow = transcriptomicsRows[i];
-				if (nextRow.na_feature_id == clusterColumn[j]) {
+				if (nextRow.feature_id == clusterColumn[j]) {
 					iMax = createColumn(nextRow, windowID, sampleFilter, samplePIds, ids_order, iMax);
 					break;
 				}
@@ -764,7 +764,7 @@ function filterHeatmapData(windowID) {"use strict";
 		} else {
 			for ( k = 0; k < Pagingstore_items.length; k++) {
 				for ( i = 0; i < transcriptomicsRows.length; i++) {
-					if (transcriptomicsRows[i].locus_tag == Pagingstore_items[k].data.locus_tag) {
+					if (transcriptomicsRows[i].alt_locus_tag == Pagingstore_items[k].data.alt_locus_tag) {
 						iMax = createColumn(transcriptomicsRows[i], windowID, sampleFilter, samplePIds, ids_order, iMax);
 						break;
 					}
@@ -911,7 +911,7 @@ function createColumn(nextRow, windowID, sampleFilter, samplePIds, ids, iMax) {"
 		labelColor = 0x000066;
 		columnColor = ((cols.length % 2) == 0) ? 0xF4F4F4 : 0xd6e4f4;
 		meta.labels = meta.labels.substring(0, meta.labels.length - 1);
-		cols.push(new Column(cols.length, nextRow.na_feature_id, nextRow.locus_tag + " - " + nextRow.patric_product, keeps, labelColor, columnColor, meta));
+		cols.push(new Column(cols.length, nextRow.feature_id, nextRow.alt_locus_tag + " - " + nextRow.patric_product, keeps, labelColor, columnColor, meta));
 	}
 
 	return iMax;
@@ -1096,7 +1096,7 @@ function TranscriptomicsSamplePresent(nextRow, index, windowID) {"use strict";
 function TranscriptomicsAdvancedFilter(nextRow, windowID) {"use strict";
 
 	var stateObject = getStateObject(windowID),
-	nlocus_tag = nextRow.locus_tag?nextRow.locus_tag.toLowerCase():"",
+	nlocus_tag = nextRow.alt_locus_tag?nextRow.alt_locus_tag.toLowerCase():"",
 	nelocus_tag = nextRow.refseq_locus_tag?nextRow.refseq_locus_tag.toLowerCase():"",
 	patric_product = nextRow.patric_product?nextRow.patric_product.toLowerCase():"",
 	gene_sym = nextRow.gene?nextRow.gene.toLowerCase():"",
@@ -1146,7 +1146,7 @@ function DownloadTable(windowID, fileType) {"use strict";
 	for (var k = 0; k < Pi.length; k++) {
 		d = Pi[k].data;
 		tP += d.genome_name + "\t";
-		tP += d.locus_tag + "\t";
+		tP += d.alt_locus_tag + "\t";
 		tP += d.exp_locus_tag + "\t";
 		tP += d.gene + "\t";
 		tP += d.patric_product + "\t";
@@ -1536,15 +1536,15 @@ function getSelectedFeatures(windowID, actiontype, showdownload, fastatype, to) 
 
 	if (gridObject.checkbox.getCheckAll() == true) {
 		items = Ext.getStore('ds_paging').data.items;
-		locusList = items[0].data.na_feature_id;
+		locusList = items[0].data.feature_id;
 		for ( i = 1; i < items.length; i++) {
-			locusList += "," + items[i].data.na_feature_id;
+			locusList += "," + items[i].data.feature_id;
 		}
 	} else {
 		sl = gridObject.checkbox.getSelections();
-		locusList = (sl[0]).get('na_feature_id');
+		locusList = (sl[0]).get('feature_id');
 		for ( i = 1; i < sl.length; i++) {
-			locusList += "," + (sl[i]).get('na_feature_id');
+			locusList += "," + (sl[i]).get('feature_id');
 		}
 	}
 	processFigfamSelectedItems(windowID, actiontype, showdownload, fastatype, to, locusList);
@@ -1609,7 +1609,7 @@ function submitFASTA(windowID, actionType, fastaType) {
 function catchFastaIds(windowID, actionType, fastaType, ajaxHttp) {"use strict";
 
 	var toS = document.getElementById(windowID + "_fTableForm");
-	toS.action = "/patric-common/jsp/fasta_download_handler.jsp";
+	toS.action = "/portal/portal/patric/FeatureTable/FeatureTableWindow?action=b&cacheability=PAGE&mode=fasta";
 	toS.fastaaction.value = actionType;
 	toS.fastascope.value = "Selected";
 	toS.fastatype.value = fastaType;
@@ -1694,7 +1694,7 @@ function submittoFeatureTable(windowID, featureIds) {"use strict";
 
 function renderGeneLevelPage(value, metadata, record, rowIndex, colIndex, store) {
 	metadata.tdAttr = 'data-qtip="' + value + '" data-qclass="x-tip"';
-	return Ext.String.format("<a href=\"Feature?cType=feature&cId=" + record.data.na_feature_id + "\"/>" + value + "</a>");
+	return Ext.String.format("<a href=\"Feature?cType=feature&cId=" + record.data.feature_id + "\"/>" + value + "</a>");
 
 }
 
@@ -1709,7 +1709,7 @@ function renderDownRegulate(value, metadata, record, rowIndex, colIndex, store) 
 	metadata.tdAttr = 'data-qtip="' + record.data.down + '" data-qclass="x-tip"';
 	if (stateObject.colId == '') {
 		if (+record.data.down > 0)
-			return Ext.String.format("<a href=\"javascript:void(0);\" onclick=\"showSamples('" + record.data.windowID + "','down','" + record.data.na_feature_id + "');\"/>" + record.data.down + "</a>");
+			return Ext.String.format("<a href=\"javascript:void(0);\" onclick=\"showSamples('" + record.data.windowID + "','down','" + record.data.feature_id + "');\"/>" + record.data.down + "</a>");
 		else
 			return record.data.down;
 	} else
@@ -1721,7 +1721,7 @@ function renderUpRegulate(value, metadata, record, rowIndex, colIndex, store) {
 	metadata.tdAttr = 'data-qtip="' + record.data.up + '" data-qclass="x-tip"';
 	if (stateObject.colId == '') {
 		if (+record.data.up > 0)
-			return Ext.String.format("<a href=\"javascript:void(0);\" onclick=\"showSamples('" + record.data.windowID + "','up','" + record.data.na_feature_id + "');\"/>" + record.data.up + "</a>");
+			return Ext.String.format("<a href=\"javascript:void(0);\" onclick=\"showSamples('" + record.data.windowID + "','up','" + record.data.feature_id + "');\"/>" + record.data.up + "</a>");
 		else
 			return record.data.up;
 	} else
@@ -1734,7 +1734,7 @@ function renderSamples(value, metadata, record, rowIndex, colIndex, store) {
 
 	if (stateObject.colId == '')
 		if (+record.data.sample_size > 0)
-			return Ext.String.format("<a href=\"javascript:void(0);\" onclick=\"showSamples('" + record.data.windowID + "','all','" + record.data.na_feature_id + "');\"/>" + record.data.sample_size + "</a>");
+			return Ext.String.format("<a href=\"javascript:void(0);\" onclick=\"showSamples('" + record.data.windowID + "','all','" + record.data.feature_id + "');\"/>" + record.data.sample_size + "</a>");
 		else
 			return record.data.sample_size;
 	else
@@ -1786,7 +1786,7 @@ function showSamples(windowID, which, data) {"use strict";
 	if (tR != null) {
 		for ( j = 0; j < tR.length; j++) {
 			nextRow = tR[j];
-			if (nextRow.na_feature_id == data) {
+			if (nextRow.feature_id == data) {
 				s = nextRow.samples;
 				for ( i = 0; i < sIds.length; i++) {
 					obj = s[sIds[i]];

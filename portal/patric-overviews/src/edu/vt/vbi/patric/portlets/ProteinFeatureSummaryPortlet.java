@@ -19,6 +19,7 @@ import edu.vt.vbi.patric.common.SolrCore;
 import edu.vt.vbi.patric.common.SolrInterface;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.LBHttpSolrServer;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.slf4j.Logger;
@@ -70,7 +71,7 @@ public class ProteinFeatureSummaryPortlet extends GenericPortlet {
 
 			try {
 				SolrInterface solr = new SolrInterface();
-				solr.setCurrentInstance(SolrCore.FEATURE);
+				LBHttpSolrServer lbHttpSolrServer = solr.getSolrServer(SolrCore.FEATURE);
 
 				// set default params
 				SolrQuery query = new SolrQuery();
@@ -85,7 +86,7 @@ public class ProteinFeatureSummaryPortlet extends GenericPortlet {
 				// hypothetical
 				query.setQuery("product:(hypothetical AND protein) AND feature_type:CDS");
 
-				QueryResponse qr = solr.getServer().query(query);
+				QueryResponse qr = lbHttpSolrServer.query(query);
 				FacetField ff = qr.getFacetField("annotation");
 				for (FacetField.Count fc : ff.getValues()) {
 					hypotheticalProteins.put(fc.getName(), fc.getCount());
@@ -93,7 +94,7 @@ public class ProteinFeatureSummaryPortlet extends GenericPortlet {
 
 				// funtional assigned
 				query.setQuery("!product:(hypothetical AND protein) AND feature_type:CDS");
-				qr = solr.getServer().query(query);
+				qr = lbHttpSolrServer.query(query);
 				ff = qr.getFacetField("annotation");
 				for (FacetField.Count fc : ff.getValues()) {
 					functionalProteins.put(fc.getName(), fc.getCount());
@@ -101,7 +102,7 @@ public class ProteinFeatureSummaryPortlet extends GenericPortlet {
 
 				// ec assigned
 				query.setQuery("ec:[* TO *]");
-				qr = solr.getServer().query(query);
+				qr = lbHttpSolrServer.query(query);
 				ff = qr.getFacetField("annotation");
 				for (FacetField.Count fc : ff.getValues()) {
 					ecAssignedProteins.put(fc.getName(), fc.getCount());
@@ -109,7 +110,7 @@ public class ProteinFeatureSummaryPortlet extends GenericPortlet {
 
 				// go assigned
 				query.setQuery("go:[* TO *]");
-				qr = solr.getServer().query(query);
+				qr = lbHttpSolrServer.query(query);
 				ff = qr.getFacetField("annotation");
 				for (FacetField.Count fc : ff.getValues()) {
 					goAssignedProteins.put(fc.getName(), fc.getCount());
@@ -117,7 +118,7 @@ public class ProteinFeatureSummaryPortlet extends GenericPortlet {
 
 				// pathway assigned
 				query.setQuery("pathway:[* TO *]");
-				qr = solr.getServer().query(query);
+				qr = lbHttpSolrServer.query(query);
 				ff = qr.getFacetField("annotation");
 				for (FacetField.Count fc : ff.getValues()) {
 					pathwayAssignedProteins.put(fc.getName(), fc.getCount());
@@ -126,7 +127,7 @@ public class ProteinFeatureSummaryPortlet extends GenericPortlet {
 				// figfam assigned
 				query.setQuery("figfam_id:[* TO *]");
 
-				qr = solr.getServer().query(query);
+				qr = lbHttpSolrServer.query(query);
 				ff = qr.getFacetField("annotation");
 				for (FacetField.Count fc : ff.getValues()) {
 					figfamAssignedProteins.put(fc.getName(), fc.getCount());

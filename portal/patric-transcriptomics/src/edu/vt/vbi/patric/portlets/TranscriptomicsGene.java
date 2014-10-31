@@ -33,16 +33,18 @@ import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
 import javax.portlet.UnavailableException;
 
+import edu.vt.vbi.patric.beans.GenomeFeature;
+import edu.vt.vbi.patric.common.*;
+import org.apache.commons.lang.StringUtils;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrRequest;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.QueryResponse;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import edu.vt.vbi.ci.util.CommandResults;
 import edu.vt.vbi.ci.util.ExecUtilities;
-import edu.vt.vbi.patric.common.ExpressionDataCollection;
-import edu.vt.vbi.patric.common.ExpressionDataGene;
-import edu.vt.vbi.patric.common.PolyomicHandler;
-import edu.vt.vbi.patric.common.SiteHelper;
-import edu.vt.vbi.patric.common.SolrInterface;
 import edu.vt.vbi.patric.dao.ResultType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -148,7 +150,7 @@ public class TranscriptomicsGene extends GenericPortlet {
 
 				// Read from JSON if collection parameter is there
 				ExpressionDataCollection parser = null;
-				if (colId != null && !colId.equals("") && token != null) {
+				if (colId != null && !colId.equals("")) {
 
 					parser = new ExpressionDataCollection(colId, token);
 					parser.read(ExpressionDataCollection.CONTENT_SAMPLE);
@@ -174,7 +176,7 @@ public class TranscriptomicsGene extends GenericPortlet {
 					expression = solr.getTranscriptomicsGenes(sampleId, expId, keyword);
 				}
 
-				if (colId != null && !colId.equals("") && token != null) {
+				if (colId != null && !colId.equals("")) {
 
 					parser.read(ExpressionDataCollection.CONTENT_EXPRESSION);
 					if (colsampleId != null && !colsampleId.equals(""))
@@ -356,19 +358,19 @@ public class TranscriptomicsGene extends GenericPortlet {
 
 		JSONArray results = new JSONArray();
 
-		HashMap<String, ExpressionDataGene> genes = new HashMap<String, ExpressionDataGene>();
-		HashMap<String, String> sample = new HashMap<String, String>();
+		Map<String, ExpressionDataGene> genes = new HashMap<>();
+		Map<String, String> sample = new HashMap<>();
 
-		for (int i = 0; i < sample_data.size(); i++) {
-			JSONObject a = (JSONObject) sample_data.get(i);
+		for (Object aSample_data : sample_data) {
+			JSONObject a = (JSONObject) aSample_data;
 			sample.put(a.get("pid").toString(), a.get("expname").toString());
 		}
 
-		for (int i = 0; i < data.size(); i++) {
+		for (Object aData : data) {
 
-			JSONObject a = (JSONObject) data.get(i);
-			String id = a.get("na_feature_id").toString();
-			ExpressionDataGene b = null;
+			JSONObject a = (JSONObject) aData;
+			String id = a.get("feature_id").toString();
+			ExpressionDataGene b;
 
 			if (genes.containsKey(id)) {
 				b = genes.get(id);
@@ -381,39 +383,63 @@ public class TranscriptomicsGene extends GenericPortlet {
 			genes.put(id, b);
 		}
 
-		Iterator<?> it = genes.entrySet().iterator();
-		String idList = "";
+		List<String> idList = new ArrayList<>();
 		JSONObject temp = new JSONObject();
 
-		while (it.hasNext()) {
+		for (Map.Entry<String, ExpressionDataGene> entry: genes.entrySet()) {
 
-			Map.Entry<?, ?> entry = (Map.Entry<?, ?>) it.next();
-
-			ExpressionDataGene value = (ExpressionDataGene) entry.getValue();
+			ExpressionDataGene value = entry.getValue();
 
 			JSONObject a = new JSONObject();
 
 			a.put("refseq_locus_tag", value.getRefSeqLocusTag());
-			a.put("na_feature_id", value.getNAFeatureID());
+			a.put("feature_id", value.getFeatureID());
 			value.setSampleBinary(samples);
 			a.put("sample_binary", value.getSampleBinary());
 			a.put("sample_size", value.getSampleCounts());
 			a.put("samples", value.getSamples());
 
-			idList += value.getNAFeatureID() + ",";
+			idList.add(value.getFeatureID());
 
-			temp.put(value.getNAFeatureID(), a);
+			temp.put(value.getFeatureID(), a);
+		}
+
+		SolrInterface solr = new SolrInterface();
+
+		SolrQuery query = new SolrQuery("feature_id:(" + StringUtils.join(idList, " OR ") + ")");
+		query.setFields("feature_id,strand,product,accession,start,end,alt_locus_tag,genome_name,gene");
+		query.setRows(idList.size());
+
+		try {
+			QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query, SolrRequest.METHOD.POST);
+			List<GenomeFeature> features = qr.getBeans(GenomeFeature.class);
+
+			for (GenomeFeature feature: features) {
+				JSONObject json = (JSONObject) temp.get(feature.getId());
+				json.put("strand", feature.getStrand());
+				json.put("patric_product", feature.getProduct());
+				json.put("patric_accession", feature.getAccession());
+				json.put("start", feature.getStart());
+				json.put("end", feature.getEnd());
+				json.put("alt_locus_tag", feature.getAltLocusTag());
+				json.put("genome_name", feature.getGenomeName());
+				json.put("gene", feature.getGene());
+
+				results.add(json);
+			}
+		}
+		catch (SolrServerException e) {
+			e.printStackTrace();
 		}
 
 		/*
 		 * Solr Call to get Feature attributes-----------------------------------
-		 */
+
 		Map<String, Object> condition = new HashMap<>();
-		condition.put("na_feature_ids", idList.substring(0, idList.length() - 1));
+		condition.put("feature_ids", StringUtils.join(idList, ","));
 		SolrInterface solr = new SolrInterface();
 		JSONObject object = solr.getFeaturesByID(condition);
 		JSONArray obj_array = (JSONArray) object.get("results");
-		/**/
 
 		JSONObject a, b;
 		for (int i = 0; i < obj_array.size(); i++) {
@@ -429,7 +455,7 @@ public class TranscriptomicsGene extends GenericPortlet {
 			b.put("gene", a.get("gene"));
 			results.add(b);
 		}
-
+		*/
 		return results;
 	}
 }

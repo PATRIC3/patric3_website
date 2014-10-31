@@ -44,7 +44,7 @@ public class DBTranscriptomics {
 	public static void setSessionFactory(SessionFactory sf) {
 		factory = sf;
 	}
-
+/*
 	public JSONArray getSamples(String sampleId, String expId) {
 		long start = System.currentTimeMillis();
 		String sql = "select g.pid, g.expname, g.timepoint, g.strain, g.mutant, g.condition from app.genexp_sample g where 1 = 1";
@@ -637,7 +637,15 @@ public class DBTranscriptomics {
 
 		return Integer.parseInt(obj.toString());
 	}
+*/
 
+	/**
+	 * used at
+	 * 	- patric-static/WebContent/WEB-INF/jsp/community/tb.jsp:
+	 *
+	 * @param taxon_id
+	 * @return
+	 */
 	public ArrayList<String> getEIDs(String taxon_id) {
 
 		String sql = "select distinct mp.eid " + "	from app.genexp_genomemapping mp, "
@@ -660,6 +668,7 @@ public class DBTranscriptomics {
 		return results;
 	}
 
+/*
 	public ArrayList<String> getEIDsFromGenomeID(String gid) {
 
 		String sql = "select distinct mp.eid from app.genexp_genomemapping mp " + "	where mp.genome_info_id = :gid";
@@ -680,7 +689,7 @@ public class DBTranscriptomics {
 
 		return results;
 	}
-
+*/
 	/* end of gene-level-expression */
 
 	/* Pathway Enrichment */
@@ -812,7 +821,7 @@ public class DBTranscriptomics {
 	public String getGenomeListFromFeatureIds(HashMap<String, String> key, int start, int end) {
 		String sql = "", genomeIds = "";
 		sql += "select distinct genome_info_id from app.pathwaysummary " + " where " + getParsedFeatureIds(key) + " and pathway_id = '"
-				+ key.get("map").toString() + "'";
+				+ key.get("map") + "'";
 
 		Session session = factory.getCurrentSession();
 		session.beginTransaction();

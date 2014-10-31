@@ -21,6 +21,7 @@ import edu.vt.vbi.patric.common.SolrCore;
 import edu.vt.vbi.patric.common.SolrInterface;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.LBHttpSolrServer;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.slf4j.Logger;
@@ -29,7 +30,6 @@ import org.slf4j.LoggerFactory;
 import javax.portlet.*;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.MalformedURLException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -74,37 +74,20 @@ public class SequenceSummaryPortlet extends GenericPortlet {
 		if (contextType != null && contextId != null) {
 
 			if (contextType.equals("genome")) {
-				try {
-					solr.setCurrentInstance(SolrCore.GENOME);
 
-					SolrQuery query = new SolrQuery("genome_id:" + contextId);
+				Genome genome = solr.getGenome(contextId);
 
-					QueryResponse qr = solr.getServer().query(query);
+				request.setAttribute("genome", genome);
 
-					List<Genome> genomes = qr.getBeans(Genome.class);
-
-					if (!genomes.isEmpty()) {
-						Genome genome = genomes.get(0);
-
-						genome.getGenomeLength();
-						genome.getChromosomes();
-
-						request.setAttribute("genome", genome);
-
-						response.setContentType("text/html");
-						PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/overview/sequence_summary.jsp");
-						prd.include(request, response);
-					}
-
-				}
-				catch (MalformedURLException | SolrServerException e) {
-					LOGGER.error(e.getMessage(), e);
-				}
+				response.setContentType("text/html");
+				PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/overview/sequence_summary.jsp");
+				prd.include(request, response);
 			}
 			else {
 				// taxon level
 
 				List<String> annotations = Arrays.asList("PATRIC", "RefSeq");
+				LBHttpSolrServer lbHttpSolrServer = solr.getSolrServer(SolrCore.GENOME);
 
 				for (String annotation : annotations) {
 
@@ -112,8 +95,6 @@ public class SequenceSummaryPortlet extends GenericPortlet {
 						Map<String, Long> counts = new HashMap<>();
 
 						// query to Solr
-						solr.setCurrentInstance(SolrCore.GENOME);
-
 						SolrQuery query = new SolrQuery();
 
 						switch (annotation) {
@@ -134,7 +115,7 @@ public class SequenceSummaryPortlet extends GenericPortlet {
 
 						query.setFilterQueries("taxon_lineage_ids:" + contextId);
 
-						QueryResponse qr = solr.getServer().query(query);
+						QueryResponse qr = lbHttpSolrServer.query(query);
 
 						FacetField facetField = qr.getFacetField("genome_status");
 
@@ -146,7 +127,7 @@ public class SequenceSummaryPortlet extends GenericPortlet {
 						// save to req
 						request.setAttribute(annotation, counts);
 					}
-					catch (MalformedURLException | SolrServerException e) {
+					catch (SolrServerException e) {
 						LOGGER.error(e.getMessage(), e);
 					}
 				}

@@ -68,7 +68,6 @@ public class SpecialtyGeneSummaryPortlet extends GenericPortlet {
 
 			try {
 				SolrInterface solr = new SolrInterface();
-				solr.setCurrentInstance(SolrCore.SPECIALTY_GENE_MAPPING);
 
 				SolrQuery query = new SolrQuery("*:*");
 				if (contextType.equals("taxon")) {
@@ -79,7 +78,7 @@ public class SpecialtyGeneSummaryPortlet extends GenericPortlet {
 				}
 				query.setRows(0).setFacet(true).setFacetMinCount(1).addFacetPivotField("property,source").setFacetSort(FacetParams.FACET_SORT_INDEX);
 
-				QueryResponse qr = solr.getServer().query(query);
+				QueryResponse qr = solr.getSolrServer(SolrCore.SPECIALTY_GENE_MAPPING).query(query);
 				NamedList<List<PivotField>> pivotFacetList = qr.getFacetPivot();
 
 				for (Map.Entry<String, List<PivotField>> pivotFacet : pivotFacetList) {

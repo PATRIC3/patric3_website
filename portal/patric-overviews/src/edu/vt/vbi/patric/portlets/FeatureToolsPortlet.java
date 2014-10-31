@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2014 Virginia Polytechnic Institute and State University
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,36 +15,62 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.portlets;
 
+import edu.vt.vbi.patric.beans.GenomeFeature;
+import edu.vt.vbi.patric.common.SolrInterface;
+
+import javax.portlet.*;
 import java.io.IOException;
 import java.io.PrintWriter;
-import javax.portlet.GenericPortlet;
-import javax.portlet.PortletException;
-import javax.portlet.PortletRequestDispatcher;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
-import javax.portlet.UnavailableException;
 
 public class FeatureToolsPortlet extends GenericPortlet {
 
-	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException, UnavailableException {
+	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 
 		response.setContentType("text/html");
 		String cType = request.getParameter("context_type");
 		String cId = request.getParameter("context_id");
-		int validContextId = -1;
 
-		if (cId != null) {
-			try {
-				validContextId = Integer.parseInt(cId);
+		if (cType != null && cId != null && cType.equals("feature")) {
+
+			SolrInterface solr = new SolrInterface();
+			GenomeFeature feature = solr.getPATRICFeature(cId);
+			String dispRefseqLocusTag = null, dispSeedId = null, dispProteinSequence = null;
+			StringBuilder dispSequenceID = new StringBuilder();
+
+			if (feature.getAnnotation().equals("PATRIC")) {
+
+				dispRefseqLocusTag = feature.getRefseqLocusTag();
+				dispSeedId = feature.getSeedId();
+
+				if (feature.hasAltLocusTag()) {
+					dispSequenceID.append(feature.getAltLocusTag());
+				}
+				if (feature.hasRefseqLocusTag()) {
+					dispSequenceID.append("|").append(feature.getRefseqLocusTag());
+				}
+				if (feature.hasProduct()) {
+					dispSequenceID.append(" ").append(feature.getProduct());
+				}
+
 			}
-			catch (NumberFormatException ex) {
+			else if (feature.getAnnotation().equals("RefSeq")) {
+
+				dispRefseqLocusTag = feature.getAltLocusTag();
+				dispSequenceID.append(feature.getAltLocusTag()).append(" ").append(feature.getProduct());
 			}
-		}
 
-		PortletRequestDispatcher prd = null;
+			// getting Protein Sequence
+			if (feature.getFeatureType().equals("CDS")) {
+				dispProteinSequence = feature.getAaSequence();
+			}
 
-		if (cType != null && cId != null && validContextId > 0 && cType.equals("feature")) {
-			prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/overview/feature_tools.jsp");
+			request.setAttribute("feature", feature);
+			request.setAttribute("dispRefseqLocusTag", dispRefseqLocusTag);
+			request.setAttribute("dispSeedId", dispSeedId);
+			request.setAttribute("dispSequenceID", dispSequenceID.toString());
+			request.setAttribute("dispProteinSequence", dispProteinSequence);
+
+			PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/overview/feature_tools.jsp");
 			prd.include(request, response);
 		}
 		else {

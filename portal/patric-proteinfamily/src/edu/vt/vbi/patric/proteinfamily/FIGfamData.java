@@ -17,6 +17,7 @@ package edu.vt.vbi.patric.proteinfamily;
 
 import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.beans.GenomeFeature;
+import edu.vt.vbi.patric.beans.Taxonomy;
 import edu.vt.vbi.patric.common.SolrCore;
 import edu.vt.vbi.patric.common.SolrInterface;
 import edu.vt.vbi.patric.msa.Aligner;
@@ -65,16 +66,16 @@ public class FIGfamData {
 
 		if (genomeId != null) {
 
+			LBHttpSolrServer server = null;
+
 			try {
-				solr.setCurrentInstance(SolrCore.FEATURE);
+				server = solr.getSolrServer(SolrCore.FEATURE);
 			}
 			catch (MalformedURLException e) {
 				LOGGER.error(e.getMessage(), e);
 			}
 
 			long end_ms, start_ms = System.currentTimeMillis();
-
-			LBHttpSolrServer server = solr.getServer();
 
 			SolrQuery solr_query = new SolrQuery("genome_id:" + genomeId);
 			solr_query.setRows(1);
@@ -155,34 +156,25 @@ public class FIGfamData {
 
 		JSONArray arr = new JSONArray();
 		try {
-			solr.setCurrentInstance(SolrCore.FEATURE);
-		}
-		catch (MalformedURLException e) {
-			LOGGER.error(e.getMessage(), e);
-		}
+			SolrQuery solr_query = new SolrQuery();
+			solr_query.setQuery("genome_id:(" + req.getParameter("genomeIds") + ") AND figfam_id:(" + req.getParameter("figfamIds") + ")");
+			solr_query.setFilterQueries("annotation:PATRIC AND feature_type:CDS");
+			solr_query.addField("alt_locus_tag");
+			solr_query.setRows(150000);
 
-		SolrQuery solr_query = new SolrQuery();
-		solr_query.setQuery("genome_id:(" + req.getParameter("genomeIds") + ") AND figfam_id:(" + req.getParameter("figfamIds") + ")");
-		solr_query.setFilterQueries("annotation:PATRIC AND feature_type:CDS");
-		solr_query.addField("locus_tag");
-		solr_query.setRows(150000);
+			LOGGER.debug("getLocusTags() {}", solr_query.toString());
 
-		LOGGER.debug("getLocusTags() {}", solr_query.toString());
+			QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(solr_query, SolrRequest.METHOD.POST);
+			SolrDocumentList sdl = qr.getResults();
 
-		QueryResponse qr;
-		SolrDocumentList sdl;
-
-		try {
-			qr = solr.getServer().query(solr_query, SolrRequest.METHOD.POST);
-			sdl = qr.getResults();
-
-			for (SolrDocument d : sdl) {
-				for (Map.Entry<String, Object> el : d) {
-					arr.add(el.getValue());
-				}
+			for (SolrDocument doc : sdl) {
+				arr.add(doc.get("alt_locus_tag").toString());
+//				for (Map.Entry<String, Object> el : d) {
+//					arr.add(el.getValue());
+//				}
 			}
 		}
-		catch (SolrServerException e) {
+		catch (MalformedURLException | SolrServerException e) {
 			LOGGER.error(e.getMessage(), e);
 		}
 
@@ -202,33 +194,25 @@ public class FIGfamData {
 		JSONArray arr = new JSONArray();
 
 		try {
-			solr.setCurrentInstance(SolrCore.FEATURE);
-		}
-		catch (MalformedURLException e1) {
-			LOGGER.error(e1.getMessage(), e1);
-		}
+			SolrQuery solr_query = new SolrQuery();
+			solr_query.setQuery("genome_id:(" + genomeIds + ") AND figfam_id:(" + figfamIds + ")");
+			solr_query.setFields("figfam_id,genome_name,accession,alt_locus_tag,start,end,na_length,strand,aa_length,gene,product");
+			solr_query.setFilterQueries("annotation:PATRIC AND feature_type:CDS");
+			solr_query.setRows(1500000);
 
-		SolrQuery solr_query = new SolrQuery();
-		solr_query.setQuery("genome_id:(" + genomeIds + ") AND figfam_id:(" + figfamIds + ")");
-		solr_query.setFields("figfam_id,genome_name,accession,alt_locus_tag,start,end,na_length,strand,aa_length,gene,product");
-		solr_query.setFilterQueries("annotation:PATRIC AND feature_type:CDS");
-		solr_query.setRows(1500000);
+			LOGGER.debug("getDetails() {}", solr_query.toString());
 
-		LOGGER.debug("getDetails() {}", solr_query.toString());
-
-		try {
-			QueryResponse qr = solr.getServer().query(solr_query, SolrRequest.METHOD.POST);
+			QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(solr_query, SolrRequest.METHOD.POST);
 			SolrDocumentList sdl = qr.getResults();
 
-			for (SolrDocument d : sdl) {
+			for (SolrDocument doc : sdl) {
 				JSONObject values = new JSONObject();
-				for (Map.Entry<String, Object> el : d) {
-					values.put(el.getKey(), el.getValue());
-				}
+				values.putAll(doc);
+
 				arr.add(values);
 			}
 		}
-		catch (SolrServerException e) {
+		catch (MalformedURLException | SolrServerException e) {
 			LOGGER.error(e.getMessage(), e);
 		}
 		return arr;
@@ -247,65 +231,50 @@ public class FIGfamData {
 	}
 
 	public String getGenomeIdsForTaxon(String taxon) {
-		String genomeIds = null;
-		SolrQuery query = new SolrQuery("patric_cds:[1 TO *] AND taxon_lineage_ids:" + taxon);
-		query.addField("genome_id");
-		query.setRows(500000);
-		QueryResponse qr;
-		
-		LOGGER.debug("getGenomeIdsForTaxon() {}", query.toString());
-		
+		List<String> gIds = new ArrayList<>();
+
 		try {
-			solr.setCurrentInstance(SolrCore.GENOME);
-			qr = solr.getServer().query(query);
-			List<String> gIds = new ArrayList<>();
+			SolrQuery query = new SolrQuery("patric_cds:[1 TO *] AND taxon_lineage_ids:" + taxon);
+			query.addField("genome_id");
+			query.setRows(500000);
+
+			QueryResponse qr = solr.getSolrServer(SolrCore.GENOME).query(query);
 			List<Genome> genomes = qr.getBeans(Genome.class);
 			for (Genome g: genomes) {
 				gIds.add(g.getId());
 			}
-			genomeIds = StringUtils.join(gIds, ",");
 		}
 		catch (SolrServerException | MalformedURLException e) {
 			LOGGER.error(e.getMessage(), e);
 		}
-		return genomeIds;
+		return StringUtils.join(gIds, ",");
 	}
 
 	public String getTaxonName(String taxon) {
-		String result = null;
-		try {
-			solr.setCurrentInstance(SolrCore.TAXONOMY);
 
-			SolrQuery query = new SolrQuery("taxon_id:" + taxon);
-			query.addField("taxon_name");
-			QueryResponse qr = solr.getServer().query(query);
-			SolrDocumentList sdl = qr.getResults();
-			for (SolrDocument doc: sdl) {
-				result = doc.get("taxon_name").toString();
-			}
-		} catch (SolrServerException | MalformedURLException e) {
-			LOGGER.error(e.getMessage(), e);
+		Taxonomy taxonomy = solr.getTaxonomy(Integer.parseInt(taxon));
+
+		if (taxonomy != null) {
+			return taxonomy.getTaxonName();
+		} else {
+			return null;
 		}
-		return result;
 	}
 
 	private SequenceData[] getFeatureSequences(String[] featureIds) {
 		List<SequenceData> collect = new ArrayList<>();
 
 		try {
-			solr.setCurrentInstance(SolrCore.FEATURE);
-
 			SolrQuery query = new SolrQuery("feature_id:(" + StringUtils.join(featureIds, " OR ") + ")");
-			query.addField("genome_name,seed_id,translation");
+			query.addField("genome_name,seed_id,aa_sequence");
 			query.setRows(featureIds.length);
 
-			QueryResponse qr = solr.getServer().query(query);
+			QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query);
 			List<GenomeFeature> features = qr.getBeans(GenomeFeature.class);
 
 			for (GenomeFeature feature: features) {
-				collect.add(new SequenceData(feature.getGenomeName().replace(" ", "_"), feature.getSeedId(), feature.getTranslation()));
+				collect.add(new SequenceData(feature.getGenomeName().replace(" ", "_"), feature.getSeedId(), feature.getAaSequence()));
 			}
-
 		}
 		catch (MalformedURLException | SolrServerException e) {
 			e.printStackTrace();
@@ -329,21 +298,16 @@ public class FIGfamData {
 	public void getFeatureIds(ResourceRequest req, PrintWriter writer, String keyword) {
 
 		try {
-			solr.setCurrentInstance(SolrCore.FEATURE);
+			LBHttpSolrServer lbHttpSolrServer = solr.getSolrServer(SolrCore.FEATURE);
 
-			SolrQuery solr_query = new SolrQuery(keyword);
-			solr_query.setRows(1);
-			solr_query.addField("feature_id");
+			SolrQuery query = new SolrQuery(keyword);
+			query.addField("feature_id");
 
-			QueryResponse qr = solr.getServer().query(solr_query, SolrRequest.METHOD.POST);
+			long rows = lbHttpSolrServer.query(query).getResults().getNumFound();
+			query.setRows((int) rows);
+
+			QueryResponse qr = lbHttpSolrServer.query(query, SolrRequest.METHOD.POST);
 			SolrDocumentList sdl = qr.getResults();
-
-			long rows = sdl.getNumFound();
-			solr_query.setRows((int) rows);
-
-			// replace this part with GenomeFeature bean
-			qr = solr.getServer().query(solr_query, SolrRequest.METHOD.POST);
-			sdl = qr.getResults();
 
 			List<String> features = new ArrayList<>();
 			for (SolrDocument d : sdl) {
@@ -359,7 +323,6 @@ public class FIGfamData {
 
 	@SuppressWarnings("unchecked")
 	public void getGenomeDetails(ResourceRequest req, PrintWriter writer) throws IOException {
-		solr.setCurrentInstance(SolrCore.GENOME);
 
 		String cType = req.getParameter("context_type");
 		String cId = req.getParameter("context_id");
@@ -382,7 +345,7 @@ public class FIGfamData {
 		LOGGER.debug("getGenomeDetails() {}", query.toString());
 		JSONObject object = null;
 		try {
-			object = solr.ConverttoJSON(solr.getServer(), query, false, false);
+			object = solr.ConverttoJSON(solr.getSolrServer(SolrCore.GENOME), query, false, false);
 		}
 		catch (Exception e) {
 			LOGGER.error(e.getMessage(), e);
@@ -400,7 +363,6 @@ public class FIGfamData {
 
 	@SuppressWarnings("unchecked")
 	public void getGroupStats(ResourceRequest req, PrintWriter writer) throws IOException {
-		solr.setCurrentInstance(SolrCore.FEATURE);
 
 		// TODO: utilize heliosearch subfaceting and facet analytics to merge three queries as much as possible
 
@@ -421,7 +383,7 @@ public class FIGfamData {
 		LOGGER.debug("getStroupStats() 1/3 " + solr_query.toString());
 
 		try {
-			QueryResponse qr = solr.getServer().query(solr_query);
+			QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(solr_query);
 
 			NamedList<List<PivotField>> pivots = qr.getFacetPivot();
 
@@ -456,7 +418,7 @@ public class FIGfamData {
 				}
 			}
 		}
-		catch (Exception e) {
+		catch (MalformedURLException | SolrServerException e) {
 			LOGGER.error(e.getMessage(), e);
 			LOGGER.debug("::getGroupStats() 1/3, params: {}", req.getParameterMap().toString());
 		}
@@ -471,7 +433,7 @@ public class FIGfamData {
 		solr_query.set("stats.facet", "figfam_id");
 
 		try {
-			QueryResponse qr = solr.getServer().query(solr_query, SolrRequest.METHOD.POST);
+			QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(solr_query, SolrRequest.METHOD.POST);
 			Map<String, FieldStatsInfo> stats_map = qr.getFieldStatsInfo();
 
 			if (stats_map != null) {
@@ -494,7 +456,7 @@ public class FIGfamData {
 				}
 			}
 		}
-		catch (Exception e) {
+		catch (MalformedURLException | SolrServerException e) {
 			LOGGER.error(e.getMessage(), e);
 			LOGGER.debug("::getGroupStats() 2/3, params: {}", req.getParameterMap().toString());
 		}
@@ -502,15 +464,13 @@ public class FIGfamData {
 		// getting distinct figfam_product
 		if (!figfamIdList.isEmpty()) {
 
-			solr.setCurrentInstance(SolrCore.FIGFAM_DIC);
-
 			solr_query = new SolrQuery("figfam_id:(" + StringUtils.join(figfamIdList, " OR ") + ")");
 			solr_query.addField("figfam_id,figfam_product");
 			solr_query.setRows(figfams.size());
 
 			LOGGER.trace(solr_query.toString());
 			try {
-				QueryResponse qr = solr.getServer().query(solr_query, SolrRequest.METHOD.POST);
+				QueryResponse qr = solr.getSolrServer(SolrCore.FIGFAM_DIC).query(solr_query, SolrRequest.METHOD.POST);
 				SolrDocumentList sdl = qr.getResults();
 
 				for (SolrDocument d : sdl) {
@@ -519,7 +479,7 @@ public class FIGfamData {
 					figfams.put(d.get("figfam_id"), figfam);
 				}
 			}
-			catch (Exception e) {
+			catch (MalformedURLException | SolrServerException e) {
 				LOGGER.error(e.getMessage(), e);
 				LOGGER.debug("::getGroupStats() 3/3, params: {}", req.getParameterMap().toString());
 			}

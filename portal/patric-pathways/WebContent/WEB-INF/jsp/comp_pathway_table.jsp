@@ -1,35 +1,13 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <%@ page import="java.util.*" %>
-<%@ page import="edu.vt.vbi.patric.dao.ResultType" %>
-<%@ page import="edu.vt.vbi.patric.dao.DBPathways" %>
 <%
-
-DBPathways conn_pathways = new DBPathways();
-
-HashMap<String,String> key = new HashMap<String,String>();
-
 String cType = request.getParameter("context_type");
 String cId = request.getParameter("context_id");
 String algorithm = request.getParameter("algorithm");
 String ec_number = request.getParameter("ec_number");
 
-key.put("cId", cId);
-	
-key.put("cType", cType);
-
-if(algorithm != null && !algorithm.equals(""))
-	key.put("algorithm", algorithm);
-
-if(ec_number == null)
+if(ec_number == null) {
 	ec_number="";
-
-if(algorithm != null && !algorithm.equals("")){
-	if(algorithm.equals("BRC") || algorithm.equals("Legacy BRC"))
-		algorithm = "Curation";
-	else if(algorithm.equals("PATRIC"))
-		algorithm = "RAST";
-	else if(algorithm.equals("ALL"))
-		algorithm = "";
 }
 %>
 
@@ -104,7 +82,7 @@ Ext.onReady(function()
 		plugintype:"checkbox",
 		extraParams:getExtraParams,
 		callBackFn:CallBack,
-		remoteSort:true,
+		remoteSort: false,
 		border: true, 
 		scm :[[checkbox, {header:'Pathway ID',			dataIndex:'pathway_id',		flex:1, renderer:BasicRenderer},
 						{header:'Pathway Name',			dataIndex:'pathway_name',	flex:2, renderer:renderPathwayName},
@@ -113,8 +91,8 @@ Ext.onReady(function()
 						{header:'Unique Genome Count',	dataIndex:'genome_count',	flex:1, align:'center', renderer:BasicRenderer},
 						{header:'Unique Gene Count',	dataIndex:'gene_count',		flex:1, align:'center', renderer:renderGeneCountPathway},
 						{header:'Unique EC Count',		dataIndex:'ec_count',		flex:1, align:'center', renderer:renderAvgECCount},
-						{header:'EC Conservation',		dataIndex:'ec_cons',		flex:1, align:'center', renderer:BasicRenderer},
-						{header:'Gene Conservation',	dataIndex:'gene_cons',		flex:1, align:'center', renderer:BasicRenderer}
+						{header:'EC Conservation',		dataIndex:'ec_cons',		flex:1, align:'center', renderer:Ext.util.Format.numberRenderer('0.00')},
+						{header:'Gene Conservation',	dataIndex:'gene_cons',		flex:1, align:'center', renderer:Ext.util.Format.numberRenderer('0.00')}
 				],[checkbox, {header:'Pathway ID',		dataIndex:'pathway_id',		flex:1, renderer:BasicRenderer},
 						{header:'Pathway Name',		dataIndex:'pathway_name',	flex:2, renderer:renderPathwayEc},
 						{header:'Pathway Class',	dataIndex:'pathway_class',	flex:2, renderer:BasicRenderer},
@@ -126,10 +104,11 @@ Ext.onReady(function()
 				],[checkbox, {header:'Feature ID',		dataIndex:'na_feature_id', 	flex:1, hidden:true, renderer:BasicRenderer},  
 			          {header:'Genome Name',	dataIndex:'genome_name', 	flex:1, renderer:renderGenomeName},
 			    	  {header:'Accession',		dataIndex:'accession', 		flex:1, hidden: true, renderer:renderAccession},
-			    	  {header:'Locus Tag',		dataIndex:'locus_tag', 		flex:2, renderer:renderLocusTag},
+			    	  {header:'Seed Id',		dataIndex:'seed_id', 		flex:2, renderer:renderSeedId},
+			    	  /* {header:'Locus Tag',		dataIndex:'alt_locus_tag', 		flex:2, renderer:renderLocusTag},*/
 			    	  {header:'Gene Symbol',	dataIndex:'gene',			flex:1, align:'center', renderer:BasicRenderer},
 			    	  {header:'Product Name',	dataIndex:'product',		flex:2, renderer:BasicRenderer},
-			    	  {header:'Annotation',		dataIndex:'algorithm', 		flex:1, align:'center', renderer:BasicRenderer},  	  
+			    	  {header:'Annotation',		dataIndex:'algorithm', 		flex:1, align:'center', renderer:BasicRenderer},
 			    	  {header:'Pathway ID',		dataIndex:'pathway_id', 	flex:1, align:'center', renderer:BasicRenderer},
 			    	  {header:'Pathway Name',	dataIndex:'pathway_name', 	flex:2, renderer:renderPathwayFeature},
 			    	  {header:'EC Number',		dataIndex:'ec_number', 		flex:1, align:'center', renderer:BasicRenderer},
@@ -148,7 +127,7 @@ Ext.onReady(function()
 			property: 'genome_name',
 			direction: 'ASC'
 		},{
-			property: 'locus_tag',
+			property: 'alt_locus_tag',
 			direction: 'ASC'
 		}]],
 		hash:{

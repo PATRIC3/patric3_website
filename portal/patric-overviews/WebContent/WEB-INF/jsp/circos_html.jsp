@@ -1,23 +1,15 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet"
-%><%@ page import="java.util.ArrayList" 
-%><%@ page import="java.util.Arrays" 
-%><%@ page import="org.json.simple.JSONObject" 
-%><%@ page import="edu.vt.vbi.patric.common.SolrInterface"
-%><%@ page import="edu.vt.vbi.patric.common.SolrCore"
+%><%@ page import="edu.vt.vbi.patric.beans.Genome"
 %><%
-	String actionUrl = "/portal/portal/patric/CircosGenomeViewer/CircosGenomeViewerWindow?action=1";
-	String genomeId = request.getParameter("context_id");
-	String polymoicUrl = System.getProperty("polyomic.baseUrl", "http://polyomic.patricbrc.org:8888");
-	SolrInterface solr = new SolrInterface();
-	solr.setCurrentInstance(SolrCore.SEQUENCE);
-	JSONObject genomeInfo = solr.getGenome(genomeId);
-	// This genome has more than 200 contigs. The circular genome map is not displayed as it can be too busy and uninterpretable.
+	String actionUrl = (String) request.getAttribute("actionUrl");
+	String polyomicUrl = (String) request.getAttribute("polyomicUrl");
+	Genome genome = (Genome) request.getAttribute("genome");
 %>
 <script type="text/javascript">
-var genome_info_id = '<%=genomeId%>';
+var genome_id = '<%=genome.getId()%>';
 var form_url = '<%=actionUrl%>';
-var ds_url = '<%=polymoicUrl%>';
-var countSequences = '<%=genomeInfo.get("sequences")%>';
+var ds_url = '<%=polyomicUrl%>';
+var countSequences = '<%=genome.getSequences()%>';
 </script>
 <script type="text/javascript" src="/patric-overviews/circos/main.js"></script>
 <link rel="stylesheet" type="text/css" href="/patric-overviews/circos/styles.css">

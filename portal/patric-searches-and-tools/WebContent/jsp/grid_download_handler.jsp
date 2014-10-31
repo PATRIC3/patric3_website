@@ -55,7 +55,7 @@
 		}
 		if (cType != null && cType.equals("taxon") && taxonId != null && taxonId.equals("") == false) {
 			key.put("taxonId", taxonId);
-			key.put("join", SolrCore.GENOME.getSolrCoreJoin("gid", "gid", "taxon_lineage_ids:" + key.get("taxonId")));
+			key.put("join", SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + key.get("taxonId")));
 		}
 
 		
@@ -89,8 +89,7 @@
 			query.addField("genome_info_id");
 			query.setRows(500000);
 
-			solr.setCurrentInstance(SolrCore.GENOME);
-			JSONObject gObject = solr.ConverttoJSON(solr.getServer(), query, false, false);
+			JSONObject gObject = solr.ConverttoJSON(solr.getSolrServer(SolrCore.GENOME), query, false, false);
 			List<String> listGenomeId = new ArrayList<String>();
 			JSONArray ret = (JSONArray) ((JSONObject) gObject.get("response")).get("docs");
 			for (Object row : ret) {
@@ -98,7 +97,7 @@
 				listGenomeId.add(gid.get("genome_info_id").toString());
 			}
 			if (listGenomeId.size() > 0) {
-				key.put("keyword", "gid: (" + StringUtils.join(listGenomeId, " OR ") + ")");
+				key.put("keyword", "genome_id: (" + StringUtils.join(listGenomeId, " OR ") + ")");
 			}
 
 			solr.setCurrentInstance(SolrCore.SEQUENCE);
@@ -125,7 +124,7 @@
 
 		_filename = "GenomeFinder";
 	}
-	else if (_tablesource.equalsIgnoreCase("GO")) {
+/*	else if (_tablesource.equalsIgnoreCase("GO")) {
 
 		SolrInterface solr = new SolrInterface();
 		String keyword = request.getParameter("download_keyword");
@@ -180,7 +179,7 @@
 				"ec_number", "ec_name"));
 
 		_filename = "ECTermSearch";
-	}
+	} */
 	else if (_tablesource.equalsIgnoreCase("Feature")) {
 
 		SolrInterface solr = new SolrInterface();
@@ -190,7 +189,7 @@
 		key.put("keyword", keyword);
 		if (taxonId != null && taxonId.equals("") == false) {
 			key.put("taxonId", taxonId);
-			key.put("join", SolrCore.GENOME.getSolrCoreJoin("gid", "gid", "taxon_lineage_ids:" + key.get("taxonId")));
+			key.put("join", SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + key.get("taxonId")));
 		}
 
 		sort_field = request.getParameter("sort");
@@ -606,7 +605,7 @@
 
 		_filename = "Proteomics";
 	}
-	else if (_tablesource.equalsIgnoreCase("GeneExpression")) {
+/*	else if (_tablesource.equalsIgnoreCase("GeneExpression")) {
 
 		DBTranscriptomics conn_transcriptomics = new DBTranscriptomics();
 
@@ -614,7 +613,7 @@
 		JSONParser parser = new JSONParser();
 		JSONObject fids = (JSONObject) parser.parse(idList);
 
-		HashMap<String, String> param = new HashMap<String, String>();
+		Map<String, String> param = new HashMap<String, String>();
 		param.put("na_feature_id", fids.get("na_feature_id").toString());
 		param.put("pid", fids.get("pid").toString());
 
@@ -636,7 +635,7 @@
 	}
 	else if (_tablesource.equalsIgnoreCase("Correlation")) {
 		DBTranscriptomics conn_transcriptomics = new DBTranscriptomics();
-		HashMap<String, String> k = new HashMap<String, String>();
+		Map<String, String> k = new HashMap<String, String>();
 
 		String cutoffValue = request.getParameter("cutoffValue");
 		String cutoffDir = request.getParameter("cutoffDir");
@@ -672,7 +671,7 @@
 				"start_max", "end_min", "na_length", "strand", "protein_id", "aa_length", "product", "correlation", "count"));
 
 		_filename = "Correlated Genes";
-	}
+	}*/
 	else if (_tablesource.equalsIgnoreCase("SingleExperiment")) {
 
 		HashMap<String, String> k = new HashMap<String, String>();

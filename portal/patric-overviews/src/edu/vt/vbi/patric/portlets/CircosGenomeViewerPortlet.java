@@ -33,6 +33,8 @@ import javax.portlet.RenderResponse;
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
 
+import edu.vt.vbi.patric.beans.Genome;
+import edu.vt.vbi.patric.common.SolrInterface;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
@@ -64,11 +66,21 @@ public class CircosGenomeViewerPortlet extends GenericPortlet {
 
 		response.setContentType("text/html");
 
-		PortletRequestDispatcher prd;
-
 		new SiteHelper().setHtmlMetaElements(request, response, "Circos Genome Viewer");
 		response.setTitle("Circos Genome Viewer");
-		prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/circos_html.jsp");
+
+		SolrInterface solr = new SolrInterface();
+
+		String actionUrl = "/portal/portal/patric/CircosGenomeViewer/CircosGenomeViewerWindow?action=1";
+		String polyomicUrl = System.getProperty("polyomic.baseUrl", "http://polyomic.patricbrc.org:8888");
+		String genomeId = request.getParameter("context_id");
+		Genome genome = solr.getGenome(genomeId);
+
+		request.setAttribute("actionUrl", actionUrl);
+		request.setAttribute("polyomicUrl", polyomicUrl);
+		request.setAttribute("genome", genome);
+
+		PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/circos_html.jsp");
 		prd.include(request, response);
 	}
 

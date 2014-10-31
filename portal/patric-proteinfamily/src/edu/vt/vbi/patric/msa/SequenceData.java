@@ -67,7 +67,7 @@ public class SequenceData implements Comparable<SequenceData> {
 	}
 
 	public String setFasta(int maxName, BufferedWriter writer, int[] aaRange) throws IOException {
-		if (aaRange != null) {
+		if (aaRange != null && sequence != null) {
 			int set = sequence.length();
 			if (set < aaRange[0]) {
 				aaRange[0] = set;

@@ -777,7 +777,7 @@ function ShowDownloadFasta_Graph(showdownload, type) {
 
 	if (Ext.getDom('fids').value != "") {
 		
-		Ext.getDom("fTableForm").action = "/patric-common/jsp/fasta_download_handler.jsp";
+		Ext.getDom("fTableForm").action = "/portal/portal/patric/FeatureTable/FeatureTableWindow?action=b&cacheability=PAGE&mode=fasta";
 		Ext.getDom("fastaaction").value = showdownload;
 		Ext.getDom("fastascope").value = "Selected";
 		Ext.getDom("fastatype").value = type;

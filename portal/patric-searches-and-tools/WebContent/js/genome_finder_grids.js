@@ -157,6 +157,7 @@ function getExtraParams() {
 		pk : hash.key,
 		need : which,
 		taxonId : hash.tId,
+		genomeId : hash.gId,
 		keyword : constructKeyword((tree) ? tree.getSelectedTerms() : {}, name),
 		facet : JSON.stringify({
 			"facet" : configuration[name].display_facets.join(","),
@@ -201,7 +202,7 @@ function CallBack() {
 function renderCDS_Count_RAST(value, metadata, record, rowIndex, colIndex, store) {
 	if (value != "0") {
 		metadata.tdAttr = 'data-qtip="' + value + '" data-qclass="x-tip"';
-		return Ext.String.format('<a href="FeatureTable?cType=genome&amp;cId={0}&amp;featuretype=CDS&amp;annotation=PATRIC&amp;filtertype=">{1}</a>', record.data.genome_info_id, value);
+		return Ext.String.format('<a href="FeatureTable?cType=genome&amp;cId={0}&amp;featuretype=CDS&amp;annotation=PATRIC&amp;filtertype=">{1}</a>', record.data.genome_id, value);
 	} else {
 		metadata.tdAttr = 'data-qtip="0" data-qclass="x-tip"';
 		return "0";
@@ -211,7 +212,7 @@ function renderCDS_Count_RAST(value, metadata, record, rowIndex, colIndex, store
 function renderCDS_Count_BRC(value, metadata, record, rowIndex, colIndex, store) {
 	if (value != "0") {
 		metadata.tdAttr = 'data-qtip="' + value + '" data-qclass="x-tip"';
-		return Ext.String.format('<a href="FeatureTable?cType=genome&amp;cId={0}&amp;featuretype=CDS&amp;annotation=BRC&amp;filtertype=">{1}</a>', record.data.genome_info_id, value);
+		return Ext.String.format('<a href="FeatureTable?cType=genome&amp;cId={0}&amp;featuretype=CDS&amp;annotation=BRC1&amp;filtertype=">{1}</a>', record.data.genome_id, value);
 	} else {
 		metadata.tdAttr = 'data-qtip="0" data-qclass="x-tip"';
 		return "0";
@@ -222,7 +223,7 @@ function renderCDS_Count_RefSeq(value, metadata, record, rowIndex, colIndex, sto
 
 	if (value != "0") {
 		metadata.tdAttr = 'data-qtip="' + value + '" data-qclass="x-tip"';
-		return Ext.String.format('<a href="FeatureTable?cType=genome&amp;cId={0}&amp;featuretype=CDS&amp;annotation=RefSeq&amp;filtertype=">{1}</a>', record.data.genome_info_id, value);
+		return Ext.String.format('<a href="FeatureTable?cType=genome&amp;cId={0}&amp;featuretype=CDS&amp;annotation=RefSeq&amp;filtertype=">{1}</a>', record.data.genome_id, value);
 	} else {
 		metadata.tdAttr = 'data-qtip="0" data-qclass="x-tip"';
 		return "0";
@@ -231,7 +232,7 @@ function renderCDS_Count_RefSeq(value, metadata, record, rowIndex, colIndex, sto
 
 function renderTotal(value, metadata, record, rowIndex, colIndex, store) {
 	metadata.tdAttr = 'data-qtip="' + value + '" data-qclass="x-tip"';
-	return Ext.String.format("<a href=\"javascript:void(0);\" onclick=\"ShowSequenceTab('" + record.data.genome_info_id + "','" + record.data.genome_name.replace(/'/gi, '`') + "');\"/>" + value + "</a>");
+	return Ext.String.format("<a href=\"javascript:void(0);\" onclick=\"ShowSequenceTab('" + record.data.genome_id + "','" + record.data.genome_name.replace(/'/gi, '`') + "');\"/>" + value + "</a>");
 }
 
 function renderCompletionDate(value, metadata, record, rowIndex, colIndex, store) {
@@ -254,12 +255,14 @@ function getSelectedFeatures() {
 
 	if (property.hash.gId) {
 		property.fids.push(property.hash.gId);
-	} else {
+	}
+	else {
 		for (var i = 0; i < sl.length; i++) {
-			if (sl[i].data.genome_info_id)
-				property.fids.push(sl[i].data.genome_info_id);
-			else
-				property.fids.push(sl[i].data.gid);
+		    property.fids.push(sl[i].data.genome_id);
+//			if (sl[i].data.genome_info_id)
+//				property.fids.push(sl[i].data.genome_info_id);
+//			else
+//				property.fids.push(sl[i].data.gid);
 		}
 		for (var i = 0; i < property.fids.length; i++) {
 			(arr.length > 0 && arr.indexOf(property.fids[i]) == -1) ? arr.push(property.fids[i]) : arr.length == 0 ? arr.push(property.fids[i]) : "";

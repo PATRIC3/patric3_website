@@ -162,11 +162,11 @@ Ext.onReady(function()
 });
 
 function getContext() {
-	return {type: "<%=cType%>", id:<%=cId%>};
+	return {type:"<%=cType%>", id:<%=cId%>};
 }
-
+/*
 function getGID(){
 	return '<%=genomeId %>';
-}
+}*/
 //]]
 </script>

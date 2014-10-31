@@ -29,6 +29,7 @@ import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.LBHttpSolrServer;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
@@ -952,12 +953,10 @@ public class DataLandingGenerator {
 
 			long numFound = 0;
 			try {
-				solr.setCurrentInstance(SolrCore.TRANSCRIPTOMICS_EXPERIMENT);
-
 				SolrQuery query = new SolrQuery("genome_ids:" + genomeId);
 				query.setRows(0);
 
-				QueryResponse qr = solr.getServer().query(query);
+				QueryResponse qr = solr.getSolrServer(SolrCore.TRANSCRIPTOMICS_EXPERIMENT).query(query);
 				numFound = qr.getResults().getNumFound();
 			}
 			catch (MalformedURLException | SolrServerException e) {
@@ -969,11 +968,9 @@ public class DataLandingGenerator {
 			data.add(tr);
 
 			try {
-				solr.setCurrentInstance(SolrCore.FEATURE);
-
 				SolrQuery query = new SolrQuery("figfam_id:[* TO *] AND annotation:PATRIC AND genome_id:" + genomeId);
 				query.setRows(0);
-				QueryResponse qr = solr.getServer().query(query);
+				QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query);
 
 				pf.put("data", qr.getResults().getNumFound());
 			}
@@ -1158,13 +1155,10 @@ public class DataLandingGenerator {
 
 				// Specialty Gene Queries
 				try {
-					solr.setCurrentInstance(SolrCore.SPECIALTY_GENE_MAPPING);
-					SolrQuery query = new SolrQuery();
-					query.setQuery("*:*");
-					query.setFilterQueries("genome_id:" + genomeId);
+					SolrQuery query = new SolrQuery("genome_id:" + genomeId);
 					query.setFacet(true).setFacetMinCount(1).addFacetField("property_source").setFacetSort(FacetParams.FACET_SORT_INDEX);
 
-					QueryResponse qr = solr.getServer().query(query);
+					QueryResponse qr = solr.getSolrServer(SolrCore.SPECIALTY_GENE_MAPPING).query(query);
 					FacetField ff = qr.getFacetField("property_source");
 					for (FacetField.Count fc : ff.getValues()) {
 						JSONObject sp = new JSONObject();
@@ -1237,6 +1231,13 @@ public class DataLandingGenerator {
 		JSONArray list = new JSONArray();
 
 		SolrInterface solr = new SolrInterface();
+		LBHttpSolrServer lbHttpSolrServer = null;
+		try {
+			lbHttpSolrServer = solr.getSolrServer(SolrCore.SPECIALTY_GENE_MAPPING);
+		}
+		catch (MalformedURLException e) {
+			LOGGER.error(e.getMessage(), e);
+		}
 
 		for (String genomeId : REFERENCE_GENOME_IDS) {
 
@@ -1250,13 +1251,10 @@ public class DataLandingGenerator {
 			JSONArray specialtyGenes = new JSONArray();
 
 			try {
-				solr.setCurrentInstance(SolrCore.SPECIALTY_GENE_MAPPING);
-				SolrQuery query = new SolrQuery();
-				query.setQuery("*:*");
-				query.setFilterQueries("genome_id:" + genomeId);
+				SolrQuery query = new SolrQuery("genome_id:" + genomeId);
 				query.setFacet(true).setFacetMinCount(1).addFacetField("property_source").setFacetSort(FacetParams.FACET_SORT_INDEX);
 
-				QueryResponse qr = solr.getServer().query(query);
+				QueryResponse qr = lbHttpSolrServer.query(query);
 				FacetField ff = qr.getFacetField("property_source");
 				for (FacetField.Count fc : ff.getValues()) {
 					JSONObject sp = new JSONObject();
@@ -1268,7 +1266,7 @@ public class DataLandingGenerator {
 					specialtyGenes.add(sp);
 				}
 			}
-			catch (MalformedURLException | SolrServerException e) {
+			catch (SolrServerException e) {
 				LOGGER.error(e.getMessage(), e);
 			}
 			//
@@ -1323,6 +1321,13 @@ public class DataLandingGenerator {
 		JSONArray list = new JSONArray();
 
 		SolrInterface solr = new SolrInterface();
+		LBHttpSolrServer lbHttpSolrServer = null;
+		try {
+			lbHttpSolrServer = solr.getSolrServer(SolrCore.SPECIALTY_GENE_MAPPING);
+		}
+		catch (MalformedURLException e) {
+			LOGGER.error(e.getMessage(), e);
+		}
 
 		for (String genomeId : REFERENCE_GENOME_IDS) {
 
@@ -1336,15 +1341,13 @@ public class DataLandingGenerator {
 			JSONArray specialtyGenes = new JSONArray();
 			// Specialty Gene Queries
 			try {
-				solr.setCurrentInstance(SolrCore.SPECIALTY_GENE_MAPPING);
-
 				SolrQuery query = new SolrQuery();
 				query.setQuery("property:\"Antibiotic Resistance\"");
 				query.setFilterQueries("genome_id:" + genomeId);
 				// TODO: avoid useing property_source
 				query.setFacet(true).setFacetMinCount(1).addFacetField("property_source").setFacetSort(FacetParams.FACET_SORT_INDEX);
 
-				QueryResponse qr = solr.getServer().query(query);
+				QueryResponse qr = lbHttpSolrServer.query(query);
 				FacetField ff = qr.getFacetField("property_source");
 				for (FacetField.Count fc : ff.getValues()) {
 					JSONObject sp = new JSONObject();
@@ -1356,7 +1359,7 @@ public class DataLandingGenerator {
 					specialtyGenes.add(sp);
 				}
 			}
-			catch (MalformedURLException | SolrServerException e) {
+			catch (SolrServerException e) {
 				LOGGER.error(e.getMessage(), e);
 			}
 			//
@@ -1463,6 +1466,13 @@ public class DataLandingGenerator {
 		JSONObject jsonData = null;
 		JSONArray list = new JSONArray();
 		SolrInterface solr = new SolrInterface();
+		LBHttpSolrServer lbHttpSolrServer = null;
+		try {
+			lbHttpSolrServer = solr.getSolrServer(SolrCore.SPECIALTY_GENE_MAPPING);
+		}
+		catch (MalformedURLException e) {
+			LOGGER.error(e.getMessage(), e);
+		}
 
 		for (String genomeId : REFERENCE_GENOME_IDS_TRANSCRIPTOMICS) {
 			ResultType key = new ResultType();
@@ -1479,20 +1489,18 @@ public class DataLandingGenerator {
 			// Retrieve eId associated a given genome
 			List<String> eIds = new ArrayList<>();
 			try {
-				solr.setCurrentInstance(SolrCore.TRANSCRIPTOMICS_EXPERIMENT);
-
 				SolrQuery query = new SolrQuery("genome_ids:" + genomeId);
 				query.setRows(1000);
 				query.setFields("eid");
 
-				QueryResponse qr = solr.getServer().query(query);
+				QueryResponse qr = lbHttpSolrServer.query(query);
 				SolrDocumentList sdl = qr.getResults();
 
 				for (SolrDocument doc: sdl) {
 					eIds.add(doc.get("eid").toString());
 				}
 			}
-			catch (MalformedURLException | SolrServerException e) {
+			catch (SolrServerException e) {
 				LOGGER.error(e.getMessage(), e);
 			}
 
@@ -1629,20 +1637,25 @@ public class DataLandingGenerator {
 		Map<String, Integer> stat = new HashMap<>();
 
 		SolrInterface solr = new SolrInterface();
+		LBHttpSolrServer lbHttpSolrServer = null;
+		try {
+			lbHttpSolrServer = solr.getSolrServer(SolrCore.FEATURE);
+		}
+		catch (MalformedURLException e) {
+			LOGGER.error(e.getMessage(), e);
+		}
 
 		try {
-			solr.setCurrentInstance(SolrCore.FEATURE);
-
 			SolrQuery query = new SolrQuery();
 			query.setQuery("*:*");
 			query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + taxonId));
 			query.setRows(0).setFacet(true).setFacetMinCount(1).setFacetLimit(-1).addFacetField("figfam_id");
 
-			QueryResponse qrTotal = solr.getServer().query(query);
+			QueryResponse qrTotal = lbHttpSolrServer.query(query);
 			int total = qrTotal.getFacetField("figfam_id").getValueCount();
 
 			query.setQuery("product:hypothetical");
-			QueryResponse qrHypo = solr.getServer().query(query);
+			QueryResponse qrHypo = lbHttpSolrServer.query(query);
 			int hypothetical = qrHypo.getFacetField("figfam_id").getValueCount();
 
 			stat.put("total", total);

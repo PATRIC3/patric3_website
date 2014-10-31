@@ -61,10 +61,10 @@ public class GenomeFeature {
 	private String proteinId;
 
 	@Field("gene_id")
-	private String geneId;
+	private long geneId;
 
 	@Field("gi")
-	private String gi;
+	private long gi;
 
 	@Field
 	private int start;
@@ -93,17 +93,14 @@ public class GenomeFeature {
 	@Field("na_sequence")
 	private String naSequence;
 
-	@Field
-	private String translation;
+	@Field("aa_sequence")
+	private String aaSequence;
 
 	@Field
 	private String gene;
 
 	@Field
 	private String product;
-
-	@Field("refseq_product")
-	private String refseqProduct;
 
 	// extra ids
 	@Field("figfam_id")
@@ -151,7 +148,6 @@ public class GenomeFeature {
 		// na_sequence, translation, aa_sequence_md5
 		json.put("gene", getGene());
 		json.put("product", getProduct());
-		json.put("refseq_product", getRefseqProduct());
 		json.put("figfam_id", getFigfamId());
 		// ec, pathway, go, uniprotkb_accession, ids
 
@@ -250,6 +246,17 @@ public class GenomeFeature {
 		return (this.proteinId != null);
 	}
 
+	public boolean hasSeedId() {
+		return (this.seedId != null);
+	}
+
+	public boolean hasNaSequence() {
+		return (this.naSequence != null);
+	}
+
+	public boolean hasAaSequence() {
+		return (this.aaSequence != null);
+	}
 	public String getGenomeId() {
 		return genomeId;
 	}
@@ -306,19 +313,23 @@ public class GenomeFeature {
 		this.proteinId = proteinId;
 	}
 
-	public String getGeneId() {
+	public boolean hasGeneId() {
+		return (this.geneId > 0);
+	}
+
+	public long getGeneId() {
 		return geneId;
 	}
 
-	public void setGeneId(String geneId) {
+	public void setGeneId(long geneId) {
 		this.geneId = geneId;
 	}
 
-	public String getGi() {
+	public long getGi() {
 		return gi;
 	}
 
-	public void setGi(String gi) {
+	public void setGi(long gi) {
 		this.gi = gi;
 	}
 
@@ -354,20 +365,12 @@ public class GenomeFeature {
 		this.naSequence = naSequence;
 	}
 
-	public String getTranslation() {
-		return translation;
+	public String getAaSequence() {
+		return aaSequence;
 	}
 
-	public void setTranslation(String translation) {
-		this.translation = translation;
-	}
-
-	public String getRefseqProduct() {
-		return refseqProduct;
-	}
-
-	public void setRefseqProduct(String refseqProduct) {
-		this.refseqProduct = refseqProduct;
+	public void setAaSequence(String aaSequence) {
+		this.aaSequence = aaSequence;
 	}
 
 	public List<String> getEnzymeClass() {

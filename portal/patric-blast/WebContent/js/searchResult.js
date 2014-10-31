@@ -42,7 +42,7 @@ function checkFastaOptions() {
 }
 
 function show_fasta_files() {
-	Ext.getDom("searchResult").action = "/patric-common/jsp/fasta_download_handler.jsp";
+	Ext.getDom("searchResult").action = "/portal/portal/patric/FeatureTable/FeatureTableWindow?action=b&cacheability=PAGE&mode=fasta";
 	Ext.getDom("fastaaction").value = "display";
 	if (getSelectedFeatures() == false) {
 		return false;
@@ -53,7 +53,7 @@ function show_fasta_files() {
 }
 
 function download_fasta_files() {
-	Ext.getDom("searchResult").action = "/patric-common/jsp/fasta_download_handler.jsp";
+	Ext.getDom("searchResult").action = "/portal/portal/patric/FeatureTable/FeatureTableWindow?action=b&cacheability=PAGE&mode=fasta";
 	Ext.getDom("fastaaction").value = "download";
 	if (getSelectedFeatures() == false) {
 		return false;
