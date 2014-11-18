@@ -327,12 +327,11 @@ public class CompPathwayMap extends GenericPortlet {
 			if (genomeId != null && !genomeId.equals("")) {
 				query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "genome_id:" + genomeId + " AND genome_status:(complete OR wgs)"));
 			}
-			query.setRows(0).setFacet(true).setFacetLimit(-1).addFacetField("ec_number");
-			query.add("facet.stat", "genome_count:unique(genome_id)");
-			query.add("facet.stat", "gene_count:unique(feature_id)");
+			query.setRows(0).setFacet(true);
+			query.add("json.facet","{stat:{field:{field:ec_number,limit:-1,facet:{genome_count:\"unique(genome_id)\",gene_count:\"unique(feature_id)\"}}}}");
 
 			QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query);
-			List<SimpleOrderedMap> buckets = (List) ((SimpleOrderedMap) ((SimpleOrderedMap) qr.getResponse().get("facets")).get("ec_number")).get("buckets");
+			List<SimpleOrderedMap> buckets = (List) ((SimpleOrderedMap) ((SimpleOrderedMap) qr.getResponse().get("facets")).get("stat")).get("buckets");
 
 			Map<String, SimpleOrderedMap> mapStat = new HashMap<>();
 			for (SimpleOrderedMap value: buckets) {

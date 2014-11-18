@@ -53,7 +53,7 @@
 
             // step1. genome_count, feature_count
             // pathway/select?q=pathway_id:00053+AND+annotation:PATRIC&fq={!join+from=genome_id+to=genome_id+fromIndex=genome}taxon_lineage_ids:83332+AND+genome_status:(complete+OR+wgs)
-            // &rows=0&facet=true&facet.limit=-1&facet.field=ec_number&facet.stat=genome_count:unique(genome_id)&facet.stat=gene_count:unique(feature_id)
+            // &rows=0&facet=true&json.facet={stat:{field:{field:ec_number,limit:-1,facet:{annotation:{field:{field:annotation_sort,facet:{genome_count:"unique(genome_id)",gene_count:"unique(feature_id)"}}}}}}}
 
             SolrQuery query = new SolrQuery("pathway_id:" + map);
             if (!taxonId.equals("")) {
@@ -62,18 +62,16 @@
             if (!genomeId.equals("")) {
                 query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "genome_id:" + genomeId + " AND genome_status:(complete OR wgs)"));
             }
-            query.setRows(0).setFacet(true).setFacetLimit(-1).addFacetField("ec_number");
-            // TODO: change to Heliosearch JSON API later (with SolrHS 0.8)
-            query.add("subfacet.ec_number.field", "annotation_sort");
-            query.add("facet.stat", "genome_count:unique(genome_id)");
-            query.add("facet.stat", "gene_count:unique(feature_id)");
+            query.setRows(0).setFacet(true);
+
+            query.add("json.facet","{stat:{field:{field:ec_number,limit:-1,facet:{annotation:{field:{field:annotation_sort,facet:{genome_count:\"unique(genome_id)\",gene_count:\"unique(feature_id)\"}}}}}}}");
 
             QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query);
-            List<SimpleOrderedMap> buckets = (List) ((SimpleOrderedMap) ((SimpleOrderedMap) qr.getResponse().get("facets")).get("ec_number")).get("buckets");
+            List<SimpleOrderedMap> buckets = (List) ((SimpleOrderedMap) ((SimpleOrderedMap) qr.getResponse().get("facets")).get("stat")).get("buckets");
 
             Map<String, SimpleOrderedMap> mapStat = new HashMap<String, SimpleOrderedMap>();
             for (SimpleOrderedMap value: buckets) {
-                if (Integer.parseInt(value.get("gene_count").toString()) > 0) {
+                if (Integer.parseInt(value.get("count").toString()) > 0) {
                     mapStat.put(value.get("val").toString(), value);
                     ecNumbers.add(value.get("val").toString());
                 }
@@ -94,7 +92,7 @@
                 String ecNumber = doc.get("ec_number").toString();
                 SimpleOrderedMap stat = mapStat.get(ecNumber);
 
-                List<SimpleOrderedMap> annotationBuckets = (List) ((SimpleOrderedMap) stat.get("annotation_sort")).get("buckets");
+                List<SimpleOrderedMap> annotationBuckets = (List) ((SimpleOrderedMap) stat.get("annotation")).get("buckets");
 
                 for (SimpleOrderedMap annotationBucket: annotationBuckets) {
                     String annotation = annotationBucket.get("val").toString();

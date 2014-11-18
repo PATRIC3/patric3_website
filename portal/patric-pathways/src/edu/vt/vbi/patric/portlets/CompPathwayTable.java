@@ -187,19 +187,15 @@ public class CompPathwayTable extends GenericPortlet {
 				Map<String, JSONObject> uniquePathways = new HashMap<>();
 
 				// get pathway stat
-				query.setRows(0).setFacet(true).setFacetMinCount(1).setFacetLimit(-1);
-				query.addFacetField("pathway_id");
-				query.add("facet.stat", "genome_count:unique(genome_id)");
-				query.add("facet.stat", "gene_count:unique(feature_id)");
-				query.add("facet.stat", "ec_count:unique(ec_number)");
-				query.add("facet.stat", "genome_ec:unique(genome_ec)");
+				query.setRows(0).setFacet(true);
+				query.add("json.facet","{stat:{field:{field:pathway_id,limit:-1,facet:{genome_count:\"unique(genome_id)\",gene_count:\"unique(feature_id)\",ec_count:\"unique(ec_number)\",genome_ec:\"unique(genome_ec)\"}}}}");
 
 				QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query);
 
 //				SimpleOrderedMap facets = (SimpleOrderedMap) qr.getResponse().get("facets");
 //				SimpleOrderedMap pathway_id = (SimpleOrderedMap) facets.get("pathway_id");
 //				List<Map<String, Object>> buckets = (List) pathway_id.get("buckets");
-				List<SimpleOrderedMap> buckets = (List) ((SimpleOrderedMap) ((SimpleOrderedMap) qr.getResponse().get("facets")).get("pathway_id")).get("buckets");
+				List<SimpleOrderedMap> buckets = (List) ((SimpleOrderedMap) ((SimpleOrderedMap) qr.getResponse().get("facets")).get("stat")).get("buckets");
 
 				Map<String, SimpleOrderedMap> mapStat = new HashMap<>();
 				for (SimpleOrderedMap value: buckets) {
@@ -270,16 +266,13 @@ public class CompPathwayTable extends GenericPortlet {
 				Set<String> listEcNumbers = new HashSet<>();
 
 				// get pathway stat
-				query.setRows(0).setFacet(true).setFacetMinCount(1).setFacetLimit(-1);
-				query.addFacetField("pathway_ec");
-				query.add("facet.stat", "genome_count:unique(genome_id)");
-				query.add("facet.stat", "gene_count:unique(feature_id)");
-				query.add("facet.stat", "ec_count:unique(ec_number)");
+				query.setRows(0).setFacet(true);
+				query.add("json.facet","{stat:{field:{field:pathway_ec,limit:-1,facet:{genome_count:\"unique(genome_id)\",gene_count:\"unique(feature_id)\",ec_count:\"unique(ec_number)\"}}}}");
 
 				// LOGGER.debug("Solr [PATHWAY]: {}", query.toString());
 				QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query);
 
-				List<SimpleOrderedMap> buckets = (List) ((SimpleOrderedMap) ((SimpleOrderedMap) qr.getResponse().get("facets")).get("pathway_ec")).get("buckets");
+				List<SimpleOrderedMap> buckets = (List) ((SimpleOrderedMap) ((SimpleOrderedMap) qr.getResponse().get("facets")).get("stat")).get("buckets");
 
 				Map<String, SimpleOrderedMap> mapStat = new HashMap<>();
 				for (SimpleOrderedMap value: buckets) {
