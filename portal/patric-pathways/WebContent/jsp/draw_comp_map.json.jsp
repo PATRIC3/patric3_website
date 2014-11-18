@@ -64,7 +64,7 @@
             }
             query.setRows(0).setFacet(true);
 
-            query.add("json.facet","{stat:{field:{field:ec_number,limit:-1,facet:{annotation:{field:{field:annotation_sort,facet:{genome_count:\"unique(genome_id)\",gene_count:\"unique(feature_id)\"}}}}}}}");
+            query.add("json.facet","{stat:{field:{field:ec_number,limit:-1,facet:{annotation:{field:{field:annotation,facet:{genome_count:\"unique(genome_id)\",gene_count:\"unique(feature_id)\"}}}}}}}");
 
             QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query);
             List<SimpleOrderedMap> buckets = (List) ((SimpleOrderedMap) ((SimpleOrderedMap) qr.getResponse().get("facets")).get("stat")).get("buckets");
