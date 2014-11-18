@@ -81,7 +81,7 @@ Ext.onReady(function () {
 				{header: "Conclusion", width: 180, flex:1, dataIndex: 'conclusion', renderer:BasicRenderer},
 				{header: "MeSH Disease Terms", width:180, flex:1, dataIndex: 'mesh_disease_terms', renderer:BasicRenderer},
 				{header: "GAD Broad Phenotype", width:180, flex:1, dataIndex: 'broad_phenotype', renderer:BasicRenderer},
-				{header: "XREF Link", align:'center',width:150, renderer:renderXREF, renderer:renderXREF}
+				{header: "XREF Link", align:'center',width:150, renderer:renderXREF}
 			]],
 		current_hash: window.location.hash?window.location.hash.substring(1):"",
 		url: ['/portal/portal/patric/DiseaseTable/DiseaseTableWindow?action=b&cacheability=PAGE'],

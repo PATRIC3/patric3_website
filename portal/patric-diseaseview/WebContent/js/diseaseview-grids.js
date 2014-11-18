@@ -396,7 +396,7 @@ function renderGenomeNameVFDB(value, metadata, record, rowIndex, colIndex, store
 
 function renderXREF(value, metadata, record, rowIndex, colIndex, store) {
 
-		return Ext.String.format("<a href=\"http://geneticassociationdb.nih.gov/cgi-bin/tableview.cgi?table=diseaseview&cond=upper(GENE)='{0}'\" target=\"_blank\">GAD</a>  <a href=\"http://www.ncbi.nlm.nih.gov/gene/{1}\" target=\"_blank\">NCBI</a>  <a href=\"http://www.genecards.org/cgi-bin/carddisp.pl?gene={2}\" target=\"_blank\">GeneCards</a>", record.data.gene_sym, record.data.gene_id, record.data.gene_sym);
+		return Ext.String.format("<a href=\"http://www.ncbi.nlm.nih.gov/gene/{0}\" target=\"_blank\">NCBI</a>  <a href=\"http://www.genecards.org/cgi-bin/carddisp.pl?gene={1}\" target=\"_blank\">GeneCards</a>", record.data.gene_id, record.data.gene_sym);
 }
 
 function renderXREFCTD(value, p, record){
