@@ -71,7 +71,8 @@ public class TaxonomyTreePortlet extends GenericPortlet {
 
 		try {
 			SolrQuery query = new SolrQuery("lineage_ids:" + taxonId + " AND genomes:[1 TO *]");
-			query.addField("taxon_id,taxon_rank,taxon_name,genomes,lineage_ids").setRows(100000);
+			query.addField("taxon_id,taxon_rank,taxon_name,genomes,lineage_ids").setRows(1000000);
+			query.addSort("taxon_name", SolrQuery.ORDER.asc);
 			// LOGGER.debug(query.toString());
 
 			QueryResponse qr = solr.getSolrServer(SolrCore.TAXONOMY).query(query);
