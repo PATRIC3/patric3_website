@@ -3,21 +3,15 @@
 %><%@ page import="edu.vt.vbi.patric.dao.ResultType" 
 %><%@ page import="java.util.List" 
 %><%
-String ncbi_taxon_id = null;
+int taxonId = (Integer) request.getAttribute("taxonId");
 
-String cType = request.getParameter("context_type");
-String cId = request.getParameter("context_id");
-if (cType!=null && cType.equals("taxon") && cId!=null) {
-	ncbi_taxon_id = cId;
-}
-
-String txUrlBase = "/patric-common/jsp/genomeselector_support.json.jsp?mode=txtree&start=";
+String txUrlBase = "/portal/portal/patric/TaxonomyTree/TaxonomyTreeWindow?action=b&cacheability=PAGE&taxonId=";
 String txUrlAll = "/patric-common/txtree-bacteria.js";
 String txUrl = "";
-if (ncbi_taxon_id.equals("2")) {
+if (taxonId == 2) {
 	txUrl = txUrlAll;
 } else {
-	txUrl = txUrlBase+ncbi_taxon_id;
+	txUrl = txUrlBase + taxonId;
 }
 %>
 <div id="bacteria-tree" class="left"></div>
