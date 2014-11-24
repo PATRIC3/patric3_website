@@ -5,7 +5,7 @@
 %><%
 int taxonId = (Integer) request.getAttribute("taxonId");
 
-String txUrlBase = "/portal/portal/patric/TaxonomyTree/TaxonomyTreeWindow?action=b&cacheability=PAGE&taxonId=";
+String txUrlBase = "/portal/portal/patric/TaxonomyTree/TaxonomyTreeWindow?action=b&cacheability=PAGE&mode=txtree&taxonId=";
 String txUrlAll = "/patric-common/txtree-bacteria.js";
 String txUrl = "";
 if (taxonId == 2) {
