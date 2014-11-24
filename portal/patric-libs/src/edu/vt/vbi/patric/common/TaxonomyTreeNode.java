@@ -14,7 +14,7 @@
  *   limitations under the License.
  */
 
-package edu.vt.vbi.patric.tree;
+package edu.vt.vbi.patric.common;
 
 import edu.vt.vbi.patric.beans.Taxonomy;
 import org.json.simple.JSONArray;
