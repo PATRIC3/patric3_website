@@ -16,36 +16,33 @@
 
 package edu.vt.vbi.patric.common;
 
-import edu.vt.vbi.patric.beans.Taxonomy;
+import edu.vt.vbi.patric.beans.Genome;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public class TaxonomyTreeNode {
+public class TaxonomyGenomeNode {
+
+	private String id;
 
 	private int taxonId;
 
-	private int parentId;
-
-	private String rank;
+	private String parentId;
 
 	private String name;
 
-	private int nodeCount;
+	private Set<TaxonomyGenomeNode> children;
 
-	private Set<TaxonomyTreeNode> children;
-
-	public TaxonomyTreeNode() {
+	public TaxonomyGenomeNode() {
 		this.children = new LinkedHashSet<>();
 	}
 
-	public TaxonomyTreeNode(Taxonomy taxon) {
-		this.taxonId = taxon.getId();
-		this.rank = taxon.getTaxonRank();
-		this.name = taxon.getTaxonName();
-		this.nodeCount = taxon.getGenomeCount();
+	public TaxonomyGenomeNode(Genome genome) {
+		this.id = genome.getId();
+		this.taxonId = genome.getTaxonId();
+		this.name = genome.getGenomeName();
 		this.children = new LinkedHashSet<>();
 	}
 
@@ -56,15 +53,14 @@ public class TaxonomyTreeNode {
 	public JSONObject getJSONObject() {
 		JSONObject json = new JSONObject();
 
-		json.put("id", getTaxonId());
-		if (parentId > 0) {
+		json.put("id", getId());
+		json.put("genome_id", getId());
+
+		if (parentId != null) {
 			json.put("parentId", getParentId());
 		}
-		if (rank != null) {
-			json.put("rank", getRank());
-		}
-		if (nodeCount > 0) {
-			json.put("node_count", getNodeCount());
+		if (taxonId > 0) {
+			json.put("taxon_id", getTaxonId());
 		}
 		if (name != null) {
 			json.put("name", getName());
@@ -81,25 +77,16 @@ public class TaxonomyTreeNode {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (!(obj instanceof TaxonomyTreeNode)) {
+		if (!(obj instanceof TaxonomyGenomeNode)) {
 			return false;
 		}
 
-		final TaxonomyTreeNode target = (TaxonomyTreeNode) obj;
+		final TaxonomyGenomeNode target = (TaxonomyGenomeNode) obj;
 		return (this.getTaxonId() == target.getTaxonId());
 	}
 
-	public TaxonomyTreeNode getFirstChild() {
-		TaxonomyTreeNode firstNode = null;
-		if (hasChildren()) {
-			firstNode = children.iterator().next();
-		}
-
-		return firstNode;
-	}
-
-	public TaxonomyTreeNode child(TaxonomyTreeNode target) {
-		for (TaxonomyTreeNode child : children) {
+	public TaxonomyGenomeNode child(TaxonomyGenomeNode target) {
+		for (TaxonomyGenomeNode child : children) {
 			if (child.equals(target)) {
 				return child;
 			}
@@ -111,7 +98,7 @@ public class TaxonomyTreeNode {
 	public JSONArray getChildrenJSON() {
 		JSONArray json = new JSONArray();
 
-		for (TaxonomyTreeNode child : children) {
+		for (TaxonomyGenomeNode child : children) {
 			json.add(child.getJSONObject());
 		}
 
@@ -122,8 +109,16 @@ public class TaxonomyTreeNode {
 		return (children != null && children.size() > 0);
 	}
 
-	public void addChild(TaxonomyTreeNode child) {
+	public void addChild(TaxonomyGenomeNode child) {
 		children.add(child);
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
 	}
 
 	public int getTaxonId() {
@@ -134,20 +129,12 @@ public class TaxonomyTreeNode {
 		this.taxonId = taxonId;
 	}
 
-	public int getParentId() {
+	public String getParentId() {
 		return parentId;
 	}
 
-	public void setParentId(int parentId) {
+	public void setParentId(String parentId) {
 		this.parentId = parentId;
-	}
-
-	public String getRank() {
-		return rank;
-	}
-
-	public void setRank(String rank) {
-		this.rank = rank;
 	}
 
 	public String getName() {
@@ -158,19 +145,11 @@ public class TaxonomyTreeNode {
 		this.name = name;
 	}
 
-	public int getNodeCount() {
-		return nodeCount;
-	}
-
-	public void setNodeCount(int nodeCount) {
-		this.nodeCount = nodeCount;
-	}
-
-	public Set<TaxonomyTreeNode> getChildren() {
+	public Set<TaxonomyGenomeNode> getChildren() {
 		return children;
 	}
 
-	public void setChildren(Set<TaxonomyTreeNode> children) {
+	public void setChildren(Set<TaxonomyGenomeNode> children) {
 		this.children = children;
 	}
 }

@@ -15,14 +15,18 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.common;
 
-import java.util.List;
-import java.util.Map;
-
+import edu.vt.vbi.patric.beans.Genome;
+import edu.vt.vbi.patric.beans.Taxonomy;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.QueryResponse;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import edu.vt.vbi.patric.dao.DBSummary;
-import edu.vt.vbi.patric.dao.ResultType;
+import java.net.MalformedURLException;
+import java.util.*;
 
 /**
  * Class to support Genome Selector. You just need to call buildOrganismTreeListView() method to create an instance of genome selector.
@@ -32,6 +36,8 @@ import edu.vt.vbi.patric.dao.ResultType;
  */
 @SuppressWarnings("unchecked")
 public class OrganismTreeBuilder {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(OrganismTreeBuilder.class);
 
 	/**
 	 * Build html to construct a genome selector.
@@ -48,181 +54,171 @@ public class OrganismTreeBuilder {
 	}
 
 	/**
-	 * Create a json node for taxonomy tree
-	 * 
-	 * @param taxon_id NCBI Taxonomy ID
-	 * @param name NCBI Taxonomy class name
-	 * @param rank Taxonomy rank
-	 * @param node_count number of genomes contained in current node
-	 * @param isLeaf
-	 * @param parent_id NCBI Taxonomy ID of parent node
-	 * @return json object of tree node
-	 */
-	public static JSONObject createOrganismTreeNode(String taxon_id, String name, String rank, String node_count, boolean isLeaf, String parent_id) {
-		JSONObject n = new JSONObject();
-		n.put("id", Integer.parseInt(taxon_id));
-		n.put("name", name);
-		n.put("rank", rank);
-		n.put("node_count", Integer.parseInt(node_count));
-		n.put("leaf", isLeaf);
-		if (parent_id != null && !parent_id.equals("")) {
-			n.put("parentId", Integer.parseInt(parent_id));
-		}
-		return n;
-	}
-
-	/**
-	 * Create a json node for genome list
-	 * 
-	 * @param genome_info_id Genome identifier
-	 * @param name Genome name
-	 * @param taxon_id NCBI Taxonomy ID of genome
-	 * @return json object of genome-list node
-	 */
-	public static JSONObject createGenomeListNode(String genome_info_id, String name, String taxon_id, String parent_id) {
-		JSONObject n = new JSONObject();
-		n.put("id", Integer.parseInt(genome_info_id));
-		n.put("genome_info_id", Integer.parseInt(genome_info_id));
-		n.put("name", name);
-		n.put("ncbi_taxon_id", Integer.parseInt(taxon_id));
-		if (parent_id != null && !parent_id.equals("")) {
-			n.put("parentId", Integer.parseInt(parent_id));
-		}
-		if (genome_info_id.equals("0")) {
-			n.put("leaf", false);
-		}
-		else {
-			n.put("leaf", true);
-		}
-		return n;
-	}
-
-	/**
 	 * Builds an array of nodes for Genome List view
 	 * 
-	 * @param key HashMap of configuration parameters
+	 * @param taxonId root taxon ID
 	 * @return json array of feed for Genome List
 	 */
-	public static JSONArray buildGenomeList(Map<String, String> key) {
+	public static JSONArray buildGenomeList(int taxonId) {
 
-		DBSummary db_summary = new DBSummary();
-		ResultType genome = db_summary.getTaxonomyNodeForGenomeSelector(key);
-		List<ResultType> list = db_summary.getGenomeListForGenomeSelector(key);
+		SolrInterface solr = new SolrInterface();
+		JSONArray treeJSON = new JSONArray();
 
-		JSONArray azlist = new JSONArray();
-		JSONArray children = new JSONArray();
+		try {
+			SolrQuery query = new SolrQuery();
+			if (taxonId == 131567) {
+				query.setQuery("taxon_lineage_ids:(2 OR 2157)");
+			}
+			else {
+				query.setQuery("taxon_lineage_ids:" + taxonId);
+			}
+			query.addField("taxon_id,genome_id,genome_name").setRows(1000000);
+			query.addSort("genome_name", SolrQuery.ORDER.asc);
+			LOGGER.debug("buildGenomeList:{}", query.toString());
 
-		JSONObject root = createGenomeListNode("0", genome.get("class_name") + " (" + genome.get("node_count") + ")", genome.get("ncbi_taxon_id"),
-				null);
+			QueryResponse qr = solr.getSolrServer(SolrCore.GENOME).query(query);
 
-		for (int i = 0; i < list.size(); i++) {
-			genome = list.get(i);
-			children.add(createGenomeListNode(genome.get("genome_info_id"), genome.get("genome_name"), genome.get("ncbi_taxon_id"), "0"));
+			List<Genome> genomeList = qr.getBeans(Genome.class);
+			Set<TaxonomyGenomeNode> children = new LinkedHashSet<>();
+
+			for (Genome genome : genomeList) {
+				TaxonomyGenomeNode node = new TaxonomyGenomeNode(genome);
+				node.setParentId("0");
+
+				children.add(node);
+			}
+
+			TaxonomyGenomeNode rootTaxonomyGenomeNode = new TaxonomyGenomeNode();
+			Taxonomy rootTaxonomy = solr.getTaxonomy(taxonId);
+			rootTaxonomyGenomeNode.setName(rootTaxonomy.getTaxonName() + " (" + rootTaxonomy.getGenomeCount() + ")");
+			rootTaxonomyGenomeNode.setTaxonId(rootTaxonomy.getId());
+			rootTaxonomyGenomeNode.setId("0");
+
+
+			rootTaxonomyGenomeNode.setChildren(children);
+			treeJSON.add(rootTaxonomyGenomeNode.getJSONObject());
+		}
+		catch (MalformedURLException | SolrServerException e) {
+			LOGGER.error(e.getMessage(), e);
 		}
 
-		root.put("children", children);
-		azlist.add(root);
-
-		return azlist;
-	}
-
-	/**
-	 * Find a parent node of given id
-	 */
-	private static JSONArray nodeFinder(JSONArray tx, int id) {
-		int idx = 0;
-		JSONObject target = null;
-		JSONArray result = null;
-
-		for (idx = tx.size() - 1; idx >= 0; idx--) {
-			target = (JSONObject) tx.get(idx);
-			if (Integer.parseInt(target.get("id").toString()) == id) {
-				result = (JSONArray) target.get("children");
-				break;
-			}
-			if (result == null && target.containsKey("children")) {
-				result = nodeFinder((JSONArray) target.get("children"), id);
-				if (result != null) {
-					break;
-				}
-			}
-		}
-		return result;
+		return treeJSON;
 	}
 
 	/**
 	 * Build an array of nodes for Taxonomy Tree view
 	 * 
-	 * @param key HashMap of configuration parameters
+	 * @param taxonId root taxon ID
 	 * @return json array of feed for Taxonomy Tree
 	 */
-	public static JSONArray buildGenomeTree(Map<String, String> key) {
-		DBSummary db_summary = new DBSummary();
-		JSONArray txtree = new JSONArray();
+	public static JSONArray buildGenomeTree(int taxonId) {
+		SolrInterface solr = new SolrInterface();
+		JSONArray treeJSON = new JSONArray();
 
-		// if taxonId is given, start from there, otherwise get the first node
-		// (probably 2:bacteria) and start from there
-		if (key.containsKey("ncbi_taxon_id") == false || key.get("ncbi_taxon_id") == null) {
-			key.put("ncbi_taxon_id", "2");
-		}
-
-		List<ResultType> list = db_summary.getTaxonomyTreeForGenomeSelector(key);
-		ResultType taxon = null;
-
-		for (int idx = 0; idx < list.size(); idx++) {
-
-			taxon = list.get(idx);
-
-			if (taxon.get("is_leaf").equals("0") && !taxon.get("genome_below").equals("0")) {
-				// has children
-				JSONObject node = createOrganismTreeNode(taxon.get("ncbi_taxon_id"), taxon.get("class_name"), taxon.get("rank"),
-						taxon.get("node_count"), false, taxon.get("parent_ncbi_taxon_id"));
-				JSONArray children = new JSONArray();
-
-				node.put("children", children);
-
-				JSONArray addTo = nodeFinder(txtree, Integer.parseInt(taxon.get("parent_ncbi_taxon_id")));
-				if (addTo != null) {
-					addTo.add(node);
-				}
-				else {
-					txtree.add(node);
-				}
+		try {
+			SolrQuery query = new SolrQuery();
+			if (taxonId == 131567) {
+				query.setQuery("lineage_ids:(2 OR 2157) AND genomes:[1 TO *]");
 			}
 			else {
-				// this is a leaf node
-				JSONObject node = createOrganismTreeNode(taxon.get("ncbi_taxon_id"), taxon.get("class_name"), taxon.get("rank"),
-						taxon.get("node_count"), true, taxon.get("parent_ncbi_taxon_id"));
-				if (nodeFinder(txtree, Integer.parseInt(taxon.get("parent_ncbi_taxon_id"))) == null) {
-					txtree.add(node);
-				}
-				else {
-					nodeFinder(txtree, Integer.parseInt(taxon.get("parent_ncbi_taxon_id"))).add(node);
-				}
+				query.setQuery("lineage_ids:" + taxonId + " AND genomes:[1 TO *]");
 			}
+			query.addField("taxon_id,taxon_rank,taxon_name,genomes,lineage_ids").setRows(1000000);
+			query.addSort("taxon_name", SolrQuery.ORDER.asc);
+			LOGGER.debug("buildGenomeTree:{}", query.toString());
+
+			QueryResponse qr = solr.getSolrServer(SolrCore.TAXONOMY).query(query);
+
+			List<Taxonomy> taxonomyList = qr.getBeans(Taxonomy.class);
+			Map<Integer, Taxonomy> taxonomyMap = new HashMap<>();
+
+			// 1 populate map for detail info
+			for (Taxonomy tx: taxonomyList) {
+				taxonomyMap.put(tx.getId(), tx);
+			}
+
+			// 2 add to rawData array
+			List<List<TaxonomyTreeNode>> rawData = new ArrayList<>();
+			for (Taxonomy tx : taxonomyList) {
+				List<Integer> lineage = tx.getLineageIds();
+				List<Integer> descendantIds = lineage;
+				if (lineage.indexOf(taxonId) > 0) {
+					descendantIds = lineage.subList(lineage.indexOf(taxonId), lineage.size());
+				}
+
+				List<TaxonomyTreeNode> descendant = new LinkedList<>();
+				for (Integer txId : descendantIds) {
+					descendant.add(new TaxonomyTreeNode(taxonomyMap.get(txId)));
+				}
+				rawData.add(descendant);
+			}
+
+			// 3 build a tree
+			TaxonomyTreeNode wrapper = new TaxonomyTreeNode();
+			TaxonomyTreeNode current = wrapper;
+			for (List<TaxonomyTreeNode> tree: rawData) {
+				TaxonomyTreeNode root = current;
+
+				int parentId = taxonId;
+				for (TaxonomyTreeNode node : tree) {
+					node.setParentId(parentId);
+					current = current.child(node);
+					parentId = node.getTaxonId();
+				}
+
+				current = root;
+			}
+
+			TaxonomyTreeNode root = wrapper.getFirstChild();
+			treeJSON.add(root.getJSONObject());
+			// LOGGER.debug(treeJSON.toJSONString());
 		}
-		return txtree;
+		catch (MalformedURLException | SolrServerException e) {
+			LOGGER.error(e.getMessage(), e);
+		}
+
+		return treeJSON;
 	}
 
 	/**
 	 * Build a taxonomy-genome map.
-	 * @param key HashMap of configuration parameters
+	 * @param taxonId root taxon ID
 	 * @return json array of mapping {ncbi_taxon_id,genome_info_id}
 	 */
-	public static JSONArray buildTaxonGenomeMapping(Map<String, String> key) {
+	public static JSONArray buildTaxonGenomeMapping(int taxonId) {
+		SolrInterface solr = new SolrInterface();
+		JSONArray mapJSON = new JSONArray();
 
-		DBSummary db_summary = new DBSummary();
-		List<ResultType> list = db_summary.getGenomeListForGenomeSelector(key);
+		try {
 
-		JSONArray tgm = new JSONArray();
-		JSONObject child = null;
-		for (int i = 0; i < list.size(); i++) {
-			child = new JSONObject();
-			child.put("ncbi_taxon_id", Integer.parseInt(list.get(i).get("ncbi_taxon_id")));
-			child.put("genome_info_id", Integer.parseInt(list.get(i).get("genome_info_id")));
-			tgm.add(child);
+			SolrQuery query = new SolrQuery();
+			if (taxonId == 131567) {
+				query.setQuery("taxon_lineage_ids:(2 OR 2157)");
+			}
+			else {
+				query.setQuery("taxon_lineage_ids:" + taxonId);
+			}
+
+			query.addField("genome_id,taxon_id").setRows(1000000);
+			LOGGER.debug("buildTaxonGenomeMapping:{}", query.toString());
+
+			QueryResponse qr = solr.getSolrServer(SolrCore.GENOME).query(query);
+
+			List<Genome> genomeList = qr.getBeans(Genome.class);
+
+			for (Genome genome : genomeList) {
+				JSONObject map = new JSONObject();
+				map.put("genome_id", genome.getId());
+				map.put("taxon_id", genome.getTaxonId());
+
+				mapJSON.add(map);
+			}
+
+		}
+		catch (MalformedURLException | SolrServerException e) {
+			LOGGER.error(e.getMessage(), e);
 		}
 
-		return tgm;
+		return mapJSON;
 	}
 }
