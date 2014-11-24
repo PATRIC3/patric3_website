@@ -42,7 +42,7 @@ import java.util.Map;
 
 public class BreadCrumb extends GenericPortlet {
 
-	private final boolean initCache = false;
+	private final boolean initCache = true;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(BreadCrumb.class);
 
@@ -78,7 +78,7 @@ public class BreadCrumb extends GenericPortlet {
 			key.put("ncbi_taxon_id", "2");
 
 			try (BufferedWriter out = new BufferedWriter(new FileWriter(getPortletContext().getRealPath("txtree-bacteria.js")))) {
-				JSONArray list = OrganismTreeBuilder.buildGenomeTree(key);
+				JSONArray list = OrganismTreeBuilder.buildGenomeTree(131567);
 				list.writeJSONString(out);
 			}
 			catch (IOException e) {
@@ -86,7 +86,7 @@ public class BreadCrumb extends GenericPortlet {
 			}
 
 			try (BufferedWriter out = new BufferedWriter(new FileWriter(getPortletContext().getRealPath("azlist-bacteria.js")))) {
-				JSONArray list = OrganismTreeBuilder.buildGenomeList(key);
+				JSONArray list = OrganismTreeBuilder.buildGenomeList(131567);
 				list.writeJSONString(out);
 			}
 			catch (IOException e) {
@@ -94,7 +94,7 @@ public class BreadCrumb extends GenericPortlet {
 			}
 
 			try (BufferedWriter out = new BufferedWriter(new FileWriter(getPortletContext().getRealPath("tgm-bacteria.js")))) {
-				JSONArray list = OrganismTreeBuilder.buildTaxonGenomeMapping(key);
+				JSONArray list = OrganismTreeBuilder.buildTaxonGenomeMapping(131567);
 				list.writeJSONString(out);
 			}
 			catch (IOException e) {
@@ -141,78 +141,50 @@ public class BreadCrumb extends GenericPortlet {
 			bm = "";
 		}
 
-		String windowID = request.getWindowID();
+		if (cId != null && cId.equals("")) {
+			// if cId == "", redirect to cellular organism
+			String origUrl = response.createRenderURL().toString();
+			String newUrl = origUrl.replace("/BreadCrumbWindow","").replace("&action=2","").replace("context_id=", "cId=131567").replace("context_type","cType");
+			LOGGER.debug("{} redirects to {}", origUrl, newUrl);
 
-		if (windowID.indexOf("ECSearch") >= 1 || windowID.indexOf("GOSearch") >= 1 || windowID.indexOf("GenomicFeature") >= 1
-				|| windowID.indexOf("GenomeFinder") >= 1 || windowID.indexOf("PathwayFinder") >= 1 || windowID.indexOf("Downloads") >= 1
-				|| windowID.indexOf("AntibioticResistanceGeneSearch") >= 1 || windowID.indexOf("SpecialtyGeneSearch") >= 1
-				|| windowID.indexOf("IDMapping") >= 1 || (windowID.indexOf("HPITool") >= 1 && bm.equals("tool"))
-				|| (windowID.indexOf("FIGfamSorter") >= 1 && windowID.indexOf("FIGfamSorterB") < 1)
-				|| (windowID.indexOf("FIGfamViewer") >= 1 && windowID.indexOf("FIGfamViewerB") < 1)
-				|| (windowID.indexOf("FIGfam") >= 1 && bm.equals("tool")) || (windowID.indexOf("SingleFIGfam") >= 1 && bm.equals("tool"))
-				|| windowID.indexOf("ExperimentData") >= 1 || windowID.indexOf("GEO") >= 1 || windowID.indexOf("ArrayExpress") >= 1
-				|| windowID.indexOf("PRC") >= 1 || windowID.indexOf("PRIDE") >= 1 || windowID.indexOf("Structure") >= 1
-				|| windowID.indexOf("IntAct") >= 1 || windowID.indexOf("RAST") >= 1 || windowID.indexOf("MGRAST") >= 1
-				|| windowID.indexOf("TranscriptomicsEnrichment") >= 1) {
+			response.getWriter().write("<meta http-equiv=\"refresh\" content=\"0;url=" + newUrl + "\">");
+			response.getWriter().close();
 
-			request.setAttribute("WindowID", windowID);
+		} else {
 
-			List<Map<String, Object>> lineage = new ArrayList<>();
-			SolrInterface solr = new SolrInterface();
-			Taxonomy taxonomy = null;
-			if (cType.equals("taxon")) {
-				taxonomy = solr.getTaxonomy(Integer.parseInt(cId));
-			}
-			else if (cType.equals("genome")) {
-				Genome genome = solr.getGenome(cId);
-				taxonomy = solr.getTaxonomy(genome.getTaxonId());
-			}
-			List<Integer> taxonIds = taxonomy.getLineageIds();
-			List<String> txNames = taxonomy.getLineageNames();
-			List<String> txRanks = taxonomy.getLineageRanks();
+			String windowID = request.getWindowID();
 
-			for (Integer txId : taxonIds) {
-				int idx = taxonIds.indexOf(txId);
-				Map<String, Object> taxon = new HashMap<>();
-				taxon.put("taxonId", txId);
-				taxon.put("name", txNames.get(idx));
-				taxon.put("rank", txRanks.get(idx));
+			if (windowID.indexOf("ECSearch") >= 1 || windowID.indexOf("GOSearch") >= 1 || windowID.indexOf("GenomicFeature") >= 1
+					|| windowID.indexOf("GenomeFinder") >= 1 || windowID.indexOf("PathwayFinder") >= 1 || windowID.indexOf("Downloads") >= 1
+					|| windowID.indexOf("AntibioticResistanceGeneSearch") >= 1 || windowID.indexOf("SpecialtyGeneSearch") >= 1
+					|| windowID.indexOf("IDMapping") >= 1 || (windowID.indexOf("HPITool") >= 1 && bm.equals("tool"))
+					|| (windowID.indexOf("FIGfamSorter") >= 1 && windowID.indexOf("FIGfamSorterB") < 1)
+					|| (windowID.indexOf("FIGfamViewer") >= 1 && windowID.indexOf("FIGfamViewerB") < 1)
+					|| (windowID.indexOf("FIGfam") >= 1 && bm.equals("tool")) || (windowID.indexOf("SingleFIGfam") >= 1 && bm.equals("tool"))
+					|| windowID.indexOf("ExperimentData") >= 1 || windowID.indexOf("GEO") >= 1 || windowID.indexOf("ArrayExpress") >= 1
+					|| windowID.indexOf("PRC") >= 1 || windowID.indexOf("PRIDE") >= 1 || windowID.indexOf("Structure") >= 1
+					|| windowID.indexOf("IntAct") >= 1 || windowID.indexOf("RAST") >= 1 || windowID.indexOf("MGRAST") >= 1
+					|| windowID.indexOf("TranscriptomicsEnrichment") >= 1) {
 
-				lineage.add(taxon);
-			}
-			request.setAttribute("lineage", lineage);
-			request.setAttribute("taxonId", taxonomy.getId());
+				request.setAttribute("WindowID", windowID);
 
-			PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/breadcrumb/other_tabs.jsp");
-			prd.include(request, response);
-
-		}
-		else {
-
-			if (cType == null || cType.equals("")) {
-				// show nothing
-				PrintWriter writer = response.getWriter();
-				writer.write(" ");
-				writer.close();
-			}
-			else if (cType.equals("feature")) {
-
-				boolean hasPATRICAnnotation = false;
 				List<Map<String, Object>> lineage = new ArrayList<>();
-
 				SolrInterface solr = new SolrInterface();
-
-				GenomeFeature feature = solr.getPATRICFeature(cId);
-				int taxonId = feature.getTaxonId();
-
-				if (feature.getAnnotation().equals("PATRIC")) {
-					hasPATRICAnnotation = true;
+				Taxonomy taxonomy = null;
+				if (cType.equals("taxon")) {
+					taxonomy = solr.getTaxonomy(Integer.parseInt(cId));
 				}
-
-				Taxonomy taxonomy = solr.getTaxonomy(taxonId);
+				else if (cType.equals("genome")) {
+					Genome genome = solr.getGenome(cId);
+					taxonomy = solr.getTaxonomy(genome.getTaxonId());
+				}
 				List<Integer> taxonIds = taxonomy.getLineageIds();
 				List<String> txNames = taxonomy.getLineageNames();
 				List<String> txRanks = taxonomy.getLineageRanks();
+
+				if (taxonIds == null) { // if taxonId = 131567 (cellular organism)
+					taxonIds = new ArrayList<>();
+				}
 
 				for (Integer txId : taxonIds) {
 					int idx = taxonIds.indexOf(txId);
@@ -223,90 +195,134 @@ public class BreadCrumb extends GenericPortlet {
 
 					lineage.add(taxon);
 				}
-
 				request.setAttribute("lineage", lineage);
-				request.setAttribute("hasPATRICAnnotation", hasPATRICAnnotation);
-				request.setAttribute("feature", feature);
+				request.setAttribute("taxonId", taxonomy.getId());
 
-				PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/breadcrumb/feature_tabs.jsp");
+				PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/breadcrumb/other_tabs.jsp");
 				prd.include(request, response);
+
 			}
-			else if (cType.equals("genome")) {
+			else {
 
-				List<Map<String, Object>> lineage = new ArrayList<>();
-				boolean isBelowGenus = false;
-				boolean hasPATRICAnnotation = false;
-
-				SolrInterface solr = new SolrInterface();
-
-				Genome genome = solr.getGenome(cId);
-				int taxonId = genome.getTaxonId();
-				if (genome.getPatricCds() > 0) {
-					hasPATRICAnnotation = true;
+				if (cType == null || cType.equals("")) {
+					// show nothing
+					PrintWriter writer = response.getWriter();
+					writer.write(" ");
+					writer.close();
 				}
+				else if (cType.equals("feature")) {
 
-				Taxonomy taxonomy = solr.getTaxonomy(taxonId);
+					boolean hasPATRICAnnotation = false;
+					List<Map<String, Object>> lineage = new ArrayList<>();
 
-				List<Integer> txIds = taxonomy.getLineageIds();
-				List<String> txNames = taxonomy.getLineageNames();
-				List<String> txRanks = taxonomy.getLineageRanks();
+					SolrInterface solr = new SolrInterface();
 
-				for (Integer txId : txIds) {
-					int idx = txIds.indexOf(txId);
-					Map<String, Object> taxon = new HashMap<>();
-					taxon.put("taxonId", txId);
-					taxon.put("name", txNames.get(idx));
-					taxon.put("rank", txRanks.get(idx));
+					GenomeFeature feature = solr.getPATRICFeature(cId);
+					int taxonId = feature.getTaxonId();
 
-					if (txRanks.get(idx).equals("genus")) {
-						isBelowGenus = true;
+					if (feature.getAnnotation().equals("PATRIC")) {
+						hasPATRICAnnotation = true;
 					}
-					lineage.add(taxon);
-				}
 
-				LOGGER.trace("{},{}", lineage, isBelowGenus);
+					Taxonomy taxonomy = solr.getTaxonomy(taxonId);
+					List<Integer> taxonIds = taxonomy.getLineageIds();
+					List<String> txNames = taxonomy.getLineageNames();
+					List<String> txRanks = taxonomy.getLineageRanks();
 
-				request.setAttribute("lineage", lineage);
-				request.setAttribute("isBelowGenus", isBelowGenus);
-				request.setAttribute("hasPATRICAnnotation", hasPATRICAnnotation);
-				request.setAttribute("context", genome);
+					for (Integer txId : taxonIds) {
+						int idx = taxonIds.indexOf(txId);
+						Map<String, Object> taxon = new HashMap<>();
+						taxon.put("taxonId", txId);
+						taxon.put("name", txNames.get(idx));
+						taxon.put("rank", txRanks.get(idx));
 
-				PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/breadcrumb/genome_tabs.jsp");
-				prd.include(request, response);
-			}
-			else if (cType.equals("taxon")) {
-
-				List<Map<String, Object>> lineage = new ArrayList<>();
-				boolean isBelowGenus = false;
-
-				SolrInterface solr = new SolrInterface();
-
-				Taxonomy taxonomy = solr.getTaxonomy(Integer.parseInt(cId));
-
-				List<Integer> txIds = taxonomy.getLineageIds();
-				List<String> txNames = taxonomy.getLineageNames();
-				List<String> txRanks = taxonomy.getLineageRanks();
-
-				for (Integer taxonId : txIds) {
-					int idx = txIds.indexOf(taxonId);
-					Map<String, Object> taxon = new HashMap<>();
-					taxon.put("taxonId", taxonId);
-					taxon.put("name", txNames.get(idx));
-					taxon.put("rank", txRanks.get(idx));
-
-					if (txRanks.get(idx).equals("genus")) {
-						isBelowGenus = true;
+						lineage.add(taxon);
 					}
-					lineage.add(taxon);
+
+					request.setAttribute("lineage", lineage);
+					request.setAttribute("hasPATRICAnnotation", hasPATRICAnnotation);
+					request.setAttribute("feature", feature);
+
+					PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/breadcrumb/feature_tabs.jsp");
+					prd.include(request, response);
 				}
+				else if (cType.equals("genome")) {
 
-				LOGGER.trace("{},{}", lineage, isBelowGenus);
+					List<Map<String, Object>> lineage = new ArrayList<>();
+					boolean isBelowGenus = false;
+					boolean hasPATRICAnnotation = false;
 
-				request.setAttribute("lineage", lineage);
-				request.setAttribute("isBelowGenus", isBelowGenus);
+					SolrInterface solr = new SolrInterface();
 
-				PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/breadcrumb/taxon_tabs.jsp");
-				prd.include(request, response);
+					Genome genome = solr.getGenome(cId);
+					int taxonId = genome.getTaxonId();
+					if (genome.getPatricCds() > 0) {
+						hasPATRICAnnotation = true;
+					}
+
+					Taxonomy taxonomy = solr.getTaxonomy(taxonId);
+
+					List<Integer> txIds = taxonomy.getLineageIds();
+					List<String> txNames = taxonomy.getLineageNames();
+					List<String> txRanks = taxonomy.getLineageRanks();
+
+					for (Integer txId : txIds) {
+						int idx = txIds.indexOf(txId);
+						Map<String, Object> taxon = new HashMap<>();
+						taxon.put("taxonId", txId);
+						taxon.put("name", txNames.get(idx));
+						taxon.put("rank", txRanks.get(idx));
+
+						if (txRanks.get(idx).equals("genus")) {
+							isBelowGenus = true;
+						}
+						lineage.add(taxon);
+					}
+
+					LOGGER.trace("{},{}", lineage, isBelowGenus);
+
+					request.setAttribute("lineage", lineage);
+					request.setAttribute("isBelowGenus", isBelowGenus);
+					request.setAttribute("hasPATRICAnnotation", hasPATRICAnnotation);
+					request.setAttribute("context", genome);
+
+					PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/breadcrumb/genome_tabs.jsp");
+					prd.include(request, response);
+				}
+				else if (cType.equals("taxon")) {
+
+					List<Map<String, Object>> lineage = new ArrayList<>();
+					boolean isBelowGenus = false;
+
+					SolrInterface solr = new SolrInterface();
+
+					Taxonomy taxonomy = solr.getTaxonomy(Integer.parseInt(cId));
+
+					List<Integer> txIds = taxonomy.getLineageIds();
+					List<String> txNames = taxonomy.getLineageNames();
+					List<String> txRanks = taxonomy.getLineageRanks();
+
+					for (Integer taxonId : txIds) {
+						int idx = txIds.indexOf(taxonId);
+						Map<String, Object> taxon = new HashMap<>();
+						taxon.put("taxonId", taxonId);
+						taxon.put("name", txNames.get(idx));
+						taxon.put("rank", txRanks.get(idx));
+
+						if (txRanks.get(idx).equals("genus")) {
+							isBelowGenus = true;
+						}
+						lineage.add(taxon);
+					}
+
+					LOGGER.trace("{},{}", lineage, isBelowGenus);
+
+					request.setAttribute("lineage", lineage);
+					request.setAttribute("isBelowGenus", isBelowGenus);
+
+					PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/breadcrumb/taxon_tabs.jsp");
+					prd.include(request, response);
+				}
 			}
 		}
 	}
