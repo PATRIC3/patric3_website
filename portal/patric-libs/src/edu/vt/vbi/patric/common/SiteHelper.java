@@ -232,7 +232,7 @@ public class SiteHelper {
 		String contextType = req.getParameter("context_type");
 		String contextId = req.getParameter("context_id");
 
-		if (contextType != null && contextId != null) {
+		if (contextType != null && contextId != null && !contextId.equals("")) {
 			// Get taxon/genome/feature info
 			SolrInterface solr = new SolrInterface();
 
