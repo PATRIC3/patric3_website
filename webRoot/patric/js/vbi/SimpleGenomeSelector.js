@@ -1,5 +1,5 @@
 Ext.Loader.setConfig({enabled: true});
-Ext.Loader.setPath('Ext.ux', '/patric/js/extjs/ext-4.1.1a/examples/ux');
+Ext.Loader.setPath('Ext.ux', '/patric/js/extjs/extjs/examples/ux');
 Ext.require([
 	'Ext.ux.form.MultiSelect'
 ]);
