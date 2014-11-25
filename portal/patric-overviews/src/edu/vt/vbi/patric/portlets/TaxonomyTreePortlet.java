@@ -15,14 +15,24 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.portlets;
 
+import edu.vt.vbi.patric.beans.Genome;
+import edu.vt.vbi.patric.beans.Taxonomy;
 import edu.vt.vbi.patric.common.OrganismTreeBuilder;
 import edu.vt.vbi.patric.common.SiteHelper;
+import edu.vt.vbi.patric.common.SolrCore;
+import edu.vt.vbi.patric.common.SolrInterface;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.QueryResponse;
 import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.portlet.*;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.util.List;
 
 public class TaxonomyTreePortlet extends GenericPortlet {
 
@@ -52,23 +62,76 @@ public class TaxonomyTreePortlet extends GenericPortlet {
 		String mode = request.getParameter("mode");
 
 		JSONArray tree;
+		response.setContentType("application/json");
 
 		switch (mode) {
 		case "txtree":
 			tree = OrganismTreeBuilder.buildGenomeTree(taxonId);
+			tree.writeJSONString(response.getWriter());
 			break;
 		case "azlist":
 			tree = OrganismTreeBuilder.buildGenomeList(taxonId);
+			tree.writeJSONString(response.getWriter());
 			break;
 		case "tgm":
 			tree = OrganismTreeBuilder.buildTaxonGenomeMapping(taxonId);
+			tree.writeJSONString(response.getWriter());
+			break;
+		case "search":
+			String searchOn = request.getParameter("searchon");
+			String keyword = request.getParameter("query");
+
+			SolrInterface solr = new SolrInterface();
+			tree = new JSONArray();
+			try {
+				SolrQuery query = new SolrQuery();
+				if (searchOn.equals("txtree")) {
+					query.setQuery("taxon_name:" + keyword + " AND genomes:[1 TO *] AND lineage_ids:" + taxonId);
+					query.setRows(10000).addField("taxon_name,taxon_id");
+
+					QueryResponse qr = solr.getSolrServer(SolrCore.TAXONOMY).query(query);
+					List<Taxonomy> taxonomyList = qr.getBeans(Taxonomy.class);
+
+					for (Taxonomy taxon : taxonomyList) {
+						JSONObject item = new JSONObject();
+						item.put("display_name", taxon.getTaxonName());
+						item.put("taxon_id", taxon.getId());
+
+						tree.add(item);
+					}
+				}
+				else {
+					// searchOn is "azlist"
+					query.setQuery("genome_name:" + keyword + " AND taxon_lineage_ids:" + taxonId);
+					query.setRows(10000).addField("genome_name,genome_id");
+
+					QueryResponse qr = solr.getSolrServer(SolrCore.GENOME).query(query);
+					List<Genome> genomeList = qr.getBeans(Genome.class);
+
+					for (Genome genome : genomeList) {
+						JSONObject item = new JSONObject();
+						item.put("display_name", genome.getGenomeName());
+						item.put("genome_id", genome.getId());
+
+						tree.add(item);
+					}
+				}
+			}
+			catch (MalformedURLException | SolrServerException e) {
+				LOGGER.error(e.getMessage(), e);
+			}
+
+			JSONObject result = new JSONObject();
+			result.put("genomeList", tree);
+			result.put("keyword", keyword);
+			result.put("totalCount", tree.size());
+
+			result.writeJSONString(response.getWriter());
 			break;
 		default:
 			tree = new JSONArray();
+			tree.writeJSONString(response.getWriter());
 			break;
 		}
-
-		response.setContentType("application/json");
-		tree.writeJSONString(response.getWriter());
 	}
 }
