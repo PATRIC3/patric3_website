@@ -65,16 +65,10 @@ public class OrganismTreeBuilder {
 		JSONArray treeJSON = new JSONArray();
 
 		try {
-			SolrQuery query = new SolrQuery();
-			if (taxonId == 131567) {
-				query.setQuery("taxon_lineage_ids:(2 OR 2157)");
-			}
-			else {
-				query.setQuery("taxon_lineage_ids:" + taxonId);
-			}
+			SolrQuery query = new SolrQuery("taxon_lineage_ids:" + taxonId);
 			query.addField("taxon_id,genome_id,genome_name").setRows(1000000);
 			query.addSort("genome_name", SolrQuery.ORDER.asc);
-			LOGGER.debug("buildGenomeList:{}", query.toString());
+			LOGGER.trace("buildGenomeList:{}", query.toString());
 
 			QueryResponse qr = solr.getSolrServer(SolrCore.GENOME).query(query);
 
@@ -116,16 +110,10 @@ public class OrganismTreeBuilder {
 		JSONArray treeJSON = new JSONArray();
 
 		try {
-			SolrQuery query = new SolrQuery();
-			if (taxonId == 131567) {
-				query.setQuery("lineage_ids:(2 OR 2157) AND genomes:[1 TO *]");
-			}
-			else {
-				query.setQuery("lineage_ids:" + taxonId + " AND genomes:[1 TO *]");
-			}
+			SolrQuery query = new SolrQuery("lineage_ids:" + taxonId + " AND genomes:[1 TO *]");
 			query.addField("taxon_id,taxon_rank,taxon_name,genomes,lineage_ids").setRows(1000000);
-			query.addSort("taxon_name", SolrQuery.ORDER.asc);
-			LOGGER.debug("buildGenomeTree:{}", query.toString());
+			query.addSort("lineage", SolrQuery.ORDER.asc);
+			LOGGER.trace("buildGenomeTree:{}", query.toString());
 
 			QueryResponse qr = solr.getSolrServer(SolrCore.TAXONOMY).query(query);
 
@@ -191,16 +179,9 @@ public class OrganismTreeBuilder {
 
 		try {
 
-			SolrQuery query = new SolrQuery();
-			if (taxonId == 131567) {
-				query.setQuery("taxon_lineage_ids:(2 OR 2157)");
-			}
-			else {
-				query.setQuery("taxon_lineage_ids:" + taxonId);
-			}
-
+			SolrQuery query = new SolrQuery("taxon_lineage_ids:" + taxonId);
 			query.addField("genome_id,taxon_id").setRows(1000000);
-			LOGGER.debug("buildTaxonGenomeMapping:{}", query.toString());
+			LOGGER.trace("buildTaxonGenomeMapping:{}", query.toString());
 
 			QueryResponse qr = solr.getSolrServer(SolrCore.GENOME).query(query);
 
