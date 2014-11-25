@@ -19,7 +19,7 @@ function loadComboFacets() {
 function searchbykeyword(cId, cType) {
 	var object = {};
 	var genomeId = "";
-	var need_genome_info_id = false;
+//	var need_genome_info_id = false;
 
 	if (name == "Feature") {
 		object["annotation"] = Ext.getDom("annotation").value;
@@ -31,24 +31,24 @@ function searchbykeyword(cId, cType) {
 			object["Keyword"] = "(" + ConvertNewlineforSolrQuery(EncodeKeyword(Ext.getDom("keyword").value)) + ")";
 		}
 	}
-	else if (name == "GO" || name == "EC") {
-		object["annotation"] = Ext.getDom("annotation").value;
-
-		if (Ext.getDom("keyword").value == "" || Ext.getDom("keyword").value == "*") {
-			if (Ext.getDom("search_on").value == "Keyword") {
-				object["Keyword"] = "(*)";
-			} else {
-				object[Ext.getDom("search_on").value] = "*";
-			}
-		} else {
-			if (Ext.getDom("search_on").value == "Keyword") {
-				object["Keyword"] = "(" + ConvertNewlineforSolrQuery(EncodeKeyword(Ext.getDom("keyword").value)) + ")";
-			} else {
-				object[Ext.getDom("search_on").value] = EncodeKeyword(Ext.getDom("keyword").value);
-				object["Keyword"] = "(*)";
-			}
-		}
-	}
+//	else if (name == "GO" || name == "EC") {
+//		object["annotation"] = Ext.getDom("annotation").value;
+//
+//		if (Ext.getDom("keyword").value == "" || Ext.getDom("keyword").value == "*") {
+//			if (Ext.getDom("search_on").value == "Keyword") {
+//				object["Keyword"] = "(*)";
+//			} else {
+//				object[Ext.getDom("search_on").value] = "*";
+//			}
+//		} else {
+//			if (Ext.getDom("search_on").value == "Keyword") {
+//				object["Keyword"] = "(" + ConvertNewlineforSolrQuery(EncodeKeyword(Ext.getDom("keyword").value)) + ")";
+//			} else {
+//				object[Ext.getDom("search_on").value] = EncodeKeyword(Ext.getDom("keyword").value);
+//				object["Keyword"] = "(*)";
+//			}
+//		}
+//	}
 	else if (name == "Genome") {
 		if (Ext.getDom("keyword").value == "" || Ext.getDom("keyword").value == "*") {
 			if (Ext.getDom("search_on").value == "Keyword") {
@@ -139,25 +139,26 @@ function searchbykeyword(cId, cType) {
 	if (cType == "genome") {
 		if (cId != "") {
 			object["gid"] = cId;
-			need_genome_info_id = false;
+//			need_genome_info_id = false;
 			search_(constructKeyword(object, name, ""), cId, cType);
 		}
 	} else if (cType == "taxon") {
-		if (cId != "" && cId != "2") {
+		if (cId != "" && cId != "131567") {
 			var genomes = tabs.getSelectedInString().replace(/,/g, "##");
 			if (genomes != null && genomes != "") {
-				object["gid"] = genomes;
-				object["genome_info_id"] = genomes;
+				//object["gid"] = genomes;
+				object["genome_id"] = genomes;
 				search_(constructKeyword(object, name, ""), cId, cType);
 			} else {
 				genomeId = "";
-				need_genome_info_id = true;
+				// need_genome_info_id = true;
+				search_(constructKeyword(object, name, ""), cId, cType);
 			}
-		} else if (cId == "2" || cId == "") {
+		} else if (cId == "131567" || cId == "") {
 			var genomes = tabs.getSelectedInString().replace(/,/g, "##");
 			if (genomes != null && genomes != "") {
-				object["gid"] = genomes;
-				object["genome_info_id"] = genomes;
+				//object["gid"] = genomes;
+				object["genome_id"] = genomes;
 				search_(constructKeyword(object, name, ""), cId, cType);
 			} else {
 				search_(constructKeyword(object, name, ""), cId, cType);
@@ -165,31 +166,31 @@ function searchbykeyword(cId, cType) {
 		}
 	}
 
-	if (need_genome_info_id) {
-		Ext.Ajax.request({
-			url : "/patric-searches-and-tools/jsp/get_taxon_ids.json.jsp",
-			method : 'GET',
-			params : {
-				cType : cType,
-				cId : cId,
-				genomeId : genomeId,
-				algorithm : "",
-				status : ""
-			},
-			success : function(response, opts) {
-				genomes = Ext.JSON.decode(response.responseText);
-				var ids = "";
-				if (genomes.ids.length >= 1) {
-					ids += genomes.ids[0].id;
-				}
-				for (var i = 1; i < genomes.ids.length; i++)
-					ids += "##" + genomes.ids[i].id;
-				object["gid"] = ids;
-				object["genome_info_id"] = ids;
-				search_(constructKeyword(object, name), cId, cType);
-			}
-		});
-	}
+//	if (need_genome_info_id) {
+//		Ext.Ajax.request({
+//			url : "/patric-searches-and-tools/jsp/get_taxon_ids.json.jsp",
+//			method : 'GET',
+//			params : {
+//				cType : cType,
+//				cId : cId,
+//				genomeId : genomeId,
+//				algorithm : "",
+//				status : ""
+//			},
+//			success : function(response, opts) {
+//				genomes = Ext.JSON.decode(response.responseText);
+//				var ids = "";
+//				if (genomes.ids.length >= 1) {
+//					ids += genomes.ids[0].id;
+//				}
+//				for (var i = 1; i < genomes.ids.length; i++)
+//					ids += "##" + genomes.ids[i].id;
+//				object["gid"] = ids;
+//				object["genome_info_id"] = ids;
+//				search_(constructKeyword(object, name), cId, cType);
+//			}
+//		});
+//	}
 
 }
 

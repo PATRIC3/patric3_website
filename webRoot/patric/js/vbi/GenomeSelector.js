@@ -34,10 +34,10 @@ Ext.define('VBI.GenomeSelector.treeNode', {
 Ext.define('VBI.GenomeSelector.listNode', {
 	extend: 'Ext.ux.tree.tristate.Model',
 	fields: [{
-		name: 'genome_info_id',
-		type: 'int'
+		name: 'genome_id',
+		type: 'string'
 	}, {
-		name: 'ncbi_taxon_id',
+		name: 'taxon_id',
 		type: 'int'
 	}, {
 		name: 'parentId',
@@ -48,10 +48,10 @@ Ext.define('VBI.GenomeSelector.listNode', {
 Ext.define('VBI.GenomeSelector.myNode', {
 	extend: 'Ext.ux.tree.tristate.Model',
 	fields: [{
-		name: 'genome_info_id',
-		type: 'int'
+		name: 'genome_id',
+		type: 'string'
 	}, {
-		name: 'ncbi_taxon_id',
+		name: 'taxon_id',
 		type: 'int'
 	}, {
 		name: 'parentId',
@@ -62,10 +62,10 @@ Ext.define('VBI.GenomeSelector.myNode', {
 Ext.define('VBI.GenomeSelector.searchNode', {
 	extend: 'Ext.data.Model',
 	fields: [{
-		name: 'ncbi_taxon_id',
-		type: 'string'
+		name: 'taxon_id',
+		type: 'int'
 	}, {
-		name: 'genome_info_id',
+		name: 'genome_id',
 		type: 'string'
 	}, {
 		name: 'display_name',
@@ -124,7 +124,8 @@ Ext.define('VBI.GenomeSelector.Panel', {
 				model: 'VBI.GenomeSelector.searchNode',
 				proxy: {
 					type: 'ajax',
-					url: '/patric-common/jsp/genomeselector_support.json.jsp?mode=search&start=' + parentTaxon,
+					// url: '/patric-common/jsp/genomeselector_support.json.jsp?mode=search&start=' + parentTaxon,
+					url: '/portal/portal/patric/TaxonomyTree/TaxonomyTreeWindow?action=b&cacheability=PAGE&mode=search&taxonId=' + parentTaxon,
 					startParam: undefined,
 					limitParam: undefined,
 					pageParam: undefined,
@@ -153,10 +154,10 @@ Ext.define('VBI.GenomeSelector.Panel', {
 				},
 				select: function(combo, record) {
 					if (this.getActiveTab().id == 'tab-txtree') {
-						this.openupAncestors(record[0].data.ncbi_taxon_id);
-						this.txTree.view.select(this.txTree.store.getNodeById(record[0].data.ncbi_taxon_id));
+						this.openupAncestors(record[0].data.taxon_id);
+						this.txTree.view.select(this.txTree.store.getNodeById(record[0].data.taxon_id));
 					} else {
-						this.azList.view.select(this.azList.store.getNodeById(record[0].data.genome_info_id));
+						this.azList.view.select(this.azList.store.getNodeById(record[0].data.genome_id));
 					}
 					combo.collapse();
 				}
@@ -176,7 +177,7 @@ Ext.define('VBI.GenomeSelector.Panel', {
 		},
 		'', {
 			xtype: 'label',
-			text: ' genome(s) selected'
+			text: '   genome(s) selected'
 		}, this.saveGenomesButton];
 		
 		config.tbar = ['->', {
@@ -189,12 +190,15 @@ Ext.define('VBI.GenomeSelector.Panel', {
 		
 		VBI.GenomeSelector.Panel.superclass.constructor.call(this, config);
 		
-		var txUrl = '/patric-common/jsp/genomeselector_support.json.jsp?mode=txtree&start=' + parentTaxon;
-		var azUrl = '/patric-common/jsp/genomeselector_support.json.jsp?mode=azlist&start=' + parentTaxon;
+		//var txUrl = '/patric-common/jsp/genomeselector_support.json.jsp?mode=txtree&start=' + parentTaxon;
+		//var azUrl = '/patric-common/jsp/genomeselector_support.json.jsp?mode=azlist&start=' + parentTaxon;
 		var myUrl = '/portal/portal/patric/BreadCrumb/WorkspaceWindow?action=b&cacheability=PAGE&action_type=WSSupport&action=getGenomeGroupList';
-		var tgmUrl = '/patric-common/jsp/genomeselector_support.json.jsp?mode=tgm&start=' + parentTaxon;
+		//var tgmUrl = '/patric-common/jsp/genomeselector_support.json.jsp?mode=tgm&start=' + parentTaxon;
+		var txUrl = '/portal/portal/patric/TaxonomyTree/TaxonomyTreeWindow?action=b&cacheability=PAGE&mode=txtree&taxonId=' + parentTaxon;
+		var azUrl = '/portal/portal/patric/TaxonomyTree/TaxonomyTreeWindow?action=b&cacheability=PAGE&mode=azlist&taxonId=' + parentTaxon;
+		var tgmUrl = '/portal/portal/patric/TaxonomyTree/TaxonomyTreeWindow?action=b&cacheability=PAGE&mode=tgm&taxonId=' + parentTaxon;
 		
-		if (parentTaxon == 2) {
+		if (parentTaxon == 131567) {
 			txUrl = "/patric-common/txtree-bacteria.js";
 			azUrl = "/patric-common/azlist-bacteria.js";
 			tgmUrl = "/patric-common/tgm-bacteria.js";
@@ -444,7 +448,7 @@ Ext.define('VBI.GenomeSelector.Panel', {
 		// need to find a way to fix this shifting problem.		
 		Ext.get(Ext.getDom('genome_selector').childNodes[2].id).dom.style.top = '50px'
 		this.tgm = new Ext.util.MixedCollection(true, function(el) {
-			return el.genome_info_id;
+			return el.genome_id;
 		});
 		var outer_scope = this;
 		
@@ -518,7 +522,7 @@ Ext.define('VBI.GenomeSelector.Panel', {
 		if (this.txTree != null && this.azList != null) {
 			//uncheck only deselected
 			Ext.each(this.azList.getChecked(), function(node) {
-				target = this.storeTree.getNodeById(node.data.ncbi_taxon_id);
+				target = this.storeTree.getNodeById(node.data.taxon_id);
 				if (target.get('checked') == false) {
 					this.azList.getView().updateRecord(node, false);
 				}
@@ -541,8 +545,8 @@ Ext.define('VBI.GenomeSelector.Panel', {
 			Ext.each(this.txTree.getChecked(), function(node) {
 				if (node.get('partial') != true) {
 					var t = this.tgm.filterBy(function(o, k) {
-						if (o.ncbi_taxon_id == node.get('id')) {
-							if (this.storeList.getNodeById(o.genome_info_id).get('checked') == false) {
+						if (o.taxon_id == node.get('id')) {
+							if (this.storeList.getNodeById(o.genome_id).get('checked') == false) {
 								this.txTree.getView().updateRecord(node, false);
 								node.updateInfo();
 							}
@@ -554,13 +558,13 @@ Ext.define('VBI.GenomeSelector.Panel', {
 			
 			//update from azList
 			Ext.each(this.azList.getChecked(), function(node) {
-				target = this.storeTree.getNodeById(node.get('ncbi_taxon_id'));
+				target = this.storeTree.getNodeById(node.get('taxon_id'));
 				if (target != null
-					&& node.get('genome_info_id') > 0
+					&& node.get('genome_id') > 0
 					&& target.get('partial') == false
 					&& target.get('checked') == false)
 				{
-					this.openupAncestors(node.get('ncbi_taxon_id'));
+					this.openupAncestors(node.get('taxon_id'));
 					this.txTree.getView().updateRecord(target, true);
 				}
 			},
@@ -574,8 +578,8 @@ Ext.define('VBI.GenomeSelector.Panel', {
 			Ext.each(src.getChecked(), function(node) {
 				if (node.get('partial') != true) {
 					var t = this.tgm.filterBy(function(o, k) {
-						if (o.ncbi_taxon_id == node.get('id')) {
-							this.selectedGenomes.push(o.genome_info_id);
+						if (o.taxon_id == node.get('id')) {
+							this.selectedGenomes.push(o.genome_id);
 							return true;
 						}
 					},
@@ -585,15 +589,15 @@ Ext.define('VBI.GenomeSelector.Panel', {
 			this);
 		} else if (name == "list") {
 			Ext.each(src.getChecked(), function(node) {
-				if (node.get('genome_info_id') > 0) {
-					this.selectedGenomes.push(node.get('genome_info_id'));
+				if (node.get('genome_id') != '') {
+					this.selectedGenomes.push(node.get('genome_id'));
 				}
 			},
 			this);
 		}else if (name == "group") {
 			Ext.each(src.getChecked(), function(node) {
-				if (node.get('genome_info_id') > 0) {
-					this.selectedGenomes.push(node.get('genome_info_id'));
+				if (node.get('genome_id') != '') {
+					this.selectedGenomes.push(node.get('genome_id'));
 				}
 			},
 			this);
