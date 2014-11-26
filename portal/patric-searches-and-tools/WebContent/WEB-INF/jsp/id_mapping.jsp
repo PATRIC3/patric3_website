@@ -30,11 +30,11 @@ if (request.getParameter("display_mode") != null && request.getParameter("displa
 }
 
 boolean loggedIn = false;
-if(request.getUserPrincipal() == null){
+if (request.getUserPrincipal() == null) {
 	loggedIn = false;
-}else
+} else {
 	loggedIn = true;
-
+}
 %>
 	<div id="intro" class="searchtool-intro"> 
 		<p>The ID Mapping Tool enables researchers to locate synonymous identifiers across multiple-source databases.  
@@ -82,7 +82,7 @@ Ext.onReady(function(){
 	});
 	
 	Ext.Ajax.request({
-	    url: "/patric-searches-and-tools/jsp/idmapping_filter_populate.jsp",
+	    url: "/portal/portal/patric/IDMapping/IDMappingWindow?action=b&cacheability=PAGE&sraction=filters",
 	    method: 'GET',
 	    success: function(response, opts) {
 	
@@ -105,16 +105,17 @@ Ext.onReady(function(){
 	    blankText: "PATRIC Locus Tag",
 	    editable:false,
 	    listeners: {
-            'select' : function(){
+            'select' : function() {
  				
- 				
- 				if(combo.rawValue.indexOf("Identifiers") > 0)
+ 				if(combo.rawValue.indexOf("Identifiers") > 0) {
  					combo.setValue(combo_prev_value);
- 				else
+ 				}
+ 				else {
  					combo_prev_value = combo.rawValue;
-
-	        	if(combo.rawValue != "PATRIC Locus Tag")
+                }
+	        	if (combo.rawValue != "PATRIC Locus Tag") {
 	    			combo2.setValue("PATRIC Locus Tag");
+	    		}
     		}
 		}
 	      
@@ -133,28 +134,29 @@ Ext.onReady(function(){
 	    listeners: {
             'select' : function(){
  
- 				if(combo2.rawValue.indexOf("Identifiers") > 0)
+ 				if (combo2.rawValue.indexOf("Identifiers") > 0) {
  					combo2.setValue(combo2_prev_value);
- 				else
+ 				}
+ 				else {
  					combo2_prev_value = combo2.rawValue;
- 				
-	        	if(combo2.rawValue != "PATRIC Locus Tag")
+ 				}
+
+	        	if (combo2.rawValue != "PATRIC Locus Tag") {
 	    			combo.setValue("PATRIC Locus Tag");
+	    		}
     		}
 		}
 	});
  	  
 });
  
-function searchbykeyword() 
-{
+function searchbykeyword() {
 	var genomeId;
 
-	if(Ext.getDom("keyword").value == "")
-		
+	if (Ext.getDom("keyword").value == "") {
 		Ext.MessageBox.alert("Empty Search Box...");
-
-	else{
+    }
+	else {
 
 		var value = Ext.getDom("keyword").value;
 
@@ -163,12 +165,10 @@ function searchbykeyword()
 		
 		var size = value.split("~").length;
 	
-		if(size > 5000){
-			
+		if (size > 5000) {
 			Ext.MessageBox.alert(size+" IDs", 'Current resources can not handle more than 5000 ids...');
-			
-		}else{
-		
+		}
+		else {
 			Ext.Ajax.request({
 				url: '/portal/portal/patric/IDMapping/IDMappingWindow?action=b&cacheability=PAGE',
 				method: 'POST',

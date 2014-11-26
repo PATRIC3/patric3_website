@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2014 Virginia Polytechnic Institute and State University
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,29 +15,27 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.portlets;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.*;
-
-import javax.portlet.GenericPortlet;
-import javax.portlet.PortletException;
-import javax.portlet.PortletRequestDispatcher;
-import javax.portlet.PortletSession;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
-import javax.portlet.ResourceRequest;
-import javax.portlet.ResourceResponse;
-
+import edu.vt.vbi.patric.common.SiteHelper;
+import edu.vt.vbi.patric.common.SolrCore;
+import edu.vt.vbi.patric.common.SolrInterface;
+import edu.vt.vbi.patric.dao.DBSearch;
+import edu.vt.vbi.patric.dao.ResultType;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.FacetField;
+import org.apache.solr.client.solrj.response.QueryResponse;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-
-import edu.vt.vbi.patric.common.SiteHelper;
-import edu.vt.vbi.patric.dao.DBSearch;
-import edu.vt.vbi.patric.dao.ResultType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.portlet.*;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.MalformedURLException;
+import java.util.*;
 
 public class IDMapping extends GenericPortlet {
 
@@ -73,8 +71,9 @@ public class IDMapping extends GenericPortlet {
 			String from = request.getParameter("from");
 			String to = request.getParameter("to");
 
-			if (!keyword.equals(""))
+			if (!keyword.equals("")) {
 				key.put("keyword", keyword);
+			}
 
 			key.put("from", from);
 			key.put("to", to);
@@ -89,6 +88,94 @@ public class IDMapping extends GenericPortlet {
 			PrintWriter writer = response.getWriter();
 			writer.write("" + random);
 			writer.close();
+		}
+		else if (sraction != null && sraction.equals("filters")) {
+
+			final String idGroupPATRIC = "PATRIC Identifiers";
+			final String idGroupRefSeq = "REFSEQ Identifiers";
+			final String idGroupOther = "Other Identifiers";
+
+			JSONObject grpPATRIC = new JSONObject();
+			JSONObject grpPATRIC1 = new JSONObject();
+			JSONObject grpPATRIC2 = new JSONObject();
+			JSONObject grpPATRIC3 = new JSONObject();
+
+			JSONObject grpRefSeq = new JSONObject();
+			JSONObject grpRefSeq1 = new JSONObject();
+			JSONObject grpRefSeq2 = new JSONObject();
+			JSONObject grpRefSeq3 = new JSONObject();
+			JSONObject grpRefSeq4 = new JSONObject();
+
+			JSONObject grpOther = new JSONObject();
+
+			// PATRIC Identifiers
+			grpPATRIC.put("id", idGroupPATRIC);
+			grpPATRIC.put("value", "<h5>" + idGroupPATRIC + "</h5>");
+
+			grpPATRIC1.put("id", "PATRIC Locus Tag");
+			grpPATRIC1.put("value", "PATRIC Locus Tag");
+			grpPATRIC1.put("group", idGroupPATRIC);
+
+			grpPATRIC2.put("id", "PATRIC ID");
+			grpPATRIC2.put("value", "PATRIC ID");
+			grpPATRIC2.put("group", idGroupPATRIC);
+
+			grpPATRIC3.put("id", "PSEED ID");
+			grpPATRIC3.put("value", "PSEED ID");
+			grpPATRIC3.put("group", idGroupPATRIC);
+
+			// RefSeq Identifiers
+			grpRefSeq.put("id", idGroupRefSeq);
+			grpRefSeq.put("value", "<h5>" + idGroupRefSeq + "</h5>");
+
+			grpRefSeq1.put("id", "RefSeq");
+			grpRefSeq1.put("value", "RefSeq");
+			grpRefSeq1.put("group", idGroupRefSeq);
+
+			grpRefSeq2.put("id", "RefSeq Locus Tag");
+			grpRefSeq2.put("value", "RefSeq Locus Tag");
+			grpRefSeq2.put("group", idGroupRefSeq);
+
+			grpRefSeq3.put("id", "Gene ID");
+			grpRefSeq3.put("value", "Gene ID");
+			grpRefSeq3.put("group", idGroupRefSeq);
+
+			grpRefSeq4.put("id", "GI");
+			grpRefSeq4.put("value", "GI");
+			grpRefSeq4.put("group", idGroupRefSeq);
+
+			// Other Identifiers
+			grpOther.put("id", "Other Identifiers");
+			grpOther.put("value", "<h5>Other Identifiers</h5>");
+
+			JSONArray jsonIdTypes = new JSONArray();
+			jsonIdTypes.add(grpPATRIC);
+			jsonIdTypes.add(grpPATRIC1);
+			jsonIdTypes.add(grpPATRIC2);
+			jsonIdTypes.add(grpPATRIC3);
+
+			jsonIdTypes.add(grpRefSeq);
+			jsonIdTypes.add(grpRefSeq1);
+			jsonIdTypes.add(grpRefSeq2);
+			jsonIdTypes.add(grpRefSeq3);
+			jsonIdTypes.add(grpRefSeq4);
+
+			jsonIdTypes.add(grpOther);
+			List<String> otherTypes = getIdTyps();
+			for (String type : otherTypes) {
+				JSONObject item = new JSONObject();
+				item.put("id", type);
+				item.put("value", type);
+				item.put("group", idGroupOther);
+
+				jsonIdTypes.add(item);
+			}
+
+			JSONObject json = new JSONObject();
+			json.put("id_types", jsonIdTypes);
+
+			response.setContentType("application/json");
+			json.writeJSONString(response.getWriter());
 		}
 		else {
 
@@ -164,6 +251,31 @@ public class IDMapping extends GenericPortlet {
 			jsonResult.writeJSONString(writer);
 			writer.close();
 		}
+	}
+
+	private List<String> getIdTyps() {
+		List<String> idTypes = new ArrayList<>();
+
+		SolrInterface solr = new SolrInterface();
+
+		try {
+			SolrQuery query = new SolrQuery("*:*");
+			query.addFacetField("id_type").setFacetLimit(-1);
+
+			QueryResponse qr = solr.getSolrServer(SolrCore.ID_REF).query(query);
+			FacetField ffIdType = qr.getFacetField("id_type");
+
+			for (FacetField.Count type : ffIdType.getValues()) {
+				if (!type.getName().equals("RefSeq") && !type.getName().equals("GeneID") && !type.getName().equals("GI")) {
+					idTypes.add(type.getName());
+				}
+			}
+		}
+		catch (MalformedURLException | SolrServerException e) {
+			LOGGER.error(e.getMessage(), e);
+		}
+
+		return idTypes;
 	}
 
 }
