@@ -161,7 +161,7 @@ public class IDMapping extends GenericPortlet {
 			jsonIdTypes.add(grpRefSeq4);
 
 			jsonIdTypes.add(grpOther);
-			List<String> otherTypes = getIdTyps();
+			List<String> otherTypes = getIdTypes();
 			for (String type : otherTypes) {
 				JSONObject item = new JSONObject();
 				item.put("id", type);
@@ -253,7 +253,7 @@ public class IDMapping extends GenericPortlet {
 		}
 	}
 
-	private List<String> getIdTyps() {
+	private List<String> getIdTypes() {
 		List<String> idTypes = new ArrayList<>();
 
 		SolrInterface solr = new SolrInterface();
