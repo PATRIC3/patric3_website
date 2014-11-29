@@ -245,13 +245,15 @@ function DoIDMapping() {"use strict";
 		url : "/portal/portal/patric/IDMapping/IDMappingWindow?action=b&cacheability=PAGE",
 		method : 'POST',
 		params : {
-			keyword : fids.join(","),
-			from : 'PATRIC ID',
-			to : arguments[1],
-			sraction : 'save_params'
+            keyword : fids.join(","),
+            from : 'feature_id',
+            to : arguments[1],
+            fromGroup : "PATRIC",
+            toGroup : (["seed_id","feature_id","alt_locus_tag","refseq_locus_tag","protein_id","gene_id","gi"].indexOf(arguments[1]) > 0)?"PATRIC":"Other",
+            sraction : 'save_params'
 		},
 		success : function(response, opts) {
-			document.location.href = "IDMapping?cType=taxon&cId=&dm=result&pk=" + response.responseText;
+			document.location.href = "IDMapping?cType=taxon&cId=131567&dm=result&pk=" + response.responseText;
 		}
 	});
 
@@ -263,7 +265,6 @@ function DoMsa() {"use strict";
 
 	if (fids.length <= 262) {
 		Ext.Ajax.request({
-			//url : "/portal/portal/patric/FIGfamSorter/FigFamSorterWindow?action=b&cacheability=PAGE",
 			url : "/portal/portal/patric/FIGfam/FIGfamWindow?action=b&cacheability=PAGE",
 			method : 'POST',
 			params : {
@@ -273,14 +274,11 @@ function DoMsa() {"use strict";
 			success : function(response, opts) {
 
 				if (Ext.getDom("pk") != null)
-					//document.location.href = "TreeAligner?pk=" + response.responseText;
 					document.location.href = "MSA?pk=" + response.responseText;
 				else {
 					if (Ext.getDom("cType") && Ext.getDom("cId")) {
-						//document.location.href = "TreeAlignerB?cType=" + Ext.getDom("cType").value + "&cId=" + Ext.getDom("cId").value + "&pk=" + response.responseText;
 						document.location.href = "MSA?cType=" + Ext.getDom("cType").value + "&cId=" + Ext.getDom("cId").value + "&pk=" + response.responseText;
 					} else {
-						//document.location.href = "TreeAligner?pk=" + response.responseText;
 						document.location.href = "MSA?pk=" + response.responseText;
 					}
 				}

@@ -3,59 +3,83 @@ function loadFBCD() {
 
 	(plugin && plugintype == "checkbox" && !checkbox) ? checkbox = Page.checkbox = createCheckBox(property.name) : checkbox.updateCheckAllIcon();
 
-	if (hash.to == "RefSeq Locus Tag") {
+
+	if (hash.to == "refseq_locus_tag") {
 		header = "RefSeq Locus Tag";
-		requested_data = "refseq_source_id";
-	} else if (hash.to == "RefSeq") {
-		header = "Protein ID";
-		requested_data = "protein_id";
-	} else if (hash.to == "Gene ID") {
-		header = "GeneID";
-		requested_data = "gene_id";
-	} else if (hash.to == "GI") {
-		header = "GI";
-		requested_data = "gi_number";
-	} else if (hash.to == "PATRIC ID") {
+		requested_data = hash.to;
+	}
+	else if (hash.to == "protein_id") {
+	    header = "Protein ID";
+	    requested_data = hash.to;
+	}
+	else if (hash.to == "gene_id") {
+	    header = "Gene ID";
+	    requested_data = hash.to;
+	}
+	else if (hash.to == "gi") {
+	    header = "GI";
+	    requested_data = hash.to;
+	}
+	else if (hash.to == "feature_id") {
 		header = "PATRIC ID";
-		requested_data = "na_feature_id";
-	} else if (hash.to == "PATRIC Locus Tag") {
-		if (hash.from == "RefSeq Locus Tag") {
-			requested_data = "refseq_source_id";
-		} else if (hash.from == "RefSeq") {
-			requested_data = "protein_id";
-		} else if (hash.from == "Gene ID") {
-			requested_data = "gene_id";
-		} else if (hash.from == "GI") {
-			requested_data = "gi_number";
-		} else if (hash.from == "PATRIC ID") {
-			requested_data = "na_feature_id";
-		} else if (hash.from == "PSEED ID") {
-			requested_data = "pseed_id";
-		} else {
-			requested_data = "requested_data";
+		requested_data = hash.to;
+	}
+    else if (hash.to == "alt_locus_tag") {
+        header = "PATRIC2 Locus Tag";
+        requested_data = hash.to;
+    }
+	else if (hash.to == "seed_id") {
+		if (hash.from == "refseq_locus_tag") {
+		    header = "RefSeq Locus Tag"
+			requested_data = hash.from;
 		}
-		header = hash.from;
-	} else if (hash.to == "PSEED ID") {
-		requested_data = "pseed_id";
-		header = "PSEED ID";
-	} else {
+		else if (hash.from == "protein_id") {
+		    header = "RefSeq";
+			requested_data = hash.from;
+		}
+		else if (hash.from == "gene_id") {
+		    header = "Gene ID";
+			requested_data = hash.from;;
+		}
+		else if (hash.from == "gi") {
+		    header = "GI";
+			requested_data = hash.from;
+		}
+		else if (hash.from == "feature_id") {
+		    header = "PATRIC ID";
+			requested_data = hash.from;
+		}
+		else if (hash.from == "alt_locus_tag") {
+		    header = "PATRIC2 Locus Tag";
+			requested_data = hash.from;
+		}
+		else if (hash.from == "seed_id") {
+		    header = "Seed ID";
+		    requested_data = hash.from;
+		}
+		else {
+		    header = hash.from;
+			requested_data = "target";
+		}
+	}
+	else {
 		header = hash.to;
-		requested_data = "requested_data";
+		requested_data = "target";
 	}
 
 	if (!property.scm[which]) {
-		if (hash.to == "UniProtKB-ID" || hash.from == "UniProtKB-ID")
-			property.scm[which] = eval("[checkbox," + "{header:'Genome Name', flex:2, dataIndex: 'genome_name', renderer:renderGenomeName}," + "{header:'Accession', flex:1, align:'center', hidden: true, dataIndex: 'accession', renderer:renderAccession}," + "{header:'Locus Tag', flex:1, align:'center', dataIndex: 'locus_tag', renderer:renderLocusTag}, " +
-			//	"{header:'Gene Symbol', flex:1, align:'center', dataIndex: 'gene', renderer:BasicRenderer}, "+
-			"{header:'UniProtKB-ID', flex:1, dataIndex:'uniprotkb_accession', renderer:renderURL}, " + "{header:'UniProtKB-Accession', flex:1, dataIndex:'uniprot_id', renderer:renderURL}, " + "{header:'Genome Browser', flex:1, hidden: true, align:'center', dataIndex:'',renderer:renderGenomeBrowserByFeatureIDMapping}," +
-			//	"{header:'Annotation', flex:1, align:'center',dataIndex: 'algorithm', renderer:BasicRenderer}, "+
-			"{header:'Start', flex:1, hidden: true, dataIndex:'start_max', align:'center', renderer:BasicRenderer}, " + "{header:'End', flex:1, hidden: true, dataIndex:'end_min', align:'center', renderer:BasicRenderer}, " + "{header:'Length (NT)', flex:1, hidden: true, dataIndex:'na_length', align:'center', renderer:BasicRenderer}," + "{header:'Strand', flex:1, hidden: true, dataIndex:'strand',align:'center', renderer:BasicRenderer}," + "{header:'Product Description', flex:2, dataIndex:'product', renderer:BasicRenderer}]");
-		else
-			property.scm[which] = eval("[checkbox, " + "{header:'Genome Name', flex:2, dataIndex: 'genome_name', renderer:renderGenomeName}," + "{header:'Accession', flex:1, align:'center', hidden: true, dataIndex: 'accession', renderer:renderAccession}," + "{header:'Locus Tag', flex:1, align:'center', dataIndex: 'locus_tag', renderer:renderLocusTag}," + "{header:'" + header + "', flex:1, align:'center', dataIndex:'" + requested_data + "', renderer:renderURL}, " +
-			//	"{header:'Gene Symbol', flex:1, align:'center', dataIndex: 'gene', renderer:BasicRenderer}, "+
-			"{header:'Genome Browser', flex:1, hidden: true, dataIndex:'', align:'center', renderer:renderGenomeBrowserByFeatureIDMapping}," +
-			//	"{header:'Annotation', flex:1, align:'center', dataIndex: 'algorithm', renderer:BasicRenderer}, "+
-			"{header:'Start', flex:1, hidden: true, dataIndex:'start_max', align:'center', renderer:BasicRenderer}, " + "{header:'End', flex:1, hidden: true, dataIndex:'end_min', align:'center', renderer:BasicRenderer}, " + "{header:'Length (NT)', flex:1, hidden: true, dataIndex:'na_length', align:'center', renderer:BasicRenderer}, " + "{header:'Strand', flex:1, hidden: true, dataIndex:'strand',align:'center', renderer:BasicRenderer}," + "{header:'Product Description', flex:2, dataIndex:'product', renderer:BasicRenderer}]");
+			property.scm[which] =  [checkbox,
+			    {header:'Genome Name', flex:2, dataIndex: 'genome_name', renderer:renderGenomeName},
+                {header:'Accession', flex:1, align:'center', hidden: true, dataIndex: 'accession', renderer:renderAccession},
+			    {header:'Seed ID', flex:1, align:'center', dataIndex: 'seed_id', renderer:BasicRenderer},
+			    {header:'Alt Locus Tag', flex:1, align:'center', dataIndex: 'alt_locus_tag', renderer:renderLocusTag},
+			    {header: header, flex:1, align:'center', dataIndex: requested_data, renderer:renderURL},
+			    {header:'Genome Browser', flex:1, hidden: true, dataIndex:'', align:'center', renderer:renderGenomeBrowserByFeatureIDMapping},
+			    {header:'Start', flex:1, hidden: true, dataIndex:'start', align:'center', renderer:BasicRenderer},
+			    {header:'End', flex:1, hidden: true, dataIndex:'end', align:'center', renderer:BasicRenderer},
+			    {header:'Length (NT)', flex:1, hidden: true, dataIndex:'na_length', align:'center', renderer:BasicRenderer},
+			    {header:'Strand', flex:1, hidden: true, dataIndex:'strand',align:'center', renderer:BasicRenderer},
+			    {header:'Product', flex:2, dataIndex:'product', renderer:BasicRenderer}]
 	}
 	loadGrid();
 }
@@ -158,22 +182,22 @@ function CallBack() {
 	else if (hash.to == "PSEED ID")
 		requested_data = "pseed_id";
 
-	Ext.Ajax.request({
-		url : "/patric-searches-and-tools/jsp/get_idmapping_to_count.json.jsp",
-		method : 'POST',
-		params : {
-			field : requested_data,
-			from : hash.from,
-			to : hash.to,
-			keyword : Ext.getDom("keyword").value
-		},
-		success : function(response, opts) {
-			if (store.getTotalCount() > property.keyword_size)
-				Ext.getDom('grid_result_summary').innerHTML = "<b>" + property.keyword_size + " out of " + property.keyword_size + " " + hash.from + "s mapped to " + Ext.JSON.decode(response.responseText).result + " " + hash.to + "s</b><br/>";
-			else
-				Ext.getDom('grid_result_summary').innerHTML = "<b>" + store.totalCount + " out of " + property.keyword_size + " " + hash.from + "s mapped to " + Ext.JSON.decode(response.responseText).result + " " + hash.to + "s</b><br/>";
-		}
-	});
+//	Ext.Ajax.request({
+//		url : "/patric-searches-and-tools/jsp/get_idmapping_to_count.json.jsp",
+//		method : 'POST',
+//		params : {
+//			field : requested_data,
+//			from : hash.from,
+//			to : hash.to,
+//			keyword : Ext.getDom("keyword").value
+//		},
+//		success : function(response, opts) {
+//			if (store.getTotalCount() > property.keyword_size)
+//				Ext.getDom('grid_result_summary').innerHTML = "<b>" + property.keyword_size + " out of " + property.keyword_size + " " + hash.from + "s mapped to " + Ext.JSON.decode(response.responseText).result + " " + hash.to + "s</b><br/>";
+//			else
+//				Ext.getDom('grid_result_summary').innerHTML = "<b>" + store.totalCount + " out of " + property.keyword_size + " " + hash.from + "s mapped to " + Ext.JSON.decode(response.responseText).result + " " + hash.to + "s</b><br/>";
+//		}
+//	});
 
 }
 

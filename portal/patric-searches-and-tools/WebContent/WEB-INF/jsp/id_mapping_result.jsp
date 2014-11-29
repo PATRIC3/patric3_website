@@ -79,31 +79,29 @@ Ext.onReady(function() {
 	Ext.define('IDMap', {
 		extend: 'Ext.data.Model',
 		fields: [
-			{name:'genome_info_id',	type:'string'},
+			{name:'genome_id',	type:'string'},
 			{name:'genome_name',	type:'string'},
 			{name:'accession',	type:'string'},
-			{name:'locus_tag',	type:'string'},
-			{name:'na_feature_id',	type:'string'},
-			{name:'algorithm',	type:'string'},
-			{name:'name',		type:'string'},
-			{name:'start_max',	type:'string'},
-			{name:'end_min',	type:'string'},
+			{name:'alt_locus_tag',	type:'string'},
+			{name:'feature_id',	type:'string'},
+			{name:'annotation',	type:'string'},
+			{name:'feature_type', type:'string'},
+			{name:'start',	    type:'int'},
+			{name:'end',	type:'int'},
 			{name:'na_length',	type:'string'},
 			{name:'strand',	type:'string'},
 			{name:'protein_id',	type:'string'},
 			{name:'aa_length',	type:'string'},
 			{name:'gene',	type:'string'},
-			{name:'bound_moiety',	type:'string'},
-			{name:'anticodon',	type:'string'},
 			{name:'product',	type:'string'},
-			{name:'debug_field',	type:'string'},
 			{name:'uniprotkb_accession',	type:'string'},
 			{name:'uniprot_id',	type:'string'},
-			{name:'refseq_source_id',	type:'string'},
+			{name:'refseq_locus_tag', type:'string'},
 			{name:'gene_id',	type:'string'},
 			{name:'gi_number',	type:'string'},
 			{name:'requested_data',	type:'string'},
-			{name:'pseed_id',	type:'string'}
+			{name:'seed_id',	type:'string'},
+			{name:'target',     type:'string'}
 		]
 	});
 
@@ -122,7 +120,7 @@ Ext.onReady(function() {
 			property: 'genome_name',
 			direction: 'ASC'
 		},{*/
-			property: 'locus_tag',
+			property: 'seed_id',
 			direction: 'ASC'
 		}]],
 		hash:{

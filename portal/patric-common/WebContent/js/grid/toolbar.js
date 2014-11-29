@@ -364,9 +364,9 @@ function createToolbar(type, download_option, workspace_type) {
 					if (Page.exemptList.some(function(element, index, array) {
 							return property.name && property.name == element;
 						}))
-						submitIDMapping(property.name, this.text);
+						submitIDMapping(property.name, "seed_id");
 					else
-						callOperation('DoIDMapping', this.text, 'No item(s) are selected. To run id mapping tool, at least one item must be selected.');
+						callOperation('DoIDMapping', "seed_id", 'No item(s) are selected. To run id mapping tool, at least one item must be selected.');
 				}
 			}, {
 				text : 'PATRIC ID',
@@ -374,19 +374,19 @@ function createToolbar(type, download_option, workspace_type) {
 					if (Page.exemptList.some(function(element, index, array) {
 							return property.name && property.name == element;
 						}))
-						submitIDMapping(property.name, this.text);
+						submitIDMapping(property.name, "feature_id");
 					else
-						callOperation('DoIDMapping', this.text, 'No item(s) are selected. To run id mapping tool, at least one item must be selected.');
+						callOperation('DoIDMapping', "feature_id", 'No item(s) are selected. To run id mapping tool, at least one item must be selected.');
 				}
 			}, {
-				text : 'PSEED ID',
+				text : 'PATRIC2 Locus Tag',
 				handler : function() {
 					if (Page.exemptList.some(function(element, index, array) {
 							return property.name && property.name == element;
 						}))
-						submitIDMapping(property.name, this.text);
+						submitIDMapping(property.name, "alt_locus_tag");
 					else
-						callOperation('DoIDMapping', this.text, 'No item(s) are selected. To run id mapping tool, at least one item must be selected.');
+						callOperation('DoIDMapping', "alt_locus_tag", 'No item(s) are selected. To run id mapping tool, at least one item must be selected.');
 				}
 			}, {
 				text : '<b>REFSEQ Identifiers</b>',
@@ -397,9 +397,9 @@ function createToolbar(type, download_option, workspace_type) {
 					if (Page.exemptList.some(function(element, index, array) {
 							return property.name && property.name == element;
 						}))
-						submitIDMapping(property.name, this.text);
+						submitIDMapping(property.name, "refseq_locus_tag");
 					else
-						callOperation('DoIDMapping', this.text, 'No item(s) are selected. To run id mapping tool, at least one item must be selected.');
+						callOperation('DoIDMapping', "refseq_locus_tag", 'No item(s) are selected. To run id mapping tool, at least one item must be selected.');
 				}
 			}, {
 				text : 'RefSeq',
@@ -407,9 +407,9 @@ function createToolbar(type, download_option, workspace_type) {
 					if (Page.exemptList.some(function(element, index, array) {
 							return property.name && property.name == element;
 						}))
-						submitIDMapping(property.name, this.text);
+						submitIDMapping(property.name, "protein_id");
 					else
-						callOperation('DoIDMapping', this.text, 'No item(s) are selected. To run id mapping tool, at least one item must be selected.');
+						callOperation('DoIDMapping', "protein_id", 'No item(s) are selected. To run id mapping tool, at least one item must be selected.');
 				}
 			}, {
 				text : 'Gene ID',
@@ -417,9 +417,9 @@ function createToolbar(type, download_option, workspace_type) {
 					if (Page.exemptList.some(function(element, index, array) {
 							return property.name && property.name == element;
 						}))
-						submitIDMapping(property.name, this.text);
+						submitIDMapping(property.name, "gene_id");
 					else
-						callOperation('DoIDMapping', this.text, 'No item(s) are selected. To run id mapping tool, at least one item must be selected.');
+						callOperation('DoIDMapping', "gene_id", 'No item(s) are selected. To run id mapping tool, at least one item must be selected.');
 				}
 			}, {
 				text : 'GI',
@@ -427,9 +427,9 @@ function createToolbar(type, download_option, workspace_type) {
 					if (Page.exemptList.some(function(element, index, array) {
 							return property.name && property.name == element;
 						}))
-						submitIDMapping(property.name, this.text);
+						submitIDMapping(property.name, "gi");
 					else
-						callOperation('DoIDMapping', this.text, 'No item(s) are selected. To run id mapping tool, at least one item must be selected.');
+						callOperation('DoIDMapping', "gi", 'No item(s) are selected. To run id mapping tool, at least one item must be selected.');
 				}
 			}, {
 				text : '<b>Other Identifiers</b>',

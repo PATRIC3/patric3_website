@@ -9,7 +9,8 @@ String cType = request.getParameter("context_type");
 String cId = request.getParameter("context_id");
 String pk = request.getParameter("param_key");
 String to = request.getParameter("to") == null?"UniProtKB-ID":request.getParameter("to");
-String from = request.getParameter("from") == null?"PATRIC Locus Tag":request.getParameter("from");
+// String from = request.getParameter("from") == null?"PATRIC Locus Tag":request.getParameter("from");
+String from = request.getParameter("from") == null?"seed_id":request.getParameter("from");
 String keyword = request.getParameter("id") == null?"":request.getParameter("id");
 
 
@@ -63,7 +64,7 @@ if (request.getUserPrincipal() == null) {
 			<td><b>TO</b> ID Type:</td><td><div id="to"></div></td> 
 		</tr>
 		<tr>
-			<td class="formaction" colspan="2"><input class="button rightarrow" type="submit" value="Search" onclick="searchbykeyword()" /></td> 
+			<td class="formaction" colspan="2"><input class="button rightarrow" type="button" value="Search" onclick="searchbykeyword()" /></td>
 		</tr>
 		</table>
 	</div>
@@ -96,7 +97,8 @@ Ext.onReady(function(){
 	
 	combo = Ext.create('Ext.form.ComboBox',{
 	    store: store,
-	    displayField:'value',
+	    displayField:'id',
+	    valueField:'value',
 	    queryMode: 'local',
 	    hideTrigger: false,  //hide trigger so it doesn't look like a combobox.
 	    renderTo: 'from',
@@ -114,7 +116,8 @@ Ext.onReady(function(){
  					combo_prev_value = combo.rawValue;
                 }
 	        	if (combo.rawValue != "PATRIC Locus Tag") {
-	    			combo2.setValue("PATRIC Locus Tag");
+                    // combo2.setValue("PATRIC Locus Tag");
+                    combo2.setValue("seed_id");
 	    		}
     		}
 		}
@@ -123,11 +126,12 @@ Ext.onReady(function(){
  	
 	combo2 = Ext.create('Ext.form.ComboBox', {
 	    store: store,
-	    displayField:'value',
+	    displayField:'id',
+	    valueField:'value',
 	    queryMode: 'local',
 	    hideTrigger: false,  //hide trigger so it doesn't look like a combobox.
 	    renderTo: 'to',
-	    width: 230, 
+	    width: 230,
 	    triggerAction: 'all',
 	    blankText: "UniProtKB-ID",
 	    editable:false,
@@ -142,7 +146,8 @@ Ext.onReady(function(){
  				}
 
 	        	if (combo2.rawValue != "PATRIC Locus Tag") {
-	    			combo.setValue("PATRIC Locus Tag");
+                    // combo.setValue("PATRIC Locus Tag");
+                    combo.setValue("seed_id");
 	    		}
     		}
 		}
@@ -177,11 +182,13 @@ function searchbykeyword() {
 					sraction: "save_params",
 					keyword: Ext.getDom("keyword").value.trim(),
 					from: combo.getValue(),
-					to: combo2.getValue()
+					fromGroup: combo.valueModels[0].data.group,
+					to: combo2.getValue(),
+					toGroup: combo2.valueModels[0].data.group
 				},
 				success: function(rs) {
 					//relocate to result page
-					document.location.href="IDMapping?cType=taxon&cId=&dm=result&pk="+rs.responseText;
+					document.location.href="IDMapping?cType=taxon&cId=<%=cId%>&dm=result&pk="+rs.responseText;
 				}
 			});
 		}

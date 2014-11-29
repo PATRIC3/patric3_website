@@ -1746,12 +1746,14 @@ function processFigfamSelectedItems(windowID, actiontype, showdownload, fastatyp
 			timeout : 600000,
 			params : {
 				keyword : rs.responseText,
-				from : 'PATRIC ID',
+				from : 'feature_id',
 				to : to,
+				fromGroup: 'PATRIC',
+				toGroup: (["seed_id","feature_id","alt_locus_tag","refseq_locus_tag","protein_id","gene_id","gi"].indexOf(to) > 0)? "PATRIC": "Other",
 				sraction : 'save_params'
 			},
 			success : function(response, opts) {
-				document.location.href = "IDMapping?cType=&cId=&dm=result&pk=" + response.responseText;
+				document.location.href = "IDMapping?cType=taxon&cId=131567&dm=result&pk=" + response.responseText;
 			}
 		});
 	} else if (actiontype == "heatmap_cart") {
