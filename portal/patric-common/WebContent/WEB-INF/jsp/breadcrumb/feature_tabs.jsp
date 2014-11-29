@@ -44,9 +44,10 @@ if (feature != null) {
 			<li><a title="genome" href="Genome?cType=genome&amp;cId=<%=feature.getGenomeId() %>"><%=feature.getGenomeName() %></a></li>
 			<li id="feature_breadcrumb">
 				<% if (hasPATRICAnnotation) { %>
-					<%=feature.getAltLocusTag() %>
-					<%=feature.hasRefseqLocusTag()?" <span class='pipe'>|</span> " + feature.getRefseqLocusTag():"" %>
-					<%=feature.hasGene()?" <span class='pipe'>|</span> " + feature.getGene():"" %>
+                    <%=feature.getSeedId() %>
+                    <%=feature.hasAltLocusTag()?" <span class='pipe'>|</span> " + feature.getAltLocusTag():"" %>
+                    <%=feature.hasRefseqLocusTag()?" <span class='pipe'>|</span> " + feature.getRefseqLocusTag():"" %>
+                    <%=feature.hasGene()?" <span class='pipe'>|</span> " + feature.getGene():"" %>
 				<% } else { %>
 					<%=feature.hasAltLocusTag()?feature.getAltLocusTag():"" %>
 				<% } %>
