@@ -1764,11 +1764,11 @@ function processFigfamSelectedItems(windowID, actiontype, showdownload, fastatyp
 			method : 'POST',
 			timeout : 600000,
 			params : {
-				feature_info_id : rs.responseText,
+				feature_id : rs.responseText,
 				callType : 'saveParams'
 			},
 			success : function(response, opts) {
-				document.location.href = "TranscriptomicsEnrichment?cType=&cId=&pk=" + response.responseText;
+				document.location.href = "TranscriptomicsEnrichment?cType=taxon&cId=131567&pk=" + response.responseText;
 			}
 		});
 	}

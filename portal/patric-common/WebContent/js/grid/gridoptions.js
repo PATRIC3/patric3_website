@@ -206,11 +206,11 @@ function DoPathwayEnrichment() {"use strict";
 		method : 'POST',
 		timeout : 600000,
 		params : {
-			feature_info_id : property.fids.join(","),
+			feature_id : property.fids.join(","),
 			callType : 'saveParams'
 		},
 		success : function(response, opts) {
-			document.location.href = "TranscriptomicsEnrichment?cType=taxon&cId=&pk=" + response.responseText;
+			document.location.href = "TranscriptomicsEnrichment?cType=taxon&cId=131567&pk=" + response.responseText;
 		}
 	});
 

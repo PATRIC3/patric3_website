@@ -1,25 +1,14 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet"%>
-<%@ page import="java.util.HashMap" %>
-<%@ page import="edu.vt.vbi.patric.dao.DBTranscriptomics" %>
-<%@ page import="javax.portlet.PortletSession" %>
 <portlet:defineObjects/>
 <%
-
-DBTranscriptomics db = new DBTranscriptomics();
-String pk = request.getParameter("param_key");
-
-HashMap<String, String> key = (HashMap<String, String>) portletSession.getAttribute("key"+pk, PortletSession.APPLICATION_SCOPE);
-String cType = request.getParameter("context_type");
-String cId = request.getParameter("context_id");
-String featureList = key.get("feature_info_id");
-
-int featureList_length = featureList.split(",").length;
-
-int found_length = db.getPathwayEnrichmentNoofGenesSQL(key);
+String contextType = (String) request.getAttribute("contextType");
+String contextId = (String) request.getAttribute("contextId");
+String pk = (String) request.getAttribute("pk");
+String featureList = (String) request.getAttribute("featureList");
 %>
 <form id="fTableForm" action="#" method="post">
-<input type="hidden" id="cType" name="cType" value="<%=cType %>" />
-<input type="hidden" id="cId" name="cId" value="<%=cId %>" />
+<input type="hidden" id="cType" name="cType" value="<%=contextType %>" />
+<input type="hidden" id="cId" name="cId" value="<%=contextId %>" />
 <input type="hidden" id="tablesource" name="tablesource" value="TranscriptomicsEnrichment" />
 <input type="hidden" id="fileformat" name="fileformat" value="" />
 
@@ -87,7 +76,7 @@ Ext.onReady(function () {
 			aP: [1],
 			key:'<%=pk%>'
 		},
-		remoteSort:true,
+		remoteSort: false,
 		fids: [],
 		gridType: "Feature",
 		scm: [[checkbox,
@@ -109,9 +98,5 @@ Ext.onReady(function () {
 	loadGrid();
 	$Page.doLayout();
 });
-
-function getFoundCount(){
-	return '<%=found_length%>';
-}
 // ]]
 </script>

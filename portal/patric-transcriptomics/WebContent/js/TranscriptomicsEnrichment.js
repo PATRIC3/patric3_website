@@ -3,7 +3,7 @@ function CallBack() {
 	var Page = $Page, property = Page.getPageProperties(), hash = property.hash, store = Page.getStore(0), grid = Page.getGrid();
 
 	grid.setSortDirectionColumnHeader(hash.sort, hash.dir);
-	Ext.getDom("grid_result_summary").innerHTML = ' <b>Out of ' + Ext.getDom("featureList").value.split(",").length + ' genes selected, ' + getFoundCount() + ' genes found in ' + store.totalCount + ' pathways</b>';
+	Ext.getDom("grid_result_summary").innerHTML = ' <b>Out of ' + store.proxy.reader.jsonData.featureRequested + ' genes selected, ' + store.proxy.reader.jsonData.featureFound + ' genes found in ' + store.totalCount + ' pathways</b>';
 }
 
 function getExtraParams() {
