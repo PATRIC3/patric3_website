@@ -359,7 +359,7 @@ function createToolbar(type, download_option, workspace_type) {
 				text : '<b>PATRIC Identifiers</b>',
 				plain : true
 			}, {
-				text : 'PATRIC Locus Tag',
+				text : 'SEED ID',
 				handler : function() {
 					if (Page.exemptList.some(function(element, index, array) {
 							return property.name && property.name == element;
@@ -379,7 +379,7 @@ function createToolbar(type, download_option, workspace_type) {
 						callOperation('DoIDMapping', "feature_id", 'No item(s) are selected. To run id mapping tool, at least one item must be selected.');
 				}
 			}, {
-				text : 'PATRIC2 Locus Tag',
+				text : 'Alt Locus Tag',
 				handler : function() {
 					if (Page.exemptList.some(function(element, index, array) {
 							return property.name && property.name == element;
@@ -389,7 +389,7 @@ function createToolbar(type, download_option, workspace_type) {
 						callOperation('DoIDMapping', "alt_locus_tag", 'No item(s) are selected. To run id mapping tool, at least one item must be selected.');
 				}
 			}, {
-				text : '<b>REFSEQ Identifiers</b>',
+				text : '<b>RefSeq Identifiers</b>',
 				plain : true
 			}, {
 				text : 'RefSeq Locus Tag',
