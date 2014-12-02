@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2014 Virginia Polytechnic Institute and State University
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -65,20 +65,20 @@ public class PathwayFinder extends GenericPortlet {
 			String pathwayId = request.getParameter("map");
 
 			PortletSession session = request.getPortletSession(true);
-			ResultType key = (ResultType) session.getAttribute("key"+pk, PortletSession.APPLICATION_SCOPE);
+			ResultType key = (ResultType) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
 
 			String searchOn = "";
-			String keyword  = "";
-			String genomeId  = "";
-			String taxonId  = "";
+			String keyword = "";
+			String genomeId = "";
+			String taxonId = "";
 
-			if(key != null && key.containsKey("search_on")) {
+			if (key != null && key.containsKey("search_on")) {
 				searchOn = key.get("search_on");
 			}
-			if(key != null && key.containsKey("taxonId")) {
+			if (key != null && key.containsKey("taxonId")) {
 				taxonId = key.get("taxonId");
 			}
-			if(key != null && key.containsKey("genomeId")) {
+			if (key != null && key.containsKey("genomeId")) {
 				genomeId = key.get("genomeId");
 			}
 			if (searchOn.equalsIgnoreCase("Keyword")) {
@@ -170,17 +170,21 @@ public class PathwayFinder extends GenericPortlet {
 					key.put("keyword", keyword.trim());
 				}
 			}
-			if (taxonId != null && !taxonId.equalsIgnoreCase(""))
+			if (taxonId != null && !taxonId.equalsIgnoreCase("")) {
 				key.put("taxonId", taxonId);
+			}
 
-			if (genomeId != null && !genomeId.equalsIgnoreCase(""))
+			if (genomeId != null && !genomeId.equalsIgnoreCase("")) {
 				key.put("genomeId", genomeId);
+			}
 
-			if (algorithm != null && !algorithm.equals(""))
+			if (algorithm != null && !algorithm.equals("")) {
 				key.put("algorithm", algorithm);
+			}
 
-			if (feature_id != null && !feature_id.equalsIgnoreCase(""))
+			if (feature_id != null && !feature_id.equalsIgnoreCase("")) {
 				key.put("feature_id", feature_id);
+			}
 
 			Random g = new Random();
 			int random = g.nextInt();
@@ -197,38 +201,37 @@ public class PathwayFinder extends GenericPortlet {
 
 			String need = request.getParameter("need");
 			JSONObject jsonResult = new JSONObject();
-//			JSONArray results = new JSONArray();
+			//			JSONArray results = new JSONArray();
 
 			// sorting
-//			JSONParser a = new JSONParser();
-//			JSONArray sorter;
-//			String sort_field = "";
-//			String sort_dir = "";
-//			try {
-//				sorter = (JSONArray) a.parse(request.getParameter("sort"));
-//				sort_field += ((JSONObject) sorter.get(0)).get("property").toString();
-//				sort_dir += ((JSONObject) sorter.get(0)).get("direction").toString();
-//				for (int i = 1; i < sorter.size(); i++) {
-//					sort_field += "," + ((JSONObject) sorter.get(i)).get("property").toString();
-//				}
-//			}
-//			catch (ParseException e) {
-//				LOGGER.error(e.getMessage(), e);
-//			}
-//
-//			HashMap<String, String> sort = new HashMap<>();
-//
-//			if (!sort_field.equals("") && !sort_dir.equals("")) {
-//				sort.put("field", sort_field);
-//				sort.put("direction", sort_dir);
-//			}
+			//			JSONParser a = new JSONParser();
+			//			JSONArray sorter;
+			//			String sort_field = "";
+			//			String sort_dir = "";
+			//			try {
+			//				sorter = (JSONArray) a.parse(request.getParameter("sort"));
+			//				sort_field += ((JSONObject) sorter.get(0)).get("property").toString();
+			//				sort_dir += ((JSONObject) sorter.get(0)).get("direction").toString();
+			//				for (int i = 1; i < sorter.size(); i++) {
+			//					sort_field += "," + ((JSONObject) sorter.get(i)).get("property").toString();
+			//				}
+			//			}
+			//			catch (ParseException e) {
+			//				LOGGER.error(e.getMessage(), e);
+			//			}
+			//
+			//			HashMap<String, String> sort = new HashMap<>();
+			//
+			//			if (!sort_field.equals("") && !sort_dir.equals("")) {
+			//				sort.put("field", sort_field);
+			//				sort.put("direction", sort_dir);
+			//			}
 
-
-//			int start = Integer.parseInt(request.getParameter("start"));
-//			int end = start + Integer.parseInt(request.getParameter("limit"));
-//			List<ResultType> items = new ArrayList<>();
-//			int count_total = 0;
-//			DBPathways conn_summary = new DBPathways();
+			//			int start = Integer.parseInt(request.getParameter("start"));
+			//			int end = start + Integer.parseInt(request.getParameter("limit"));
+			//			List<ResultType> items = new ArrayList<>();
+			//			int count_total = 0;
+			//			DBPathways conn_summary = new DBPathways();
 
 			String pk = request.getParameter("pk");
 			PortletSession session = request.getPortletSession();
@@ -236,17 +239,22 @@ public class PathwayFinder extends GenericPortlet {
 
 			switch (need) {
 			case "0":
-				jsonResult = this.processPathwayTab(key.get("map"), key.get("ec_number"), key.get("algorithm"), key.get("taxonId"), key.get("genomeId"), key.get("keyword"));
+				jsonResult = this
+						.processPathwayTab(key.get("map"), key.get("ec_number"), key.get("algorithm"), key.get("taxonId"), key.get("genomeId"),
+								key.get("keyword"));
 				response.setContentType("application/json");
 				jsonResult.writeJSONString(response.getWriter());
 				break;
 			case "1":
-				jsonResult = this.processEcNumberTab(key.get("map"), key.get("ec_number"), key.get("algorithm"), key.get("taxonId"), key.get("genomeId"), key.get("keyword"));
+				jsonResult = this
+						.processEcNumberTab(key.get("map"), key.get("ec_number"), key.get("algorithm"), key.get("taxonId"), key.get("genomeId"),
+								key.get("keyword"));
 				response.setContentType("application/json");
 				jsonResult.writeJSONString(response.getWriter());
 				break;
 			case "2":
-				jsonResult = this.processGeneTab(key.get("map"), key.get("ec_number"), key.get("algorithm"), key.get("taxonId"), key.get("genomeId"), key.get("keyword"));
+				jsonResult = this.processGeneTab(key.get("map"), key.get("ec_number"), key.get("algorithm"), key.get("taxonId"), key.get("genomeId"),
+						key.get("keyword"));
 				response.setContentType("application/json");
 				jsonResult.writeJSONString(response.getWriter());
 				break;
@@ -258,7 +266,8 @@ public class PathwayFinder extends GenericPortlet {
 	}
 
 	@SuppressWarnings("unchecked")
-	private JSONObject processPathwayTab(String pathwayId, String ecNumber, String annotation, String taxonId, String genomeId, String keyword) throws PortletException, IOException {
+	private JSONObject processPathwayTab(String pathwayId, String ecNumber, String annotation, String taxonId, String genomeId, String keyword)
+			throws PortletException, IOException {
 
 		JSONObject jsonResult = new JSONObject();
 		SolrQuery query = new SolrQuery("*:*");
@@ -379,7 +388,8 @@ public class PathwayFinder extends GenericPortlet {
 	}
 
 	@SuppressWarnings("unchecked")
-	private JSONObject processEcNumberTab(String pathwayId, String ecNumber, String annotation, String taxonId, String genomeId, String keyword) throws PortletException, IOException {
+	private JSONObject processEcNumberTab(String pathwayId, String ecNumber, String annotation, String taxonId, String genomeId, String keyword)
+			throws PortletException, IOException {
 
 		JSONObject jsonResult = new JSONObject();
 		SolrQuery query = new SolrQuery("*:*");
@@ -627,18 +637,29 @@ public class PathwayFinder extends GenericPortlet {
 
 		if (request.getParameter("aT").equals("0")) {
 			_tbl_source = (JSONArray) this.processPathwayTab(pathwayId, ecNumber, annotation, taxonId, genomeId, keyword).get("results");
-			_tbl_header.addAll(Arrays.asList("Pathway ID", "Pathway Name", "Pathway Class", "Annotation", "Genome Count", "Unique Gene Count", "Unique EC Count", "Ec Conservation %", "Gene Conservation"));
-			_tbl_field.addAll(Arrays.asList("pathway_id", "pathway_name", "pathway_class", "algorithm", "genome_count", "gene_count", "ec_count", "ec_cons", "gene_cons"));
+			_tbl_header.addAll(Arrays
+					.asList("Pathway ID", "Pathway Name", "Pathway Class", "Annotation", "Genome Count", "Unique Gene Count", "Unique EC Count",
+							"Ec Conservation %", "Gene Conservation"));
+			_tbl_field.addAll(Arrays
+					.asList("pathway_id", "pathway_name", "pathway_class", "algorithm", "genome_count", "gene_count", "ec_count", "ec_cons",
+							"gene_cons"));
 		}
 		else if (request.getParameter("aT").equals("1")) {
 			_tbl_source = (JSONArray) this.processEcNumberTab(pathwayId, ecNumber, annotation, taxonId, genomeId, keyword).get("results");
-			_tbl_header.addAll(Arrays.asList("Pathway ID", "Pathway Name", "Pathway Class", "Annotation", "EC Number", "EC Description", "Genome Count", "Unique Gene Count"));
-			_tbl_field.addAll(Arrays.asList("pathway_id", "pathway_name", "pathway_class", "algorithm", "ec_number", "ec_name", "genome_count", "gene_count"));
+			_tbl_header.addAll(Arrays
+					.asList("Pathway ID", "Pathway Name", "Pathway Class", "Annotation", "EC Number", "EC Description", "Genome Count",
+							"Unique Gene Count"));
+			_tbl_field.addAll(Arrays
+					.asList("pathway_id", "pathway_name", "pathway_class", "algorithm", "ec_number", "ec_name", "genome_count", "gene_count"));
 		}
 		else if (request.getParameter("aT").equals("2")) {
 			_tbl_source = (JSONArray) this.processGeneTab(pathwayId, ecNumber, annotation, taxonId, genomeId, keyword).get("results");
-			_tbl_header.addAll(Arrays.asList("Feature ID", "Genome Name", "Accession", "SEED ID", "Alt Locus Tag", "Gene Symbol", "Product Name", "Annotation", "Pathway ID", "Pathway Name", "Ec Number", "EC Description"));
-			_tbl_field.addAll(Arrays.asList("feature_id", "genome_name", "accession", "seed_id", "alt_locus_tag", "gene", "product", "algorithm", "pathway_id", "pathway_name", "ec_number", "ec_name"));
+			_tbl_header.addAll(Arrays
+					.asList("Feature ID", "Genome Name", "Accession", "SEED ID", "Alt Locus Tag", "Gene Symbol", "Product Name", "Annotation",
+							"Pathway ID", "Pathway Name", "Ec Number", "EC Description"));
+			_tbl_field.addAll(Arrays
+					.asList("feature_id", "genome_name", "accession", "seed_id", "alt_locus_tag", "gene", "product", "algorithm", "pathway_id",
+							"pathway_name", "ec_number", "ec_name"));
 		}
 
 		fileName = "CompPathwayTable";
