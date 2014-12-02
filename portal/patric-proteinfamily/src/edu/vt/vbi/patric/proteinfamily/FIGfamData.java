@@ -266,14 +266,28 @@ public class FIGfamData {
 
 		try {
 			SolrQuery query = new SolrQuery("feature_id:(" + StringUtils.join(featureIds, " OR ") + ")");
-			query.addField("genome_name,seed_id,aa_sequence");
+			query.addField("genome_name,seed_id,refseq_locus_tag,alt_locus_tag,aa_sequence");
 			query.setRows(featureIds.length);
 
 			QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query);
 			List<GenomeFeature> features = qr.getBeans(GenomeFeature.class);
 
 			for (GenomeFeature feature: features) {
-				collect.add(new SequenceData(feature.getGenomeName().replace(" ", "_"), feature.getSeedId(), feature.getAaSequence()));
+				String locusTag = "";
+				if (feature.hasSeedId()) {
+					locusTag = feature.getSeedId();
+				}
+				else {
+					if (feature.hasRefseqLocusTag()) {
+						locusTag = feature.getRefseqLocusTag();
+					}
+					else {
+						if (feature.hasAltLocusTag()) {
+							locusTag = feature.getAltLocusTag();
+						}
+					}
+				}
+				collect.add(new SequenceData(feature.getGenomeName().replace(" ", "_"), locusTag, feature.getAaSequence()));
 			}
 		}
 		catch (MalformedURLException | SolrServerException e) {

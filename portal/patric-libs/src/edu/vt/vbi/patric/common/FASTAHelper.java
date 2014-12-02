@@ -37,7 +37,7 @@ public class FASTAHelper {
 
 		try {
 			SolrQuery query = new SolrQuery("feature_id:(" + StringUtils.join(featureIds, " OR ") + ")");
-			query.setFields("feature_id,seed_id,product,genome_name,na_sequence,aa_sequence");
+			query.setFields("feature_id,seed_id,alt_locus_tag,refseq_locus_tag,annotation,gi,product,genome_id,genome_name,na_sequence,aa_sequence");
 			query.setRows(featureIds.size());
 
 			QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query);
@@ -46,14 +46,27 @@ public class FASTAHelper {
 			for (GenomeFeature feature: features) {
 
 				if (type.equals("dna") || type.equals("both")) {
-					fasta.append(">fid|").append(feature.getId());
-					if (feature.hasSeedId()) {
-						fasta.append("|locus|").append(feature.getSeedId());
+					fasta.append(">");
+					if (feature.getAnnotation().equals("PATRIC")) {
+						if (feature.hasSeedId()) {
+							fasta.append(feature.getSeedId()).append("|");
+						}
+					} else if (feature.getAnnotation().equals("RefSeq")) {
+						if (feature.getGi() > 0) {
+							fasta.append("gi|").append(feature.getGi()).append("|");
+						}
+					}
+
+					if (feature.hasRefseqLocusTag()) {
+						fasta.append(feature.getRefseqLocusTag()).append("|");
+					}
+					if (feature.hasAltLocusTag()) {
+						fasta.append(feature.getAltLocusTag()).append("|");
 					}
 					if (feature.hasProduct()) {
-						fasta.append("|   ").append(feature.getProduct());
+						fasta.append("   ").append(feature.getProduct());
 					}
-					fasta.append("   [").append(feature.getGenomeName()).append("]");
+					fasta.append("   [").append(feature.getGenomeName()).append(" | ").append(feature.getGenomeId()).append("]");
 
 					fasta.append("\n");
 					if (feature.hasNaSequence()) {
@@ -61,26 +74,34 @@ public class FASTAHelper {
 					}
 				}
 
-				if (type.equals("both")) {
-					fasta.append("\n");
-				}
-
 				if (type.equals("protein") || type.equals("both")) {
-					fasta.append(">fid|").append(feature.getId());
-					if (feature.hasSeedId()) {
-						fasta.append("|locus|").append(feature.getSeedId());
+					fasta.append(">");
+					if (feature.getAnnotation().equals("PATRIC")) {
+						if (feature.hasSeedId()) {
+							fasta.append(feature.getSeedId()).append("|");
+						}
+					} else if (feature.getAnnotation().equals("RefSeq")) {
+						if (feature.getGi() > 0) {
+							fasta.append("gi|").append(feature.getGi()).append("|");
+						}
+					}
+
+					if (feature.hasRefseqLocusTag()) {
+						fasta.append(feature.getRefseqLocusTag()).append("|");
+					}
+					if (feature.hasAltLocusTag()) {
+						fasta.append(feature.getAltLocusTag()).append("|");
 					}
 					if (feature.hasProduct()) {
-						fasta.append("|   ").append(feature.getProduct());
+						fasta.append("   ").append(feature.getProduct());
 					}
-					fasta.append("   [").append(feature.getGenomeName()).append("]");
+					fasta.append("   [").append(feature.getGenomeName()).append(" | ").append(feature.getGenomeId()).append("]");
 
 					fasta.append("\n");
 					if (feature.hasAaSequence()) {
 						fasta.append(StringHelper.chunk_split(feature.getAaSequence(), 60, "\n"));
 					}
 				}
-				fasta.append("\n");
 			}
 
 		} catch (MalformedURLException | SolrServerException e) {
