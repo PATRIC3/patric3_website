@@ -20,6 +20,7 @@ import edu.vt.vbi.patric.common.SiteHelper;
 import edu.vt.vbi.patric.common.SolrCore;
 import edu.vt.vbi.patric.common.SolrInterface;
 import edu.vt.vbi.patric.dao.ResultType;
+import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField;
@@ -35,9 +36,7 @@ import javax.portlet.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class IDMapping extends GenericPortlet {
 
@@ -97,8 +96,8 @@ public class IDMapping extends GenericPortlet {
 		}
 		else if (sraction != null && sraction.equals("filters")) {
 
-			this.responseWriteFilters(response);
-			// this.responseWriteFiltersStatic(response);
+			// this.responseWriteFilters(response);
+			this.responseWriteFiltersStatic(response);
 		}
 		else {
 
@@ -171,86 +170,153 @@ public class IDMapping extends GenericPortlet {
 					total = results.size();
 				}
 				else { // from PATRIC to Other
-					SolrDocumentList idMap = null;
-					try {
-						SolrQuery query = new SolrQuery();
-						query.setQuery("id_type:" + key.get("to"));
-						query.addFilterQuery(SolrCore.FEATURE
-								.getSolrCoreJoin("uniprotkb_accession", "uniprotkb_accession", key.get("from") + ":(" + key.get("keyword") + ")"));
 
-						LOGGER.debug("PATRIC TO Other 1/2: {}", query.toString());
-						QueryResponse qr = solr.getSolrServer(SolrCore.ID_REF).query(query);
-						idMap = qr.getResults();
-					}
-					catch (MalformedURLException | SolrServerException e) {
-						LOGGER.error(e.getMessage(), e);
-					}
+					Set<Long> giList = new HashSet<>();
+					Map<String, String> accessionGiMap = new LinkedHashMap<>();
+					List<Map<Long, String>> giTargetList = new LinkedList<>();
+					List<GenomeFeature> featureList = new ArrayList<>();
 
-					// query to GenomeFeature
+					// Query GenomeFeature, get GInumbers
 					try {
 						SolrQuery query = new SolrQuery(key.get("from") + ":(" + key.get("keyword") + ")");
 						query.setRows(10000);
+						LOGGER.trace("PATRIC TO Other 1/3: {}", query.toString());
 
-						LOGGER.debug("PATRIC TO Other 2/2: {}", query.toString());
 						QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query);
-						List<GenomeFeature> featureList = qr.getBeans(GenomeFeature.class);
+						featureList = qr.getBeans(GenomeFeature.class);
 
 						for (GenomeFeature feature : featureList) {
-							for (String uniprotkbAccession : feature.getUniprotkbAccession()) {
-								assert idMap != null;
-								for (SolrDocument doc : idMap) {
-									if (doc.get("uniprotkb_accession").equals(uniprotkbAccession)) {
-										JSONObject item = feature.toJSONObject();
-										item.put("target", doc.get("id_value"));
-
-										results.add(item);
-									}
-								}
-							}
+							giList.add(feature.getGi());
 						}
 					}
 					catch (MalformedURLException | SolrServerException e) {
 						LOGGER.error(e.getMessage(), e);
 					}
 
+					// get UniprotKBAccessions wigh GI
+					try {
+						SolrQuery query = new SolrQuery("id_type:GI AND id_value:(" + StringUtils.join(giList, " OR ") + ")");
+						query.setRows(10000);
+
+						LOGGER.trace("PATRIC TO Other 2/3: {}", query.toString());
+						QueryResponse qr = solr.getSolrServer(SolrCore.ID_REF).query(query);
+						SolrDocumentList uniprotList = qr.getResults();
+
+						for (SolrDocument doc : uniprotList) {
+
+							accessionGiMap.put(doc.get("uniprotkb_accession").toString(), doc.get("id_value").toString());
+						}
+					}
+					catch (MalformedURLException | SolrServerException e) {
+						LOGGER.error(e.getMessage(), e);
+					}
+					LOGGER.trace("accessionGiMap:{}", accessionGiMap);
+
+					// get Target Value
+					try {
+						SolrQuery query = new SolrQuery();
+						query.setQuery("id_type:(" + key.get("to") + ") AND uniprotkb_accession:(" + StringUtils.join(accessionGiMap.keySet(), " OR ")
+								+ ")");
+						query.setRows(accessionGiMap.size());
+
+						LOGGER.trace("PATRIC TO Other 3/3: {}", query.toString());
+						QueryResponse qr = solr.getSolrServer(SolrCore.ID_REF).query(query);
+						SolrDocumentList targets = qr.getResults();
+
+						for (SolrDocument doc : targets) {
+							String accession = doc.get("uniprotkb_accession").toString();
+							String target = doc.get("id_value").toString();
+
+							Long targetGi = Long.parseLong(accessionGiMap.get(accession));
+
+							Map<Long, String> giTarget = new HashMap<>();
+							giTarget.put(targetGi, target);
+							giTargetList.add(giTarget);
+						}
+					}
+					catch (MalformedURLException | SolrServerException e) {
+						LOGGER.error(e.getMessage(), e);
+					}
+
+					LOGGER.trace("giTargetList:{}", giTargetList);
+					// query to GenomeFeature
+					for (GenomeFeature feature : featureList) {
+						for (Map<Long, String> targetMap : giTargetList) {
+							if (targetMap.containsKey(feature.getGi())) {
+								JSONObject item = feature.toJSONObject();
+								item.put("target", targetMap.get(feature.getGi()));
+
+								results.add(item);
+							}
+						}
+					}
+
 					total = results.size();
 				}
 			}
 			else { // from Other to PATRIC (seed_id)
-				SolrDocumentList idMap = null;
+
+				Map<String, String> accessionTargetMap = new LinkedHashMap<>();
+				Set<Long> giList = new HashSet<>();
+				List<Map<Long, String>> giTargetList = new LinkedList<>();
+
 				try {
 					SolrQuery query = new SolrQuery("id_type:" + key.get("from") + " AND id_value:(" + key.get("keyword") + ")");
 					query.setRows(10000).addField("uniprotkb_accession,id_value");
-					query.addFilterQuery(SolrCore.FEATURE.getSolrCoreJoin("uniprotkb_accession", "uniprotkb_accession", "*:*"));
 
-					LOGGER.debug("Other to PATRIC 1/2: {}", query.toString());
+					LOGGER.debug("Other to PATRIC 1/3: {}", query.toString());
 					QueryResponse qr = solr.getSolrServer(SolrCore.ID_REF).query(query);
-					idMap = qr.getResults();
+					SolrDocumentList accessions = qr.getResults();
+
+					for (SolrDocument doc : accessions) {
+						accessionTargetMap.put(doc.get("uniprotkb_accession").toString(), doc.get("id_value").toString());
+					}
 				}
 				catch (MalformedURLException | SolrServerException e) {
 					LOGGER.error(e.getMessage(), e);
 				}
 
 				try {
-					SolrQuery query = new SolrQuery("*:*");
+					SolrQuery query = new SolrQuery(
+							"id_type:GI AND uniprotkb_accession:(" + StringUtils.join(accessionTargetMap.keySet(), " OR ") + ")");
 					query.setRows(10000);
-					query.addFilterQuery(SolrCore.ID_REF.getSolrCoreJoin("uniprotkb_accession", "uniprotkb_accession",
-							"id_type:" + key.get("from") + " AND id_value:(" + key.get("keyword") + ")"));
 
-					LOGGER.debug("PATRIC TO Other 2/2: {}", query.toString());
+					LOGGER.debug("Other to PATRIC 2/3: {}", query.toString());
+					QueryResponse qr = solr.getSolrServer(SolrCore.ID_REF).query(query);
+					SolrDocumentList accessions = qr.getResults();
+
+					for (SolrDocument doc : accessions) {
+						Long targetGi = Long.parseLong(doc.get("id_value").toString());
+						String accession = doc.get("uniprotkb_accession").toString();
+						String target = accessionTargetMap.get(accession);
+
+						giList.add(targetGi);
+
+						Map<Long, String> targetMap = new HashMap<>();
+						targetMap.put(targetGi, target);
+						giTargetList.add(targetMap);
+					}
+				}
+				catch (MalformedURLException | SolrServerException e) {
+					LOGGER.error(e.getMessage(), e);
+				}
+
+				LOGGER.debug("giTargetList:{}", giTargetList);
+				try {
+					SolrQuery query = new SolrQuery("gi:(" + StringUtils.join(giList, " OR ") + ")");
+					query.setRows(10000);
+
+					LOGGER.debug("Other to PATRIC 3/3: {}", query.toString());
 					QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query);
 					List<GenomeFeature> featureList = qr.getBeans(GenomeFeature.class);
 
 					for (GenomeFeature feature : featureList) {
-						for (String uniprotkbAccession : feature.getUniprotkbAccession()) {
-							assert idMap != null;
-							for (SolrDocument doc : idMap) {
-								if (doc.get("uniprotkb_accession").equals(uniprotkbAccession)) {
-									JSONObject item = feature.toJSONObject();
-									item.put("target", doc.get("id_value"));
+						for (Map<Long, String> targetMap : giTargetList) {
+							if (targetMap.containsKey(feature.getGi())) {
+								JSONObject item = feature.toJSONObject();
+								item.put("target", targetMap.get(feature.getGi()));
 
-									results.add(item);
-								}
+								results.add(item);
 							}
 						}
 					}
@@ -272,13 +338,13 @@ public class IDMapping extends GenericPortlet {
 		}
 	}
 
-	//	private void responseWriteFiltersStatic(ResourceResponse response) throws IOException {
-	//
-	//		String filter = "{\"id_types\":[{\"id\":\"<h5>PATRIC Identifier<\\/h5>\",\"value\":\"\"},{\"id\":\"PATRIC Locus Tag\",\"value\":\"seed_id\",\"group\":\"PATRIC\"},{\"id\":\"PATRIC ID\",\"value\":\"feature_id\",\"group\":\"PATRIC\"},{\"id\":\"PATRIC2 Locus Tag\",\"value\":\"alt_locus_tag\",\"group\":\"PATRIC\"},{\"id\":\"<h5>RefSeq Identifiers<\\/h5>\",\"value\":\"\"},{\"id\":\"RefSeq\",\"value\":\"protein_id\",\"group\":\"PATRIC\"},{\"id\":\"RefSeq Locus Tag\",\"value\":\"refseq_locus_tag\",\"group\":\"PATRIC\"},{\"id\":\"Gene ID\",\"value\":\"gene_id\",\"group\":\"PATRIC\"},{\"id\":\"GI\",\"value\":\"gi\",\"group\":\"PATRIC\"},{\"id\":\"<h5>Other Identifiers<\\/h5>\",\"value\":\"\"},{\"id\":\"Allergome\",\"value\":\"Allergome\",\"group\":\"Other\"},{\"id\":\"BioCyc\",\"value\":\"BioCyc\",\"group\":\"Other\"},{\"id\":\"ChEMBL\",\"value\":\"ChEMBL\",\"group\":\"Other\"},{\"id\":\"DIP\",\"value\":\"DIP\",\"group\":\"Other\"},{\"id\":\"DNASU\",\"value\":\"DNASU\",\"group\":\"Other\"},{\"id\":\"DisProt\",\"value\":\"DisProt\",\"group\":\"Other\"},{\"id\":\"DrugBank\",\"value\":\"DrugBank\",\"group\":\"Other\"},{\"id\":\"EMBL\",\"value\":\"EMBL\",\"group\":\"Other\"},{\"id\":\"EMBL-CDS\",\"value\":\"EMBL-CDS\",\"group\":\"Other\"},{\"id\":\"EchoBASE\",\"value\":\"EchoBASE\",\"group\":\"Other\"},{\"id\":\"EcoGene\",\"value\":\"EcoGene\",\"group\":\"Other\"},{\"id\":\"EnsemblGenome\",\"value\":\"EnsemblGenome\",\"group\":\"Other\"},{\"id\":\"GenoList\",\"value\":\"GenoList\",\"group\":\"Other\"},{\"id\":\"HOGENOM\",\"value\":\"HOGENOM\",\"group\":\"Other\"},{\"id\":\"KEGG\",\"value\":\"KEGG\",\"group\":\"Other\"},{\"id\":\"KO\",\"value\":\"KO\",\"group\":\"Other\"},{\"id\":\"LegioList\",\"value\":\"LegioList\",\"group\":\"Other\"},{\"id\":\"Leproma\",\"value\":\"Leproma\",\"group\":\"Other\"},{\"id\":\"MEROPS\",\"value\":\"MEROPS\",\"group\":\"Other\"},{\"id\":\"MINT\",\"value\":\"MINT\",\"group\":\"Other\"},{\"id\":\"NCBI_TaxID\",\"value\":\"NCBI_TaxID\",\"group\":\"Other\"},{\"id\":\"OMA\",\"value\":\"OMA\",\"group\":\"Other\"},{\"id\":\"OrthoDB\",\"value\":\"OrthoDB\",\"group\":\"Other\"},{\"id\":\"PATRIC\",\"value\":\"PATRIC\",\"group\":\"Other\"},{\"id\":\"PDB\",\"value\":\"PDB\",\"group\":\"Other\"},{\"id\":\"PeroxiBase\",\"value\":\"PeroxiBase\",\"group\":\"Other\"},{\"id\":\"PhosSite\",\"value\":\"PhosSite\",\"group\":\"Other\"},{\"id\":\"PptaseDB\",\"value\":\"PptaseDB\",\"group\":\"Other\"},{\"id\":\"ProtClustDB\",\"value\":\"ProtClustDB\",\"group\":\"Other\"},{\"id\":\"PseudoCAP\",\"value\":\"PseudoCAP\",\"group\":\"Other\"},{\"id\":\"REBASE\",\"value\":\"REBASE\",\"group\":\"Other\"},{\"id\":\"Reactome\",\"value\":\"Reactome\",\"group\":\"Other\"},{\"id\":\"RefSeq_NT\",\"value\":\"RefSeq_NT\",\"group\":\"Other\"},{\"id\":\"STRING\",\"value\":\"STRING\",\"group\":\"Other\"},{\"id\":\"TCDB\",\"value\":\"TCDB\",\"group\":\"Other\"},{\"id\":\"TubercuList\",\"value\":\"TubercuList\",\"group\":\"Other\"},{\"id\":\"UniGene\",\"value\":\"UniGene\",\"group\":\"Other\"},{\"id\":\"UniParc\",\"value\":\"UniParc\",\"group\":\"Other\"},{\"id\":\"UniPathway\",\"value\":\"UniPathway\",\"group\":\"Other\"},{\"id\":\"UniProtKB-ID\",\"value\":\"UniProtKB-ID\",\"group\":\"Other\"},{\"id\":\"UniRef100\",\"value\":\"UniRef100\",\"group\":\"Other\"},{\"id\":\"UniRef50\",\"value\":\"UniRef50\",\"group\":\"Other\"},{\"id\":\"UniRef90\",\"value\":\"UniRef90\",\"group\":\"Other\"},{\"id\":\"World-2DPAGE\",\"value\":\"World-2DPAGE\",\"group\":\"Other\"},{\"id\":\"eggNOG\",\"value\":\"eggNOG\",\"group\":\"Other\"}]}";
-	//
-	//		response.setContentType("application/json");
-	//		response.getWriter().write(filter);
-	//	}
+	private void responseWriteFiltersStatic(ResourceResponse response) throws IOException {
+
+		String filter = "{\"id_types\":[{\"id\":\"<h5>PATRIC Identifier<\\/h5>\",\"value\":\"\"},{\"id\":\"SEED ID\",\"value\":\"seed_id\",\"group\":\"PATRIC\"},{\"id\":\"PATRIC ID\",\"value\":\"feature_id\",\"group\":\"PATRIC\"},{\"id\":\"Alt Locus Tag\",\"value\":\"alt_locus_tag\",\"group\":\"PATRIC\"},{\"id\":\"<h5>RefSeq Identifiers<\\/h5>\",\"value\":\"\"},{\"id\":\"RefSeq\",\"value\":\"protein_id\",\"group\":\"PATRIC\"},{\"id\":\"RefSeq Locus Tag\",\"value\":\"refseq_locus_tag\",\"group\":\"PATRIC\"},{\"id\":\"Gene ID\",\"value\":\"gene_id\",\"group\":\"PATRIC\"},{\"id\":\"GI\",\"value\":\"gi\",\"group\":\"PATRIC\"},{\"id\":\"<h5>Other Identifiers<\\/h5>\",\"value\":\"\"},{\"id\":\"Allergome\",\"value\":\"Allergome\",\"group\":\"Other\"},{\"id\":\"BioCyc\",\"value\":\"BioCyc\",\"group\":\"Other\"},{\"id\":\"ChEMBL\",\"value\":\"ChEMBL\",\"group\":\"Other\"},{\"id\":\"DIP\",\"value\":\"DIP\",\"group\":\"Other\"},{\"id\":\"DNASU\",\"value\":\"DNASU\",\"group\":\"Other\"},{\"id\":\"DisProt\",\"value\":\"DisProt\",\"group\":\"Other\"},{\"id\":\"DrugBank\",\"value\":\"DrugBank\",\"group\":\"Other\"},{\"id\":\"EMBL\",\"value\":\"EMBL\",\"group\":\"Other\"},{\"id\":\"EMBL-CDS\",\"value\":\"EMBL-CDS\",\"group\":\"Other\"},{\"id\":\"EchoBASE\",\"value\":\"EchoBASE\",\"group\":\"Other\"},{\"id\":\"EcoGene\",\"value\":\"EcoGene\",\"group\":\"Other\"},{\"id\":\"EnsemblGenome\",\"value\":\"EnsemblGenome\",\"group\":\"Other\"},{\"id\":\"GenoList\",\"value\":\"GenoList\",\"group\":\"Other\"},{\"id\":\"HOGENOM\",\"value\":\"HOGENOM\",\"group\":\"Other\"},{\"id\":\"KEGG\",\"value\":\"KEGG\",\"group\":\"Other\"},{\"id\":\"KO\",\"value\":\"KO\",\"group\":\"Other\"},{\"id\":\"LegioList\",\"value\":\"LegioList\",\"group\":\"Other\"},{\"id\":\"Leproma\",\"value\":\"Leproma\",\"group\":\"Other\"},{\"id\":\"MEROPS\",\"value\":\"MEROPS\",\"group\":\"Other\"},{\"id\":\"MINT\",\"value\":\"MINT\",\"group\":\"Other\"},{\"id\":\"NCBI_TaxID\",\"value\":\"NCBI_TaxID\",\"group\":\"Other\"},{\"id\":\"OMA\",\"value\":\"OMA\",\"group\":\"Other\"},{\"id\":\"OrthoDB\",\"value\":\"OrthoDB\",\"group\":\"Other\"},{\"id\":\"PATRIC\",\"value\":\"PATRIC\",\"group\":\"Other\"},{\"id\":\"PDB\",\"value\":\"PDB\",\"group\":\"Other\"},{\"id\":\"PeroxiBase\",\"value\":\"PeroxiBase\",\"group\":\"Other\"},{\"id\":\"PhosSite\",\"value\":\"PhosSite\",\"group\":\"Other\"},{\"id\":\"PptaseDB\",\"value\":\"PptaseDB\",\"group\":\"Other\"},{\"id\":\"ProtClustDB\",\"value\":\"ProtClustDB\",\"group\":\"Other\"},{\"id\":\"PseudoCAP\",\"value\":\"PseudoCAP\",\"group\":\"Other\"},{\"id\":\"REBASE\",\"value\":\"REBASE\",\"group\":\"Other\"},{\"id\":\"Reactome\",\"value\":\"Reactome\",\"group\":\"Other\"},{\"id\":\"RefSeq_NT\",\"value\":\"RefSeq_NT\",\"group\":\"Other\"},{\"id\":\"STRING\",\"value\":\"STRING\",\"group\":\"Other\"},{\"id\":\"TCDB\",\"value\":\"TCDB\",\"group\":\"Other\"},{\"id\":\"TubercuList\",\"value\":\"TubercuList\",\"group\":\"Other\"},{\"id\":\"UniGene\",\"value\":\"UniGene\",\"group\":\"Other\"},{\"id\":\"UniParc\",\"value\":\"UniParc\",\"group\":\"Other\"},{\"id\":\"UniPathway\",\"value\":\"UniPathway\",\"group\":\"Other\"},{\"id\":\"UniProtKB-ID\",\"value\":\"UniProtKB-ID\",\"group\":\"Other\"},{\"id\":\"UniRef100\",\"value\":\"UniRef100\",\"group\":\"Other\"},{\"id\":\"UniRef50\",\"value\":\"UniRef50\",\"group\":\"Other\"},{\"id\":\"UniRef90\",\"value\":\"UniRef90\",\"group\":\"Other\"},{\"id\":\"World-2DPAGE\",\"value\":\"World-2DPAGE\",\"group\":\"Other\"},{\"id\":\"eggNOG\",\"value\":\"eggNOG\",\"group\":\"Other\"}]}";
+
+		response.setContentType("application/json");
+		response.getWriter().write(filter);
+	}
 
 	@SuppressWarnings("unchecked")
 	private void responseWriteFilters(ResourceResponse response) throws IOException {
@@ -303,7 +369,7 @@ public class IDMapping extends GenericPortlet {
 		grpPATRIC.put("id", "<h5>PATRIC Identifier</h5>");
 		grpPATRIC.put("value", "");
 
-		grpPATRIC1.put("id", "PATRIC Locus Tag");
+		grpPATRIC1.put("id", "SEED ID");
 		grpPATRIC1.put("value", "seed_id");
 		grpPATRIC1.put("group", idGroupPATRIC);
 
@@ -311,7 +377,7 @@ public class IDMapping extends GenericPortlet {
 		grpPATRIC2.put("value", "feature_id");
 		grpPATRIC2.put("group", idGroupPATRIC);
 
-		grpPATRIC3.put("id", "PATRIC2 Locus Tag");
+		grpPATRIC3.put("id", "Alt Locus Tag");
 		grpPATRIC3.put("value", "alt_locus_tag");
 		grpPATRIC3.put("group", idGroupPATRIC);
 
