@@ -54,7 +54,7 @@ Ext.onReady(function()
 			'genome_id', 'genome_name', 'accession', 'alt_locus_tag',
 			'feature_id', {name:'start', type:'int'}, {name:'end', type:'int'},
 			{name:'na_length', type:'int'}, {name:'correlation', type:'float'}, {name:'count', type:'int'},
-			{name:'strand', type:'int'}, 'product', 'refseq_locus_tag', 'gene', 'annotation', 'feature_type', 'protein_id', 'aa_length'
+			'strand', 'product', 'refseq_locus_tag', 'seed_id', 'gene', 'annotation', 'feature_type', 'protein_id', 'aa_length'
 		]
 	});
 	
@@ -69,7 +69,8 @@ Ext.onReady(function()
 		scm:[[checkbox,
 				{text:'Genome Name',		dataIndex:'genome_name',		flex:3,	align:'center', renderer:renderGenomeName},
 				{text:'Accession',			dataIndex:'accession',			flex:1,	hidden:true, align:'center', renderer:renderAccession},
-				{text:'Locus Tag',			dataIndex:'alt_locus_tag',		flex:2,	align:'center', renderer:renderLocusTag},
+				{text:'SEED ID',			dataIndex:'seed_id',	    	flex:2,	align:'center', renderer:renderSeedId},
+				{text:'Alt Locus Tag',		dataIndex:'alt_locus_tag',		flex:2,	align:'center', renderer:renderLocusTag},
 				{text:'RefSeq Locus Tag',	dataIndex:'refseq_locus_tag',	flex:2,	align:'center', renderer:BasicRenderer},
 				{text:'Gene Symbol',		dataIndex:'gene',				flex:1,	align:'center', renderer:BasicRenderer},
 				{text:'Annotation',			dataIndex:'annotation',			flex:1, hidden:true, renderer:BasicRenderer}, 
@@ -77,7 +78,7 @@ Ext.onReady(function()
 				{text:'Start',				dataIndex:'start',  			flex:1,	hidden:true, align:'right'},
 				{text:'End',				dataIndex:'end',	    		flex:1,	hidden:true, align:'right'},
 				{text:'Length(NT)',			dataIndex:'na_length',			flex:1,	hidden:true, align:'right'},
-				{text:'Strand',				dataIndex:'strand',				flex:1,	hidden:true, align:'center', renderer:renderStrand},
+				{text:'Strand',				dataIndex:'strand',				flex:1,	hidden:true, align:'center', renderer:BasicRenderer},
 				{text:'Protein ID',			dataIndex:'protein_id',			flex:1, hidden:true, renderer:BasicRenderer}, 
 				{text:'Length (AA)',		dataIndex:'aa_length',			flex:1, hidden:true, align:'right', renderer:BasicRenderer},
 				{text:'Product Description',dataIndex:'product',			flex:3,	align:'left',	renderer:BasicRenderer},

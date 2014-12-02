@@ -225,7 +225,7 @@ public class SpecialtyGeneSearch extends GenericPortlet {
 						sort.put("direction", sort_dir);
 					}
 				}
-				key.put("fields", "genome_id,genome_name,taxon_id,feature_id,alt_locus_tag,refseq_locus_tag,gene,product,property,source,property_source,source_id,organism,function,classification,pmid,query_coverage,subject_coverage,identity,e_value,same_species,same_genus,same_genome,evidence");
+				key.put("fields", "genome_id,genome_name,taxon_id,feature_id,seed_id,alt_locus_tag,refseq_locus_tag,gene,product,property,source,property_source,source_id,organism,function,classification,pmid,query_coverage,subject_coverage,identity,e_value,same_species,same_genus,same_genome,evidence");
 				// add join condition
 				if (taxonId != null && !taxonId.equals("")) {
 					key.put("taxonId", taxonId);

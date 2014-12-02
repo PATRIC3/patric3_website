@@ -56,7 +56,7 @@
 		_filename = "PathwayTable";
 		_tbl_source = conn_pathways.getFeaturePathwayList(key, sort, 0, -1);
 	}
-	else if (_tablesource.equalsIgnoreCase("CompPathwayFinder")) {
+/*	else if (_tablesource.equalsIgnoreCase("CompPathwayFinder")) {
 
 		String search_on = request.getParameter("search_on");
 		String keyword = request.getParameter("keyword");
@@ -203,7 +203,7 @@
 		}
 
 		_filename = "CompPathwayTable";
-	}
+	}*/
 	else if (_tablesource.equalsIgnoreCase("MapFeatureTable")) {
 		// download proteins from pathway heatmap
 

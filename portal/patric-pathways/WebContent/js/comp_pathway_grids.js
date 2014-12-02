@@ -548,7 +548,7 @@ function DownloadFile(){
 	
 	var form = Ext.getDom("fTableForm");
 	
-	form.action = "/patric-pathways/jsp/grid_download_handler.jsp";
+	// form.action = "/patric-pathways/jsp/grid_download_handler.jsp";
 	form.fileformat.value = arguments[0];
 	form.target = "";
 	getHashFieldsToDownload(form);

@@ -11,7 +11,7 @@ if(ec_number == null) {
 }
 %>
 
-	<form id="fTableForm" action="#" method="post">
+	<form id="fTableForm" action="<portlet:resourceURL />&need=download" method="post">
 	<input type="hidden" id="tablesource" name="tablesource" value="CompPathwayTable" />
 	<input type="hidden" id="cType" name="cType" value="<%=(cType!=null)?cType:"" %>" />	
 	<input type="hidden" id="cId" name="cId" value="<%=(cId!=null)?cId:"" %>"/>
@@ -104,8 +104,8 @@ Ext.onReady(function()
 				],[checkbox, {header:'Feature ID',		dataIndex:'na_feature_id', 	flex:1, hidden:true, renderer:BasicRenderer},  
 			          {header:'Genome Name',	dataIndex:'genome_name', 	flex:1, renderer:renderGenomeName},
 			    	  {header:'Accession',		dataIndex:'accession', 		flex:1, hidden: true, renderer:renderAccession},
-			    	  {header:'Seed Id',		dataIndex:'seed_id', 		flex:2, renderer:renderSeedId},
-			    	  /* {header:'Locus Tag',		dataIndex:'alt_locus_tag', 		flex:2, renderer:renderLocusTag},*/
+                        {header:'SEED ID',		dataIndex:'seed_id', 		flex:2, renderer:renderSeedId},
+                        {header:'Alt Locus Tag',		dataIndex:'alt_locus_tag', 		flex:2, renderer:renderLocusTag},
 			    	  {header:'Gene Symbol',	dataIndex:'gene',			flex:1, align:'center', renderer:BasicRenderer},
 			    	  {header:'Product Name',	dataIndex:'product',		flex:2, renderer:BasicRenderer},
 			    	  {header:'Annotation',		dataIndex:'algorithm', 		flex:1, align:'center', renderer:BasicRenderer},

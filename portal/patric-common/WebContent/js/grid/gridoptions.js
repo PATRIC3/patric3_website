@@ -95,20 +95,21 @@ function renderGenomeBrowserByGenome(alue, metadata, record, rowIndex, colIndex,
 }
 
 function renderLocusTag(value, metadata, record, rowIndex, colIndex, store) {
-
-	if (value != null && value != "") {
-		if (value[0].indexOf("<em ") >= 0) {
-			metadata.tdAttr = 'data-qtip="' + record.data.alt_locus_tag + '" data-qclass="x-tip"';
-		} else {
-			metadata.tdAttr = 'data-qtip="' + value + '" data-qclass="x-tip"';
-		}
-		return Ext.String.format('<a href="Feature?cType=feature&cId={0}">{1}</a>', record.data.feature_id, value);
-	} else if (record.data.feature_id != null) {
-		metadata.tdAttr = 'data-qtip="fid:' + record.data.feature_id + '" data-qclass="x-tip"';
-		return Ext.String.format('<a href="Feature?cType=feature&cId={0}">fid:{0}</a>', record.data.feature_id);
-	} else {
-		return "";
-	}
+    metadata.tdAttr = 'data-qtip="' + value + '" data-qclass="x-tip"';
+    return value;
+//	if (value != null && value != "") {
+//		if (value[0].indexOf("<em ") >= 0) {
+//			metadata.tdAttr = 'data-qtip="' + record.data.alt_locus_tag + '" data-qclass="x-tip"';
+//		} else {
+//			metadata.tdAttr = 'data-qtip="' + value + '" data-qclass="x-tip"';
+//		}
+//		return Ext.String.format('<a href="Feature?cType=feature&cId={0}">{1}</a>', record.data.feature_id, value);
+//	} else if (record.data.feature_id != null) {
+//		metadata.tdAttr = 'data-qtip="fid:' + record.data.feature_id + '" data-qclass="x-tip"';
+//		return Ext.String.format('<a href="Feature?cType=feature&cId={0}">fid:{0}</a>', record.data.feature_id);
+//	} else {
+//		return "";
+//	}
 }
 
 function renderSeedId(value, metadata, record) {

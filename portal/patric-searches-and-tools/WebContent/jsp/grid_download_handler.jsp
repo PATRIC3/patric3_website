@@ -4,21 +4,25 @@
 	import="edu.vt.vbi.patric.common.SolrCore"%><%@ page 
 	import="edu.vt.vbi.patric.common.SQLHelper"%><%@ page 
 	import="edu.vt.vbi.patric.common.StringHelper"%><%@ page 
-	import="edu.vt.vbi.patric.common.DownloadHelper"%><%@ page 
-	import="edu.vt.vbi.patric.dao.*"%><%@ page 
+	import="edu.vt.vbi.patric.common.DownloadHelper"%><%@ page
+	import="edu.vt.vbi.patric.dao.*"%><%@ page
+	import="edu.vt.vbi.patric.beans.*"%><%@ page
 	import="org.json.simple.JSONArray"%><%@ page 
 	import="org.json.simple.JSONObject"%><%@ page 
 	import="org.json.simple.parser.JSONParser"%><%@ page 
 	import="org.json.simple.parser.ParseException"%><%@ page 
-	import="java.util.List"%><%@ page 
-	import="java.util.Map"%><%@ page 
-	import="java.util.Arrays"%><%@ page 
-	import="java.util.ArrayList"%><%@ page 
-	import="java.util.HashMap"%><%@ page 
-	import="java.io.OutputStream"%><%@ page 
-	import="org.apache.commons.lang.StringUtils"%><%@ page 
-	import="org.apache.solr.client.solrj.SolrQuery"%><%
+	import="java.util.*"%><%@ page
+	import="org.apache.solr.common.*"%><%@ page
+	import="org.apache.solr.client.solrj.*"%><%@ page
+	import="org.apache.solr.client.solrj.response.*"%><%@ page
+	import="org.apache.solr.client.solrj.impl.LBHttpSolrServer"%><%@ page
+	import="java.net.MalformedURLException"%><%@ page
+	import="java.io.OutputStream"%><%@ page
+	import="org.slf4j.Logger"%><%@ page
+    import="org.slf4j.LoggerFactory"%><%@ page
+	import="org.apache.commons.lang.StringUtils"%><%
 
+	final Logger LOGGER = LoggerFactory.getLogger("GRID_DOWNLOAD_HANDLER.JSP");
 	DBSearch conn_search = new DBSearch();
 
 	String _filename = "";
@@ -124,62 +128,6 @@
 
 		_filename = "GenomeFinder";
 	}
-/*	else if (_tablesource.equalsIgnoreCase("GO")) {
-
-		SolrInterface solr = new SolrInterface();
-		String keyword = request.getParameter("download_keyword");
-
-		key.put("keyword", keyword);
-
-		sort_field = request.getParameter("sort");
-		sort_dir = request.getParameter("dir");
-
-		if (sort_field != null && sort_dir != null) {
-			sort = new HashMap<String, String>();
-			sort.put("field", sort_field);
-			sort.put("direction", sort_dir);
-		}
-		solr.setCurrentInstance(SolrCore.GO);
-		JSONObject object = solr.getData(key, sort, null, 0, -1, false, false, false);
-
-		JSONObject obj = (JSONObject) object.get("response");
-		_tbl_source = (JSONArray) obj.get("docs");
-
-		_tbl_header.addAll(Arrays.asList("Feature ID", "Genome Name", "Accession", "Locus Tag", "Gene Symbol", "Product Name", "Annotation",
-				"GO Term", "GO Description"));
-		_tbl_field.addAll(Arrays.asList("na_feature_id", "genome_name", "accession", "locus_tag", "gene", "product", "annotation", "go_id",
-				"go_term"));
-
-		_filename = "GOTermSearch";
-	}
-	else if (_tablesource.equalsIgnoreCase("EC")) {
-
-		SolrInterface solr = new SolrInterface();
-		String keyword = request.getParameter("download_keyword");
-
-		key.put("keyword", keyword);
-
-		sort_field = request.getParameter("sort");
-		sort_dir = request.getParameter("dir");
-
-		if (sort_field != null && sort_dir != null) {
-			sort = new HashMap<String, String>();
-			sort.put("field", sort_field);
-			sort.put("direction", sort_dir);
-		}
-		solr.setCurrentInstance(SolrCore.EC);
-		JSONObject object = solr.getData(key, sort, null, 0, -1, false, false, false);
-
-		JSONObject obj = (JSONObject) object.get("response");
-		_tbl_source = (JSONArray) obj.get("docs");
-
-		_tbl_header.addAll(Arrays.asList("Feature ID", "Genome Name", "Accession", "Locus Tag", "Gene Symbol", "Product Name", "Annotation",
-				"EC Number", "EC Description"));
-		_tbl_field.addAll(Arrays.asList("na_feature_id", "genome_name", "accession", "locus_tag", "gene", "product", "annotation",
-				"ec_number", "ec_name"));
-
-		_filename = "ECTermSearch";
-	} */
 	else if (_tablesource.equalsIgnoreCase("Feature")) {
 
 		SolrInterface solr = new SolrInterface();
@@ -605,27 +553,91 @@
 
 		_filename = "Proteomics";
 	}
-/*	else if (_tablesource.equalsIgnoreCase("GeneExpression")) {
+	else if (_tablesource.equalsIgnoreCase("GeneExpression")) {
 
-		DBTranscriptomics conn_transcriptomics = new DBTranscriptomics();
+// TranscriptomicsGeneExp.java //
 
 		String idList = request.getParameter("fids");
 		JSONParser parser = new JSONParser();
 		JSONObject fids = (JSONObject) parser.parse(idList);
 
-		Map<String, String> param = new HashMap<String, String>();
-		param.put("na_feature_id", fids.get("na_feature_id").toString());
-		param.put("pid", fids.get("pid").toString());
+		String paramFeatureId =  fids.get("feature_id").toString();
+        String paramSampleId = fids.get("pid").toString();
 
-		ArrayList<ResultType> _tbl_source_ = conn_transcriptomics.getGeneLvlExpression(param);
+        JSONObject jsonResult = new JSONObject();
+		SolrInterface solr = new SolrInterface();
+        try {
+            LBHttpSolrServer lbHttpSolrServer = solr.getSolrServer(SolrCore.TRANSCRIPTOMICS_GENE);
+            SolrQuery query = new SolrQuery();
 
-		_tbl_source = new JSONArray();
-		JSONObject object = null;
-		for (ResultType obj : _tbl_source_) {
-			object = new JSONObject();
-			object.putAll(obj);
-			_tbl_source.add(object);
-		}
+//            if (paramKeyword != null && !paramKeyword.equals("")) {
+//               query.setQuery(paramKeyword + " AND feature_id:" + paramFeatureId);
+//            }
+//            else {
+                query.setQuery("feature_id:" + paramFeatureId);
+//            }
+
+            if (paramSampleId != null && !paramSampleId.equals("")) {
+                String[] pids = paramSampleId.split(",");
+
+                query.addFilterQuery("pid:(" + StringUtils.join(pids, " OR ") + ")");
+            }
+//            if (paramLogRatio != null && !paramLogRatio.equals("") && !paramLogRatio.equals("0")) {
+//                query.addFilterQuery("log_ratio:[* TO -" + paramLogRatio + "] OR log_ratio:[" + paramLogRatio + " TO *]");
+//            }
+//            if (paramZScore != null && !paramZScore.equals("") && !paramZScore.equals("0")) {
+//                query.addFilterQuery("z_score:[* TO -" + paramZScore + "] OR z_score:[" + paramZScore + " TO *]");
+//            }
+
+            LOGGER.debug("{}", query.toString());
+
+            QueryResponse qr = lbHttpSolrServer.query(query);
+            long numFound = qr.getResults().getNumFound();
+
+            query.setRows((int) numFound);
+
+            qr = lbHttpSolrServer.query(query);
+
+            // features
+            JSONArray features = new JSONArray();
+            SolrDocumentList sdl = qr.getResults();
+            for (SolrDocument doc : sdl) {
+                JSONObject feature = new JSONObject();
+					feature.put("exp_accession", doc.get("accession"));
+					// feature.put("exp_channels", doc.get(""));
+					feature.put("exp_condition", doc.get("condition"));
+					feature.put("exp_id", doc.get("eid"));
+					feature.put("exp_locustag", doc.get("refseq_locus_tag"));
+					feature.put("exp_mutant", doc.get("mutant"));
+					feature.put("exp_name", doc.get("expname"));
+					feature.put("exp_organism", doc.get("organism"));
+					feature.put("exp_pavg", doc.get("avg_intensity"));
+					feature.put("exp_platform", doc.get("")); // ??
+					feature.put("exp_pratio", doc.get("log_ratio"));
+					feature.put("exp_samples", doc.get("")); // ??
+					feature.put("exp_strain", doc.get("")); // ??
+					feature.put("exp_timepoint", doc.get("timepoint"));
+					feature.put("exp_zscore", doc.get("z_score"));
+					// feature.put("figfam_id", doc.get("")); // ??
+					feature.put("locus_tag", doc.get("alt_locus_tag"));
+					feature.put("feature_id", doc.get("feature_id"));
+					feature.put("pid", doc.get("pid"));
+					feature.put("pmid", doc.get("pmid"));
+
+                features.add(feature);
+            }
+            jsonResult.put("features", features);
+        }
+        catch (MalformedURLException me) {
+            LOGGER.error(me.getMessage(), me);
+        }
+        catch (SolrServerException e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+// TranscriptomicsGeneExp.java //
+
+        _tbl_source = (JSONArray) jsonResult.get("features");
+
 		_tbl_header.addAll(Arrays.asList("Platform", "Samples", "Locus Tag", "Title", "PubMed", "Accession", "Strain", "Gene Modification",
 				"Experimental Condition", "Time Point", "Avg Intensity", "Log Ratio", "Z-score"));
 		_tbl_field.addAll(Arrays.asList("exp_platform", "exp_samples", "exp_locustag", "exp_name", "pmid", "exp_accession", "exp_strain",
@@ -634,44 +646,102 @@
 		_filename = "GeneExpression";
 	}
 	else if (_tablesource.equalsIgnoreCase("Correlation")) {
-		DBTranscriptomics conn_transcriptomics = new DBTranscriptomics();
-		Map<String, String> k = new HashMap<String, String>();
 
 		String cutoffValue = request.getParameter("cutoffValue");
 		String cutoffDir = request.getParameter("cutoffDir");
-		String cId = request.getParameter("cId");
+		String featureId = request.getParameter("cId");
 
-		k.put("na_feature_id", cId);
-		k.put("cutoff_value", cutoffValue);
-		k.put("cutoff_dir", cutoffDir);
+// TranscriptomicsGeneExp.java //
+		JSONObject jsonResult = new JSONObject();
+		SolrInterface solr = new SolrInterface();
 
-		sort_field = request.getParameter("sort");
-		sort_dir = request.getParameter("dir");
+		GenomeFeature feature = solr.getFeature(featureId);
+		Map<String,Map<String, Object>> correlationMap = new HashMap<String,Map<String, Object>>();
+		long numFound = 0;
 
-		if (sort_field != null && sort_dir != null) {
-			sort = new HashMap<String, String>();
-			sort.put("field", sort_field);
-			sort.put("direction", sort_dir);
+		try {
+			SolrQuery query = new SolrQuery("genome_id:" + feature.getGenomeId());
+			query.setFilterQueries("{!correlation fieldId=refseq_locus_tag fieldCondition=pid fieldValue=log_ratio srcId=" + feature.getRefseqLocusTag() + " filterCutOff=" + cutoffValue + " filterDir=" + cutoffDir.substring(0,3) + " cost=101}");
+			query.setRows(0);
+
+			QueryResponse qr = solr.getSolrServer(SolrCore.TRANSCRIPTOMICS_GENE).query(query);
+
+			SolrDocumentList sdl = (SolrDocumentList) qr.getResponse().get("correlation");
+			numFound = sdl.getNumFound();
+
+			for (SolrDocument doc: sdl) {
+				Map<String, Object> corr = new HashMap<String, Object>();
+				corr.put("id", doc.get("id"));
+				corr.put("correlation", doc.get("correlation"));
+				corr.put("conditions", doc.get("conditions"));
+				corr.put("p_value", doc.get("p_value"));
+
+				correlationMap.put(doc.get("id").toString(), corr);
+			}
+
+		} catch (MalformedURLException me) {
+	    	LOGGER.error(me.getMessage(), me);
+		} catch (SolrServerException e) {
+			LOGGER.error(e.getMessage(), e);
 		}
 
-		ArrayList<ResultType> _tbl_source_ = conn_transcriptomics.getCorrelatedGenes(k, sort, 0, -1);
+		jsonResult.put("total", numFound);
+		JSONArray results = new JSONArray();
 
-		_tbl_source = new JSONArray();
-		JSONObject object = null;
-		for (ResultType obj : _tbl_source_) {
-			object = new JSONObject();
-			object.putAll(obj);
-			_tbl_source.add(object);
+		try {
+			SolrQuery query = new SolrQuery("refseq_locus_tag:(" + StringUtils.join(correlationMap.keySet(), " OR ") + ")");
+			query.setFilterQueries("annotation:PATRIC");
+			query.setFields("genome_id,genome_name,accession,feature_id,start,end,strand,feature_type,annotation,alt_locus_tag,refseq_locus_tag,seed_id,na_length,aa_length,protein_id,gene,product");
+			query.setRows((int) numFound);
+
+			QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query);
+			List<GenomeFeature> features = qr.getBeans(GenomeFeature.class);
+
+			for (GenomeFeature f: features) {
+				JSONObject obj = new JSONObject();
+				obj.put("genome_id", f.getGenomeId());
+				obj.put("genome_name", f.getGenomeName());
+				obj.put("accession", f.getAccession());
+				obj.put("feature_id", f.getId());
+				obj.put("alt_locus_tag", f.getAltLocusTag());
+				obj.put("refseq_locus_tag", f.getRefseqLocusTag());
+				obj.put("seed_id", f.getSeedId());
+				obj.put("gene", f.getGene());
+				obj.put("annotation", f.getAnnotation());
+				obj.put("feature_type", f.getFeatureType());
+				obj.put("start", f.getStart());
+				obj.put("end", f.getEnd());
+				obj.put("na_length", f.getNaSequenceLength());
+				obj.put("strand", f.getStrand());
+				obj.put("protein_id", f.getProteinId());
+				obj.put("aa_length", f.getProteinLength());
+				obj.put("product", f.getProduct());
+
+				Map<String, Object> corr = correlationMap.get(f.getRefseqLocusTag());
+				obj.put("correlation", corr.get("correlation"));
+				obj.put("count", corr.get("conditions"));
+
+				results.add(obj);
+			}
+			jsonResult.put("results", results);
+
+		} catch (MalformedURLException me) {
+	    	LOGGER.error(me.getMessage(), me);
+		} catch (SolrServerException e) {
+			LOGGER.error(e.getMessage(), e);
 		}
+// TranscriptomicsGeneExp.java //
 
-		_tbl_header.addAll(Arrays.asList("Genome Name", "Accession", "Locus Tag", "RefSeq Locus Tag", "Gene Symbol", "Annotation",
+        _tbl_source = (JSONArray) jsonResult.get("results");
+
+		_tbl_header.addAll(Arrays.asList("Genome Name", "Accession", "SEED ID", "Alt Locus Tag", "RefSeq Locus Tag", "Gene Symbol", "Annotation",
 				"Feature Type", "Start", "End", "Length(NT)", "Strand", "Protein ID", "Length(AA)", "Product Description", "Correlations",
 				"Comparisons"));
-		_tbl_field.addAll(Arrays.asList("genome_name", "accession", "locus_tag", "refseq_locus_tag", "gene", "annotation", "feature_type",
-				"start_max", "end_min", "na_length", "strand", "protein_id", "aa_length", "product", "correlation", "count"));
+		_tbl_field.addAll(Arrays.asList("genome_name", "accession", "seed_id", "alt_locus_tag", "refseq_locus_tag", "gene", "annotation", "feature_type",
+				"start", "end", "na_length", "strand", "protein_id", "aa_length", "product", "correlation", "count"));
 
 		_filename = "Correlated Genes";
-	}*/
+	}
 	else if (_tablesource.equalsIgnoreCase("SingleExperiment")) {
 
 		HashMap<String, String> k = new HashMap<String, String>();
@@ -732,11 +802,11 @@
 		JSONObject obj_t = (JSONObject) object_t.get("response");
 		_tbl_source = (JSONArray) obj_t.get("docs");
 
-		_tbl_header.addAll(Arrays.asList("Evidence", "Property", "Source", "Genome Name", "Locus Tag", "RefSeq Locus Tag", "Source ID",
+		_tbl_header.addAll(Arrays.asList("Evidence", "Property", "Source", "Genome Name", "SEED ID", "Alt Locus Tag", "RefSeq Locus Tag", "Source ID",
 				"Source Organism", "Gene", "Product", "Function", "Classification", "PubMed", "Subject Coverage", "Query Coverage",
 				"Identity", "E-value"));
 
-		_tbl_field.addAll(Arrays.asList("evidence", "property", "source", "genome_name", "locus_tag", "refseq_locus_tag", "source_id",
+		_tbl_field.addAll(Arrays.asList("evidence", "property", "source", "genome_name", "seed_id", "alt_locus_tag", "refseq_locus_tag", "source_id",
 				"organism", "gene", "product", "function", "classification", "pmid", "subject_coverage", "query_coverage", "identity",
 				"e_value"));
 

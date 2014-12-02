@@ -757,7 +757,7 @@ Ext.define('SpecialtyGene', {
 Ext.define('SpecialtyGeneMapping', {
 	extend : 'Ext.data.Model',
 	fields : ['genome_id', 'genome_name', {name: 'taxon_id', type: 'int'}, 'feature_id',
-	          'alt_locus_tag', 'refseq_locus_tag', 'gene', 'product',
+	          'seed_id', 'alt_locus_tag', 'refseq_locus_tag', 'gene', 'product',
 	          'property', 'source', 'source_id', 'organism', 'function', 'classification', 'pmid', 'assertion', 
 	          {name: 'query_coverage', type: 'int'}, {name: 'subject_coverage', type: 'int'}, {name: 'identity', type: 'int'}, 'e_value', 'evidence']
 });

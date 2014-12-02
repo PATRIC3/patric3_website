@@ -1,38 +1,12 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <%@ page import="edu.vt.vbi.patric.common.OrganismTreeBuilder" %>
-<%@ page import="edu.vt.vbi.patric.dao.DBShared" %>
-<%@ page import="java.util.*" %>
 <%
-DBShared conn_shared = new DBShared();
-
-String taxonId = "";
-String genomeId = "";
-String cType = request.getParameter("context_type");
-String cId = request.getParameter("context_id");
-
-if (cType!=null && cId != null && cType.equals("taxon") && !cId.equals("")) {
-	taxonId = cId;
-} else if (cType!=null && cId != null && cType.equals("genome") && !cId.equals("")) {
-	genomeId = cId;
-}
-
-String name = "";
-
-if(cId == null || cId.equals(""))
-	name = "Bacteria";
-else{
-	if(cType.equals("taxon"))
-		name = conn_shared.getOrganismName(cId);
-	else if (cType.equals("genome"))
-		name = conn_shared.getGenomeName(cId);	
-}
-
-boolean loggedIn = false;
-if(request.getUserPrincipal() == null){
-	loggedIn = false;
-}else
-	loggedIn = true;
-
+String contextType = (String) request.getAttribute("contextType");
+String contextId = (String) request.getAttribute("contextId");
+String taxonId = (String) request.getAttribute("taxonId");
+String genomeId = (String) request.getAttribute("genomeId");
+String taxonName = (String) request.getAttribute("taxonName");
+boolean isLoggedIn = (Boolean) request.getAttribute("isLoggedIn");
 %>
 <div style="padding:5px">
 <div id="intro" class="searchtool-intro">
@@ -85,9 +59,9 @@ if(request.getUserPrincipal() == null){
 			<td><label>Annotation : </label></td>
 			<td>
 				<select id="algorithm" name="algorithm" size="1">
-					<option value="ALL">ALL</option>
+					<option value="">ALL</option>
 					<option value="PATRIC" selected="selected">PATRIC</option>
-					<option value="BRC">Legacy BRC</option>
+					<option value="BRC1">Legacy BRC</option>
 					<option value="RefSeq">RefSeq</option>
 				</select>
 			</td>
@@ -108,7 +82,7 @@ if(request.getUserPrincipal() == null){
 
 //<![CDATA[
 var tabs = "";
-var loggedIn = <%=loggedIn%>;
+var loggedIn = <%=isLoggedIn%>;
 
 Ext.onReady(function(){
 	updateFields();
@@ -118,8 +92,8 @@ Ext.onReady(function(){
 		width: 480,
 		height: 550,
 		border:false,
-		parentTaxon: <%=(taxonId.equals(""))?"2":taxonId %>,
-		organismName:'<%=name%>'
+		parentTaxon: <%=taxonId %>,
+		organismName:'<%=taxonName%>'
 	});	
 });
 
@@ -141,22 +115,23 @@ function searchbykeyword() {
 	Ext.Ajax.request({
 		url: '<portlet:resourceURL />',
 		method: 'POST',
-		params: {cType: "<%=cType%>"
-			,cId: "<%=cId%>"
+		params: {cType: "<%=contextType%>"
+			,cId: "<%=contextId%>"
 			,sraction: "save_params"
 			,genomeId: tabs.getSelectedInString() || "<%=genomeId%>"
-			,search_on: Ext.getDom("search_on").value
+			,search_on: Ext.getDom('search_on').value
 			,taxonId: Ext.getDom('taxonId').value
-			,keyword: Ext.getDom("keyword").value
+			,keyword: Ext.getDom('keyword').value
+			,algorithm: Ext.getDom('algorithm').value
 		},
 		success: function(rs) {
 										
 			if(Ext.getDom("search_on").value == "Map_ID" || Ext.getDom("search_on").value == "Pathway ID")
-				document.location.href="PathwayFinder?cType=<%=cType%>&cId=<%=cId%>&dm=result&map="+Ext.getDom("keyword").value+"&ec_number=&algorithm="+Ext.getDom('algorithm').value+"&pk="+rs.responseText;
+				document.location.href="PathwayFinder?cType=<%=contextType%>&cId=<%=contextId%>&dm=result&map="+Ext.getDom("keyword").value+"&ec_number=&algorithm="+Ext.getDom('algorithm').value+"&pk="+rs.responseText;
 			else if(Ext.getDom("search_on").value == "Ec_Number" || Ext.getDom("search_on").value == "EC Number")
-				document.location.href="PathwayFinder?cType=<%=cType%>&cId=<%=cId%>&dm=result&map=&ec_number="+Ext.getDom("keyword").value+"&algorithm="+Ext.getDom('algorithm').value+"&pk="+rs.responseText;
+				document.location.href="PathwayFinder?cType=<%=contextType%>&cId=<%=contextId%>&dm=result&map=&ec_number="+Ext.getDom("keyword").value+"&algorithm="+Ext.getDom('algorithm').value+"&pk="+rs.responseText;
 			else	
-				document.location.href="PathwayFinder?cType=<%=cType%>&cId=<%=cId%>&dm=result&map=&ec_number=&algorithm="+Ext.getDom('algorithm').value+"&pk="+rs.responseText;
+				document.location.href="PathwayFinder?cType=<%=contextType%>&cId=<%=contextId%>&dm=result&map=&ec_number=&algorithm="+Ext.getDom('algorithm').value+"&pk="+rs.responseText;
 		}
 	});
 }

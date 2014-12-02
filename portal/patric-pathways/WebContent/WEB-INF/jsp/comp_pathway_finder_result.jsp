@@ -1,60 +1,32 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <%@ page import="java.util.*" %>
 <%@ page import="edu.vt.vbi.patric.dao.ResultType" %>
-<%@ page import="edu.vt.vbi.patric.dao.DBPathways" %>
 <%@ page import="javax.portlet.PortletSession" %>
 <portlet:defineObjects/>
 <%
+String contextType = (String) request.getAttribute("contextType");
+String contextId = (String) request.getAttribute("contextId");
 
-DBPathways conn_pathways = new DBPathways();
+String pk = (String) request.getAttribute("pk");
+String searchOn = (String) request.getAttribute("searchOn");
+String ecNumber = (String) request.getAttribute("ecNumber");
+String annotation = (String) request.getAttribute("annotation");
+String pathwayId = (String) request.getAttribute("pathwayId");
+String keyword = (String) request.getAttribute("keyword");
 
-String cType = request.getParameter("context_type");
-String cId = request.getParameter("context_id");
-String pk = request.getParameter("param_key");
-String dm = request.getParameter("display_mode");
-String ec_number = request.getParameter("ec_number");
-String algorithm = request.getParameter("algorithm");
-String map = request.getParameter("map");
-String ori_algo = algorithm;
-ResultType key = (ResultType) portletSession.getAttribute("key"+pk, PortletSession.APPLICATION_SCOPE);
+String taxonId = (String) request.getAttribute("taxonId");
+String genomeId = (String) request.getAttribute("genomeId");
 
-String search_on = "";
-String keyword  = "";
-String genomeId  = "";
-String taxonId  = "";
-
-if(key != null && key.containsKey("search_on"))
-	search_on = key.get("search_on");
-	
-if(key != null && key.containsKey("taxonId"))
-	taxonId = key.get("taxonId");
-
-if(key != null && key.containsKey("genomeId"))
-	genomeId = key.get("genomeId");
-
-if (search_on.equalsIgnoreCase("Keyword")) {
-	keyword = key.get("keyword");
-}
-
-if(algorithm != null && !algorithm.equals("")){
-	if(algorithm.equals("BRC") || algorithm.equals("Legacy BRC"))
-		algorithm = "Curation";
-	else if(algorithm.equals("PATRIC"))
-		algorithm = "RAST";
-	else if(algorithm.equals("ALL"))
-		algorithm = "";
-}
 %>
-
-<form id="fTableForm" action="#" method="post">
+<form id="fTableForm" action="<portlet:resourceURL />&need=download" method="post">
 <input type="hidden" id="tablesource" name="tablesource" value="CompPathwayFinder" />
 <input type="hidden" id="pk" name="pk" value="<%=(pk!=null)?pk:"" %>" />
-<input type="hidden" id="search_on" name="search_on" value="<%=(search_on!=null)?search_on:"" %>" />	
+<input type="hidden" id="search_on" name="search_on" value="<%=(searchOn!=null)?searchOn:"" %>" />
 <input type="hidden" id="keyword" name="keyword" value="<%=(keyword!=null)?keyword:"" %>"/>	
 <input type="hidden" id="genomeId" name="genomeId" value="<%=(genomeId!=null)?genomeId:"" %>" />
 <input type="hidden" id="taxonId" name="taxonId" value="<%=(taxonId!=null)?taxonId:"" %>" />
-<input type="hidden" id="alg" name="alg" value="<%=algorithm%>"/>
-<input type="hidden" id="ecN" name="ecN" value="<%=ec_number%>" />
+<input type="hidden" id="alg" name="alg" value="<%=annotation%>"/>
+<input type="hidden" id="ecN" name="ecN" value="<%=ecNumber%>" />
 <input type="hidden" id="pId" name="pId" value="" />
 <input type="hidden" id="sort" name="sort" value="" />
 <input type="hidden" id="dir" name="dir" value="" />
@@ -141,7 +113,8 @@ Ext.onReady(function()
 				],[checkbox, {header:'Feature ID',		dataIndex:'na_feature_id', 	flex:1, hidden:true, renderer:BasicRenderer},  
 			          {header:'Genome Name',	dataIndex:'genome_name', 	flex:1, renderer:renderGenomeName},
 			    	  {header:'Accession',		dataIndex:'accession', 		hidden: true, flex:1, renderer:renderAccession},
-			    	  {header:'Locus Tag',		dataIndex:'locus_tag', 		flex:2, renderer:renderLocusTag},
+			    	  {header:'SEED ID',    	dataIndex:'seed_id', 		flex:2, renderer:renderSeedId},
+			    	  {header:'Alt Locus Tag',	dataIndex:'alt_locus_tag', 	flex:2, renderer:renderLocusTag},
 			    	  {header:'Gene Symbol',	dataIndex:'gene',			flex:1, align:'center', renderer:BasicRenderer},
 			    	  {header:'Product Name',	dataIndex:'product',		flex:2, renderer:BasicRenderer},
 			    	  {header:'Annotation',		dataIndex:'algorithm', 		flex:1, align:'center', renderer:BasicRenderer},  	  
@@ -164,20 +137,20 @@ Ext.onReady(function()
 			property: 'genome_name',
 			direction: 'ASC'
 		},{
-			property: 'locus_tag',
+			property: 'seed_id',
 			direction: 'ASC'
 		}]],
 		hash:{
 			aP: [1, 1, 1],
 			aT: 0,
-			alg: "<%=algorithm%>",
+			alg: "<%=annotation%>",
 			cwEC: false,
 			cwP: false,
-			pId: "<%=map%>",
-			ecN: "<%=ec_number%>"
+			pId: "<%=pathwayId%>",
+			ecN: "<%=ecNumber%>"
 		},
 		reconfigure:true,
-		remoteSort:true,
+		remoteSort:false,
 		fids: [],
 		pageType: "Finder",
 		gridType: "Feature",
@@ -200,22 +173,15 @@ Ext.onReady(function()
 });
 
 function returntoSearchPage(){
-	
-	var cType= '', cId = '';
 
-	if('<%=cType%>' != '' && '<%=cType%>' != 'null')
-		cType = '<%=cType%>';
-	if('<%=cId%>' != '' && '<%=cId%>' != 'null')
-		cId = '<%=cId%>';
-		
-	if ('<%=search_on%>' == 'Keyword') 
-		document.location.href = "PathwayFinder?cType="+cType+"&cId="+cId+"&dm=#search_on=<%=search_on %>&keyword=<%=keyword%>&algorithm=<%=ori_algo%>";
-	else if ('<%=search_on%>' == 'Map_ID')  
-		document.location.href = "PathwayFinder?cType="+cType+"&cId="+cId+"&dm=#search_on=<%=search_on %>&keyword=<%=map%>&algorithm=<%=ori_algo%>";
-	else if ('<%=search_on%>' == 'Ec_Number')  
-		document.location.href = "PathwayFinder?cType="+cType+"&cId="+cId+"&dm=#search_on=<%=search_on %>&keyword=<%=ec_number%>&algorithm=<%=ori_algo%>";
-	else if ('<%=search_on%>' == '')
-		document.location.href = "PathwayFinder?cType="+cType+"&cId="+cId+"&dm=#search_on=Keyword&keyword=&algorithm=<%=ori_algo%>";
+	if ('<%=searchOn%>' == 'Keyword')
+		document.location.href = "PathwayFinder?cType=<%=contextType%>&cId=<%=contextId%>&dm=#search_on=<%=searchOn %>&keyword=<%=keyword%>&algorithm=<%=annotation%>";
+	else if ('<%=searchOn%>' == 'Map_ID')
+		document.location.href = "PathwayFinder?cType=<%=contextType%>&cId=<%=contextId%>&dm=#search_on=<%=searchOn %>&keyword=<%=pathwayId%>&algorithm=<%=annotation%>";
+	else if ('<%=searchOn%>' == 'Ec_Number')
+		document.location.href = "PathwayFinder?cType=<%=contextType%>&cId=<%=contextId%>&dm=#search_on=<%=searchOn %>&keyword=<%=ecNumber%>&algorithm=<%=annotation%>";
+	else if ('<%=searchOn%>' == '')
+		document.location.href = "PathwayFinder?cType=<%=contextType%>&cId=<%=contextId%>&dm=#search_on=Keyword&keyword=&algorithm=<%=annotation%>";
 	
 }
 //]]>
