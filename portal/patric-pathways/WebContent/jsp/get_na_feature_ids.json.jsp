@@ -1,23 +1,23 @@
-<%@ page import="java.util.*" %>
-<%@ page import="edu.vt.vbi.patric.dao.DBPathways" %>
-<%@ page import="edu.vt.vbi.patric.dao.ResultType" %>
-<%@ page import="org.json.simple.*" %>
-<%@ page import="org.slf4j.Logger" %>
-<%@ page import="org.slf4j.LoggerFactory" %>
-<%@ page import="edu.vt.vbi.patric.beans.Genome" %>
-<%@ page import="edu.vt.vbi.patric.common.SolrCore" %>
-<%@ page import="edu.vt.vbi.patric.common.SolrInterface" %>
-<%@ page import="org.apache.commons.lang.StringUtils" %>
-<%@ page import="org.apache.solr.client.solrj.SolrQuery" %>
-<%@ page import="org.apache.solr.client.solrj.SolrRequest" %>
-<%@ page import="org.apache.solr.client.solrj.SolrServerException" %>
-<%@ page import="org.apache.solr.client.solrj.response.FacetField" %>
-<%@ page import="org.apache.solr.client.solrj.response.QueryResponse" %>
-<%@ page import="org.apache.solr.common.SolrDocument" %>
-<%@ page import="org.apache.solr.common.SolrDocumentList" %>
-<%@ page import="org.apache.solr.common.util.SimpleOrderedMap" %>
-<%@ page import="java.net.MalformedURLException" %>
-<%
+<%@ page import="java.util.*" %><%@ page
+import="edu.vt.vbi.patric.dao.DBPathways" %><%@ page
+import="edu.vt.vbi.patric.dao.ResultType" %><%@ page
+import="org.json.simple.*" %><%@ page
+import="org.slf4j.Logger" %><%@ page
+import="org.slf4j.LoggerFactory" %><%@ page
+import="edu.vt.vbi.patric.beans.Genome" %><%@ page
+import="edu.vt.vbi.patric.common.SolrCore" %><%@ page
+import="edu.vt.vbi.patric.common.SolrInterface" %><%@ page
+import="org.apache.commons.lang.StringUtils" %><%@ page
+import="org.apache.solr.client.solrj.SolrQuery" %><%@ page
+import="org.apache.solr.client.solrj.SolrRequest" %><%@ page
+import="org.apache.solr.client.solrj.SolrServerException" %><%@ page
+import="org.apache.solr.client.solrj.response.FacetField" %><%@ page
+import="org.apache.solr.client.solrj.response.QueryResponse" %><%@ page
+import="org.apache.solr.common.SolrDocument" %><%@ page
+import="org.apache.solr.common.SolrDocumentList" %><%@ page
+import="org.apache.solr.common.util.SimpleOrderedMap" %><%@ page
+import="java.net.MalformedURLException" %><%
+
     Logger LOGGER = LoggerFactory.getLogger(DBPathways.class);
 
 	String cId = request.getParameter("cId");
@@ -34,16 +34,13 @@
 //	DBPathways conn_pathways = new DBPathways();
 	
 	try {
-//        ArrayList<ResultType> items = conn_pathways.getGenomeNaFeatureIdList(cId, cType, map, algorithm, ec_number, featureList);
-
-
         SolrQuery query = new SolrQuery("*:*");
 
         if (cType.equals("taxon")) {
             query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + cId + " AND genome_status:(complete OR wgs)"));
         }
         else if (cType.equals("genome")) {
-            query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "genome_id:" + cId + " AND genome_status:(complete OR wgs)"));
+            query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "genome_id:(" + cId + ") AND genome_status:(complete OR wgs)"));
         }
 
         if (map != null && !map.equals("")) {
@@ -60,7 +57,9 @@
 
         query.setRows(10000).setFields("feature_id");
 
-        QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query);
+        LOGGER.debug("{}", query.toString());
+
+        QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query, SolrRequest.METHOD.POST);
         SolrDocumentList sdl = qr.getResults();
 
         for (SolrDocument doc: sdl) {

@@ -80,8 +80,8 @@
 						<qname>{http://patricbrc.org/params}ec_number</qname>
 					</alias-binding>
 					<alias-binding>
-						<id>feature_info_id</id>
-						<qname>{http://patricbrc.org/params}feature_info_id</qname>
+						<id>feature_id</id>
+						<qname>{http://patricbrc.org/params}feature_id</qname>
 					</alias-binding>
 				</bindings>
 			</coordination>

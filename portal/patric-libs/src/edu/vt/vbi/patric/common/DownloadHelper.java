@@ -21,12 +21,12 @@ import java.util.Arrays;
 public class DownloadHelper {
 
 	public static List<String> getHeaderForFeatures() {
-		return Arrays.asList("Genome", "Accession", "Seed Id", "Alt Locus Tag", "RefSeq Locus Tag", "Feature Id", "Annotation", "Feature Type", "Start", "End",
+		return Arrays.asList("Genome", "Accession", "SEED ID", "RefSeq Locus Tag", "Alt Locus Tag", "Feature Id", "Annotation", "Feature Type", "Start", "End",
 				"Length", "Strand", "Protein ID", "AA Length", "Gene Symbol", "Product");
 	}
 
 	public static List<String> getFieldsForFeatures() {
-		return Arrays.asList("genome_name", "accession", "seed_id", "alt_locus_tag", "refseq_locus_tag", "feature_id", "annotation", "feature_type", "start",
+		return Arrays.asList("genome_name", "accession", "seed_id", "refseq_locus_tag", "alt_locus_tag", "feature_id", "annotation", "feature_type", "start",
 				"end", "na_length", "strand", "protein_id", "aa_length", "gene", "product");
 	}
 

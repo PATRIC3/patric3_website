@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2014 Virginia Polytechnic Institute and State University
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,31 +15,27 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.portlets;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
-
-import javax.portlet.GenericPortlet;
-import javax.portlet.PortletException;
-import javax.portlet.PortletRequestDispatcher;
-import javax.portlet.PortletSession;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
-import javax.portlet.ResourceRequest;
-import javax.portlet.ResourceResponse;
-
+import edu.vt.vbi.patric.beans.GenomeFeature;
+import edu.vt.vbi.patric.common.SolrCore;
+import edu.vt.vbi.patric.common.SolrInterface;
+import edu.vt.vbi.patric.dao.ResultType;
+import org.apache.commons.lang.StringUtils;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrRequest;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.QueryResponse;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
-import edu.vt.vbi.patric.dao.DBPathways;
-import edu.vt.vbi.patric.dao.ResultType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.portlet.*;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 public class PathwayTableSingle extends GenericPortlet {
 
@@ -95,8 +91,8 @@ public class PathwayTableSingle extends GenericPortlet {
 			Random g = new Random();
 			int random = g.nextInt();
 
-			PortletSession sess = request.getPortletSession(true);
-			sess.setAttribute("key" + random, key, PortletSession.APPLICATION_SCOPE);
+			PortletSession session = request.getPortletSession(true);
+			session.setAttribute("key" + random, key, PortletSession.APPLICATION_SCOPE);
 
 			PrintWriter writer = response.getWriter();
 			writer.write("" + random);
@@ -108,11 +104,48 @@ public class PathwayTableSingle extends GenericPortlet {
 			JSONObject jsonResult = new JSONObject();
 			JSONArray results = new JSONArray();
 			String pk = request.getParameter("pk");
-			PortletSession sess = request.getPortletSession();
-			ResultType key = (ResultType) sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
-			ResultType key_clone = (ResultType) key.clone();
-			sess.setAttribute("key" + pk, key_clone, PortletSession.APPLICATION_SCOPE);
+			PortletSession session = request.getPortletSession();
+			ResultType key = (ResultType) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
+			//			ResultType key_clone = (ResultType) key.clone();
+			//			session.setAttribute("key" + pk, key_clone, PortletSession.APPLICATION_SCOPE);
 
+			SolrInterface solr = new SolrInterface();
+			try {
+				SolrQuery query = new SolrQuery("*:*");
+				List<String> joinConditions = new ArrayList<>();
+
+				if (key.containsKey("map")) {
+					joinConditions.add("pathway_id:(" + key.get("map") + ")");
+				}
+				if (key.containsKey("algorithm")) {
+					joinConditions.add("annotation:(" + key.get("algorithm") + ")");
+				}
+				if (key.containsKey("ec_number")) {
+					joinConditions.add("ec_number:(" + key.get("ec_number").replaceAll(",", " OR ") + ")");
+				}
+
+				if (!joinConditions.isEmpty()) {
+					query.addFilterQuery(SolrCore.PATHWAY.getSolrCoreJoin("feature_id", "feature_id", StringUtils.join(joinConditions, " AND ")));
+				}
+				query.setRows(10000);
+
+				LOGGER.debug("{}", query.toString());
+				QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query, SolrRequest.METHOD.POST);
+				List<GenomeFeature> featureList = qr.getBeans(GenomeFeature.class);
+
+				for (GenomeFeature feature : featureList) {
+
+					results.add(feature.toJSONObject());
+				}
+
+				jsonResult.put("total", featureList.size());
+				jsonResult.put("results", results);
+			}
+			catch (MalformedURLException | SolrServerException e) {
+				LOGGER.error(e.getMessage(), e);
+			}
+
+			/*
 			HashMap<String, String> sort = null;
 			if (request.getParameter("sort") != null) {
 				// sorting
@@ -163,7 +196,7 @@ public class PathwayTableSingle extends GenericPortlet {
 			catch (Exception ex) {
 				LOGGER.error(ex.getMessage(), ex);
 			}
-
+			*/
 			PrintWriter writer = response.getWriter();
 			jsonResult.writeJSONString(writer);
 			writer.close();

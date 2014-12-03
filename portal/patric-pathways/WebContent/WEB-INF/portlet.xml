@@ -71,7 +71,7 @@
 		<supported-public-render-parameter>param_key</supported-public-render-parameter>
 		<supported-public-render-parameter>display_mode</supported-public-render-parameter>
 		<supported-public-render-parameter>ec_number</supported-public-render-parameter>
-		<supported-public-render-parameter>feature_info_id</supported-public-render-parameter>
+		<supported-public-render-parameter>feature_id</supported-public-render-parameter>
 	</portlet>
 	<portlet>
 		<portlet-name>CompPathwayTable</portlet-name>
@@ -132,8 +132,8 @@
 		<qname xmlns:x="http://patricbrc.org/params">x:ec_number</qname>
 	</public-render-parameter>
 	<public-render-parameter>
-		<identifier>feature_info_id</identifier>
-		<qname xmlns:x="http://patricbrc.org/params">x:feature_info_id</qname>
+		<identifier>feature_id</identifier>
+		<qname xmlns:x="http://patricbrc.org/params">x:feature_id</qname>
 	</public-render-parameter>
 	<public-render-parameter>
 		<identifier>viewtype</identifier>

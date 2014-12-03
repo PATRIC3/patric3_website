@@ -245,8 +245,8 @@ public class SolrInterface {
 			query.set("hl.fl", "*");
 		}
 
-		if (key.containsKey("fields") && !key.get("fields").toString().equals("")) {
-			query.addField(key.get("fields").toString());
+		if (key.containsKey("fields") && !key.get("fields").equals("")) {
+			query.addField(key.get("fields"));
 		}
 
 		return ConverttoJSON(server, query, facet, highlight);

@@ -116,10 +116,10 @@ Ext.onReady(function()
 		sort: [[{
 			property: 'genome_name',
 			direction:'ASC'
-		},{
+		}/*,{
 			property: 'alt_locus_tag',
 			direction:'ASC'
-		}]],
+		}*/]],
 		hash:{
 			aP: [1],
 			pS : [20],
@@ -136,8 +136,9 @@ Ext.onReady(function()
 		scm:[[checkbox, 
 			{header:'Genome Name',			dataIndex:'genome_name', 		flex:2, renderer:renderGenomeName},
 			{header:'Accession',			dataIndex:'accession',			hidden:true, flex:1, align:'center', renderer:renderAccession},
-			{header:'Locus Tag',			dataIndex:'locus_tag', 			flex:2, renderer:renderLocusTag},
+			{header:'SEED ID',  			dataIndex:'seed_id', 			flex:2, renderer:renderSeedId},
 			{header:'RefSeq Locus Tag',		dataIndex:'refseq_locus_tag', 	flex:2, renderer:renderLocusTag},
+			{header:'Alt Locus Tag',		dataIndex:'alt_locus_tag', 		flex:2, renderer:renderLocusTag},
 			{header:'Gene Symbol',			dataIndex:'gene', 				flex:1, align:'center', renderer:BasicRenderer},
 			{header:'Genome Browser',		dataIndex:'feature_id', 		flex:1, align:'center', hidden:true, renderer:renderGenomeBrowserByFeature},
 			{header:'Annotation',			dataIndex:'annotation', 		flex:1, align:'center', hidden:true, renderer:BasicRenderer},
@@ -148,9 +149,7 @@ Ext.onReady(function()
 			{header:'Strand',				dataIndex:'strand',				flex:1, align:'center', hidden:true, renderer:BasicRenderer},
 			{header:'Protein ID',			dataIndex:'refseq_protein_id',	flex:1, align:'center', hidden:true, renderer:BasicRenderer},
 			{header:'Length (AA)',			dataIndex:'aa_length',			flex:1, align:'center', hidden:true, renderer:BasicRenderer},
-			{header:'AntiCodon',			dataIndex:'anticodon',			flex:1, align:'center', hidden:true, renderer:BasicRenderer},
-			{header:'Product Description',	dataIndex:'product',			flex:4, renderer:BasicRenderer},
-			{header:'Bound Moiety',			dataIndex:'bound_moiety',		flex:1, align:'center', hidden:true, renderer:BasicRenderer}
+			{header:'Product Description',	dataIndex:'product',			flex:4, renderer:BasicRenderer}
 		]],
 		stateId: ['featurelist'],
 		pagingBarMsg: ['Displaying features {0} - {1} of {2}']

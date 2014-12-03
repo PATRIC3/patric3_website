@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2014 Virginia Polytechnic Institute and State University
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -127,7 +127,7 @@ public class FIGfamData {
 				collect.toArray(orderSave);// orderSave is array in order of Figfam ID
 				SyntonyOrder[] toSort = new SyntonyOrder[collect.size()];
 				System.arraycopy(orderSave, 0, toSort, 0, toSort.length);// copy the array so it can be sorted based on
-																			// position in the genome
+				// position in the genome
 				Arrays.sort(toSort); // sort based on figfamIDs
 				SyntonyOrder start = toSort[0];
 				for (int i = 1; i < toSort.length; i++) {
@@ -169,9 +169,9 @@ public class FIGfamData {
 
 			for (SolrDocument doc : sdl) {
 				arr.add(doc.get("alt_locus_tag").toString());
-//				for (Map.Entry<String, Object> el : d) {
-//					arr.add(el.getValue());
-//				}
+				//				for (Map.Entry<String, Object> el : d) {
+				//					arr.add(el.getValue());
+				//				}
 			}
 		}
 		catch (MalformedURLException | SolrServerException e) {
@@ -196,7 +196,8 @@ public class FIGfamData {
 		try {
 			SolrQuery solr_query = new SolrQuery();
 			solr_query.setQuery("genome_id:(" + genomeIds + ") AND figfam_id:(" + figfamIds + ")");
-			solr_query.setFields("figfam_id,genome_name,accession,alt_locus_tag,start,end,na_length,strand,aa_length,gene,product");
+			solr_query.setFields(
+					"figfam_id,genome_name,accession,seed_id,refseq_locus_tag,alt_locus_tag,start,end,na_length,strand,aa_length,gene,product");
 			solr_query.setFilterQueries("annotation:PATRIC AND feature_type:CDS");
 			solr_query.setRows(1500000);
 
@@ -240,7 +241,7 @@ public class FIGfamData {
 
 			QueryResponse qr = solr.getSolrServer(SolrCore.GENOME).query(query);
 			List<Genome> genomes = qr.getBeans(Genome.class);
-			for (Genome g: genomes) {
+			for (Genome g : genomes) {
 				gIds.add(g.getId());
 			}
 		}
@@ -256,7 +257,8 @@ public class FIGfamData {
 
 		if (taxonomy != null) {
 			return taxonomy.getTaxonName();
-		} else {
+		}
+		else {
 			return null;
 		}
 	}
@@ -272,7 +274,7 @@ public class FIGfamData {
 			QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query);
 			List<GenomeFeature> features = qr.getBeans(GenomeFeature.class);
 
-			for (GenomeFeature feature: features) {
+			for (GenomeFeature feature : features) {
 				String locusTag = "";
 				if (feature.hasSeedId()) {
 					locusTag = feature.getSeedId();
@@ -519,8 +521,7 @@ public class FIGfamData {
 			return orderSet;
 		}
 
-		@SuppressWarnings("unchecked")
-		void write(JSONArray json_arr) {
+		@SuppressWarnings("unchecked") void write(JSONArray json_arr) {
 			if (0 <= syntonyAt) {
 				JSONObject j = new JSONObject();
 				j.put("syntonyAt", this.syntonyAt);
@@ -563,8 +564,9 @@ public class FIGfamData {
 			String listText = req.getParameter("genomeIds");
 
 			if (listText != null) {
-				if (req.getParameter("keyword") != null && !req.getParameter("keyword").equals(""))
+				if (req.getParameter("keyword") != null && !req.getParameter("keyword").equals("")) {
 					keyword += " AND ";
+				}
 				keyword += "(genome_id:(" + listText.replaceAll(",", " OR ") + "))";
 			}
 		}

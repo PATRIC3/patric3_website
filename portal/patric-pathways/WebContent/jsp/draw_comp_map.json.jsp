@@ -22,7 +22,6 @@
     Logger LOGGER = LoggerFactory.getLogger(DBPathways.class);
 
 	Map<String, String> key = new HashMap<String, String>();
-	DBPathways conn_pathways = new DBPathways();
 	SolrInterface solr = new SolrInterface();
 	JSONObject ret = new JSONObject();
 	JSONParser a = new JSONParser();
@@ -33,7 +32,7 @@
 	String need = val.get("need").toString();
 	String genomeId = "", taxonId = "", map = "";
 	
-	if (need.equals("all")){
+	if (need.equals("all")) {
 		if(val.get("genomeId") != null) {
 			key.put("genomeId", val.get("genomeId").toString());
 			genomeId = val.get("genomeId").toString();
@@ -47,7 +46,6 @@
 
         // getting coordinates
 		try {
-			// items = conn_pathways.getCompPathwayCoordinates(key,  0, -1);
 
             Set<String> ecNumbers = new HashSet<String>();
 
@@ -130,7 +128,6 @@
         // get pathways
         try {
 			// key.remove("map");
-			// items = conn_pathways.getCompPathwayPathwayIds(key, 0, -1);
 
             SolrQuery query = new SolrQuery("*:*");
             if (!taxonId.equals("")) {
@@ -174,7 +171,6 @@
         }
 
         try {
-			// items = conn_pathways.getMapIdsInMap(val.get("map").toString());
 			SolrQuery query = new SolrQuery("pathway_id:" + map + " AND map_type:path");
             query.setFields("ec_number,ec_description,map_location").setRows(10000);
 
@@ -210,7 +206,6 @@
 
 		// all coordinates
 		try {
-			// items = conn_pathways.getAllCoordinatesInMap(val.get("map").toString());
             SolrQuery query = new SolrQuery("pathway_id:" + map + " AND map_type:enzyme");
             query.setFields("ec_number,ec_description,map_location").setRows(10000);
 
@@ -246,20 +241,78 @@
 	}
 	else {
 
-		key.put("map", val.get("map").toString());
-		key.put(need, val.get("value").toString());
+        JSONArray coordinates = new JSONArray();
 
-		try {
-			if(need.equals("ec_number")) {
-				items = conn_pathways.getCompPathwayEcCoordinates(key, 0, -1);
-			}
-			else {
-				items = conn_pathways.getCompPathwayFeatureCoordinates(key, 0, -1);
-			}
-			
-			ret.put("coordinates", items);
-		} catch (NullPointerException nex) {
-		}		
+        if (need.equals("ec_number")) {
+            try {
+                SolrQuery query = new SolrQuery("*:*");
+                if (map != null && !map.equals("")) {
+                    query.addFilterQuery("pathway_id:(" + map + ")");
+                }
+
+                LOGGER.trace("need:{},{}", need, query.toString());
+
+                QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY_REF).query(query);
+                SolrDocumentList sdl = qr.getResults();
+
+                for (SolrDocument doc : sdl) {
+                    List<String> locations = (List<String>) doc.get("map_location");
+
+                    for (String loc : locations) {
+                        JSONObject coordinate = new JSONObject();
+                        coordinate.put("ec_number", doc.get("ec_number"));
+                        String[] xy = loc.split(",");
+                        coordinate.put("x", xy[0]);
+                        coordinate.put("y", xy[1]);
+
+                        coordinates.add(coordinate);
+                    }
+                }
+            }
+            catch (MalformedURLException ex) {
+                LOGGER.error(ex.getMessage(), ex);
+            }
+            catch (SolrServerException e) {
+                LOGGER.error(e.getMessage(), e);
+            }
+        }
+        else {
+            // feature
+            try {
+                SolrQuery query = new SolrQuery("*:*");
+                if (map != null && !map.equals("")) {
+                    query.addFilterQuery("pathway_id:(" + map + ")");
+                }
+                query.addFilterQuery(SolrCore.PATHWAY.getSolrCoreJoin("ec_number", "ec_number", "feature_id:(" + val.get("value").toString() + ")"));
+
+                LOGGER.trace("need:{},{}", need, query.toString());
+
+                QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY_REF).query(query);
+                SolrDocumentList sdl = qr.getResults();
+
+                for (SolrDocument doc : sdl) {
+                    List<String> locations =  (List<String>) doc.get("map_location");
+
+                    for (String loc : locations) {
+                        JSONObject coordinate = new JSONObject();
+                        coordinate.put("ec_number", doc.get("ec_number"));
+                        String[] xy = loc.split(",");
+                        coordinate.put("x", xy[0]);
+                        coordinate.put("y", xy[1]);
+
+                        coordinates.add(coordinate);
+                    }
+                }
+            }
+            catch (MalformedURLException ex) {
+                LOGGER.error(ex.getMessage(), ex);
+            }
+            catch (SolrServerException e) {
+                LOGGER.error(e.getMessage(), e);
+            }
+        }
+
+        ret.put("coordinates", coordinates);
 	}
 
     ret.writeJSONString(out);

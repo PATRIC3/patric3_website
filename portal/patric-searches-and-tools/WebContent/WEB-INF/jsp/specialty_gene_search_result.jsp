@@ -44,6 +44,9 @@ if(key != null && key.containsKey("exact_search_term")){
 	<input type="hidden" id="fids" name="fids" value="" />
 	<input type="hidden" id="download_keyword" name="download_keyword" value="" />
 	<input type="hidden" id="fileformat" name="fileformat" value=""/>
+
+    <input type="hidden" id="cId" name="cId" value="<%=cId %>" />
+    <input type="hidden" id="cType" name="cType" value="<%=cType %>" />
 </form>
 
 <div id="copy-button" style="display:none;"></div>
@@ -102,10 +105,10 @@ Ext.onReady(function() {
 		sort: [[{
 			property: 'genome_name',
 			direction:'ASC'
-		},{
+		}/*,{
 			property: 'alt_locus_tag',
 			direction:'ASC'
-		}]],
+		}*/]],
 		hash:{
 			aP: [1],
 			aT: 0,
@@ -125,8 +128,9 @@ Ext.onReady(function() {
 			{header:'Property',				dataIndex:'property', 			flex:2, align:'center', renderer:BasicRenderer},
 			{header:'Source',				dataIndex:'source', 			flex:1, align:'center', renderer:renderSource},
 			{header:'Genome Name',			dataIndex:'genome_name',		flex:2, renderer:renderGenomeName <%=cType.equals("genome")?", hidden:true":""%>},
-			{header:'Locus Tag',			dataIndex:'alt_locus_tag', 			flex:2, renderer:renderLocusTag, align:'center'},
+			{header:'SEED ID',	    		dataIndex:'seed_id', 	    	flex:2, renderer:renderSeedId, align:'center'},
 			{header:'RefSeq Locus Tag',		dataIndex:'refseq_locus_tag',	flex:1, align:'center', renderer:BasicRenderer},
+			{header:'Alt Locus Tag',		dataIndex:'alt_locus_tag', 		flex:2, renderer:renderLocusTag, align:'center'},
 			{header:'Source ID',			dataIndex:'source_id', 			flex:1, align:'center', renderer:renderSourceId},
 			{header:'Source Organism',		dataIndex:'organism', 			flex:1, align:'center', renderer:BasicRenderer, hidden:true},
 			{header:'Gene',					dataIndex:'gene', 				flex:1, align:'center', renderer:BasicRenderer},

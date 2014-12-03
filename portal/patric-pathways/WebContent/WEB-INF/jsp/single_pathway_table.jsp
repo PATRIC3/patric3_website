@@ -82,24 +82,23 @@ Ext.onReady(function()
 	Ext.define('Feature', {
 		extend: 'Ext.data.Model',
 		fields: [
-			{name:'genome_info_id',	type:'int'},
+			{name:'genome_id',	type:'string'},
 			{name:'genome_name',	type:'string'},
 			{name:'accession',	type:'string'},
-			{name:'locus_tag',	type:'string'},
-			{name:'na_feature_id',	type:'int'},
-			{name:'algorithm',	type:'string'},
-			{name:'name',		type:'string'},
-			{name:'start_max',	type:'int'},
-			{name:'end_min',	type:'int'},
+			{name:'seed_id',	type:'string'},
+			{name:'alt_locus_tag',	type:'string'},
+			{name:'refseq_locus_tag',	type:'string'},
+			{name:'feature_id',	type:'string'},
+			{name:'annotation',	type:'string'},
+			{name:'feature_type',	type:'string'},
+			{name:'start',  	type:'int'},
+			{name:'end',    	type:'int'},
 			{name:'na_length',	type:'int'},
 			{name:'strand',		type:'string'},
 			{name:'protein_id',	type:'string'},
 			{name:'aa_length',	type:'int'},
 			{name:'gene',		type:'string'},
-			{name:'bound_moiety',	type:'string'},
-			{name:'anticodon',	type:'string'},
-			{name:'product',	type:'string'},
-			{name:'debug_field',	type:'string'}
+			{name:'product',	type:'string'}
 		]
 	});
 		
@@ -117,13 +116,13 @@ Ext.onReady(function()
 		sort: [[{
 			property: 'genome_name',
 			direction: 'ASC'
-		},{
+		}/*,{
 			property: 'accession',
 			direction: 'ASC'
 		},{
 			property: 'start_max',
 			direction: 'ASC'
-		}]],
+		}*/]],
 		hash:{
 			aP: [1]
 		},
@@ -132,13 +131,15 @@ Ext.onReady(function()
 		scm :[[checkbox, 
 		 		{header:'Genome Name', flex:2, dataIndex:'genome_name', renderer:renderGenomeName}, 
 				{header:'Accession', flex:1, dataIndex:'accession', hidden:true, renderer:renderAccession}, 
-				{header:'Locus Tag', flex:1, dataIndex:'locus_tag', renderer:renderLocusTag},
+				{header:'SEED ID', flex:1, dataIndex:'seed_id', renderer:renderSeedId},
+				{header:'RefSeq Locus Tag', flex:1, dataIndex:'alt_locus_tag', renderer:renderLocusTag},
+				{header:'Alt Locus Tag', flex:1, dataIndex:'refseq_locus_tag', renderer:renderLocusTag},
 				{header:'Gene Symbol', flex:1, dataIndex:'gene', renderer:BasicRenderer},
 				{header:'Genome Browser', dataIndex:'', align:'center', hidden:true, renderer:renderGenomeBrowserByFeature}, 
 				{header:'Annotation', flex:1, dataIndex:'algorithm', hidden:true, renderer:BasicRenderer}, 
 				{header:'Feature Type', sortable: false, dataIndex:'name', hidden:true, align:'center', renderer:BasicRenderer}, 
-				{header:'Start', flex:1, dataIndex:'start_max', hidden:true, align:'right', renderer:BasicRenderer}, 
-				{header:'End', flex:1, dataIndex:'end_min',hidden:true,  align:'right', renderer:BasicRenderer}, 
+				{header:'Start', flex:1, dataIndex:'start', hidden:true, align:'right', renderer:BasicRenderer},
+				{header:'End', flex:1, dataIndex:'end',hidden:true,  align:'right', renderer:BasicRenderer},
 				{header:'Length (NT)', flex:1, dataIndex:'na_length', hidden:true, align:'right', renderer:BasicRenderer}, 
 				{header:'Strand', flex:1, dataIndex:'strand', hidden:true, align:'center', renderer:BasicRenderer},
 				{header:'Product Description', flex:3, dataIndex:'product', align:'left', renderer:BasicRenderer}]],
@@ -192,17 +193,15 @@ function getSelectedFeatures(actiontype, showdownload, fastatype, to){
 		fids = property.fids;
 	
 	for (i=0; i<sl.length;i++) 
-		fids.push(sl[i].data.na_feature_id);
+		fids.push(sl[i].data.feature_id);
 }
 
 function DownloadFile(type){
 
-	Ext.getDom("fTableForm").action = "/patric-pathways/jsp/grid_download_handler.jsp";
+	Ext.getDom("fTableForm").action = "/portal/portal/patric/PathwayFinder/PathwayFinderWindow?action=b&cacheability=PAGE&need=downloadMapFeatureTable";
 	Ext.getDom("fTableForm").target = "";
 	Ext.getDom("fileformat").value = type;
 	Ext.getDom("fTableForm").submit();
-	
-
 }
 // ]]>
 </script>

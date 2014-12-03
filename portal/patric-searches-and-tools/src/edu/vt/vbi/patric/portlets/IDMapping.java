@@ -142,185 +142,36 @@ public class IDMapping extends GenericPortlet {
 
 			LOGGER.debug("id mapping param: {}", key);
 
-			SolrInterface solr = new SolrInterface();
+			JSONObject jsonResult = this
+					.processIDMapping(key.get("from"), key.get("fromGroup"), key.get("to"), key.get("toGroup"), key.get("keyword"));
 
-			JSONArray results = new JSONArray();
-			int total;
+			response.setContentType("application/json");
+			jsonResult.writeJSONString(response.getWriter());
+		}
+	}
 
-			if (key.get("fromGroup").equals("PATRIC")) {
-				if (key.get("toGroup").equals("PATRIC")) { // from PATRIC to PATRIC
+	@SuppressWarnings("unchecked")
+	private JSONObject processIDMapping(String fromId, String fromIdGroup, String toId, String toIdGroup, String keyword) throws IOException {
+		SolrInterface solr = new SolrInterface();
 
-					// query to GenomeFeature
-					try {
-						SolrQuery query = new SolrQuery(key.get("from") + ":(" + key.get("keyword") + ")");
-						query.setRows(10000);
+		JSONArray results = new JSONArray();
+		int total;
 
-						LOGGER.debug("PATRIC TO PATRIC: {}", query.toString());
-						QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query);
-						List<GenomeFeature> featureList = qr.getBeans(GenomeFeature.class);
+		if (fromIdGroup.equals("PATRIC")) {
+			if (toIdGroup.equals("PATRIC")) { // from PATRIC to PATRIC
 
-						for (GenomeFeature feature : featureList) {
-							results.add(feature.toJSONObject());
-						}
-					}
-					catch (MalformedURLException | SolrServerException e) {
-						LOGGER.error(e.getMessage(), e);
-					}
-
-					total = results.size();
-				}
-				else { // from PATRIC to Other
-
-					Set<Long> giList = new HashSet<>();
-					Map<String, String> accessionGiMap = new LinkedHashMap<>();
-					List<Map<Long, String>> giTargetList = new LinkedList<>();
-					List<GenomeFeature> featureList = new ArrayList<>();
-
-					// Query GenomeFeature, get GInumbers
-					try {
-						SolrQuery query = new SolrQuery(key.get("from") + ":(" + key.get("keyword") + ")");
-						query.setRows(10000);
-						LOGGER.trace("PATRIC TO Other 1/3: {}", query.toString());
-
-						QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query);
-						featureList = qr.getBeans(GenomeFeature.class);
-
-						for (GenomeFeature feature : featureList) {
-							giList.add(feature.getGi());
-						}
-					}
-					catch (MalformedURLException | SolrServerException e) {
-						LOGGER.error(e.getMessage(), e);
-					}
-
-					// get UniprotKBAccessions wigh GI
-					try {
-						SolrQuery query = new SolrQuery("id_type:GI AND id_value:(" + StringUtils.join(giList, " OR ") + ")");
-						query.setRows(10000);
-
-						LOGGER.trace("PATRIC TO Other 2/3: {}", query.toString());
-						QueryResponse qr = solr.getSolrServer(SolrCore.ID_REF).query(query);
-						SolrDocumentList uniprotList = qr.getResults();
-
-						for (SolrDocument doc : uniprotList) {
-
-							accessionGiMap.put(doc.get("uniprotkb_accession").toString(), doc.get("id_value").toString());
-						}
-					}
-					catch (MalformedURLException | SolrServerException e) {
-						LOGGER.error(e.getMessage(), e);
-					}
-					LOGGER.trace("accessionGiMap:{}", accessionGiMap);
-
-					// get Target Value
-					try {
-						SolrQuery query = new SolrQuery();
-						query.setQuery("id_type:(" + key.get("to") + ") AND uniprotkb_accession:(" + StringUtils.join(accessionGiMap.keySet(), " OR ")
-								+ ")");
-						query.setRows(accessionGiMap.size());
-
-						LOGGER.trace("PATRIC TO Other 3/3: {}", query.toString());
-						QueryResponse qr = solr.getSolrServer(SolrCore.ID_REF).query(query);
-						SolrDocumentList targets = qr.getResults();
-
-						for (SolrDocument doc : targets) {
-							String accession = doc.get("uniprotkb_accession").toString();
-							String target = doc.get("id_value").toString();
-
-							Long targetGi = Long.parseLong(accessionGiMap.get(accession));
-
-							Map<Long, String> giTarget = new HashMap<>();
-							giTarget.put(targetGi, target);
-							giTargetList.add(giTarget);
-						}
-					}
-					catch (MalformedURLException | SolrServerException e) {
-						LOGGER.error(e.getMessage(), e);
-					}
-
-					LOGGER.trace("giTargetList:{}", giTargetList);
-					// query to GenomeFeature
-					for (GenomeFeature feature : featureList) {
-						for (Map<Long, String> targetMap : giTargetList) {
-							if (targetMap.containsKey(feature.getGi())) {
-								JSONObject item = feature.toJSONObject();
-								item.put("target", targetMap.get(feature.getGi()));
-
-								results.add(item);
-							}
-						}
-					}
-
-					total = results.size();
-				}
-			}
-			else { // from Other to PATRIC (seed_id)
-
-				Map<String, String> accessionTargetMap = new LinkedHashMap<>();
-				Set<Long> giList = new HashSet<>();
-				List<Map<Long, String>> giTargetList = new LinkedList<>();
-
+				// query to GenomeFeature
 				try {
-					SolrQuery query = new SolrQuery("id_type:" + key.get("from") + " AND id_value:(" + key.get("keyword") + ")");
-					query.setRows(10000).addField("uniprotkb_accession,id_value");
-
-					LOGGER.debug("Other to PATRIC 1/3: {}", query.toString());
-					QueryResponse qr = solr.getSolrServer(SolrCore.ID_REF).query(query);
-					SolrDocumentList accessions = qr.getResults();
-
-					for (SolrDocument doc : accessions) {
-						accessionTargetMap.put(doc.get("uniprotkb_accession").toString(), doc.get("id_value").toString());
-					}
-				}
-				catch (MalformedURLException | SolrServerException e) {
-					LOGGER.error(e.getMessage(), e);
-				}
-
-				try {
-					SolrQuery query = new SolrQuery(
-							"id_type:GI AND uniprotkb_accession:(" + StringUtils.join(accessionTargetMap.keySet(), " OR ") + ")");
+					SolrQuery query = new SolrQuery(fromId + ":(" + keyword + ")");
 					query.setRows(10000);
 
-					LOGGER.debug("Other to PATRIC 2/3: {}", query.toString());
-					QueryResponse qr = solr.getSolrServer(SolrCore.ID_REF).query(query);
-					SolrDocumentList accessions = qr.getResults();
-
-					for (SolrDocument doc : accessions) {
-						Long targetGi = Long.parseLong(doc.get("id_value").toString());
-						String accession = doc.get("uniprotkb_accession").toString();
-						String target = accessionTargetMap.get(accession);
-
-						giList.add(targetGi);
-
-						Map<Long, String> targetMap = new HashMap<>();
-						targetMap.put(targetGi, target);
-						giTargetList.add(targetMap);
-					}
-				}
-				catch (MalformedURLException | SolrServerException e) {
-					LOGGER.error(e.getMessage(), e);
-				}
-
-				LOGGER.debug("giTargetList:{}", giTargetList);
-				try {
-					SolrQuery query = new SolrQuery("gi:(" + StringUtils.join(giList, " OR ") + ")");
-					query.setRows(10000);
-
-					LOGGER.debug("Other to PATRIC 3/3: {}", query.toString());
+					LOGGER.debug("PATRIC TO PATRIC: {}", query.toString());
 					QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query);
 					List<GenomeFeature> featureList = qr.getBeans(GenomeFeature.class);
 
 					for (GenomeFeature feature : featureList) {
-						for (Map<Long, String> targetMap : giTargetList) {
-							if (targetMap.containsKey(feature.getGi())) {
-								JSONObject item = feature.toJSONObject();
-								item.put("target", targetMap.get(feature.getGi()));
-
-								results.add(item);
-							}
-						}
+						results.add(feature.toJSONObject());
 					}
-
 				}
 				catch (MalformedURLException | SolrServerException e) {
 					LOGGER.error(e.getMessage(), e);
@@ -328,14 +179,170 @@ public class IDMapping extends GenericPortlet {
 
 				total = results.size();
 			}
+			else { // from PATRIC to Other
 
-			JSONObject jsonResult = new JSONObject();
-			jsonResult.put("total", total);
-			jsonResult.put("results", results);
+				Set<Long> giList = new HashSet<>();
+				Map<String, String> accessionGiMap = new LinkedHashMap<>();
+				List<Map<Long, String>> giTargetList = new LinkedList<>();
+				List<GenomeFeature> featureList = new ArrayList<>();
 
-			response.setContentType("application/json");
-			jsonResult.writeJSONString(response.getWriter());
+				// Query GenomeFeature, get GInumbers
+				try {
+					SolrQuery query = new SolrQuery(fromId + ":(" + keyword + ")");
+					query.setRows(10000);
+					LOGGER.trace("PATRIC TO Other 1/3: {}", query.toString());
+
+					QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query);
+					featureList = qr.getBeans(GenomeFeature.class);
+
+					for (GenomeFeature feature : featureList) {
+						giList.add(feature.getGi());
+					}
+				}
+				catch (MalformedURLException | SolrServerException e) {
+					LOGGER.error(e.getMessage(), e);
+				}
+
+				// get UniprotKBAccessions wigh GI
+				try {
+					SolrQuery query = new SolrQuery("id_type:GI AND id_value:(" + StringUtils.join(giList, " OR ") + ")");
+					query.setRows(10000);
+
+					LOGGER.trace("PATRIC TO Other 2/3: {}", query.toString());
+					QueryResponse qr = solr.getSolrServer(SolrCore.ID_REF).query(query);
+					SolrDocumentList uniprotList = qr.getResults();
+
+					for (SolrDocument doc : uniprotList) {
+
+						accessionGiMap.put(doc.get("uniprotkb_accession").toString(), doc.get("id_value").toString());
+					}
+				}
+				catch (MalformedURLException | SolrServerException e) {
+					LOGGER.error(e.getMessage(), e);
+				}
+				LOGGER.trace("accessionGiMap:{}", accessionGiMap);
+
+				// get Target Value
+				try {
+					SolrQuery query = new SolrQuery();
+					query.setQuery("id_type:(" + toId + ") AND uniprotkb_accession:(" + StringUtils.join(accessionGiMap.keySet(), " OR ") + ")");
+					query.setRows(accessionGiMap.size());
+
+					LOGGER.trace("PATRIC TO Other 3/3: {}", query.toString());
+					QueryResponse qr = solr.getSolrServer(SolrCore.ID_REF).query(query);
+					SolrDocumentList targets = qr.getResults();
+
+					for (SolrDocument doc : targets) {
+						String accession = doc.get("uniprotkb_accession").toString();
+						String target = doc.get("id_value").toString();
+
+						Long targetGi = Long.parseLong(accessionGiMap.get(accession));
+
+						Map<Long, String> giTarget = new HashMap<>();
+						giTarget.put(targetGi, target);
+						giTargetList.add(giTarget);
+					}
+				}
+				catch (MalformedURLException | SolrServerException e) {
+					LOGGER.error(e.getMessage(), e);
+				}
+
+				LOGGER.trace("giTargetList:{}", giTargetList);
+				// query to GenomeFeature
+				for (GenomeFeature feature : featureList) {
+					for (Map<Long, String> targetMap : giTargetList) {
+						if (targetMap.containsKey(feature.getGi())) {
+							JSONObject item = feature.toJSONObject();
+							item.put("target", targetMap.get(feature.getGi()));
+
+							results.add(item);
+						}
+					}
+				}
+
+				total = results.size();
+			}
 		}
+		else { // from Other to PATRIC (seed_id)
+
+			Map<String, String> accessionTargetMap = new LinkedHashMap<>();
+			Set<Long> giList = new HashSet<>();
+			List<Map<Long, String>> giTargetList = new LinkedList<>();
+
+			try {
+				SolrQuery query = new SolrQuery("id_type:" + fromId + " AND id_value:(" + keyword + ")");
+				query.setRows(10000).addField("uniprotkb_accession,id_value");
+
+				LOGGER.debug("Other to PATRIC 1/3: {}", query.toString());
+				QueryResponse qr = solr.getSolrServer(SolrCore.ID_REF).query(query);
+				SolrDocumentList accessions = qr.getResults();
+
+				for (SolrDocument doc : accessions) {
+					accessionTargetMap.put(doc.get("uniprotkb_accession").toString(), doc.get("id_value").toString());
+				}
+			}
+			catch (MalformedURLException | SolrServerException e) {
+				LOGGER.error(e.getMessage(), e);
+			}
+
+			try {
+				SolrQuery query = new SolrQuery(
+						"id_type:GI AND uniprotkb_accession:(" + StringUtils.join(accessionTargetMap.keySet(), " OR ") + ")");
+				query.setRows(10000);
+
+				LOGGER.debug("Other to PATRIC 2/3: {}", query.toString());
+				QueryResponse qr = solr.getSolrServer(SolrCore.ID_REF).query(query);
+				SolrDocumentList accessions = qr.getResults();
+
+				for (SolrDocument doc : accessions) {
+					Long targetGi = Long.parseLong(doc.get("id_value").toString());
+					String accession = doc.get("uniprotkb_accession").toString();
+					String target = accessionTargetMap.get(accession);
+
+					giList.add(targetGi);
+
+					Map<Long, String> targetMap = new HashMap<>();
+					targetMap.put(targetGi, target);
+					giTargetList.add(targetMap);
+				}
+			}
+			catch (MalformedURLException | SolrServerException e) {
+				LOGGER.error(e.getMessage(), e);
+			}
+
+			LOGGER.debug("giTargetList:{}", giTargetList);
+			try {
+				SolrQuery query = new SolrQuery("gi:(" + StringUtils.join(giList, " OR ") + ")");
+				query.setRows(10000);
+
+				LOGGER.debug("Other to PATRIC 3/3: {}", query.toString());
+				QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query);
+				List<GenomeFeature> featureList = qr.getBeans(GenomeFeature.class);
+
+				for (GenomeFeature feature : featureList) {
+					for (Map<Long, String> targetMap : giTargetList) {
+						if (targetMap.containsKey(feature.getGi())) {
+							JSONObject item = feature.toJSONObject();
+							item.put("target", targetMap.get(feature.getGi()));
+
+							results.add(item);
+						}
+					}
+				}
+
+			}
+			catch (MalformedURLException | SolrServerException e) {
+				LOGGER.error(e.getMessage(), e);
+			}
+
+			total = results.size();
+		}
+
+		JSONObject jsonResult = new JSONObject();
+		jsonResult.put("total", total);
+		jsonResult.put("results", results);
+
+		return jsonResult;
 	}
 
 	private void responseWriteFiltersStatic(ResourceResponse response) throws IOException {

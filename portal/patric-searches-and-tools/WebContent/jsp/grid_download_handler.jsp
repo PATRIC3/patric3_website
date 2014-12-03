@@ -90,7 +90,7 @@
 
 			query.setQuery(key.get("keyword"));
 			query.setFilterQueries("taxon_lineage_ids:" + taxonId);
-			query.addField("genome_info_id");
+			query.addField("genome_id");
 			query.setRows(500000);
 
 			JSONObject gObject = solr.ConverttoJSON(solr.getSolrServer(SolrCore.GENOME), query, false, false);
@@ -98,7 +98,7 @@
 			JSONArray ret = (JSONArray) ((JSONObject) gObject.get("response")).get("docs");
 			for (Object row : ret) {
 				JSONObject gid = (JSONObject) row;
-				listGenomeId.add(gid.get("genome_info_id").toString());
+				listGenomeId.add(gid.get("genome_id").toString());
 			}
 			if (listGenomeId.size() > 0) {
 				key.put("keyword", "genome_id: (" + StringUtils.join(listGenomeId, " OR ") + ")");
@@ -120,9 +120,9 @@
 				sort.put("direction", sort_dir);
 			}
 
-			_tbl_header.addAll(Arrays.asList("Genome Name", "Isolate", "Accession", "Length (bp)", "Sequence Type", "Topology", "GC Content",
+			_tbl_header.addAll(Arrays.asList("Genome Name", "Accession", "Length (bp)", "Sequence Type", "Topology", "GC Content",
 					"Description"));
-			_tbl_field.addAll(Arrays.asList("genome_name", "isolate", "accession", "length", "sequence_type", "topology", "base_composition",
+			_tbl_field.addAll(Arrays.asList("genome_name", "accession", "length", "sequence_type", "topology", "gc_content",
 					"description"));
 		}
 
@@ -784,7 +784,7 @@
 		key.put("keyword", keyword);
 		if (cType != null && cType.equals("taxon") && taxonId != null && taxonId.equals("") == false) {
 			key.put("taxonId", taxonId);
-			key.put("join", SolrCore.GENOME.getSolrCoreJoin("gid", "genome_info_id", "taxon_lineage_ids:" + key.get("taxonId")));
+			key.put("join", SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + key.get("taxonId")));
 		}
 
 		sort_field = request.getParameter("sort");
@@ -802,11 +802,11 @@
 		JSONObject obj_t = (JSONObject) object_t.get("response");
 		_tbl_source = (JSONArray) obj_t.get("docs");
 
-		_tbl_header.addAll(Arrays.asList("Evidence", "Property", "Source", "Genome Name", "SEED ID", "Alt Locus Tag", "RefSeq Locus Tag", "Source ID",
+		_tbl_header.addAll(Arrays.asList("Evidence", "Property", "Source", "Genome Name", "SEED ID", "RefSeq Locus Tag", "Alt Locus Tag", "Source ID",
 				"Source Organism", "Gene", "Product", "Function", "Classification", "PubMed", "Subject Coverage", "Query Coverage",
 				"Identity", "E-value"));
 
-		_tbl_field.addAll(Arrays.asList("evidence", "property", "source", "genome_name", "seed_id", "alt_locus_tag", "refseq_locus_tag", "source_id",
+		_tbl_field.addAll(Arrays.asList("evidence", "property", "source", "genome_name", "seed_id", "refseq_locus_tag", "alt_locus_tag", "source_id",
 				"organism", "gene", "product", "function", "classification", "pmid", "subject_coverage", "query_coverage", "identity",
 				"e_value"));
 

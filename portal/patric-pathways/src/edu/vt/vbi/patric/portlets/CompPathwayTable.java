@@ -624,10 +624,12 @@ public class CompPathwayTable extends GenericPortlet {
 		}
 		else if (request.getParameter("aT").equals("2")) {
 			_tbl_source = (JSONArray) this.processGeneTab(pathwayClass, pathwayId, ecNumber, annotation, contextType, contextId).get("results");
-			_tbl_header.addAll(Arrays.asList("Feature ID", "Genome Name", "Accession", "SEED ID", "Alt Locus Tag", "Gene Symbol", "Product Name",
-					"Annotation", "Pathway ID", "Pathway Name", "Ec Number", "EC Description"));
-			_tbl_field.addAll(Arrays.asList("feature_id", "genome_name", "accession", "seed_id", "alt_locus_tag", "gene", "product", "algorithm",
-					"pathway_id", "pathway_name", "ec_number", "ec_name"));
+			_tbl_header.addAll(Arrays
+					.asList("Feature ID", "Genome Name", "Accession", "SEED ID", "RefSeq Locus Tag", "Alt Locus Tag", "Gene Symbol", "Product Name",
+							"Annotation", "Pathway ID", "Pathway Name", "Ec Number", "EC Description"));
+			_tbl_field.addAll(Arrays
+					.asList("feature_id", "genome_name", "accession", "seed_id", "refseq_locus_tag", "alt_locus_tag", "gene", "product", "algorithm",
+							"pathway_id", "pathway_name", "ec_number", "ec_name"));
 		}
 
 		fileName = "CompPathwayTable";

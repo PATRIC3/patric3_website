@@ -261,6 +261,9 @@ public class PathwayFinder extends GenericPortlet {
 			case "download":
 				this.processDownload(request, response);
 				break;
+			case "downloadMapFeatureTable":
+				this.processDownloadMapFeatureTable(request, response);
+				break;
 			}
 		}
 	}
@@ -545,7 +548,10 @@ public class PathwayFinder extends GenericPortlet {
 
 			query.setFields("pathway_id,pathway_name,feature_id,ec_number,ec_description");
 			query.setRows(100000);
-			QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query);
+
+			LOGGER.debug("processGeneTab 1/2: {}", query.toString());
+
+			QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query, SolrRequest.METHOD.POST);
 			SolrDocumentList sdl = qr.getResults();
 
 			Map<String, SolrDocument> mapStat = new HashMap<>();
@@ -560,7 +566,9 @@ public class PathwayFinder extends GenericPortlet {
 				SolrQuery featureQuery = new SolrQuery("feature_id:(" + StringUtils.join(listFeatureIds, " OR ") + ")");
 				featureQuery.setFields("genome_name,genome_id,accession,alt_locus_tag,refseq_locus_tag,seed_id,feature_id,gene,product");
 				featureQuery.setRows(100000);
-				// LOGGER.debug("{}", featureQuery.toString());
+
+				LOGGER.debug("processGeneTab 2/2: {}", featureQuery.toString());
+
 				QueryResponse featureQueryResponse = solr.getSolrServer(SolrCore.FEATURE).query(featureQuery, SolrRequest.METHOD.POST);
 				sdl = featureQueryResponse.getResults();
 
@@ -655,14 +663,59 @@ public class PathwayFinder extends GenericPortlet {
 		else if (request.getParameter("aT").equals("2")) {
 			_tbl_source = (JSONArray) this.processGeneTab(pathwayId, ecNumber, annotation, taxonId, genomeId, keyword).get("results");
 			_tbl_header.addAll(Arrays
-					.asList("Feature ID", "Genome Name", "Accession", "SEED ID", "Alt Locus Tag", "Gene Symbol", "Product Name", "Annotation",
+					.asList("Feature ID", "Genome Name", "Accession", "SEED ID", "RefSeq Locus Tag", "Alt Locus Tag", "Gene Symbol", "Product Name",
+							"Annotation",
 							"Pathway ID", "Pathway Name", "Ec Number", "EC Description"));
 			_tbl_field.addAll(Arrays
-					.asList("feature_id", "genome_name", "accession", "seed_id", "alt_locus_tag", "gene", "product", "algorithm", "pathway_id",
+					.asList("feature_id", "genome_name", "accession", "seed_id", "refseq_locus_tag", "alt_locus_tag", "gene", "product", "algorithm",
+							"pathway_id",
 							"pathway_name", "ec_number", "ec_name"));
 		}
 
 		fileName = "CompPathwayTable";
+		ExcelHelper excel = new ExcelHelper("xssf", _tbl_header, _tbl_field, _tbl_source);
+		excel.buildSpreadsheet();
+
+		if (fileFormat.equalsIgnoreCase("xlsx")) {
+
+			response.setContentType("application/octetstream");
+			response.setProperty("Content-Disposition", "attachment; filename=\"" + fileName + "." + fileFormat + "\"");
+
+			excel.writeSpreadsheettoBrowser(response.getPortletOutputStream());
+		}
+		else if (fileFormat.equalsIgnoreCase("txt")) {
+
+			response.setContentType("application/octetstream");
+			response.setProperty("Content-Disposition", "attachment; filename=\"" + fileName + "." + fileFormat + "\"");
+
+			response.getWriter().write(excel.writeToTextFile());
+		}
+	}
+
+	private void processDownloadMapFeatureTable(ResourceRequest request, ResourceResponse response) throws PortletException, IOException {
+
+		List<String> _tbl_header = new ArrayList<>();
+		List<String> _tbl_field = new ArrayList<>();
+		JSONArray _tbl_source = null;
+		String fileFormat = request.getParameter("fileformat");
+		String fileName;
+
+		String pathwayId = request.getParameter("map");
+		String ecNumber = request.getParameter("ec_number");
+		String annotation = request.getParameter("algorithm");
+
+		String taxonId = request.getParameter("taxonId");
+		String genomeId = request.getParameter("genomeId");
+
+		_tbl_source = (JSONArray) this.processGeneTab(pathwayId, ecNumber, annotation, taxonId, genomeId, "").get("results");
+		_tbl_header.addAll(Arrays
+				.asList("Feature ID", "Genome Name", "Accession", "SEED ID", "RefSeq Locus Tag", "Alt Locus Tag", "Gene Symbol", "Product Name",
+						"Annotation", "Pathway ID", "Pathway Name", "Ec Number", "EC Description"));
+		_tbl_field.addAll(Arrays
+				.asList("feature_id", "genome_name", "accession", "seed_id", "refseq_locus_tag", "alt_locus_tag", "gene", "product", "algorithm",
+						"pathway_id", "pathway_name", "ec_number", "ec_name"));
+
+		fileName = "MapFeatureTable";
 		ExcelHelper excel = new ExcelHelper("xssf", _tbl_header, _tbl_field, _tbl_source);
 		excel.buildSpreadsheet();
 

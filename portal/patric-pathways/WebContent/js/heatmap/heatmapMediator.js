@@ -67,8 +67,8 @@ function flashCellClicked(flashObjectID, colID, rowID) {
 	
 	Ext.Ajax.request({
 		url: "/patric-pathways/jsp/get_na_feature_ids.json.jsp",
-		method: 'GET',
-		params: {cId:colID, cType:'genome', map:"'"+Ext.getDom("map").value+"'", algorithm:"'"+algorithm+"'", ec_number: "'"+rowID+"'"},
+		method: 'POST',
+		params: {cId:colID, cType:'genome', map:Ext.getDom("map").value, algorithm:algorithm, ec_number:rowID},
 		success: function(rs) {
   			catchLocusTags(colID, rowID, eval(Ext.JSON.decode(rs.responseText)));
 		}
@@ -245,14 +245,9 @@ function flashCellsSelected(flashObjectID, affectedColumns, affectedRows) {
 		affectedColumns = affectedRows.splice(0);
 		affectedRows = temp;
 	}
-	
-//	if(algorithm == "PATRIC")
-//		algorithm = "RAST";
-//	else if(algorithm == "Legacy BRC")
-//		algorithm = "Curation";
-	
+
 	for (i=0; i < affectedRows.length; i++) {
-		selectEcs.push("'"+affectedRows[i]+"'");
+		selectEcs.push(affectedRows[i]);
 	}
 	
 	for (i=0; i < affectedColumns.length; i++) {
@@ -261,8 +256,8 @@ function flashCellsSelected(flashObjectID, affectedColumns, affectedRows) {
 	
 	Ext.Ajax.request({
 		url: "/patric-pathways/jsp/get_na_feature_ids.json.jsp",
-		method: 'GET',
-		params: {cId:selectGenomes.join(","), cType:'genome', map:"'"+Ext.getDom("map").value+"'", algorithm:"'"+algorithm+"'", ec_number: selectEcs.join(",")},
+		method: 'POST',
+		params: {cId:selectGenomes.join(" OR "), cType:'genome', map:Ext.getDom("map").value, algorithm:algorithm, ec_number: selectEcs.join(" OR ")},
 		success: function(rs) {
 			catchLocusTagsMultiple(affectedColumns, affectedRows, selectGenomes, selectEcs, eval(Ext.JSON.decode(rs.responseText)));  			
 		}
@@ -271,7 +266,7 @@ function flashCellsSelected(flashObjectID, affectedColumns, affectedRows) {
 	
 function catchLocusTagsMultiple(affectedColumns, affectedRows, selectGenomes, selectEcs, members){
 	
-	var membersCount = members.genes.length,
+	var membersCount = members.length,
 		locusList =[],
 		na_idList =[],
 		i,
@@ -284,9 +279,9 @@ function catchLocusTagsMultiple(affectedColumns, affectedRows, selectGenomes, se
 		discard,
 		text = "";
 		
-	for(i=0;i<members.genes.length; i++){
-		locusList.push(members.genes[i].locustags);
-		na_idList.push(members.genes[i].genes);
+	for(i=0;i<members.length; i++){
+		locusList.push(members[i].locustags);
+		na_idList.push(members[i].genes);
 	}
 	
 	
@@ -386,7 +381,7 @@ function catchLocusTagsMultiple(affectedColumns, affectedRows, selectGenomes, se
 			Ext.Ajax.request({
 				url: "/portal/portal/patric/PathwayTableSingle/PathwayTableSingleWindow?action=b&cacheability=PAGE",
 				method: 'POST',
-				params: {cId:selectGenomes.join(","), cType:'genome', map:Ext.getDom("map").value, algorithm:"'"+algorithm+"'", ec_number: selectEcs.join(","), callType:'savetopk'},
+				params: {cId:selectGenomes.join(","), cType:'genome', map:Ext.getDom("map").value, algorithm:algorithm, ec_number: selectEcs.join(","), callType:'savetopk'},
 				success: function(rs) {
 					document.location.href = "/portal/portal/patric/PathwayTableSingleB?cType="+Ext.getDom("cType").value+"&cId="+Ext.getDom("cId").value+"&pk="+rs.responseText;		
 				}
@@ -406,7 +401,8 @@ function catchLocusTagsMultiple(affectedColumns, affectedRows, selectGenomes, se
 function MediatorDownloadF(selectEcs, selectGenomes, type){
 	
 	Ext.getDom("tablesource").value = "MapFeatureTable";	
-	Ext.getDom("fMapForm").action = "/patric-pathways/jsp/grid_download_handler.jsp";
+	//Ext.getDom("fMapForm").action = "/patric-pathways/jsp/grid_download_handler.jsp";
+	Ext.getDom("fMapForm").action = "/portal/portal/patric/PathwayFinder/PathwayFinderWindow?action=b&cacheability=PAGE&need=downloadMapFeatureTable";
 	Ext.getDom("ec_number").value = typeof selectEcs == "object"?selectEcs.join(","):selectEcs;
 	Ext.getDom("genomeId").value = typeof selectGenomes == "object"?selectGenomes.join(","):selectGenomes;
 	Ext.getDom("fileformat").value = type;
@@ -524,8 +520,8 @@ function flashColSelected(flashObjectID,colID) {
 		
 	Ext.Ajax.request({
 		url: "/patric-pathways/jsp/get_na_feature_ids.json.jsp",
-		method: 'GET',
-		params: {cId:colID, cType:'genome', map:"'"+Ext.getDom("map").value+"'", algorithm:"'"+algorithm+"'", ec_number: ""},
+		method: 'POST',
+		params: {cId:colID, cType:'genome', map:Ext.getDom("map").value, algorithm:algorithm, ec_number: ""},
 		success: function(rs) {
 			catchLocusTagsMultiple("1", rows.length, colID, "", eval(Ext.util.JSON.decode(rs.responseText)));
 		}
@@ -548,8 +544,8 @@ function flashRowSelected(flashObjectID,rowID) {
 		
 	Ext.Ajax.request({
 		url: "/patric-pathways/jsp/get_na_feature_ids.json.jsp",
-		method: 'GET',
-		params: {cType:'genome', map:"'"+Ext.getDom("map").value+"'", algorithm:"'"+algorithm+"'", ec_number:"'"+rowID+"'"},
+		method: 'POST',
+		params: {cType:'genome', map:Ext.getDom("map").value, algorithm:algorithm, ec_number:rowID},
 		success: function(rs) {
 			catchLocusTagsMultiple(cols.length, 1, rowID, "", eval(Ext.util.JSON.decode(rs.responseText)));  			
 		}

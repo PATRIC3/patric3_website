@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2014 Virginia Polytechnic Institute and State University
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,26 +15,13 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.portlets;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
-
-import javax.portlet.GenericPortlet;
-import javax.portlet.PortletException;
-import javax.portlet.PortletRequestDispatcher;
-import javax.portlet.PortletSession;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
-import javax.portlet.ResourceRequest;
-import javax.portlet.ResourceResponse;
-
 import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.beans.GenomeFeature;
 import edu.vt.vbi.patric.beans.Taxonomy;
+import edu.vt.vbi.patric.common.SiteHelper;
+import edu.vt.vbi.patric.common.SolrCore;
+import edu.vt.vbi.patric.common.SolrInterface;
+import edu.vt.vbi.patric.dao.ResultType;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.LBHttpSolrServer;
@@ -44,13 +31,16 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-
-import edu.vt.vbi.patric.common.SiteHelper;
-import edu.vt.vbi.patric.common.SolrCore;
-import edu.vt.vbi.patric.common.SolrInterface;
-import edu.vt.vbi.patric.dao.ResultType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.portlet.*;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Random;
 
 public class GenomicFeature extends GenericPortlet {
 
@@ -94,7 +84,7 @@ public class GenomicFeature extends GenericPortlet {
 					QueryResponse qr = lbHttpSolrServer.query(query);
 					FacetField ffFeatureTypes = qr.getFacetField("feature_type");
 
-					for (FacetField.Count featureType: ffFeatureTypes.getValues()) {
+					for (FacetField.Count featureType : ffFeatureTypes.getValues()) {
 						featureTypes.add(featureType.getName());
 					}
 				}
@@ -114,7 +104,7 @@ public class GenomicFeature extends GenericPortlet {
 					QueryResponse qr = lbHttpSolrServer.query(query);
 					FacetField ffFeatureTypes = qr.getFacetField("feature_type");
 
-					for (FacetField.Count featureType: ffFeatureTypes.getValues()) {
+					for (FacetField.Count featureType : ffFeatureTypes.getValues()) {
 						featureTypes.add(featureType.getName());
 					}
 				}
@@ -215,8 +205,9 @@ public class GenomicFeature extends GenericPortlet {
 
 				hl = Boolean.parseBoolean(highlight);
 
-				if (request.getParameter("grouping") != null)
+				if (request.getParameter("grouping") != null) {
 					grouping = Boolean.parseBoolean(request.getParameter("grouping"));
+				}
 
 				if (sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE) == null) {
 					key.put("facet", facet);
@@ -268,7 +259,8 @@ public class GenomicFeature extends GenericPortlet {
 					key.put("join", SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + key.get("taxonId")));
 				}
 
-				key.put("fields", "genome_id,genome_name,accession,alt_locus_tag,refseq_locus_tag,gene,annotation,feature_type,feature_id,start,end,na_length,strand,protein_id,aa_length,product,figfam_id");
+				key.put("fields",
+						"genome_id,genome_name,sequence_id,accession,seed_id,alt_locus_tag,refseq_locus_tag,gene,annotation,feature_type,feature_id,start,end,na_length,strand,protein_id,aa_length,product,figfam_id");
 
 				JSONObject object = solr.getData(key, sort, facet, start, end, true, hl, grouping);
 
@@ -368,16 +360,16 @@ public class GenomicFeature extends GenericPortlet {
 				keyword = request.getParameter("keyword");
 				facet = request.getParameter("facet");
 
-//				if (sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE) == null) {
-//					key.put("facet", facet);
-					key.put("keyword", keyword);
+				//				if (sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE) == null) {
+				//					key.put("facet", facet);
+				key.put("keyword", keyword);
 
-//					sess.setAttribute("key" + pk, key, PortletSession.APPLICATION_SCOPE);
-//				}
-//				else {
-//					key = (ResultType) sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
-//					key.put("facet", facet);
-//				}
+				//					sess.setAttribute("key" + pk, key, PortletSession.APPLICATION_SCOPE);
+				//				}
+				//				else {
+				//					key = (ResultType) sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
+				//					key.put("facet", facet);
+				//				}
 				if (request.getParameter("taxonId") != null && !request.getParameter("taxonId").equals("")) {
 					key.put("taxonId", request.getParameter("taxonId"));
 				}
@@ -396,7 +388,8 @@ public class GenomicFeature extends GenericPortlet {
 				query.setQuery(solr.KeywordReplace(key.get("keyword")));
 
 				// set fields
-				query.addField("genome_id,genome_name,accession,alt_locus_tag,refseq_locus_tag,gene,annotation,feature_type,feature_id,start,end,na_length,strand,protein_id,aa_length,product,figfam_id");
+				query.addField(
+						"genome_id,genome_name,sequence_id,accession,seed_id,alt_locus_tag,refseq_locus_tag,gene,annotation,feature_type,feature_id,start,end,na_length,strand,protein_id,aa_length,product,figfam_id");
 
 				// paging
 				query.setStart(start);
@@ -409,9 +402,10 @@ public class GenomicFeature extends GenericPortlet {
 					JSONArray sorter;
 					try {
 						sorter = (JSONArray) jsonParser.parse(request.getParameter("sort"));
-						for (Object aSort: sorter) {
+						for (Object aSort : sorter) {
 							JSONObject jsonSort = (JSONObject) aSort;
-							query.addSort(SolrQuery.SortClause.create(jsonSort.get("property").toString(), jsonSort.get("direction").toString().toLowerCase()));
+							query.addSort(SolrQuery.SortClause
+									.create(jsonSort.get("property").toString(), jsonSort.get("direction").toString().toLowerCase()));
 						}
 					}
 					catch (ParseException e) {
@@ -433,7 +427,7 @@ public class GenomicFeature extends GenericPortlet {
 					List<GenomeFeature> records = qr.getBeans(GenomeFeature.class);
 					numFound = qr.getResults().getNumFound();
 
-					for (GenomeFeature feature: records) {
+					for (GenomeFeature feature : records) {
 						docs.add(feature.toJSONObject());
 					}
 

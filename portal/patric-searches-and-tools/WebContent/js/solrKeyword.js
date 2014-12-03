@@ -7,6 +7,9 @@ Ext.define('Feature', {
 		name : 'genome_name',
 		type : 'string'
 	}, {
+		name : 'sequence_id',
+		type : 'string'
+	}, {
 		name : 'accession',
 		type : 'string'
 	}, {
