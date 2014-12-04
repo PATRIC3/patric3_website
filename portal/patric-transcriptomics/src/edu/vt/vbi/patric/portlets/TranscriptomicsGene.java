@@ -407,7 +407,7 @@ public class TranscriptomicsGene extends GenericPortlet {
 		SolrInterface solr = new SolrInterface();
 
 		SolrQuery query = new SolrQuery("feature_id:(" + StringUtils.join(idList, " OR ") + ")");
-		query.setFields("feature_id,strand,product,accession,start,end,alt_locus_tag,genome_name,gene");
+		query.setFields("feature_id,strand,product,accession,start,end,seed_id,alt_locus_tag,genome_name,gene");
 		query.setRows(idList.size());
 
 		try {
@@ -422,6 +422,7 @@ public class TranscriptomicsGene extends GenericPortlet {
 				json.put("start", feature.getStart());
 				json.put("end", feature.getEnd());
 				json.put("alt_locus_tag", feature.getAltLocusTag());
+				json.put("seed_id", feature.getSeedId());
 				json.put("genome_name", feature.getGenomeName());
 				json.put("gene", feature.getGene());
 

@@ -52,7 +52,7 @@ function getSelectedFeatures() {"use strict";
 	var Page = $Page, property = Page.getPageProperties(), sl = Page.getCheckBox().getSelections(), i, fids = property.fids;
 
 	for ( i = 0; i < sl.length; i++)
-		fids.push(sl[i].data.na_feature_id);
+		fids.push(sl[i].data.feature_id);
 }
 
 function DownloadFile() {"use strict";

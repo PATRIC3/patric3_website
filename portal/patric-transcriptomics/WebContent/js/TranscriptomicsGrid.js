@@ -57,7 +57,10 @@ function TranscriptomicsGrid(gridId, stateObject, instance) {
 		}, {
 			name : 'windowID',
 			type : 'string'
-		}]
+		}, {
+            name : 'seed_id',
+            type : 'string'
+        }]
 	});
 
 	this.headerReader = new Ext.data.reader.Array({
@@ -234,10 +237,10 @@ function pickPanel() {
 				dataIndex : 'genome_name',
 				renderer : BasicRenderer
 			}, {
-				header : 'Locus Tag',
+				header : 'SEED ID',
 				sortable : true,
 				flex : 1,
-				dataIndex : 'alt_locus_tag',
+				dataIndex : 'seed_id',
 				renderer : renderGeneLevelPage
 			}, {
 				header : 'RefSeq Locus Tag',
@@ -245,6 +248,12 @@ function pickPanel() {
 				flex : 1,
 				dataIndex : 'exp_locus_tag',
 				renderer : BasicRenderer
+			}, {
+				header : 'Alt Locus Tag',
+				sortable : true,
+				flex : 1,
+				dataIndex : 'alt_locus_tag',
+				renderer : renderGeneLevelPage
 			}, {
 				header : 'Gene Symbol',
 				sortable : true,

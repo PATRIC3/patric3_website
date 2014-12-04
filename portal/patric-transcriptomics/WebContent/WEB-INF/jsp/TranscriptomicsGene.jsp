@@ -154,7 +154,7 @@ Ext.onReady(function() {
 		name: "<%=name%>", 
 		stateId: ['TRfeaturelist'],
 		pagingBarMsg: ['Displaying genes {0} - {1} of {2}'],
-		sort: (state && state.sort)?state.sort:[{property:'alt_locus_tag',
+		sort: (state && state.sort)?state.sort:[{property:'genome_name',
 			direction:'ASC'
 		}],
 		hash:{

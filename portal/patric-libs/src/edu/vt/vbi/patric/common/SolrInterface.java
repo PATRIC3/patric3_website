@@ -558,7 +558,7 @@ public class SolrInterface {
 
 		// if (type.equals("GenomicFeature")) {
 		if (this.core == SolrCore.FEATURE) {
-			query.setFields("genome_id,genome_name,accession,alt_locus_tag,refseq_locus_tag,gene,annotation,feature_type,feature_id,start,end,na_length,strand,protein_id,aa_length,product,figfam_id");
+			query.setFields("genome_id,genome_name,accession,seed_id,alt_locus_tag,refseq_locus_tag,gene,annotation,feature_type,feature_id,start,end,na_length,strand,protein_id,aa_length,product,figfam_id");
 			query.addFilterQuery("!(feature_type:source)");
 			query.set("group", true);
 			query.set("group.field", "pos_group");

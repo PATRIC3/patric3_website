@@ -18,14 +18,14 @@ if (feature != null) {
 	<table class="basic stripe far2x left" style="width:600px">
 	<tbody>
 		<tr>
-			<th scope="row" style="width:20%">Gene ID</th>
+			<th scope="row" style="width:15%">Gene ID</th>
 			<td>
-				<% if (feature.getAnnotation().equals("PATRIC") && feature.hasAltLocusTag()) { %>
-					<span><b>PATRIC</b></span>: 
-					<span><%=feature.getAltLocusTag() %> </span>
-					&nbsp;&nbsp;&nbsp;&nbsp;
+				<% if (feature.hasSeedId()) { %>
+					<span><b>SEED ID</b></span>:
+					<span><%=feature.getSeedId() %> </span>
+					&nbsp;
 				<% } %>
-				
+
 				<% if (refseqLocusTag != null) { %>
 					<span><b>RefSeq</b></span>: 
 					<% if (refseqLink != null) { %>
@@ -33,9 +33,13 @@ if (feature != null) {
 					<% } else { %>
 						<%=refseqLocusTag%>
 					<% } %>
-					&nbsp;&nbsp;
+					&nbsp;
 				<% } %>
-				&nbsp;
+
+				<% if (feature.getAnnotation().equals("PATRIC") && feature.hasAltLocusTag()) { %>
+					<span><b>Alt Locus Tag</b></span>:
+					<span><%=feature.getAltLocusTag() %> </span>
+				<% } %>
 			</td>
 		</tr>
 		<tr>

@@ -680,15 +680,15 @@ function renderListGenome(value, p, record) {
 
 function renderListFeature(value, p, record) {
 
-	var data = {}, text = "", locus_tag, refseq_locus_tag, highlights_checked = {}, span = "<span style=\"font-size: 14px;\"> | </span>";
+	var data = {}, text = "", seed_id, alt_locus_tag, refseq_locus_tag, highlights_checked = {}, span = "<span style=\"font-size: 14px;\"> | </span>";
 
 	if (record && record.data) {
 		data = record.data;
 		if (data.annotation) {
 
-			if (data.annotation == "PATRIC" || data.annotation == "RAST") {
+			if (data.annotation == "PATRIC") {
 				text += "<div style=\"float:left\"><img src=\"/patric/images/global_feature_patric.png\"style=\"float: left; padding: 5px 6px 2px 2px;\"/></div>";
-			} else if (data.annotation == "Legacy BRC" || data.annotation == "BRC" || data.annotation == "Curation") {
+			} else if (data.annotation == "BRC1") {
 				text += "<div style=\"float:left\"><img src=\"/patric/images/global_feature_legacy.png\"style=\"float: left; padding: 5px 6px 2px 2px;\"/></div>";
 			} else if (data.annotation == "RefSeq") {
 				text += "<div style=\"float:left\"><img src=\"/patric/images/global_feature_refseq.png\"style=\"float: left; padding: 5px 6px 2px 2px;\"/></div>";
@@ -702,9 +702,9 @@ function renderListFeature(value, p, record) {
 		if (data.product) {
 			text += "<span style=\"font-size: 14px;\">";
 			if (data.highlight && data.highlight.product)
-				text += renderLocusTag(data.highlight.product, "", record);
+				text += renderSeedId(data.highlight.product, "", record);
 			else if (data.product && data.product)
-				text += renderLocusTag(data.product, "", record);
+				text += renderSeedId(data.product, "", record);
 			text += "</span>";
 			highlights_checked.product = true;
 		}
@@ -716,16 +716,15 @@ function renderListFeature(value, p, record) {
 			text += data.feature_type;
 		}
 
-		if (data.locus_tag) {
+		if (data.seed_id) {
 			text += span;
-			// + "PATRIC: ";
-			if (data.highlight && data.highlight.locus_tag)
-				locus_tag = data.highlight.locus_tag;
+			if (data.highlight && data.highlight.seed_id)
+				seed_id = data.highlight.seed_id;
 			else
-				locus_tag = data.locus_tag;
+				seed_id = data.seed_id;
 
-			text += locus_tag;
-			highlights_checked.locus_tag = true;
+			text += seed_id;
+			highlights_checked.seed_id = true;
 		}
 
 		if (data.refseq_locus_tag) {
@@ -739,6 +738,18 @@ function renderListFeature(value, p, record) {
 			text += refseq_locus_tag;
 			highlights_checked.refseq_locus_tag = true;
 		}
+
+		if (data.alt_locus_tag) {
+			text += span;
+			if (data.highlight && data.highlight.alt_locus_tag)
+				alt_locus_tag = data.highlight.alt_locus_tag;
+			else
+				alt_locus_tag = data.alt_locus_tag;
+
+			text += alt_locus_tag;
+			highlights_checked.alt_locus_tag = true;
+		}
+
 		var brflag = false;
 		if (data.highlight) {
 			for (var j in data.highlight) {

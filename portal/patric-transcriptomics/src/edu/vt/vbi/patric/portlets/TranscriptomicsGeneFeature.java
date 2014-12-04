@@ -85,7 +85,7 @@ public class TranscriptomicsGeneFeature extends GenericPortlet {
 			HashMap<String, String> key = (HashMap<String, String>) sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
 
 			Map<String, Object> condition = new HashMap<>();
-			condition.put("na_feature_ids", key.get("feature_info_id"));
+			condition.put("feature_ids", key.get("feature_id"));
 			condition.put("sortParam", req.getParameter("sort").toString());
 			condition.put("startParam", Integer.toString(start));
 			condition.put("limitParam", Integer.toString(end));

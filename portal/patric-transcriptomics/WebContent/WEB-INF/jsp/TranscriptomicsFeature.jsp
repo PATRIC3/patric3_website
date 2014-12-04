@@ -65,26 +65,23 @@ Ext.onReady(function()
 	Ext.define('Feature', {
 		extend: 'Ext.data.Model',
 		fields: [
-			{name:'genome_info_id',	type:'int'},
-			{name:'gid',	type:'int'},
+			{name:'genome_id',	type:'string'},
 			{name:'genome_name',	type:'string'},
 			{name:'accession',	type:'string'},
-			{name:'locus_tag',	type:'string'},
+			{name:'seed_id',	type:'string'},
+			{name:'alt_locus_tag',	type:'string'},
 			{name:'refseq_locus_tag',	type:'string'},
-			{name:'na_feature_id',	type:'int'},
+			{name:'feature_id',	type:'string'},
 			{name:'annotation',	type:'string'},
 			{name:'feature_type',		type:'string'},
-			{name:'start_max',	type:'int'},
-			{name:'end_min',	type:'int'},
+			{name:'start',	type:'int'},
+			{name:'end',	type:'int'},
 			{name:'na_length',	type:'int'},
 			{name:'strand',		type:'string'},
 			{name:'protein_id',	type:'string'},
 			{name:'aa_length',	type:'int'},
 			{name:'gene',		type:'string'},
-			{name:'bound_moiety',	type:'string'},
-			{name:'anticodon',	type:'string'},
-			{name:'product',	type:'string'},
-			{name:'debug_field',	type:'string'}
+			{name:'product',	type:'string'}
 		]
 	});
 	
@@ -99,14 +96,15 @@ Ext.onReady(function()
 		scm:[[checkbox,
 				{text:'Genome Name',			dataIndex:'genome_name',		flex:2, renderer:renderGenomeName},
 				{text:'Accession',				dataIndex:'accession',			flex:1, hidden:true, renderer:renderAccession},
-				{text:'Locus Tag',				dataIndex:'locus_tag',			flex:1, renderer:renderLocusTag},
+				{text:'SEED ID',				dataIndex:'seed_id',			flex:1, renderer:renderSeedId},
 				{text:'RefSeq Locus Tag',		dataIndex:'refseq_locus_tag',	flex:1, renderer:BasicRenderer},
+				{text:'Alt Locus Tag',			dataIndex:'alt_locus_tag',		flex:1, renderer:renderLocusTag},
 				{text:'Gene Symbol',			dataIndex:'gene',				flex:1, renderer:BasicRenderer},
 				{text:'Genome Browser',			dataIndex:'',					flex:1, hidden:true, align:'center', sortable:false, renderer:renderGenomeBrowserByFeature},
 				{text:'Annotation',				dataIndex:'annotation',			flex:1, hidden:true, renderer:BasicRenderer},
 				{text:'Feature Type',			dataIndex:'feature_type',		flex:1,	hidden:true, renderer:BasicRenderer}, 
-				{text:'Start',					dataIndex:'start_max',			flex:1, hidden:true, align:'right', renderer:BasicRenderer},
-				{text:'End', 					dataIndex:'end_min',			flex:1, hidden:true, align:'right', renderer:BasicRenderer},
+				{text:'Start',					dataIndex:'start',		    	flex:1, hidden:true, align:'right', renderer:BasicRenderer},
+				{text:'End', 					dataIndex:'end',	    		flex:1, hidden:true, align:'right', renderer:BasicRenderer},
 				{text:'Length (NT)',			dataIndex:'na_length',			flex:1, hidden:true, align:'right', renderer:BasicRenderer},
 				{text:'Strand',					dataIndex:'strand',				flex:1, hidden:true, align:'right', renderer:BasicRenderer},
 				{text:'Length (AA)',			dataIndex:'aa_length',			flex:1, hidden:true, align:'right', renderer:BasicRenderer},
@@ -182,7 +180,7 @@ function getSelectedFeatures() {
 		fids = property.fids;
 	
 	for (i=0; i<sl.length;i++) {
-		fids.push(sl[i].data.na_feature_id);
+		fids.push(sl[i].data.feature_id);
 	}
 };
 // ]]

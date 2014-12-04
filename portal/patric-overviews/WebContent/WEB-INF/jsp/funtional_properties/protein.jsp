@@ -205,7 +205,7 @@ function submitFigfam(id) {
 			figfam: id
 		},
 		success: function(rs) {
-			document.location.href = "SingleFIGfam?"+"&cType=taxon&cId=2&bm=tool&pk="+rs.responseText;
+			document.location.href = "SingleFIGfam?"+"&cType=taxon&cId=131567&bm=tool&pk="+rs.responseText;
 		}
 	});	
 }

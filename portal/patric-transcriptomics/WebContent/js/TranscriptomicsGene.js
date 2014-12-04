@@ -709,7 +709,7 @@ function filterTranscriptomicsTableData(windowID) {"use strict";
 				}
 
 				if (sample_flag) {
-					tableData[kept] = [nextRow.refseq_locus_tag, nextRow.alt_locus_tag, nextRow.patric_product, nextRow.patric_accession, nextRow.start_max, nextRow.end_min, nextRow.strand, nextRow.feature_id, nextRow.genome_name, nextRow.gene, total_samples, up_r, down_r, nextRow.sample_binary, windowID];
+					tableData[kept] = [nextRow.refseq_locus_tag, nextRow.alt_locus_tag, nextRow.patric_product, nextRow.patric_accession, nextRow.start, nextRow.end, nextRow.strand, nextRow.feature_id, nextRow.genome_name, nextRow.gene, total_samples, up_r, down_r, nextRow.sample_binary, windowID, nextRow.seed_id];
 					kept++;
 				}
 			}
@@ -1558,10 +1558,8 @@ function processFigfamSelectedItems(windowID, actiontype, showdownload, fastatyp
 	} else if (actiontype == "fasta") {
 		catchFastaIds(windowID, showdownload, fastatype, rs);
 	} else if (actiontype == "msa") {
-		hrefBase = 'TreeAlignerB?cType=' + stateObject.cType + "&cId=" + stateObject.cId + "&";
-		if (windowID.indexOf('FIGfamSorterB') < 0) {
-			hrefBase = 'TreeAligner?';
-		}
+		hrefBase = 'MSA?cType=' + stateObject.cType + "&cId=" + stateObject.cId + "&";
+
 		catchAlignIds(rs.split(",").length, stateObject.serveURL, hrefBase, rs);
 	} else if (actiontype == "idmap") {
 		Ext.Ajax.request({

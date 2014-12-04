@@ -45,8 +45,8 @@ if (feature != null) {
 			<li id="feature_breadcrumb">
 				<% if (hasPATRICAnnotation) { %>
                     <%=feature.getSeedId() %>
-                    <%=feature.hasAltLocusTag()?" <span class='pipe'>|</span> " + feature.getAltLocusTag():"" %>
                     <%=feature.hasRefseqLocusTag()?" <span class='pipe'>|</span> " + feature.getRefseqLocusTag():"" %>
+                    <%=feature.hasAltLocusTag()?" <span class='pipe'>|</span> " + feature.getAltLocusTag():"" %>
                     <%=feature.hasGene()?" <span class='pipe'>|</span> " + feature.getGene():"" %>
 				<% } else { %>
 					<%=feature.hasAltLocusTag()?feature.getAltLocusTag():"" %>
