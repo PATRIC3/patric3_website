@@ -201,23 +201,26 @@ public class TranscriptomicsEnrichment extends GenericPortlet {
 			// 3. with genomeID, get pathway ID & Ecnt
 			//solr/pathway/select?q=genome_id:83332.12 AND pathway_id:(00230 OR 00240)&fq=annotation:PATRIC&rows=0&facet=true //&facet.mincount=1&facet.limit=-1
 			// &json.facet={stat:{field:{field:pathway_id,limit:-1,facet:{gene_count:"unique(feature_id)"}}}}
-			try {
-				SolrQuery query = new SolrQuery(
-						"genome_id:(" + StringUtils.join(listGenomeID, " OR") + ") AND pathway_id:(" + StringUtils.join(listPathwayID, " OR ") + ")");
-				query.setRows(0).setFacet(true).addFilterQuery("annotation:PATRIC");
-				query.add("json.facet", "{stat:{field:{field:pathway_id,limit:-1,facet:{gene_count:\"unique(feature_id)\"}}}}");
-				LOGGER.debug("Enrichment 3/3: {}", query.toString());
+			if (!listGenomeID.isEmpty() && !listPathwayID.isEmpty()) {
+				try {
+					SolrQuery query = new SolrQuery(
+							"genome_id:(" + StringUtils.join(listGenomeID, " OR") + ") AND pathway_id:(" + StringUtils.join(listPathwayID, " OR ")
+									+ ")");
+					query.setRows(0).setFacet(true).addFilterQuery("annotation:PATRIC");
+					query.add("json.facet", "{stat:{field:{field:pathway_id,limit:-1,facet:{gene_count:\"unique(feature_id)\"}}}}");
+					LOGGER.debug("Enrichment 3/3: {}", query.toString());
 
-				QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query);
-				List<SimpleOrderedMap> buckets = (List) ((SimpleOrderedMap) ((SimpleOrderedMap) qr.getResponse().get("facets")).get("stat"))
-						.get("buckets");
+					QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query);
+					List<SimpleOrderedMap> buckets = (List) ((SimpleOrderedMap) ((SimpleOrderedMap) qr.getResponse().get("facets")).get("stat"))
+							.get("buckets");
 
-				for (SimpleOrderedMap value : buckets) {
-					pathwayMap.get(value.get("val").toString()).put("ecnt", value.get("gene_count"));
+					for (SimpleOrderedMap value : buckets) {
+						pathwayMap.get(value.get("val").toString()).put("ecnt", value.get("gene_count"));
+					}
 				}
-			}
-			catch (MalformedURLException | SolrServerException e) {
-				LOGGER.error(e.getMessage(), e);
+				catch (MalformedURLException | SolrServerException e) {
+					LOGGER.error(e.getMessage(), e);
+				}
 			}
 
 			// 4. Merge hash and calculate percentage on the fly
