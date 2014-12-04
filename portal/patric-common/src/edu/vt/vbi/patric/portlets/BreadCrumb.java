@@ -161,14 +161,10 @@ public class BreadCrumb extends GenericPortlet {
 			if (cType != null) {
 				if (cType.equals("feature")) {
 					try {
-						LOGGER.debug("backward compatible check: feature_id: {}", cId);
-
 						int p2_feature_id = Integer.parseInt(cId);
 						GenomeFeature feature = solr.getPATRICFeatureByP2FeatureId(p2_feature_id);
 
 						if (feature != null) {
-							LOGGER.debug("compatible feature_id: {}", feature.getId());
-
 							String origUrl = response.createRenderURL().toString();
 							String newUrl = origUrl.replace("/BreadCrumbWindow", "").replace("&action=2", "")
 									.replace("context_id=" + cId, "cId=" + feature.getId()).replace("context_type", "cType");
@@ -184,14 +180,10 @@ public class BreadCrumb extends GenericPortlet {
 				}
 				else if (cType.equals("genome")) {
 					try {
-						LOGGER.debug("backward compatible check: genome_id: {}", cId);
-
 						int p2_genome_id = Integer.parseInt(cId);
 						Genome genome = solr.getGenomeByP2GenomeId(p2_genome_id);
 
 						if (genome != null) {
-							LOGGER.debug("compatible genome_id: {}", genome.getId());
-
 							String origUrl = response.createRenderURL().toString();
 							String newUrl = origUrl.replace("/BreadCrumbWindow", "").replace("&action=2", "")
 									.replace("context_id=" + cId, "cId=" + genome.getId()).replace("context_type", "cType");
