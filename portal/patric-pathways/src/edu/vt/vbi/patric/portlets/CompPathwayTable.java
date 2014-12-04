@@ -45,8 +45,6 @@ public class CompPathwayTable extends GenericPortlet {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(CompPathwayTable.class);
 
-	JSONParser jsonParser = new JSONParser();
-
 	@Override
 	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 
@@ -438,7 +436,10 @@ public class CompPathwayTable extends GenericPortlet {
 	private void getFilterData(ResourceRequest request, ResourceResponse response) throws PortletException, IOException {
 		JSONObject val = new JSONObject();
 		try {
-			val = (JSONObject) jsonParser.parse(request.getParameter("val"));
+			if (request.getParameter("val") != null) {
+				LOGGER.trace("parsing param: {}", request.getParameter("val"));
+				val = (JSONObject) (new JSONParser()).parse(request.getParameter("val"));
+			}
 		}
 		catch (ParseException e) {
 			LOGGER.error(e.getMessage(), e);
@@ -446,12 +447,12 @@ public class CompPathwayTable extends GenericPortlet {
 
 		JSONObject json = new JSONObject();
 
-		String algorithm = val.get("alg") != null ? val.get("alg").toString() : "";
-		String pid = val.get("pId") != null ? val.get("pId").toString() : "";
-		String pathway_class = val.get("pClass") != null ? val.get("pClass").toString() : "";
-		String ec_number = val.get("ecN") != null ? val.get("ecN").toString() : "";
-		String cType = val.get("cType") != null ? val.get("cType").toString() : "";
-		String cId = val.get("cId") != null ? val.get("cId").toString() : "";
+//		String algorithm = val.get("alg") != null ? val.get("alg").toString() : "";
+//		String pid = val.get("pId") != null ? val.get("pId").toString() : "";
+//		String pathway_class = val.get("pClass") != null ? val.get("pClass").toString() : "";
+//		String ec_number = val.get("ecN") != null ? val.get("ecN").toString() : "";
+//		String cType = val.get("cType") != null ? val.get("cType").toString() : "";
+//		String cId = val.get("cId") != null ? val.get("cId").toString() : "";
 		String need = val.get("need") != null ? val.get("need").toString() : "";
 
 		SolrInterface solr = new SolrInterface();
@@ -464,31 +465,34 @@ public class CompPathwayTable extends GenericPortlet {
 		items.add(defaultItem);
 
 		// common solrQuery
-		SolrQuery query = new SolrQuery("annotation:" + algorithm);
-		if (cType.equals("taxon")) {
-			query.addFilterQuery(
-					SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "genome_status:(complete OR wgs) AND taxon_lineage_ids:" + cId));
-		}
-		else {
-			query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "genome_status:(complete OR wgs) AND genome_id:" + cId));
-		}
+//		SolrQuery query = new SolrQuery("annotation:" + algorithm);
+//		if (cType.equals("taxon")) {
+//			query.addFilterQuery(
+//					SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "genome_status:(complete OR wgs) AND taxon_lineage_ids:" + cId));
+//		}
+//		else {
+//			query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "genome_status:(complete OR wgs) AND genome_id:" + cId));
+//		}
+//		query.setRows(0).setFacet(true).setFacetMinCount(1).setFacetLimit(-1);
+//
+//		if (!pathway_class.equals("")) {
+//			query.addFilterQuery("pathway_class:" + pathway_class);
+//		}
+//		if (!pid.equals("")) {
+//			query.addFilterQuery("pathway_name:" + pid);
+//		}
+//		if (!ec_number.equals("")) {
+//			query.addFilterQuery("ec_number:" + ec_number);
+//		}
+		SolrQuery query = new SolrQuery("*:*");
 		query.setRows(0).setFacet(true).setFacetMinCount(1).setFacetLimit(-1);
-
-		if (!pathway_class.equals("")) {
-			query.addFilterQuery("pathway_class:" + pathway_class);
-		}
-		if (!pid.equals("")) {
-			query.addFilterQuery("pathway_name:" + pid);
-		}
-		if (!ec_number.equals("")) {
-			query.addFilterQuery("ec_number:" + ec_number);
-		}
 
 		switch (need) {
 		case "pathway":
 			try {
 				query.addFacetPivotField("pathway_id,pathway_name");
-				QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query);
+				// QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query);
+				QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY_REF).query(query);
 				List<PivotField> pivotFacet = qr.getFacetPivot().get("pathway_id,pathway_name");
 
 				for (PivotField field : pivotFacet) {
@@ -511,7 +515,7 @@ public class CompPathwayTable extends GenericPortlet {
 			try {
 				query.addFacetField("ec_number");
 
-				QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query);
+				QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY_REF).query(query);
 				FacetField facet = qr.getFacetField("ec_number");
 
 				for (FacetField.Count item : facet.getValues()) {
@@ -533,7 +537,7 @@ public class CompPathwayTable extends GenericPortlet {
 			try {
 				query.addFacetField("pathway_class");
 
-				QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query);
+				QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY_REF).query(query);
 				FacetField facet = qr.getFacetField("pathway_class");
 
 				for (FacetField.Count item : facet.getValues()) {
@@ -551,25 +555,34 @@ public class CompPathwayTable extends GenericPortlet {
 			}
 			break;
 		case "algorithm":
-			try {
-				query.addFacetField("annotation");
+//			try {
+//				query.addFacetField("annotation");
+//
+//				QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query);
+//				FacetField facet = qr.getFacetField("annotation");
+//
+//				for (FacetField.Count item : facet.getValues()) {
+//					JSONObject i = new JSONObject();
+//					i.put("name", item.getName());
+//					i.put("value", item.getName());
+//
+//					items.add(i);
+//				}
+				JSONObject annotationAll = new JSONObject();
+				annotationAll.put("name", "ALL");
+				annotationAll.put("value", "ALL");
+				items.add(annotationAll);
 
-				QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query);
-				FacetField facet = qr.getFacetField("annotation");
-
-				for (FacetField.Count item : facet.getValues()) {
-					JSONObject i = new JSONObject();
-					i.put("name", item.getName());
-					i.put("value", item.getName());
-
-					items.add(i);
-				}
+				JSONObject annotationPATRIC = new JSONObject();
+				annotationPATRIC.put("name", "PATRIC");
+				annotationPATRIC.put("value", "PATRIC");
+				items.add(annotationPATRIC);
 
 				json.put(need, items);
-			}
-			catch (MalformedURLException | SolrServerException e) {
-				LOGGER.error(e.getMessage(), e);
-			}
+//			}
+//			catch (MalformedURLException | SolrServerException e) {
+//				LOGGER.error(e.getMessage(), e);
+//			}
 			break;
 		}
 		response.setContentType("application/json");
