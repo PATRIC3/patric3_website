@@ -144,13 +144,68 @@ public class BreadCrumb extends GenericPortlet {
 		if (cId != null && cId.equals("")) {
 			// if cId == "", redirect to cellular organism
 			String origUrl = response.createRenderURL().toString();
-			String newUrl = origUrl.replace("/BreadCrumbWindow","").replace("&action=2","").replace("context_id=", "cId=131567").replace("context_type","cType");
+			String newUrl = origUrl.replace("/BreadCrumbWindow", "").replace("&action=2", "").replace("context_id=", "cId=131567")
+					.replace("context_type", "cType");
 			LOGGER.debug("{} redirects to {}", origUrl, newUrl);
 
 			response.getWriter().write("<meta http-equiv=\"refresh\" content=\"0;url=" + newUrl + "\">");
 			response.getWriter().close();
 
-		} else {
+		}
+		else {
+
+			SolrInterface solr = new SolrInterface();
+
+			// for backward compatibility, check id format for genome & feature level request, and redirect url as needed.
+
+			if (cType != null) {
+				if (cType.equals("feature")) {
+					try {
+						LOGGER.debug("backward compatible check: feature_id: {}", cId);
+
+						int p2_feature_id = Integer.parseInt(cId);
+						GenomeFeature feature = solr.getPATRICFeatureByP2FeatureId(p2_feature_id);
+
+						if (feature != null) {
+							LOGGER.debug("compatible feature_id: {}", feature.getId());
+
+							String origUrl = response.createRenderURL().toString();
+							String newUrl = origUrl.replace("/BreadCrumbWindow", "").replace("&action=2", "")
+									.replace("context_id=" + cId, "cId=" + feature.getId()).replace("context_type", "cType");
+							LOGGER.debug("{} redirects to {}", origUrl, newUrl);
+
+							response.getWriter().write("<meta http-equiv=\"refresh\" content=\"0;url=" + newUrl + "\">");
+							response.getWriter().close();
+						}
+						return;
+					}
+					catch (NumberFormatException nfe) {
+					}
+				}
+				else if (cType.equals("genome")) {
+					try {
+						LOGGER.debug("backward compatible check: genome_id: {}", cId);
+
+						int p2_genome_id = Integer.parseInt(cId);
+						Genome genome = solr.getGenomeByP2GenomeId(p2_genome_id);
+
+						if (genome != null) {
+							LOGGER.debug("compatible genome_id: {}", genome.getId());
+
+							String origUrl = response.createRenderURL().toString();
+							String newUrl = origUrl.replace("/BreadCrumbWindow", "").replace("&action=2", "")
+									.replace("context_id=" + cId, "cId=" + genome.getId()).replace("context_type", "cType");
+							LOGGER.debug("{} redirects to {}", origUrl, newUrl);
+
+							response.getWriter().write("<meta http-equiv=\"refresh\" content=\"0;url=" + newUrl + "\">");
+							response.getWriter().close();
+						}
+						return;
+					}
+					catch (NumberFormatException nfe) {
+					}
+				}
+			}
 
 			String windowID = request.getWindowID();
 
@@ -169,7 +224,6 @@ public class BreadCrumb extends GenericPortlet {
 				request.setAttribute("WindowID", windowID);
 
 				List<Map<String, Object>> lineage = new ArrayList<>();
-				SolrInterface solr = new SolrInterface();
 				Taxonomy taxonomy = null;
 				if (cType.equals("taxon")) {
 					taxonomy = solr.getTaxonomy(Integer.parseInt(cId));
@@ -215,8 +269,6 @@ public class BreadCrumb extends GenericPortlet {
 					boolean hasPATRICAnnotation = false;
 					List<Map<String, Object>> lineage = new ArrayList<>();
 
-					SolrInterface solr = new SolrInterface();
-
 					GenomeFeature feature = solr.getPATRICFeature(cId);
 					int taxonId = feature.getTaxonId();
 
@@ -251,8 +303,6 @@ public class BreadCrumb extends GenericPortlet {
 					List<Map<String, Object>> lineage = new ArrayList<>();
 					boolean isBelowGenus = false;
 					boolean hasPATRICAnnotation = false;
-
-					SolrInterface solr = new SolrInterface();
 
 					Genome genome = solr.getGenome(cId);
 					int taxonId = genome.getTaxonId();
@@ -293,8 +343,6 @@ public class BreadCrumb extends GenericPortlet {
 
 					List<Map<String, Object>> lineage = new ArrayList<>();
 					boolean isBelowGenus = false;
-
-					SolrInterface solr = new SolrInterface();
 
 					Taxonomy taxonomy = solr.getTaxonomy(Integer.parseInt(cId));
 

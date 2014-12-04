@@ -1457,6 +1457,26 @@ public class SolrInterface {
 		return genome;
 	}
 
+	public Genome getGenomeByP2GenomeId(int p2_genomeId) {
+		Genome genome = null;
+
+		try {
+			SolrQuery query = new SolrQuery("p2_genome_id:" + p2_genomeId);
+
+			QueryResponse qr = this.getSolrServer(SolrCore.GENOME).query(query);
+			List<Genome> genomes = qr.getBeans(Genome.class);
+
+			if (!genomes.isEmpty()) {
+				genome = genomes.get(0);
+			}
+		}
+		catch (MalformedURLException | SolrServerException e) {
+			LOGGER.error(e.getMessage(), e);
+		}
+
+		return genome;
+	}
+
 	/**
 	 * used by feature level breadcrumb
 	 * @param feature_id
@@ -1470,6 +1490,46 @@ public class SolrInterface {
 
 			SolrQuery query = new SolrQuery();
 			query.setQuery("feature_id:" + feature_id);
+
+			QueryResponse qr = lbHttpSolrServer.query(query);
+			List<GenomeFeature> res = qr.getBeans(GenomeFeature.class);
+
+			if (!res.isEmpty()) {
+				GenomeFeature f = res.get(0);
+
+				if (f.getAnnotation().equals("PATRIC")) { // if this is PATRIC
+					pf = f;
+				}
+				else { // get corresponding PARIC
+					SolrQuery query2 = new SolrQuery();
+					query2.setQuery("pos_group:" + f.getPosGroupInQuote() + " AND feature_type:" + f.getFeatureType() + " AND annotation:PATRIC");
+
+					QueryResponse qr2 = lbHttpSolrServer.query(query2);
+					List<GenomeFeature> res2 = qr2.getBeans(GenomeFeature.class);
+					if (!res2.isEmpty()) { // found PATRIC feature
+						pf = res2.get(0);
+					}
+					else {
+						pf = f;
+					}
+				}
+			}
+		}
+		catch (MalformedURLException | SolrServerException e) {
+			e.printStackTrace();
+		}
+
+		return pf;
+	}
+
+	public GenomeFeature getPATRICFeatureByP2FeatureId(int p2_feature_id) {
+		GenomeFeature pf = null;
+
+		try {
+			LBHttpSolrServer lbHttpSolrServer = this.getSolrServer(SolrCore.FEATURE);
+
+			SolrQuery query = new SolrQuery();
+			query.setQuery("p2_feature_id:" + p2_feature_id);
 
 			QueryResponse qr = lbHttpSolrServer.query(query);
 			List<GenomeFeature> res = qr.getBeans(GenomeFeature.class);

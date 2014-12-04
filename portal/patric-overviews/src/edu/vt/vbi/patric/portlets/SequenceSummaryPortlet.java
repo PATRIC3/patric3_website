@@ -45,8 +45,6 @@ public class SequenceSummaryPortlet extends GenericPortlet {
 		String cType = request.getParameter("context_type");
 		String cId = request.getParameter("context_id");
 
-		// TODO: implement redirection for p2_genome_id to new genome_id
-
 		if (cType != null && cType.equals("genome")) {
 			new SiteHelper().setHtmlMetaElements(request, response, "Genome Overview");
 		}
@@ -77,11 +75,14 @@ public class SequenceSummaryPortlet extends GenericPortlet {
 
 				Genome genome = solr.getGenome(contextId);
 
-				request.setAttribute("genome", genome);
+				if (genome != null) {
 
-				response.setContentType("text/html");
-				PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/overview/sequence_summary.jsp");
-				prd.include(request, response);
+					request.setAttribute("genome", genome);
+
+					response.setContentType("text/html");
+					PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/overview/sequence_summary.jsp");
+					prd.include(request, response);
+				}
 			}
 			else {
 				// taxon level

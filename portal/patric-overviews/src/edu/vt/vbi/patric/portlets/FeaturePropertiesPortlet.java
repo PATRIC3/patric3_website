@@ -58,94 +58,105 @@ public class FeaturePropertiesPortlet extends GenericPortlet {
 			SolrInterface solr = new SolrInterface();
 
 			GenomeFeature feature = solr.getPATRICFeature(cId);
-			List<GenomeFeature> listReleateFeatures = null;
-			List<String> listUniprotkbAccessions = feature.getUniprotkbAccession();
-			List<Map<String, String>> listUniprotIds = null;
-			String refseqLink = null;
-			String refseqLocusTag = null;
-			Map<String, String> virulenceFactor = null;
 
-			try {
-				SolrQuery query = new SolrQuery("pos_group:" + feature.getPosGroupInQuote());
-				query.setSort("annotation_sort", SolrQuery.ORDER.asc);
-				QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query);
+			if (feature != null) {
+				List<GenomeFeature> listReleateFeatures = null;
+				List<String> listUniprotkbAccessions = feature.getUniprotkbAccession();
+				List<Map<String, String>> listUniprotIds = null;
+				String refseqLink = null;
+				String refseqLocusTag = null;
+				Map<String, String> virulenceFactor = null;
 
-				listReleateFeatures = qr.getBeans(GenomeFeature.class);
-
-			} catch (SolrServerException e) {
-				LOGGER.error(e.getMessage(), e);
-			}
-
-			if (listUniprotkbAccessions != null) {
 				try {
-					SolrQuery query = new SolrQuery("uniprotkb_accession:(" + StringUtils.join(listUniprotkbAccessions, " OR ") + ")");
-					query.setFields("uniprotkb_accession,id_type,id_value");
-					query.setRows(1000);
+					SolrQuery query = new SolrQuery("pos_group:" + feature.getPosGroupInQuote());
+					query.setSort("annotation_sort", SolrQuery.ORDER.asc);
+					QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query);
 
-					QueryResponse qr = solr.getSolrServer(SolrCore.ID_REF).query(query);
+					listReleateFeatures = qr.getBeans(GenomeFeature.class);
+
+				}
+				catch (SolrServerException e) {
+					LOGGER.error(e.getMessage(), e);
+				}
+
+				if (listUniprotkbAccessions != null) {
+					try {
+						SolrQuery query = new SolrQuery("uniprotkb_accession:(" + StringUtils.join(listUniprotkbAccessions, " OR ") + ")");
+						query.setFields("uniprotkb_accession,id_type,id_value");
+						query.setRows(1000);
+
+						QueryResponse qr = solr.getSolrServer(SolrCore.ID_REF).query(query);
+
+						SolrDocumentList sdl = qr.getResults();
+
+						if (!sdl.isEmpty()) {
+							listUniprotIds = new ArrayList<>();
+						}
+
+						for (SolrDocument doc : sdl) {
+							Map<String, String> uniprot = new HashMap<>();
+
+							uniprot.put("Accession", doc.get("uniprotkb_accession").toString());
+							uniprot.put("idType", doc.get("id_type").toString());
+							uniprot.put("idValue", doc.get("id_value").toString());
+
+							listUniprotIds.add(uniprot);
+						}
+					}
+					catch (MalformedURLException | SolrServerException e) {
+						LOGGER.error(e.getMessage(), e);
+					}
+				}
+
+				if (feature.getAnnotation().equals("PATRIC")) {
+
+					if (feature.hasGeneId()) {
+						refseqLink = SiteHelper.getExternalLinks("ncbi_gene").replace("&", "&amp;") + feature.getGeneId();
+					}
+					refseqLocusTag = feature.getRefseqLocusTag();
+				}
+				else if (feature.getAnnotation().equals("RefSeq")) {
+					refseqLocusTag = feature.getAltLocusTag();
+				}
+
+				try {
+					SolrQuery query = new SolrQuery("(locus_tag:" + feature.getAltLocusTag()
+							+ (feature.hasRefseqLocusTag() ? " OR locus_tag: " + feature.getRefseqLocusTag() : "") + ")");
+					query.setFilterQueries("source:PATRIC_VF");
+					query.setFields("source,source_id");
+
+					QueryResponse qr = solr.getSolrServer(SolrCore.SPECIALTY_GENE).query(query);
 
 					SolrDocumentList sdl = qr.getResults();
 
-					if (!sdl.isEmpty()) {
-						listUniprotIds = new ArrayList<>();
+					for (SolrDocument doc : sdl) {
+						virulenceFactor = new HashMap<>();
+
+						virulenceFactor.put("source", doc.get("source").toString());
+						virulenceFactor.put("sourceId", doc.get("source_id").toString());
 					}
 
-					for (SolrDocument doc: sdl) {
-						Map<String, String> uniprot = new HashMap<>();
-
-						uniprot.put("Accession", doc.get("uniprotkb_accession").toString());
-						uniprot.put("idType", doc.get("id_type").toString());
-						uniprot.put("idValue", doc.get("id_value").toString());
-
-						listUniprotIds.add(uniprot);
-					}
-				} catch (MalformedURLException | SolrServerException e) {
+				}
+				catch (MalformedURLException | SolrServerException e) {
 					LOGGER.error(e.getMessage(), e);
 				}
+
+				request.setAttribute("feature", feature);
+				request.setAttribute("listReleateFeatures", listReleateFeatures);
+				request.setAttribute("listUniprotkbAccessions", listUniprotkbAccessions);
+				request.setAttribute("listUniprotIds", listUniprotIds);
+				request.setAttribute("refseqLink", refseqLink);
+				request.setAttribute("refseqLocusTag", refseqLocusTag);
+				request.setAttribute("virulenceFactor", virulenceFactor);
+
+				PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/overview/feature_properties.jsp");
+				prd.include(request, response);
 			}
-
-			if (feature.getAnnotation().equals("PATRIC")) {
-
-				if (feature.hasGeneId()) {
-					refseqLink = SiteHelper.getExternalLinks("ncbi_gene").replace("&","&amp;") + feature.getGeneId();
-				}
-				refseqLocusTag = feature.getRefseqLocusTag();
+			else {
+				PrintWriter writer = response.getWriter();
+				writer.write(" ");
+				writer.close();
 			}
-			else if (feature.getAnnotation().equals("RefSeq")) {
-				refseqLocusTag = feature.getAltLocusTag();
-			}
-
-			try {
-				SolrQuery query = new SolrQuery("(locus_tag:" + feature.getAltLocusTag()
-						+ (feature.hasRefseqLocusTag()? " OR locus_tag: " + feature.getRefseqLocusTag():"") + ")");
-				query.setFilterQueries("source:PATRIC_VF");
-				query.setFields("source,source_id");
-
-				QueryResponse qr = solr.getSolrServer(SolrCore.SPECIALTY_GENE).query(query);
-
-				SolrDocumentList sdl = qr.getResults();
-
-				for (SolrDocument doc: sdl) {
-					virulenceFactor = new HashMap<>();
-
-					virulenceFactor.put("source", doc.get("source").toString());
-					virulenceFactor.put("sourceId", doc.get("source_id").toString());
-				}
-
-			} catch (MalformedURLException | SolrServerException e) {
-				LOGGER.error(e.getMessage(), e);
-			}
-
-			request.setAttribute("feature", feature);
-			request.setAttribute("listReleateFeatures", listReleateFeatures);
-			request.setAttribute("listUniprotkbAccessions", listUniprotkbAccessions);
-			request.setAttribute("listUniprotIds", listUniprotIds);
-			request.setAttribute("refseqLink", refseqLink);
-			request.setAttribute("refseqLocusTag", refseqLocusTag);
-			request.setAttribute("virulenceFactor", virulenceFactor);
-
-			PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/overview/feature_properties.jsp");
-			prd.include(request, response);
 		}
 		else {
 			PrintWriter writer = response.getWriter();

@@ -34,44 +34,52 @@ public class FeatureToolsPortlet extends GenericPortlet {
 
 			SolrInterface solr = new SolrInterface();
 			GenomeFeature feature = solr.getPATRICFeature(cId);
-			String dispRefseqLocusTag = null, dispSeedId = null, dispProteinSequence = null;
-			StringBuilder dispSequenceID = new StringBuilder();
 
-			if (feature.getAnnotation().equals("PATRIC")) {
+			if (feature != null) {
+				String dispRefseqLocusTag = null, dispSeedId = null, dispProteinSequence = null;
+				StringBuilder dispSequenceID = new StringBuilder();
 
-				dispRefseqLocusTag = feature.getRefseqLocusTag();
-				dispSeedId = feature.getSeedId();
+				if (feature.getAnnotation().equals("PATRIC")) {
 
-				if (feature.hasAltLocusTag()) {
-					dispSequenceID.append(feature.getAltLocusTag());
+					dispRefseqLocusTag = feature.getRefseqLocusTag();
+					dispSeedId = feature.getSeedId();
+
+					if (feature.hasAltLocusTag()) {
+						dispSequenceID.append(feature.getAltLocusTag());
+					}
+					if (feature.hasRefseqLocusTag()) {
+						dispSequenceID.append("|").append(feature.getRefseqLocusTag());
+					}
+					if (feature.hasProduct()) {
+						dispSequenceID.append(" ").append(feature.getProduct());
+					}
+
 				}
-				if (feature.hasRefseqLocusTag()) {
-					dispSequenceID.append("|").append(feature.getRefseqLocusTag());
+				else if (feature.getAnnotation().equals("RefSeq")) {
+
+					dispRefseqLocusTag = feature.getAltLocusTag();
+					dispSequenceID.append(feature.getAltLocusTag()).append(" ").append(feature.getProduct());
 				}
-				if (feature.hasProduct()) {
-					dispSequenceID.append(" ").append(feature.getProduct());
+
+				// getting Protein Sequence
+				if (feature.getFeatureType().equals("CDS")) {
+					dispProteinSequence = feature.getAaSequence();
 				}
 
+				request.setAttribute("feature", feature);
+				request.setAttribute("dispRefseqLocusTag", dispRefseqLocusTag);
+				request.setAttribute("dispSeedId", dispSeedId);
+				request.setAttribute("dispSequenceID", dispSequenceID.toString());
+				request.setAttribute("dispProteinSequence", dispProteinSequence);
+
+				PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/overview/feature_tools.jsp");
+				prd.include(request, response);
 			}
-			else if (feature.getAnnotation().equals("RefSeq")) {
-
-				dispRefseqLocusTag = feature.getAltLocusTag();
-				dispSequenceID.append(feature.getAltLocusTag()).append(" ").append(feature.getProduct());
+			else {
+				PrintWriter writer = response.getWriter();
+				writer.write(" ");
+				writer.close();
 			}
-
-			// getting Protein Sequence
-			if (feature.getFeatureType().equals("CDS")) {
-				dispProteinSequence = feature.getAaSequence();
-			}
-
-			request.setAttribute("feature", feature);
-			request.setAttribute("dispRefseqLocusTag", dispRefseqLocusTag);
-			request.setAttribute("dispSeedId", dispSeedId);
-			request.setAttribute("dispSequenceID", dispSequenceID.toString());
-			request.setAttribute("dispProteinSequence", dispProteinSequence);
-
-			PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/overview/feature_tools.jsp");
-			prd.include(request, response);
 		}
 		else {
 			PrintWriter writer = response.getWriter();
