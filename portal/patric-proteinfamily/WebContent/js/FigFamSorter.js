@@ -879,7 +879,7 @@ function addRectangleToGroup(windowID, figfamNames, genomeList) {
 
 	var stateObject = getStateObject(windowID), object = {};
 
-	object["gid"] = genomeList.replace(/,/g, '##');
+	object["genome_id"] = genomeList.replace(/,/g, '##');
 	object["figfam_id"] = figfamNames.replace(/,/g, '##');
 
 	Ext.Ajax.request({
@@ -1708,7 +1708,7 @@ function getSelectedFeatures(windowID, actiontype, showdownload, fastatype, to) 
 		object["figfam_id"].push((sl[i]).get('groupId'));
 	}
 
-	object["gid"] = stateObject.genomeIds.join('##');
+	object["genome_id"] = stateObject.genomeIds.join('##');
 	object["figfam_id"] = object["figfam_id"].join("##");
 
 	Ext.Ajax.request({
