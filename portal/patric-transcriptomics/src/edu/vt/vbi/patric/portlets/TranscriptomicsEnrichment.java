@@ -227,11 +227,13 @@ public class TranscriptomicsEnrichment extends GenericPortlet {
 			JSONObject jsonResult = new JSONObject();
 			JSONArray results = new JSONArray();
 			for (JSONObject item : pathwayMap.values()) {
-				float ecnt = Float.parseFloat(item.get("ecnt").toString());
-				float ocnt = Float.parseFloat(item.get("ocnt").toString());
-				float percentage = ocnt / ecnt * 100;
-				item.put("percentage", (int) percentage);
-				results.add(item);
+				if (item.get("ecnt") != null && item.get("ocnt") != null) {
+					float ecnt = Float.parseFloat(item.get("ecnt").toString());
+					float ocnt = Float.parseFloat(item.get("ocnt").toString());
+					float percentage = ocnt / ecnt * 100;
+					item.put("percentage", (int) percentage);
+					results.add(item);
+				}
 			}
 			jsonResult.put("results", results);
 			jsonResult.put("total", results.size());
