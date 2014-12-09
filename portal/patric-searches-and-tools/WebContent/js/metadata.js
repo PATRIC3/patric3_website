@@ -1,10 +1,10 @@
-var metadataName = ['genome_status_f', 'isolation_country_f', 'host_name_f', 'disease_f', 'collection_date_f', 'completion_date'];
-var metadataTaxonSummary = ['genome_status_f', 'isolation_country_f', 'host_name_f'/*,  'oxygen_requirement', 'sporulation', 'temperature_range', 'motility', 'habitat',*/, 'disease_f', 'collection_date_f'];
+//var metadataName = ['genome_status_f', 'isolation_country_f', 'host_name_f', 'disease_f', 'collection_date_f', 'completion_date'];
+//var metadataTaxonSummary = ['genome_status_f', 'isolation_country_f', 'host_name_f'/*,  'oxygen_requirement', 'sporulation', 'temperature_range', 'motility', 'habitat',*/, 'disease_f', 'collection_date_f'];
 var metadataGenomeSummaryID = ['Organism_Info', 'Isolate_Info', 'Host_Info', 'Sequence_Info', 'Phenotype_Info', 'Project_Info', 'Others'];
 var metadataGenomeSummaryValue = {};
 metadataGenomeSummaryValue['Organism_Info'] = [{
-	name : 'Genome Info ID',
-	text : 'genome_info_id',
+	name : 'Genome ID',
+	text : 'genome_id',
 	style : 'none'
 }, {
 	name : 'Genome Name',
@@ -12,7 +12,7 @@ metadataGenomeSummaryValue['Organism_Info'] = [{
 	style : 'none'
 }, {
 	name : 'NCBI Taxon ID',
-	text : 'ncbi_tax_id',
+	text : 'taxon_id',
 	style : 'none'
 }, {
 	name : 'Genome Status',
@@ -43,6 +43,10 @@ metadataGenomeSummaryValue['Organism_Info'] = [{
 	text : 'mlst',
 	style : 'none'
 }, {
+	name : 'Other Typing',
+	text : 'other_typing',
+	style : 'none'
+}, {
 	name : 'Culture Collection',
 	text : 'culture_collection',
 	style : 'none'
@@ -67,6 +71,18 @@ metadataGenomeSummaryValue['Project_Info'] = [{
 	value: 'publication', 
 	linkClass: 'double-arrow-link',
 	cellClass: 'no-underline-links '
+}, {
+	name : 'BioProject Accession',
+	text : 'bioproject_accession',
+	style : 'none'
+}, {
+	name : 'BioSample Accession',
+	text : 'biosample_accession',
+	style : 'none'
+}, {
+	name : 'Assembly Accession',
+	text : 'assembly_accession',
+	style : 'none'
 }, {
 	name : 'NCBI Project ID',
 	text : 'ncbi_project_id',
@@ -146,19 +162,19 @@ metadataGenomeSummaryValue['Sequence_Info'] = [{
 	text : 'patric_cds',
 	style : 'none',
 	link : 'FeatureTable?cType=taxon&cId={0}&featuretype=CDS&annotation=PATRIC&filtertype=',
-	value: 'ncbi_tax_id'
-}, {
+	value: 'taxon_id'
+}, { /*
 	name : 'BRC1 CDS',
 	text : 'brc1_cds',
 	style : 'none',
-	link : 'FeatureTable?cType=taxon&cId={0}&featuretype=CDS&annotation=BRC&filtertype=',
+	link : 'FeatureTable?cType=taxon&cId={0}&featuretype=CDS&annotation=BRC1&filtertype=',
 	value: 'ncbi_tax_id'
-}, {
+}, { */
 	name : 'RefSeq CDS',
 	text : 'refseq_cds',
 	style : 'none',
 	link : 'FeatureTable?cType=taxon&cId={0}&featuretype=CDS&annotation=RefSeq&filtertype=',
-	value: 'ncbi_tax_id'
+	value: 'taxon_id'
 }];
 metadataGenomeSummaryValue['Isolate_Info'] = [{
 	name : 'Isolation Site',
@@ -200,6 +216,10 @@ metadataGenomeSummaryValue['Isolate_Info'] = [{
 	name : 'Depth',
 	text : 'depth',
 	style : 'none'
+}, {
+	name : 'Other Environmental',
+	text : 'other_environmental',
+	style : 'none'
 }];
 metadataGenomeSummaryValue['Host_Info'] = [{
 	name : 'Host Name',
@@ -224,6 +244,18 @@ metadataGenomeSummaryValue['Host_Info'] = [{
 }, {
 	name : 'Body Sample Subsite',
 	text : 'body_sample_subsite',
+	style : 'none'
+}, {
+	name : 'Other Clinical',
+	text : 'other_clinical',
+	style : 'none'
+}, {
+	name : 'Antimicrobial Resistance',
+	text : 'antimicrobial_resistance',
+	style : 'none'
+}, {
+	name : 'Antimicrobial Resistance Evidence',
+	text : 'antimicrobial_resistance_evidence',
 	style : 'none'
 }];
 metadataGenomeSummaryValue['Phenotype_Info'] = [{
@@ -274,5 +306,9 @@ metadataGenomeSummaryValue['Others'] = [{
 }, {
 	name : 'Comments',
 	text : 'comments',
+	style : 'none'
+}, {
+	name : 'Additional',
+	text : 'additional_metadata',
 	style : 'none'
 }];

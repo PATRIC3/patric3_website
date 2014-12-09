@@ -116,6 +116,9 @@ Ext.define('Genome', {
 		name : 'mlst',
 		type : 'string'
 	}, {
+		name : 'other_typing',
+		type : 'string'
+	}, {
 		name : 'genome_length',
 		type : 'int'
 	}, {
@@ -182,6 +185,15 @@ Ext.define('Genome', {
 		name : 'completion_date',
 		type : 'string'
 	}, {
+		name : 'bioproject_accession',
+		type : 'string'
+	}, {
+		name : 'biosample_accession',
+		type : 'string'
+	}, {
+		name : 'assembly_accession',
+		type : 'string'
+	}, {
 		name : 'ncbi_project_id',
 		type : 'string'
 	}, {
@@ -233,6 +245,9 @@ Ext.define('Genome', {
 		name : 'depth',
 		type : 'string'
 	}, {
+		name : 'other_environmental',
+		type : 'string'
+	}, {
 		name : 'host_gender',
 		type : 'string'
 	}, {
@@ -246,6 +261,15 @@ Ext.define('Genome', {
 		type : 'string'
 	}, {
 		name : 'body_sample_subsite',
+		type : 'string'
+	}, {
+		name : 'other_clinical',
+		type : 'string'
+	}, {
+		name : 'antimicrobial_resistance',
+		type : 'string'
+	}, {
+		name : 'antimicrobial_resistance_evidence',
 		type : 'string'
 	}, {
 		name : 'gram_stain',
@@ -267,6 +291,9 @@ Ext.define('Genome', {
 		type : 'string'
 	}, {
 		name : 'comments',
+		type : 'string'
+	}, {
+		name : 'additional_metadata',
 		type : 'string'
 	}, {
 		name : 'highlight'
