@@ -105,7 +105,7 @@
 			}
 
 			solr.setCurrentInstance(SolrCore.SEQUENCE);
-
+            key.put("fields", StringUtils.join(DownloadHelper.getFieldsForGenomeSequence(), ","));
 			JSONObject object = solr.getData(key, sort, null, 0, -1, false, false, false);
 
 			JSONObject obj = (JSONObject) object.get("response");
@@ -120,10 +120,8 @@
 				sort.put("direction", sort_dir);
 			}
 
-			_tbl_header.addAll(Arrays.asList("Genome Name", "Accession", "Length (bp)", "Sequence Type", "Topology", "GC Content",
-					"Description"));
-			_tbl_field.addAll(Arrays.asList("genome_name", "accession", "length", "sequence_type", "topology", "gc_content",
-					"description"));
+			_tbl_header.addAll(DownloadHelper.getHeaderForGenomeSequence());
+			_tbl_field.addAll(DownloadHelper.getFieldsForGenomeSequence());
 		}
 
 		_filename = "GenomeFinder";
@@ -139,6 +137,7 @@
 			key.put("taxonId", taxonId);
 			key.put("join", SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + key.get("taxonId")));
 		}
+		key.put("fields", StringUtils.join(DownloadHelper.getFieldsForFeatures(), ","));
 
 		sort_field = request.getParameter("sort");
 		sort_dir = request.getParameter("dir");
