@@ -653,8 +653,9 @@ public class SolrInterface {
 		JSONObject state_object = null;
 
 		try {
-			if (state != "")
+			if (!state.equals("")) {
 				state_object = (JSONObject) new JSONParser().parse(state);
+			}
 		}
 		catch (ParseException e1) {
 			e1.printStackTrace();
@@ -665,9 +666,9 @@ public class SolrInterface {
 		for (int i = 0; i < a.length; i++) {
 
 			JSONObject f = null;
-			JSONObject sent = null;
+			JSONObject sent;
 
-			if (state == "" || state_object.get(a[i]) == null) {
+			if (state.equals("") || state_object.get(a[i]) == null) {
 				sent = (JSONObject) facet_fields.get(a[i]);
 				f = createNode(sent, i, need, false, "", limit, a_text[i]);
 			}
