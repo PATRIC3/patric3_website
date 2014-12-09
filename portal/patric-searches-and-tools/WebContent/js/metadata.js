@@ -161,8 +161,8 @@ metadataGenomeSummaryValue['Sequence_Info'] = [{
 	name : 'PATRIC CDS',
 	text : 'patric_cds',
 	style : 'none',
-	link : 'FeatureTable?cType=taxon&cId={0}&featuretype=CDS&annotation=PATRIC&filtertype=',
-	value: 'taxon_id'
+	link : 'FeatureTable?cType=genome&cId={0}&featuretype=CDS&annotation=PATRIC&filtertype=',
+	value: 'genome_id'
 }, { /*
 	name : 'BRC1 CDS',
 	text : 'brc1_cds',
@@ -173,8 +173,8 @@ metadataGenomeSummaryValue['Sequence_Info'] = [{
 	name : 'RefSeq CDS',
 	text : 'refseq_cds',
 	style : 'none',
-	link : 'FeatureTable?cType=taxon&cId={0}&featuretype=CDS&annotation=RefSeq&filtertype=',
-	value: 'taxon_id'
+	link : 'FeatureTable?cType=genome&cId={0}&featuretype=CDS&annotation=RefSeq&filtertype=',
+	value: 'genome_id'
 }];
 metadataGenomeSummaryValue['Isolate_Info'] = [{
 	name : 'Isolation Site',
