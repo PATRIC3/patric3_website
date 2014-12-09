@@ -568,11 +568,6 @@ public class CompPathwayTable extends GenericPortlet {
 //
 //					items.add(i);
 //				}
-				JSONObject annotationAll = new JSONObject();
-				annotationAll.put("name", "ALL");
-				annotationAll.put("value", "ALL");
-				items.add(annotationAll);
-
 				JSONObject annotationPATRIC = new JSONObject();
 				annotationPATRIC.put("name", "PATRIC");
 				annotationPATRIC.put("value", "PATRIC");

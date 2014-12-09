@@ -82,6 +82,7 @@ public class FeatureTable extends GenericPortlet {
 
 		try {
 			SolrQuery query = new SolrQuery(keyword);
+			query.addFilterQuery("!annotation:BRC1"); // remove BRC1 from the filter
 			query.setRows(0).setFacet(true).setFacetMinCount(1).setFacetLimit(-1).setFacetSort(FacetParams.FACET_SORT_COUNT)
 					.addFacetField("annotation", "feature_type");
 
