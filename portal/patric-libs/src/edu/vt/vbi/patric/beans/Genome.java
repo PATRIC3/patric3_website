@@ -68,6 +68,9 @@ public class Genome {
 	@Field
 	private String mlst;
 
+	@Field("other_typing")
+	private List<String> otherTyping;
+
 	@Field("culture_collection")
 	private String cultureCollection;
 
@@ -82,6 +85,15 @@ public class Genome {
 
 	@Field("publication")
 	private String publication;
+
+	@Field("bioproject_accession")
+	private String bioprojectAccession;
+
+	@Field("biosample_accession")
+	private String biosampleAccession;
+
+	@Field("assembly_accession")
+	private String assemblyAccession;
 
 	@Field("ncbi_project_id")
 	private String ncbiProjectId;
@@ -167,6 +179,9 @@ public class Genome {
 	@Field("depth")
 	private String depth;
 
+	@Field("other_environmental")
+	private List<String> otherEnvironmental;
+
 	@Field("host_name")
 	private String hostName;
 
@@ -184,6 +199,15 @@ public class Genome {
 
 	@Field("body_sample_subsite")
 	private String bodySampleSubsite;
+
+	@Field("other_clinical")
+	private List<String> otherClinical;
+
+	@Field("antimicrobial_resistance")
+	private List<String> antimicrobialResistance;
+
+	@Field("antimicrobial_resistance_evidence")
+	private String antimicrobialResistanceEvidence;
 
 	@Field("gram_stain")
 	private String gramStain;
@@ -216,7 +240,10 @@ public class Genome {
 	private List<String> disease;
 
 	@Field("comments")
-	private String comments;
+	private List<String> comments;
+
+	@Field("additional_metadata")
+	private List<String> additionalMetadata;
 
 	public JSONObject toJSONObject() {
 		JSONObject json = new JSONObject();
@@ -237,6 +264,7 @@ public class Genome {
 		json.put("biovar", getBiovar());
 		json.put("pathovar", getPathovar());
 		json.put("mlst", getMlst());
+		json.put("other_typing", getOtherTyping());
 		json.put("cluture_collection", getCultureCollection());
 		json.put("type_strain", getTypeStrain());
 		json.put("reference_genome", getReferenceGenome());
@@ -244,6 +272,9 @@ public class Genome {
 		json.put("completion_date", getCompletionDate());
 		json.put("publication", getPublication());
 
+		json.put("bioproject_accession", getBioprojectAccession());
+		json.put("biosample_accession", getBiosampleAccession());
+		json.put("assembly_accession", getAssemblyAccession());
 		json.put("ncbi_project_id", getNcbiProjectId());
 		json.put("refseq_project_id", getRefseqProjectId());
 		json.put("genbank_accessions", getGenbankAccessions());
@@ -276,6 +307,7 @@ public class Genome {
 		json.put("longitude", getLongitude());
 		json.put("altitude", getAltitude());
 		json.put("depth", getDepth());
+		json.put("other_environmental", getOtherEnvironmental());
 
 		json.put("host_name", getHostName());
 		json.put("host_gender", getHostGender());
@@ -283,6 +315,10 @@ public class Genome {
 		json.put("host_health", getHostHealth());
 		json.put("body_sample_site", getBodySampleSite());
 		json.put("body_sample_subsite", getBodySampleSubsite());
+		json.put("other_clinical", getOtherClinical());
+
+		json.put("antimicrobial_resistance", getAntimicrobialResistance());
+		json.put("antimicrobial_resistance_evidence", getAntimicrobialResistanceEvidence());
 
 		json.put("gram_stain", getGramStain());
 		json.put("cell_shape", getCellShape());
@@ -297,6 +333,8 @@ public class Genome {
 		json.put("disease", getDisease());
 
 		json.put("comments", getComments());
+
+		json.put("additional_metadata", getAdditionalMetadata());
 
 		return json;
 	}
@@ -349,9 +387,13 @@ public class Genome {
 		this.taxonId = taxonId;
 	}
 
-	public String getGenus() { return genus; }
+	public String getGenus() {
+		return genus;
+	}
 
-	public void setGenus(String genus) { this.genus = genus; }
+	public void setGenus(String genus) {
+		this.genus = genus;
+	}
 
 	public String getGenomeStatus() {
 		return genomeStatus;
@@ -401,6 +443,14 @@ public class Genome {
 		this.mlst = mlst;
 	}
 
+	public List<String> getOtherTyping() {
+		return otherTyping;
+	}
+
+	public void setOtherTyping(List<String> otherTyping) {
+		this.otherTyping = otherTyping;
+	}
+
 	public String getCultureCollection() {
 		return cultureCollection;
 	}
@@ -444,6 +494,30 @@ public class Genome {
 
 	public void setPublication(String publication) {
 		this.publication = publication;
+	}
+
+	public String getBioprojectAccession() {
+		return bioprojectAccession;
+	}
+
+	public void setBioprojectAccession(String bioprojectAccession) {
+		this.bioprojectAccession = bioprojectAccession;
+	}
+
+	public String getBiosampleAccession() {
+		return biosampleAccession;
+	}
+
+	public void setBiosampleAccession(String biosampleAccession) {
+		this.biosampleAccession = biosampleAccession;
+	}
+
+	public String getAssemblyAccession() {
+		return assemblyAccession;
+	}
+
+	public void setAssemblyAccession(String assemblyAccession) {
+		this.assemblyAccession = assemblyAccession;
 	}
 
 	public String getNcbiProjectId() {
@@ -670,6 +744,14 @@ public class Genome {
 		this.depth = depth;
 	}
 
+	public List<String> getOtherEnvironmental() {
+		return otherEnvironmental;
+	}
+
+	public void setOtherEnvironmental(List<String> otherEnvironmental) {
+		this.otherEnvironmental = otherEnvironmental;
+	}
+
 	public String getHostName() {
 		return hostName;
 	}
@@ -716,6 +798,30 @@ public class Genome {
 
 	public void setBodySampleSubsite(String bodySampleSubsite) {
 		this.bodySampleSubsite = bodySampleSubsite;
+	}
+
+	public List<String> getOtherClinical() {
+		return otherClinical;
+	}
+
+	public void setOtherClinical(List<String> otherClinical) {
+		this.otherClinical = otherClinical;
+	}
+
+	public List<String> getAntimicrobialResistance() {
+		return antimicrobialResistance;
+	}
+
+	public void setAntimicrobialResistance(List<String> antimicrobialResistance) {
+		this.antimicrobialResistance = antimicrobialResistance;
+	}
+
+	public String getAntimicrobialResistanceEvidence() {
+		return antimicrobialResistanceEvidence;
+	}
+
+	public void setAntimicrobialResistanceEvidence(String antimicrobialResistanceEvidence) {
+		this.antimicrobialResistanceEvidence = antimicrobialResistanceEvidence;
 	}
 
 	public String getGramStain() {
@@ -798,12 +904,20 @@ public class Genome {
 		this.disease = disease;
 	}
 
-	public String getComments() {
+	public List<String> getComments() {
 		return comments;
 	}
 
-	public void setComments(String comments) {
+	public void setComments(List<String> comments) {
 		this.comments = comments;
+	}
+
+	public List<String> getAdditionalMetadata() {
+		return additionalMetadata;
+	}
+
+	public void setAdditionalMetadata(List<String> additionalMetadata) {
+		this.additionalMetadata = additionalMetadata;
 	}
 
 	public boolean hasCollectionDate() {
