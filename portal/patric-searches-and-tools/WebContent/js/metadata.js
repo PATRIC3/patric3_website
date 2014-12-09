@@ -308,7 +308,7 @@ metadataGenomeSummaryValue['Others'] = [{
 	text : 'comments',
 	style : 'none'
 }, {
-	name : 'Additional',
+	name : 'Additional Metadata',
 	text : 'additional_metadata',
 	style : 'none'
 }];

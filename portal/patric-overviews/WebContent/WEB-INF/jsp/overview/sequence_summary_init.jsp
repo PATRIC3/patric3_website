@@ -143,7 +143,21 @@ function InsertTable(){
                         }
 					}
 					else {
-						cell.innerHTML = "<span class=\"nowrap\">"+decoded[metadataGenomeSummaryValue[metadataGenomeSummaryID[i]][j].text]+"</span>";
+                        if (typeof decoded[metadataGenomeSummaryValue[metadataGenomeSummaryID[i]][j].text] === "object") {
+                            var multiValued = decoded[metadataGenomeSummaryValue[metadataGenomeSummaryID[i]][j].text];
+
+                            var output = "";
+                            for (idx = 0; idx < multiValued.length; idx++) {
+                                if (idx > 0) {
+                                    output += "<br>";
+                                }
+                                output += "<span class=\"nowrap\">"+multiValued[idx]+"</span>";
+                            }
+                            cell.innerHTML = output;
+                        }
+                        else {
+                            cell.innerHTML = "<span class=\"nowrap\">"+decoded[metadataGenomeSummaryValue[metadataGenomeSummaryID[i]][j].text]+"</span>";
+                        }
 					}
 				}
 				else {
