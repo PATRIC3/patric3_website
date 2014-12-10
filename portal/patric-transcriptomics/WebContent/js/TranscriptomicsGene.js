@@ -328,6 +328,9 @@ function createSampleGrid(windowID) {"use strict";
 		}, {
 			name : 'condition',
 			type : 'string'
+		}, {
+			name : 'samples',
+			type : 'string'
 		}]
 	});
 
@@ -1560,7 +1563,8 @@ function processFigfamSelectedItems(windowID, actiontype, showdownload, fastatyp
 	} else if (actiontype == "msa") {
 		hrefBase = 'MSA?cType=' + stateObject.cType + "&cId=" + stateObject.cId + "&";
 
-		catchAlignIds(rs.split(",").length, stateObject.serveURL, hrefBase, rs);
+		//catchAlignIds(rs.split(",").length, stateObject.serveURL, hrefBase, rs);
+		catchAlignIds(rs.split(",").length, '/portal/portal/patric/FIGfam/FIGfamWindow?action=b&cacheability=PAGE', hrefBase, rs);
 	} else if (actiontype == "idmap") {
 		Ext.Ajax.request({
 			url : "/portal/portal/patric/IDMapping/IDMappingWindow?action=b&cacheability=PAGE",
@@ -1684,7 +1688,7 @@ function submittoFeatureTable(windowID, featureIds) {"use strict";
 		timeout : 600000,
 		params : {
 			callType : "saveFeatureParams",
-			feature_info_id : featureIds
+			feature_id : featureIds
 		},
 		success : function(rs) {
 			open_in_new_tab("TranscriptomicsGeneFeature?cType=" + stateObject.cType + "&cId=" + stateObject.cId + "&pk=" + rs.responseText);

@@ -1,4 +1,5 @@
 <%@ page session="true" %><%@ page
+	import="edu.vt.vbi.patric.common.DownloadHelper" %><%@ page
 	import="edu.vt.vbi.patric.common.ExcelHelper" %><%@ page
 	import="java.util.ArrayList" %><%@ page 
 	import="java.util.List" %><%@ page 
@@ -80,15 +81,13 @@
 			sort.add(x);
 			condition.put("sortParam", sort.toString());
 		}
-		condition.put("na_feature_ids", request.getParameter("featureIds"));
+		condition.put("feature_ids", request.getParameter("featureIds"));
 		SolrInterface solr = new SolrInterface();
 		JSONObject object = solr.getFeaturesByID(condition);
 		JSONArray _tbl_source = (JSONArray) object.get("results");
 
-		_tbl_header.addAll(Arrays.asList("Genome", "Accession", "Locus Tag", "RefSeq Locus Tag", "Gene Symbol", "Annotation", "Feature Type",
-				"Start", "End", "Length", "Strand", "AA Length", "Gene Symbol", "Product"));
-		_tbl_field.addAll(Arrays.asList("genome_name", "accession", "locus_tag", "refseq_locus_tag", "gene", "annotation", "feature_type",
-				"start_max", "end_min", "na_length", "strand", "aa_length", "gene", "product"));
+		_tbl_header.addAll(DownloadHelper.getHeaderForFeatures());
+		_tbl_field.addAll(DownloadHelper.getFieldsForFeatures());
 
 		ExcelHelper excel = new ExcelHelper("xssf", _tbl_header, _tbl_field, _tbl_source);
 		excel.buildSpreadsheet();

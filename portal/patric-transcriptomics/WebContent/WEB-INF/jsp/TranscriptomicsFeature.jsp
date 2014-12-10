@@ -9,8 +9,8 @@ String pk = request.getParameter("param_key");
 String featureIds = "";
 HashMap<String, String> key = (HashMap<String, String>) portletSession.getAttribute("key"+pk, PortletSession.APPLICATION_SCOPE);
 
-if(key != null && key.containsKey("feature_info_id")){
-	featureIds = key.get("feature_info_id");
+if(key != null && key.containsKey("feature_id")){
+	featureIds = key.get("feature_id");
 }
 
 %>
@@ -112,7 +112,7 @@ Ext.onReady(function()
 		extraParams:getExtraParams,
 		callBackFn:CallBack,
 		sort: [[{
-			property: 'locus_tag',
+			property: 'genome_name',
 			direction: 'ASC'
 		}]],
 		hash:{

@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2014 Virginia Polytechnic Institute and State University
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,39 +15,33 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.portlets;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.*;
-
-import javax.portlet.GenericPortlet;
-import javax.portlet.PortletException;
-import javax.portlet.PortletRequestDispatcher;
-import javax.portlet.PortletSession;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
-import javax.portlet.ResourceRequest;
-import javax.portlet.ResourceResponse;
-import javax.portlet.UnavailableException;
-
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-
 import edu.vt.vbi.patric.common.SiteHelper;
 import edu.vt.vbi.patric.common.SolrInterface;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.portlet.*;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 
 public class TranscriptomicsGeneFeature extends GenericPortlet {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(TranscriptomicsGeneFeature.class);
+
 	@Override
-	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException, UnavailableException {
+	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 
 		response.setContentType("text/html");
 		response.setTitle("Transcriptomics Feature");
 
-		PortletRequestDispatcher prd = null;
-
 		new SiteHelper().setHtmlMetaElements(request, response, "Transcriptomics Feature");
 
-		prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/TranscriptomicsFeature.jsp");
+		PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/TranscriptomicsFeature.jsp");
 		prd.include(request, response);
 	}
 
@@ -59,14 +53,14 @@ public class TranscriptomicsGeneFeature extends GenericPortlet {
 
 		if (callType.equals("saveFeatureParams")) {
 
-			HashMap<String, String> key = new HashMap<String, String>();
-			key.put("feature_info_id", req.getParameter("feature_info_id"));
+			HashMap<String, String> key = new HashMap<>();
+			key.put("feature_id", req.getParameter("feature_id"));
 
 			Random g = new Random();
 			int random = g.nextInt();
 
-			PortletSession sess = req.getPortletSession(true);
-			sess.setAttribute("key" + random, key, PortletSession.APPLICATION_SCOPE);
+			PortletSession session = req.getPortletSession(true);
+			session.setAttribute("key" + random, key, PortletSession.APPLICATION_SCOPE);
 
 			PrintWriter writer = resp.getWriter();
 			writer.write("" + random);
@@ -74,7 +68,7 @@ public class TranscriptomicsGeneFeature extends GenericPortlet {
 		}
 		else if (callType.equals("getFeatureTable")) {
 
-			PortletSession sess = req.getPortletSession();
+			PortletSession session = req.getPortletSession();
 
 			String pk = req.getParameter("pk");
 			String start_id = req.getParameter("start");
@@ -82,7 +76,7 @@ public class TranscriptomicsGeneFeature extends GenericPortlet {
 			int start = Integer.parseInt(start_id);
 			int end = Integer.parseInt(limit);
 
-			HashMap<String, String> key = (HashMap<String, String>) sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
+			HashMap<String, String> key = (HashMap<String, String>) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
 
 			Map<String, Object> condition = new HashMap<>();
 			condition.put("feature_ids", key.get("feature_id"));

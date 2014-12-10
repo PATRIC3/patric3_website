@@ -304,7 +304,8 @@ public class FIGfamData {
 	private SequenceData[] getFeatureProteins(ResourceRequest req) throws SQLException {
 		SequenceData[] result = null;
 		String featuresString = req.getParameter("featureIds");
-		if (featuresString != null) {
+		LOGGER.debug("getFeatureProteins: {}", featuresString);
+		if (featuresString != null && !featuresString.equals("")) {
 			String[] idList = featuresString.split(",");
 			result = getFeatureSequences(idList);
 		}

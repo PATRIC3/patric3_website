@@ -148,6 +148,8 @@ public class TranscriptomicsGeneExp extends GenericPortlet {
 				if (paramZScore != null && !paramZScore.equals("") && !paramZScore.equals("0")) {
 					query.addFilterQuery("z_score:[* TO -" + paramZScore + "] OR z_score:[" + paramZScore + " TO *]");
 				}
+				LOGGER.debug("{}", query.toString());
+
 				QueryResponse qr = lbHttpSolrServer.query(query);
 				long numFound = qr.getResults().getNumFound();
 
@@ -323,48 +325,49 @@ public class TranscriptomicsGeneExp extends GenericPortlet {
 		jsonResult.put("total", numFound);
 		JSONArray results = new JSONArray();
 
-		try {
-			SolrQuery query = new SolrQuery("refseq_locus_tag:(" + StringUtils.join(correlationMap.keySet(), " OR ") + ")");
-			query.setFilterQueries("annotation:PATRIC");
-			query.setFields(
-					"genome_id,genome_name,accession,feature_id,start,end,strand,feature_type,annotation,alt_locus_tag,refseq_locus_tag,seed_id,na_length,aa_length,protein_id,gene,product");
-			query.setRows((int) numFound);
+		if (!correlationMap.isEmpty()) {
+			try {
+				SolrQuery query = new SolrQuery("refseq_locus_tag:(" + StringUtils.join(correlationMap.keySet(), " OR ") + ")");
+				query.setFilterQueries("annotation:PATRIC");
+				query.setFields(
+						"genome_id,genome_name,accession,feature_id,start,end,strand,feature_type,annotation,alt_locus_tag,refseq_locus_tag,seed_id,na_length,aa_length,protein_id,gene,product");
+				query.setRows((int) numFound);
 
-			QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query);
-			List<GenomeFeature> features = qr.getBeans(GenomeFeature.class);
+				QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query);
+				List<GenomeFeature> features = qr.getBeans(GenomeFeature.class);
 
-			for (GenomeFeature f : features) {
-				JSONObject obj = new JSONObject();
-				obj.put("genome_id", f.getGenomeId());
-				obj.put("genome_name", f.getGenomeName());
-				obj.put("accession", f.getAccession());
-				obj.put("feature_id", f.getId());
-				obj.put("alt_locus_tag", f.getAltLocusTag());
-				obj.put("refseq_locus_tag", f.getRefseqLocusTag());
-				obj.put("seed_id", f.getSeedId());
-				obj.put("gene", f.getGene());
-				obj.put("annotation", f.getAnnotation());
-				obj.put("feature_type", f.getFeatureType());
-				obj.put("start", f.getStart());
-				obj.put("end", f.getEnd());
-				obj.put("na_length", f.getNaSequenceLength());
-				obj.put("strand", f.getStrand());
-				obj.put("protein_id", f.getProteinId());
-				obj.put("aa_length", f.getProteinLength());
-				obj.put("product", f.getProduct());
+				for (GenomeFeature f : features) {
+					JSONObject obj = new JSONObject();
+					obj.put("genome_id", f.getGenomeId());
+					obj.put("genome_name", f.getGenomeName());
+					obj.put("accession", f.getAccession());
+					obj.put("feature_id", f.getId());
+					obj.put("alt_locus_tag", f.getAltLocusTag());
+					obj.put("refseq_locus_tag", f.getRefseqLocusTag());
+					obj.put("seed_id", f.getSeedId());
+					obj.put("gene", f.getGene());
+					obj.put("annotation", f.getAnnotation());
+					obj.put("feature_type", f.getFeatureType());
+					obj.put("start", f.getStart());
+					obj.put("end", f.getEnd());
+					obj.put("na_length", f.getNaSequenceLength());
+					obj.put("strand", f.getStrand());
+					obj.put("protein_id", f.getProteinId());
+					obj.put("aa_length", f.getProteinLength());
+					obj.put("product", f.getProduct());
 
-				Map<String, Object> corr = correlationMap.get(f.getRefseqLocusTag());
-				obj.put("correlation", corr.get("correlation"));
-				obj.put("count", corr.get("conditions"));
+					Map<String, Object> corr = correlationMap.get(f.getRefseqLocusTag());
+					obj.put("correlation", corr.get("correlation"));
+					obj.put("count", corr.get("conditions"));
 
-				results.add(obj);
+					results.add(obj);
+				}
 			}
-			jsonResult.put("results", results);
-
+			catch (MalformedURLException | SolrServerException e) {
+				LOGGER.error(e.getMessage(), e);
+			}
 		}
-		catch (MalformedURLException | SolrServerException e) {
-			LOGGER.error(e.getMessage(), e);
-		}
+		jsonResult.put("results", results);
 
 		return jsonResult;
 	}

@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2014 Virginia Polytechnic Institute and State University
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,32 +15,20 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.portlets;
 
+import edu.vt.vbi.patric.common.*;
+import edu.vt.vbi.patric.dao.DBTranscriptomics;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.portlet.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
-import javax.portlet.GenericPortlet;
-import javax.portlet.PortletException;
-import javax.portlet.PortletRequestDispatcher;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
-import javax.portlet.ResourceRequest;
-import javax.portlet.ResourceResponse;
-
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-
-import edu.vt.vbi.patric.common.ExpressionDataCollection;
-import edu.vt.vbi.patric.common.ExpressionDataFileReader;
-import edu.vt.vbi.patric.common.ExpressionDataGene;
-import edu.vt.vbi.patric.common.PolyomicHandler;
-import edu.vt.vbi.patric.common.SolrInterface;
-import edu.vt.vbi.patric.dao.DBTranscriptomics;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("unchecked")
 public class TestFileUploader extends GenericPortlet {
@@ -205,7 +193,7 @@ public class TestFileUploader extends GenericPortlet {
 		for (Object aData : data) {
 
 			JSONObject a = (JSONObject) aData;
-			String id = a.get("na_feature_id").toString();
+			String id = a.get("feature_id").toString();
 			ExpressionDataGene b;
 
 			if (genes.containsKey(id)) {
@@ -244,7 +232,7 @@ public class TestFileUploader extends GenericPortlet {
 		 * Solr Call to get Feature attributes-----------------------------------
 		 */
 		Map<String, Object> condition = new HashMap<>();
-		condition.put("na_feature_ids", idList.substring(0, idList.length() - 1));
+		condition.put("feature_ids", idList.substring(0, idList.length() - 1));
 		condition.put("startParam", "0");
 
 		SolrInterface solr = new SolrInterface();
@@ -255,7 +243,7 @@ public class TestFileUploader extends GenericPortlet {
 
 		for (Object anObj_array : obj_array) {
 			a = (JSONObject) anObj_array;
-			b = (JSONObject) temp.get(a.get("na_feature_id").toString());
+			b = (JSONObject) temp.get(a.get("feature_id").toString());
 			b.put("strand", a.get("strand"));
 			b.put("patric_product", a.get("product"));
 			b.put("patric_accession", a.get("accession"));

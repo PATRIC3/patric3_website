@@ -309,10 +309,10 @@
 
 		if (idType.equals("Feature")) {
 			if (idList.contains(",")) {
-				condition.put("na_feature_ids", idList);
+				condition.put("feature_ids", idList);
 			}
 			else {
-				condition.put("na_feature_id", idList);
+				condition.put("feature_id", idList);
 			}
 			object = solr.getFeaturesByID(condition);
 			_tbl_header.addAll(DownloadHelper.getHeaderForFeatures());
@@ -324,10 +324,10 @@
 		else if (idType.equals("Genome")) {
 
 			if (idList.contains(",")) {
-				condition.put("genome_info_ids", idList);
+				condition.put("genome_ids", idList);
 			}
 			else {
-				condition.put("genome_info_id", idList);
+				condition.put("genome_id", idList);
 			}
 			object = solr.getGenomesByID(condition);
 

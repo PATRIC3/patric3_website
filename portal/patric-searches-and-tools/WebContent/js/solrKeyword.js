@@ -46,12 +46,6 @@ Ext.define('Feature', {
 		name : 'gene',
 		type : 'string'
 	}, {
-		name : 'bound_moiety',
-		type : 'string'
-	}, {
-		name : 'anticodon',
-		type : 'string'
-	}, {
 		name : 'product',
 		type : 'string'
 	}, {
@@ -165,12 +159,6 @@ Ext.define('Genome', {
 		type : 'string'
 	}, {
 		name : 'type_strain',
-		type : 'string'
-	}, {
-		name : 'project_status',
-		type : 'string'
-	}, {
-		name : 'availability',
 		type : 'string'
 	}, {
 		name : 'sequencing_centers',
@@ -329,98 +317,6 @@ Ext.define('Sequence', {
 	}, {
 		name : 'description',
 		type : 'string'
-	}, {
-		name : 'highlight'
-	}]
-});
-
-Ext.define('EC', {
-	extend : 'Ext.data.Model',
-	fields : [{
-		name : 'gid',
-		type : 'string'
-	}, {
-		name : 'genome_info_id',
-		type : 'string'
-	}, {
-		name : 'genome_name',
-		type : 'string'
-	}, {
-		name : 'accession',
-		type : 'string'
-	}, {
-		name : 'locus_tag',
-		type : 'string'
-	}, {
-		name : 'na_feature_id',
-		type : 'string'
-	}, {
-		name : 'annotation',
-		type : 'string'
-	}, {
-		name : 'gene',
-		type : 'string'
-	}, {
-		name : 'product',
-		type : 'string'
-	}, {
-		name : 'ec_number',
-		type : 'string'
-	}, {
-		name : 'ec_name',
-		type : 'string'
-	}, {
-		name : 'start_max',
-		type : 'int'
-	}, {
-		name : 'end_min',
-		type : 'int'
-	}, {
-		name : 'highlight'
-	}]
-});
-
-Ext.define('GO', {
-	extend : 'Ext.data.Model',
-	fields : [{
-		name : 'gid',
-		type : 'int'
-	}, {
-		name : 'genome_info_id',
-		type : 'srring'
-	}, {
-		name : 'genome_name',
-		type : 'string'
-	}, {
-		name : 'accession',
-		type : 'string'
-	}, {
-		name : 'locus_tag',
-		type : 'string'
-	}, {
-		name : 'na_feature_id',
-		type : 'int'
-	}, {
-		name : 'annotation',
-		type : 'string'
-	}, {
-		name : 'gene',
-		type : 'string'
-	}, {
-		name : 'product',
-		type : 'string'
-	}, {
-		name : 'go_id',
-		type : 'string'
-	}, {
-		name : 'go_term',
-		type : 'string'
-	}, {
-		name : 'start_max',
-		type : 'int'
-	}, {
-		name : 'end_min',
-		type : 'int'
 	}, {
 		name : 'highlight'
 	}]
@@ -913,49 +809,7 @@ configuration['SpecialtyGeneMapping'] = {
 	sort_fields : [],
 	url : '/portal/portal/patric/SpecialtyGeneSearch/SpecialtyGeneSearchWindow?action=b&cacheability=PAGE'
 };
-/*
-configuration['GO'] = {
-	display_facets : ['annotation_f', 'go_id_f', 'go_term_f'],
-	display_facets_texts : ['Annotation', 'GO Term ID', 'GO Term Description'],
-	all_facets : ['Keyword', 'go_id_f', 'go_id', 'annotation_f', 'annotation', 'go_term', 'go_term_f', 'gid'],
-	search_fields : [{
-		value : 'Keyword',
-		text : 'Keyword'
-	}, {
-		value : 'go_id',
-		text : 'GO Term ID'
-	}, {
-		value : 'go_term',
-		text : 'GO Term Description'
-	}, {
-		value : 'annotation',
-		text : 'Annotation'
-	}],
-	sort_fields : ['genome_name', 'locus_tag', 'go_term', 'go_id', 'product'],
-	url : '/portal/portal/patric/GOSearch/GOSearchWindow?action=b&cacheability=PAGE'
-};
 
-configuration['EC'] = {
-	display_facets : ['annotation_f', 'ec_number_f'],
-	display_facets_texts : ['Annotation', 'EC Number'],
-	all_facets : ['Keyword', 'ec_number_f', 'ec_number', 'ec_name', 'annotation_f', 'annotation', 'gid'],
-	search_fields : [{
-		value : 'Keyword',
-		text : 'Keyword'
-	}, {
-		value : 'ec_number',
-		text : 'EC Number'
-	}, {
-		value : 'ec_name',
-		text : 'EC Name'
-	}, {
-		value : 'annotation',
-		text : 'Annotation'
-	}],
-	sort_fields : ['genome_name', 'locus_tag', 'ec_name', 'ec_number', 'product'],
-	url : '/portal/portal/patric/ECSearch/ECSearchWindow?action=b&cacheability=PAGE'
-};
-*/
 configuration['GlobalTaxonomy'] = {
 	display_facets : ['taxon_rank', 'genomes_f'],
 	display_facets_texts : ['Taxon Rank', 'Genomes'],

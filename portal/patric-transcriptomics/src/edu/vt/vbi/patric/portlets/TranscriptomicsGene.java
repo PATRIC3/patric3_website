@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2014 Virginia Polytechnic Institute and State University
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,26 +15,11 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.portlets;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.*;
-
-import javax.portlet.GenericPortlet;
-import javax.portlet.PortletException;
-import javax.portlet.PortletRequestDispatcher;
-import javax.portlet.PortletSession;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
-import javax.portlet.ResourceRequest;
-import javax.portlet.ResourceResponse;
-import javax.portlet.UnavailableException;
-
+import edu.vt.vbi.ci.util.CommandResults;
+import edu.vt.vbi.ci.util.ExecUtilities;
 import edu.vt.vbi.patric.beans.GenomeFeature;
 import edu.vt.vbi.patric.common.*;
+import edu.vt.vbi.patric.dao.ResultType;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest;
@@ -42,12 +27,12 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-
-import edu.vt.vbi.ci.util.CommandResults;
-import edu.vt.vbi.ci.util.ExecUtilities;
-import edu.vt.vbi.patric.dao.ResultType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.portlet.*;
+import java.io.*;
+import java.util.*;
 
 @SuppressWarnings("unchecked")
 public class TranscriptomicsGene extends GenericPortlet {
@@ -386,7 +371,7 @@ public class TranscriptomicsGene extends GenericPortlet {
 		List<String> idList = new ArrayList<>();
 		JSONObject temp = new JSONObject();
 
-		for (Map.Entry<String, ExpressionDataGene> entry: genes.entrySet()) {
+		for (Map.Entry<String, ExpressionDataGene> entry : genes.entrySet()) {
 
 			ExpressionDataGene value = entry.getValue();
 
@@ -414,7 +399,7 @@ public class TranscriptomicsGene extends GenericPortlet {
 			QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query, SolrRequest.METHOD.POST);
 			List<GenomeFeature> features = qr.getBeans(GenomeFeature.class);
 
-			for (GenomeFeature feature: features) {
+			for (GenomeFeature feature : features) {
 				JSONObject json = (JSONObject) temp.get(feature.getId());
 				json.put("strand", feature.getStrand());
 				json.put("patric_product", feature.getProduct());
@@ -433,30 +418,6 @@ public class TranscriptomicsGene extends GenericPortlet {
 			e.printStackTrace();
 		}
 
-		/*
-		 * Solr Call to get Feature attributes-----------------------------------
-
-		Map<String, Object> condition = new HashMap<>();
-		condition.put("feature_ids", StringUtils.join(idList, ","));
-		SolrInterface solr = new SolrInterface();
-		JSONObject object = solr.getFeaturesByID(condition);
-		JSONArray obj_array = (JSONArray) object.get("results");
-
-		JSONObject a, b;
-		for (int i = 0; i < obj_array.size(); i++) {
-			a = (JSONObject) obj_array.get(i);
-			b = (JSONObject) temp.get(a.get("na_feature_id").toString());
-			b.put("strand", a.get("strand"));
-			b.put("patric_product", a.get("product"));
-			b.put("patric_accession", a.get("accession"));
-			b.put("start_max", a.get("start_max"));
-			b.put("end_min", a.get("end_min"));
-			b.put("locus_tag", a.get("locus_tag"));
-			b.put("genome_name", a.get("genome_name"));
-			b.put("gene", a.get("gene"));
-			results.add(b);
-		}
-		*/
 		return results;
 	}
 }
