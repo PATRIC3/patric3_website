@@ -136,7 +136,9 @@ public class OrganismTreeBuilder {
 
 				List<TaxonomyTreeNode> descendant = new LinkedList<>();
 				for (Integer txId : descendantIds) {
-					descendant.add(new TaxonomyTreeNode(taxonomyMap.get(txId)));
+					if (taxonomyMap.containsKey(txId)) {
+						descendant.add(new TaxonomyTreeNode(taxonomyMap.get(txId)));
+					}
 				}
 				rawData.add(descendant);
 			}

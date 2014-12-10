@@ -74,8 +74,6 @@ public class BreadCrumb extends GenericPortlet {
 
 		// create cache for Genome Selector (all bacteria level)
 		if (initCache) {
-			Map<String, String> key = new HashMap<>();
-			key.put("ncbi_taxon_id", "2");
 
 			try (BufferedWriter out = new BufferedWriter(new FileWriter(getPortletContext().getRealPath("txtree-bacteria.js")))) {
 				JSONArray list = OrganismTreeBuilder.buildGenomeTree(131567);

@@ -569,7 +569,7 @@ public class SolrInterface {
 			query.setFields("genome_id,genome_name,taxon_id,genome_status,genome_length,chromosomes,plasmids,contigs,sequences,rast_cds,refseq_cds,isolation_country,host_name,disease,collection_date,completion_date,mlst,strain,serovar,biovar,pathovar,culture_collection,type_strain,sequencing_centers,publication,ncbi_project_id,refseq_project_id,genbank_accessions,refseq_accessions,sequencing_platform,sequencing_depth,assembly_method,gc_content,isolation_site,isolation_source,isolation_comments,geographic_location,latitude,longitude,altitude,depth,host_gender,host_age,host_health,body_sample_site,body_sample_subsite,gram_stain,cell_shape,motility,sporulation,temperature_range,salinity,oxygen_requirement,habitat,comments");
 		}
 		else if (this.core == SolrCore.TAXONOMY) {
-			query.setFields("taxon_id,taxon_name,taxon_rank");
+			query.setFields("taxon_id,taxon_name,taxon_rank,genomes");
 		}
 		else if (this.core == SolrCore.TRANSCRIPTOMICS_EXPERIMENT) {
 			query.setFields("eid,accession,title,description,organism,strain,mutant,timeseries,condition");
