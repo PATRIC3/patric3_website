@@ -97,8 +97,9 @@ var selectionListener = function() {
       else if (myType === 'Feature') {
         // genome name, locus_tag, refseq locus tag, gene, product
         thead.append("th").text("Genome Name");
-        thead.append("th").text("Locus Tag");
+        thead.append("th").text("SEED ID");
         thead.append("th").text("RefSeq Locus Tag");
+        thead.append("th").text("Alt Locus Tag");
         thead.append("th").text("Gene");
         thead.append("th").text("Product");
         var tbody = innerTable.append("tbody");
@@ -107,8 +108,9 @@ var selectionListener = function() {
           var tr = tbody.append("tr");
           // tr.append("td").text(selected[i]);
           tr.append("td").text(row["Genome Name"]);
-          tr.append("td").text(row["Locus Tag"]);
+          tr.append("td").text(row["SEED ID"]);
           tr.append("td").html(row["RefSeq Locus Tag"]!=""?row["RefSeq Locus Tag"]:"&nbsp;");
+          tr.append("td").html(row["Alt Locus Tag"]!=""?row["Alt Locus Tag"]:"&nbsp;");
           tr.append("td").html(row["Gene Symbol"]!=""?row["Gene Symbol"]:"&nbsp;");
           tr.append("td").text(row["Product"]);
           if (i == 0) {

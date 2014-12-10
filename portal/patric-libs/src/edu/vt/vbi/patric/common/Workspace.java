@@ -58,9 +58,9 @@ public class Workspace {
 	/**
 	 * Construct Workspace with parameters
 	 * 
-	 * @param tracks
-	 * @param tags
-	 * @param mapping
+	 * @param tracks track array
+	 * @param tags tag array
+	 * @param mapping mapping array
 	 */
 	public Workspace(JSONArray tracks, JSONArray tags, JSONArray mapping) {
 		this.tracks = tracks;
@@ -142,7 +142,7 @@ public class Workspace {
 	 */
 	public int getMaxTrackId() {
 		int id = 0;
-		int tmp = 0;
+		int tmp;
 
 		for (Object track : tracks) {
 			JSONObject jTrack = (JSONObject) track;
@@ -161,7 +161,7 @@ public class Workspace {
 	 */
 	public int getMaxTagId() {
 		int id = 0;
-		int tmp = 0;
+		int tmp;
 
 		for (Object tag : tags) {
 			JSONObject jTrack = (JSONObject) tag;
@@ -176,9 +176,9 @@ public class Workspace {
 	/**
 	 * Create a Track
 	 * 
-	 * @param trackId
-	 * @param type
-	 * @param internalId
+	 * @param trackId track ID
+	 * @param trackType track Type
+	 * @param internalId internal ID
 	 * @return JSONObject track
 	 */
 	public JSONObject createTrack(int trackId, String trackType, Object internalId) {
@@ -192,13 +192,13 @@ public class Workspace {
 
 	/**
 	 * Create a Tag. Group type.
-	 * @param tagId
-	 * @param name
-	 * @param type
-	 * @param desc
-	 * @param count
-	 * @param cdate
-	 * @return
+	 * @param tagId tag id
+	 * @param name group name
+	 * @param type group type
+	 * @param desc group description
+	 * @param count number of member
+	 * @param cdate creation time
+	 * @return group tag object
 	 */
 	public JSONObject createGroupTag(int tagId, String name, String type, String desc, int count, String cdate) {
 		JSONObject tag = new JSONObject();
@@ -222,9 +222,9 @@ public class Workspace {
 
 	/**
 	 * Create a Tag. String type.
-	 * @param tagId
-	 * @param name
-	 * @return
+	 * @param tagId tag ID
+	 * @param name tag label
+	 * @return tag object
 	 */
 	public JSONObject createStringTag(int tagId, String name) {
 		JSONObject tag = new JSONObject();
@@ -236,9 +236,9 @@ public class Workspace {
 
 	/**
 	 * Create a Map.
-	 * @param tagId
-	 * @param trackId
-	 * @return
+	 * @param tagId tag ID
+	 * @param trackId track ID
+	 * @return mapping object
 	 */
 	public JSONObject createMapping(int tagId, int trackId) {
 		JSONObject m = new JSONObject();
@@ -250,9 +250,9 @@ public class Workspace {
 
 	/**
 	 * Add a Track
-	 * @param type
-	 * @param internalId
-	 * @return
+	 * @param type track type
+	 * @param internalId internal ID
+	 * @return trackId
 	 */
 
 	public int addTrack(String type, Object internalId) {
@@ -271,7 +271,7 @@ public class Workspace {
 	public Set<Integer> addTracks(String type, Set<?> internalIds) {
 		Set<Integer> trackIds = new HashSet<>();
 		int maxId = getMaxTrackId();
-		int trackId = -1;
+		int trackId;
 
 		for (Object internalId : internalIds) {
 			trackId = findTrack(type, internalId);
@@ -308,9 +308,9 @@ public class Workspace {
 
 	/**
 	 * Find a Track matches a given type and internal ID. Return -1 if no track matches.
-	 * @param type
-	 * @param internalId
-	 * @return
+	 * @param type track type
+	 * @param internalId internal ID
+	 * @return trackID
 	 */
 	public int findTrack(String type, Object internalId) {
 		for (Iterator<JSONObject> iter = tracks.iterator(); iter.hasNext();) {
@@ -327,7 +327,7 @@ public class Workspace {
 	 * Find Tracks matches a given type and a set of internal ID.
 	 * @param type group
 	 * @param internalIds either String or Long
-	 * @return
+	 * @return list of track ID
 	 */
 	public HashSet<Integer> findTracks(String type, Set<?> internalIds) {
 		HashSet<Integer> trackIds = new HashSet<>();
@@ -388,7 +388,7 @@ public class Workspace {
 	}
 
 	public ArrayList<JSONObject> findMappingByTrackId(int trackId) {
-		ArrayList<JSONObject> result = new ArrayList<JSONObject>();
+		ArrayList<JSONObject> result = new ArrayList<>();
 		for (Iterator<JSONObject> iter = mapping.iterator(); iter.hasNext();) {
 			JSONObject m = iter.next();
 			if (Integer.parseInt(m.get("trackId").toString()) == trackId) {
@@ -399,7 +399,7 @@ public class Workspace {
 	}
 
 	public ArrayList<JSONObject> findMappingByTagId(int tagId) {
-		ArrayList<JSONObject> result = new ArrayList<JSONObject>();
+		ArrayList<JSONObject> result = new ArrayList<>();
 		for (Iterator<JSONObject> iter = mapping.iterator(); iter.hasNext();) {
 			JSONObject m = iter.next();
 			if (Integer.parseInt(m.get("tagId").toString()) == tagId) {
@@ -429,7 +429,7 @@ public class Workspace {
 
 	public void addTagging(String tags, Set<Integer> trackId) {
 
-		int tagId = -1;
+		int tagId;
 		if (tags.contains(",")) {
 			for (String tag : tags.split(",")) {
 				tag = tag.trim();
@@ -437,7 +437,7 @@ public class Workspace {
 				tagId = findTag("String", tag);
 				if (tagId > 0) {
 					for (int tId : trackId) {
-						if (isMappingExist(tagId, tId) == false) {
+						if (!isMappingExist(tagId, tId)) {
 							addMapping(tagId, tId);
 						}
 					}
@@ -456,7 +456,7 @@ public class Workspace {
 			tagId = findTag("String", tags);
 			if (tagId > 0) {
 				for (int tId : trackId) {
-					if (isMappingExist(tagId, tId) == false) {
+					if (!isMappingExist(tagId, tId)) {
 						addMapping(tagId, tId);
 					}
 				}
@@ -559,7 +559,7 @@ public class Workspace {
 				}
 			}
 		}
-		else if (tagIds != null && trackIds == null) {
+		else if (tagIds != null) {
 
 			for (Iterator<JSONObject> iter = mapping.iterator(); iter.hasNext();) {
 				JSONObject jsonM = iter.next();
@@ -586,12 +586,11 @@ public class Workspace {
 
 	public JSONArray getTracks(JSONObject filters) {
 		JSONArray rtn = new JSONArray();
-		String k = "", v = "";
 
 		if (tracks != null && tracks.size() > 0) {
 			if (filters.containsKey("key") && filters.containsKey("value")) {
-				k = filters.get("key").toString();
-				v = filters.get("value").toString();
+				String k = filters.get("key").toString();
+				String v = filters.get("value").toString();
 				HashSet<String> hash = new HashSet<>();
 				hash.addAll(Arrays.asList(v.split(",")));
 
@@ -608,12 +607,11 @@ public class Workspace {
 
 	public JSONArray getGroups(JSONObject filters) {
 		JSONArray rtn = new JSONArray();
-		String k = "", v = "";
 
 		if (tags != null && tags.size() > 0) {
 			if (filters.containsKey("key") && filters.containsKey("value")) {
-				k = filters.get("key").toString();
-				v = filters.get("value").toString();
+				String k = filters.get("key").toString();
+				String v = filters.get("value").toString();
 
 				HashSet<String> hash = new HashSet<>();
 				hash.addAll(Arrays.asList(v.split(",")));
@@ -631,13 +629,12 @@ public class Workspace {
 
 	public JSONArray getTags(JSONObject filters) {
 		JSONArray rtn = new JSONArray();
-		String k = "", v = "";
 
 		if (tags != null && tags.size() > 0) {
 
 			if (filters.containsKey("key") && filters.containsKey("value")) {
-				k = filters.get("key").toString();
-				v = filters.get("value").toString();
+				String k = filters.get("key").toString();
+				String v = filters.get("value").toString();
 				HashSet<String> hash = new HashSet<>();
 				hash.addAll(Arrays.asList(v.split(",")));
 

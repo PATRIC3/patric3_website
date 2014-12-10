@@ -999,78 +999,89 @@ public class SolrInterface {
 	 * @return JSONObject
 	 * @throws MalformedURLException
 	 */
-	public JSONObject getFeaturesByID(Map<String, Object> key) throws MalformedURLException {
+	public JSONObject getFeaturesByID(Map<String, Object> key) {
 
 		JSONObject res = new JSONObject();
-		int queryCount = 0;
-		// long start, end;
+		int featureCount = -1;
+		boolean hasLimitParam = false;
+		SolrQuery query = new SolrQuery();
 
-		StringBuffer queryParam = new StringBuffer();
-		String startParam = null;
 		if (key.containsKey("startParam") && key.get("startParam") != null) {
-			startParam = key.get("startParam").toString();
+			query.setStart(Integer.parseInt(key.get("startParam").toString()));
 		}
-		String limitParam = null;
 		if (key.containsKey("limitParam") && key.get("limitParam") != null) {
-			limitParam = key.get("limitParam").toString();
+			featureCount = Integer.parseInt(key.get("limitParam").toString());
+			query.setRows(featureCount);
+			hasLimitParam = true;
 		}
-		String sortParam = null;
 		if (key.containsKey("sortParam") && key.get("sortParam") != null) {
-			sortParam = key.get("sortParam").toString();
+			try {
+				JSONArray sortConditions = (JSONArray) new JSONParser().parse(key.get("sortParam").toString());
+
+				for (Object aSortCondition : sortConditions) {
+					JSONObject jsonSort = (JSONObject) aSortCondition;
+					query.addSort(jsonSort.get("property").toString(), SolrQuery.ORDER.valueOf(jsonSort.get("direction").toString().toLowerCase()));
+				}
+			}
+			catch (Exception ex) {
+				ex.printStackTrace();
+			}
 		}
 		else {
-			sortParam = "[{\"property\":\"locus_tag\",\"direction\":\"ASC\"}]";
+			query.setSort("seed_id", SolrQuery.ORDER.asc);
 		}
+		query.addField(
+				"genome_id,genome_name,sequence_id,accession,seed_id,alt_locus_tag,refseq_locus_tag,gene,annotation,feature_type,feature_id,start,end,na_length,strand,protein_id,aa_length,product,figfam_id");
 
-		// building query parameter string
-		queryParam.append("(");
-
-		JSONArray tracks = null;
+		// feature ID(s)
 		if (key.containsKey("tracks")) {
-			tracks = (JSONArray) key.get("tracks");
+			JSONArray tracks = (JSONArray) key.get("tracks");
 			if (tracks.size() > 0) {
-				queryParam.append("na_feature_id:(");
-				for (int i = 0; i < tracks.size(); i++) {
-					JSONObject tr = (JSONObject) tracks.get(i);
-					if (tr.get("trackType").toString().equals("Feature") && tr.get("internalId").toString().equals("") == false) {
-						if (i > 0) {
-							queryParam.append(" OR ");
-						}
-						queryParam.append(tr.get("internalId").toString());
-						queryCount++;
-					}
-				}
-				queryParam.append(")");
-			}
-		}
-		else if (key.containsKey("na_feature_id")) {
-			queryParam.append("na_feature_id:" + key.get("na_feature_id").toString());
-			queryCount++;
-		}
-		else if (key.containsKey("na_feature_ids")) {
-			queryParam.append("na_feature_id:(");
-			boolean isFirst = true;
-			for (String fid : key.get("na_feature_ids").toString().split(",")) {
-				if (fid.equals("") == false) {
-					if (isFirst) {
-						isFirst = false;
-					}
-					else {
-						queryParam.append(" OR ");
-					}
-					queryParam.append(fid);
-					queryCount++;
-				}
-			}
-			queryParam.append(")");
-		}
-		queryParam.append(")");
+				List<String> listFeatureId = new ArrayList<>();
 
-		// query to Solr
-		if (queryCount > 0) {
-			this.setCurrentInstance(SolrCore.FEATURE);
-			res = this.querySolr(queryParam.toString(), startParam, limitParam, sortParam, queryCount);
+				for (Object track : tracks) {
+					JSONObject tr = (JSONObject) track;
+					if (tr.get("trackType").toString().equals("Feature") && !tr.get("internalId").toString().equals("")) {
+						listFeatureId.add(tr.get("internalId").toString());
+					}
+				}
+				query.setQuery("feature_id:(" + StringUtils.join(listFeatureId, " OR ") + ")");
+				featureCount = listFeatureId.size();
+			}
 		}
+		else if (key.containsKey("feature_id")) {
+			query.setQuery("feature_id:" + key.get("na_feature_id").toString());
+			featureCount = 1;
+		}
+		else if (key.containsKey("feature_ids")) {
+			List<String> listFeatureId = new ArrayList<>();
+			for (String fid : key.get("feature_ids").toString().split(",")) {
+				if (!fid.equals("")) {
+					listFeatureId.add(fid);
+				}
+			}
+			query.setQuery("feature_id:(" + StringUtils.join(listFeatureId, " OR ") + ")");
+			featureCount = listFeatureId.size();
+		}
+		if (!hasLimitParam && featureCount > 0) {
+			query.setRows(featureCount);
+		}
+
+		try {
+			QueryResponse qr = this.getSolrServer(SolrCore.FEATURE).query(query);
+
+			List<GenomeFeature> listFeature = qr.getBeans(GenomeFeature.class);
+			JSONArray docs = new JSONArray();
+			for (GenomeFeature feature : listFeature) {
+				docs.add(feature.toJSONObject());
+			}
+			res.put("total", (int) qr.getResults().getNumFound());
+			res.put("results", docs);
+		}
+		catch (MalformedURLException | SolrServerException e) {
+			LOGGER.error(e.getMessage(), e);
+		}
+
 		return res;
 	}
 
@@ -1081,74 +1092,92 @@ public class SolrInterface {
 	 * @return
 	 * @throws MalformedURLException
 	 */
-	public JSONObject getGenomesByID(Map<String, Object> key) throws MalformedURLException {
+	public JSONObject getGenomesByID(Map<String, Object> key) {
 		JSONObject res = new JSONObject();
-		int queryCount = 0;
+		int genomeCount = -1;
+		boolean hasLimitParam = false;
+		SolrQuery query = new SolrQuery();
 
-		StringBuffer queryParam = new StringBuffer();
-		String startParam = null;
 		if (key.containsKey("startParam") && key.get("startParam") != null) {
-			startParam = key.get("startParam").toString();
+			query.setStart(Integer.parseInt(key.get("startParam").toString()));
 		}
-		String limitParam = null;
 		if (key.containsKey("limitParam") && key.get("limitParam") != null) {
-			limitParam = key.get("limitParam").toString();
+			genomeCount = Integer.parseInt(key.get("limitParam").toString());
+			query.setRows(genomeCount);
+			hasLimitParam = true;
 		}
-		String sortParam = null;
 		if (key.containsKey("sortParam") && key.get("sortParam") != null) {
-			sortParam = key.get("sortParam").toString();
+			try {
+				JSONArray sortConditions = (JSONArray) new JSONParser().parse(key.get("sortParam").toString());
+
+				for (Object aSortCondition : sortConditions) {
+					JSONObject jsonSort = (JSONObject) aSortCondition;
+					if (jsonSort != null && jsonSort.containsKey("property") && jsonSort.containsKey("direction")) {
+						query.addSort(jsonSort.get("property").toString(),
+								SolrQuery.ORDER.valueOf(jsonSort.get("direction").toString().toLowerCase().toLowerCase()));
+					}
+				}
+			}
+			catch (Exception ex) {
+				ex.printStackTrace();
+			}
 		}
 
-		// build query parameter string
-		queryParam.append("(");
-		JSONArray tracks = null;
+		query.addField("genome_id,genome_name,taxon_id,genome_status,genome_length,chromosomes,plasmids,contigs,sequences,patric_cds,brc1_cds,refseq_cds,isolation_country,host_name,disease,collection_date,completion_date,strain,serovar,biovar,pathovar,mlst,other_typing,culture_collection,type_strain,sequencing_centers,publication,bioproject_accession,biosample_accession,assembly_accession,ncbi_project_id,refseq_project_id,genbank_accessions,refseq_accessions,sequencing_platform,sequencing_depth,assembly_method,gc_content,isolation_site,isolation_source,isolation_comments,geographic_location,latitude,longitude,altitude,depth,other_environmental,host_gender,host_age,host_health,body_sample_site,body_sample_subsite,other_clinical,antimicrobial_resistance,antimicrobial_resistance_evidence,gram_stain,cell_shape,motility,sporulation,temperature_range,salinity,oxygen_requirement,habitat,comments,additional_metadata");
+
 		if (key.containsKey("tracks")) {
-			tracks = (JSONArray) key.get("tracks");
+			JSONArray tracks = (JSONArray) key.get("tracks");
 			if (tracks.size() > 0) {
-				queryParam.append("gid:(");
-				for (int i = 0; i < tracks.size(); i++) {
-					JSONObject tr = (JSONObject) tracks.get(i);
-					if (tr.get("trackType").toString().equals("Genome") && tr.get("internalId").toString().equals("") == false) {
-						if (i > 0) {
-							queryParam.append(" OR ");
-						}
-						queryParam.append(tr.get("internalId").toString());
-						queryCount++;
+				List<String> listGenomeId = new ArrayList<>();
+
+				for (Object track : tracks) {
+					JSONObject tr = (JSONObject) track;
+					if (tr.get("trackType").toString().equals("Genome") && !tr.get("internalId").toString().equals("")) {
+						listGenomeId.add(tr.get("internalId").toString());
 					}
 				}
-				queryParam.append(")");
+				query.setQuery("genome_id:(" + StringUtils.join(listGenomeId, " OR ") + ")");
+				genomeCount = listGenomeId.size();
 			}
 		}
-		else if (key.containsKey("genome_info_id")) {
-			queryParam.append("gid:" + key.get("genome_info_id").toString());
-			queryCount++;
+		else if (key.containsKey("genome_id")) {
+			query.setQuery("genome_id:" + key.get("genome_id").toString());
+			genomeCount = 1;
 		}
-		else if (key.containsKey("genome_info_ids")) {
+		else if (key.containsKey("genome_ids")) {
 
-			if (key.get("genome_info_ids") != null && key.get("genome_info_ids").equals("") == false) {
-				queryParam.append("gid:(");
-				boolean isFirst = true;
-				for (String gid : key.get("genome_info_ids").toString().split(",")) {
-					if (gid.equals("") == false) {
-						if (isFirst) {
-							isFirst = false;
-						}
-						else {
-							queryParam.append(" OR ");
-						}
-						queryParam.append(gid);
-						queryCount++;
+			if (key.get("genome_ids") != null && !key.get("genome_ids").equals("")) {
+
+				List<String> listGenomeId = new ArrayList<>();
+				for (String gid : key.get("genome_ids").toString().split(",")) {
+					if (!gid.equals("")) {
+						listGenomeId.add(gid);
 					}
 				}
-				queryParam.append(")");
+				query.setQuery("genome_id:(" + StringUtils.join(listGenomeId, " OR ") + ")");
+				genomeCount = listGenomeId.size();
 			}
 		}
-		queryParam.append(")");
 
-		// query to Solr
-		if (queryCount > 0) {
-			this.setCurrentInstance(SolrCore.GENOME);
-			res = this.querySolr(queryParam.toString(), startParam, limitParam, sortParam, queryCount);
+		if (!hasLimitParam && genomeCount > 0) {
+			query.setRows(genomeCount);
+		}
+
+		LOGGER.debug("getGenomesByID:{}", query.toString());
+
+		try {
+			QueryResponse qr = this.getSolrServer(SolrCore.GENOME).query(query);
+
+			List<Genome> listGenome = qr.getBeans(Genome.class);
+			JSONArray docs = new JSONArray();
+			for (Genome genome : listGenome) {
+				docs.add(genome.toJSONObject());
+			}
+			res.put("total", (int) qr.getResults().getNumFound());
+			res.put("results", docs);
+		}
+		catch (MalformedURLException | SolrServerException e) {
+			LOGGER.error(e.getMessage(), e);
 		}
 
 		return res;
@@ -1156,118 +1185,68 @@ public class SolrInterface {
 
 	public JSONObject getExperimentsByID(Map<String, Object> key) throws MalformedURLException {
 		JSONObject res = new JSONObject();
-		int queryCount = 0;
-
-		StringBuffer queryParam = new StringBuffer();
-		String startParam = null;
-		if (key.containsKey("startParam") && key.get("startParam") != null) {
-			startParam = key.get("startParam").toString();
-		}
-		String limitParam = null;
-		if (key.containsKey("limitParam") && key.get("limitParam") != null) {
-			limitParam = key.get("limitParam").toString();
-		}
-		String sortParam = null;
-		if (key.containsKey("sortParam") && key.get("sortParam") != null) {
-			sortParam = key.get("sortParam").toString();
-		}
-
-		// build query parameter string
-		queryParam.append("(");
-		JSONArray tracks = null;
-		if (key.containsKey("tracks")) {
-			tracks = (JSONArray) key.get("tracks");
-
-			if (tracks.size() > 0) {
-				queryParam.append("expid:(");
-				for (int i = 0; i < tracks.size(); i++) {
-					JSONObject tr = (JSONObject) tracks.get(i);
-					if (tr.get("trackType").toString().equals("ExpressionExperiment") && tr.get("internalId").toString().equals("") == false) {
-						if (i > 0) {
-							queryParam.append(" OR ");
-						}
-						queryParam.append(tr.get("internalId").toString());
-						queryCount++;
-					}
-				}
-				queryParam.append(")");
-			}
-		}
-		queryParam.append(")");
-
-		// query to Solr
-		if (queryCount > 0) {
-			this.setCurrentInstance(SolrCore.TRANSCRIPTOMICS_EXPERIMENT);
-			res = this.querySolr(queryParam.toString(), startParam, limitParam, sortParam, queryCount);
-		}
-
-		return res;
-	}
-
-	/**
-	 * Submit query to Solr and get result back
-	 * @author Harry Yoo
-	 * @param queryParam
-	 * @param startParam
-	 * @param limitParam
-	 * @param sortParam
-	 * @param queryCount JSONObject
-	 * <dl>
-	 * <dd><code>total</code> - total number of rows found</dd>
-	 * <dd><code>results</code> - JSONArray of rows in JSONObject format</dd>
-	 * </dl>
-	 * @return
-	 */
-	public JSONObject querySolr(String queryParam, String startParam, String limitParam, String sortParam, int queryCount) {
-		JSONObject res = new JSONObject();
+		int experimentCount = -1;
+		boolean hasLimitParam = false;
 		SolrQuery query = new SolrQuery();
 
-		query.setQuery(queryParam);
-		if (startParam != null) {
-			query.setStart(Integer.parseInt(startParam));
+		if (key.containsKey("startParam") && key.get("startParam") != null) {
+			query.setStart(Integer.parseInt(key.get("startParam").toString()));
 		}
-		if (limitParam != null) {
-			query.setRows(Integer.parseInt(limitParam));
+		if (key.containsKey("limitParam") && key.get("limitParam") != null) {
+			experimentCount = Integer.parseInt(key.get("limitParam").toString());
+			query.setRows(experimentCount);
+			hasLimitParam = true;
 		}
-		else {
-			query.setRows(queryCount);
-		}
-
-		if (sortParam != null) {
+		if (key.containsKey("sortParam") && key.get("sortParam") != null) {
 			try {
-				JSONParser parser = new JSONParser();
-				JSONObject jsonSort = (JSONObject) ((JSONArray) parser.parse(sortParam)).get(0);
-				query.setSort(jsonSort.get("property").toString(), SolrQuery.ORDER.valueOf(jsonSort.get("direction").toString().toLowerCase()));
+				JSONArray sortConditions = (JSONArray) new JSONParser().parse(key.get("sortParam").toString());
+
+				for (Object aSortCondition : sortConditions) {
+					JSONObject jsonSort = (JSONObject) aSortCondition;
+					query.addSort(jsonSort.get("property").toString(), SolrQuery.ORDER.valueOf(jsonSort.get("direction").toString().toLowerCase()));
+				}
 			}
 			catch (Exception ex) {
 				ex.printStackTrace();
 			}
 		}
 
-		try {
-			QueryResponse qr = server.query(query, SolrRequest.METHOD.POST);
-			SolrDocumentList sdl = qr.getResults();
-			JSONArray docs = new JSONArray();
+		if (key.containsKey("tracks")) {
+			JSONArray tracks = (JSONArray) key.get("tracks");
 
-			for (SolrDocument d : sdl) {
-				JSONObject values = new JSONObject();
-				for (Iterator<Map.Entry<String, Object>> i = d.iterator(); i.hasNext();) {
-					Map.Entry<String, Object> el = i.next();
-
-					if (el.getKey().equals("release_date") || el.getKey().equals("completion_date")) {
-						values.put(el.getKey(), transformDate((Date) el.getValue()));
-					}
-					else {
-						values.put(el.getKey(), el.getValue());
+			if (tracks.size() > 0) {
+				List<Integer> listExperimentId = new ArrayList<>();
+				for (Object track : tracks) {
+					JSONObject tr = (JSONObject) track;
+					if (tr.get("trackType").toString().equals("ExpressionExperiment") && !tr.get("internalId").toString().equals("")) {
+						listExperimentId.add(Integer.parseInt(tr.get("internalId").toString()));
 					}
 				}
-				docs.add(values);
+				query.setQuery("expid:(" + StringUtils.join(listExperimentId, " OR ") + ")");
+				experimentCount = listExperimentId.size();
 			}
-			res.put("total", sdl.getNumFound());
+		}
+		query.addField("eid,expid,accession,institution,pi,author,pmid,title,organism,strain,mutant,timeseries,condition,samples,platform,genes");
+
+		if (!hasLimitParam && experimentCount > 0) {
+			query.setRows(experimentCount);
+		}
+
+		try {
+			QueryResponse qr = this.getSolrServer(SolrCore.TRANSCRIPTOMICS_EXPERIMENT).query(query);
+
+			SolrDocumentList sdl = qr.getResults();
+			JSONArray docs = new JSONArray();
+			for (SolrDocument doc : sdl) {
+				JSONObject item = new JSONObject();
+				item.putAll(doc);
+				docs.add(item);
+			}
+			res.put("total", (int) sdl.getNumFound());
 			res.put("results", docs);
 		}
-		catch (SolrServerException e) {
-			e.printStackTrace();
+		catch (MalformedURLException | SolrServerException e) {
+			LOGGER.error(e.getMessage(), e);
 		}
 
 		return res;

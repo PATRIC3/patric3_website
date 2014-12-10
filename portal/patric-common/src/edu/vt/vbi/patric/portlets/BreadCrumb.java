@@ -303,7 +303,7 @@ public class BreadCrumb extends GenericPortlet {
 					}
 
 					Taxonomy taxonomy = solr.getTaxonomy(taxonId);
-
+					// TODO: handle when taxonomy is null
 					List<Integer> txIds = taxonomy.getLineageIds();
 					List<String> txNames = taxonomy.getLineageNames();
 					List<String> txRanks = taxonomy.getLineageRanks();

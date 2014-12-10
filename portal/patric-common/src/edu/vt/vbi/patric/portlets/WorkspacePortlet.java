@@ -17,6 +17,7 @@ package edu.vt.vbi.patric.portlets;
 
 import edu.vt.vbi.patric.common.*;
 import edu.vt.vbi.patric.dao.ResultType;
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.BasicResponseHandler;
@@ -219,25 +220,22 @@ public class WorkspacePortlet extends GenericPortlet {
 					if (tracks == null && fid != null) { // exception handling for GSE
 						tracks = fid;
 					}
-					// Speical expception. if group is created from feature level, but user wanted to stop as Genome group,
+					// Speical expception. if group is created from feature level, but user wanted to store as Genome group,
 					// convert feature IDs to Genome IDs
 					if (grp_type.equals("Feature") && (grp_element != null && grp_element.equals("Genome"))
 							&& (tracks != null && !tracks.equals(""))) {
 
 						SolrInterface solr = new SolrInterface();
 						solr.setCurrentInstance(SolrCore.FEATURE);
-						JSONObject f = solr.queryFacet("na_feature_id:(" + tracks.replaceAll(",", " OR ") + ")", "gid");
+						JSONObject f = solr.queryFacet("feature_id:(" + tracks.replaceAll(",", " OR ") + ")", "genome_id");
 						JSONArray GIDs = (JSONArray) f.get("facet");
-						String gid = "";
+						List<String> listGenomeId = new ArrayList<>();
 						if (GIDs.size() > 0) {
 							for (Object g : GIDs) {
 								JSONObject genome = (JSONObject) g;
-								if (!gid.equals("")) {
-									gid += ",";
-								}
-								gid += genome.get("value");
+								listGenomeId.add(genome.get("value").toString());
 							}
-							tracks = gid;
+							tracks = StringUtils.join(listGenomeId, ",");
 							grp_type = "Genome";
 						}
 					}
@@ -262,14 +260,14 @@ public class WorkspacePortlet extends GenericPortlet {
 								ws.updateGroupTag(tagId, null, null);
 							}
 							else {
-								int trackId = -1;
-								try {
-									Long internalId = Long.parseLong(tracks);
-									trackId = ws.addTrack(grp_type, internalId);
-								}
-								catch (NumberFormatException nfe) {
-									trackId = ws.addTrack(grp_type, tracks);
-								}
+//								int trackId = -1;
+//								try {
+//									Long internalId = Long.parseLong(tracks);
+//									trackId = ws.addTrack(grp_type, internalId);
+//								}
+//								catch (NumberFormatException nfe) {
+								int	trackId = ws.addTrack(grp_type, tracks);
+//								}
 								// add mapping
 								if (!ws.isMappingExist(tagId, trackId)) {
 									ws.addMapping(tagId, trackId);
@@ -287,19 +285,19 @@ public class WorkspacePortlet extends GenericPortlet {
 					else {
 						// create a new entry
 						if (tracks != null) {
-							Set<Integer> trackIds = null;
+							Set<Integer> trackIds;
 							if (tracks.contains(",")) {
 								trackIds = ws.addTracks(grp_type, tracks);
 							}
 							else {
-								int trackId = -1;
-								try {
-									Long internalId = Long.parseLong(tracks);
-									trackId = ws.addTrack(grp_type, internalId);
-								}
-								catch (NumberFormatException nfe) {
-									trackId = ws.addTrack(grp_type, tracks);
-								}
+//								int trackId = -1;
+//								try {
+//									Long internalId = Long.parseLong(tracks);
+//									trackId = ws.addTrack(grp_type, internalId);
+//								}
+//								catch (NumberFormatException nfe) {
+								int	trackId = ws.addTrack(grp_type, tracks);
+//								}
 								trackIds = new HashSet<>();
 								trackIds.add(trackId);
 							}
@@ -647,7 +645,7 @@ public class WorkspacePortlet extends GenericPortlet {
 					JSONObject filter = new JSONObject();
 					filter.put("key", "trackId");
 					filter.put("value", trackIds);
-					JSONArray tracks = null;
+					JSONArray tracks;
 
 					tracks = ws.getTracks(filter);
 
@@ -838,6 +836,7 @@ public class WorkspacePortlet extends GenericPortlet {
 						solr.setCurrentInstance(SolrCore.TRANSCRIPTOMICS_EXPERIMENT);
 						ResultType rtKey = new ResultType();
 						rtKey.put("keyword", "expid:" + expId);
+						rtKey.put("fields", "eid,expid,accession,institution,pi,author,pmid,title,organism,strain,mutant,timeseries,condition,samples,platform,genes");
 						JSONObject object = solr.getData(rtKey, null, null, 0, 10000, false, false, false);
 
 						JSONObject obj = (JSONObject) object.get("response");
@@ -856,6 +855,7 @@ public class WorkspacePortlet extends GenericPortlet {
 
 						ResultType key = new ResultType();
 						key.put("keyword", "eid:" + solrId);
+						key.put("fields", "eid,expid,accession,pid,samples,expname,channels,platform,pmid,organism,strain,mutant,condition,timepoint,expmean,expstddev,genes,sig_log_ratio,sig_z_score");
 						solr.setCurrentInstance(SolrCore.TRANSCRIPTOMICS_COMPARISON);
 						JSONObject samples = solr.getData(key, null, null, 0, 10000, false, false, false);
 						obj = (JSONObject) samples.get("response");
@@ -873,12 +873,11 @@ public class WorkspacePortlet extends GenericPortlet {
 
 					response.setContentType("application/json");
 					PrintWriter writer = response.getWriter();
-					// writer.write(res.toString());
 					res.writeJSONString(writer);
 					writer.close();
 				}
 				else if (action.equals("getToken")) {
-					String token = null;
+					String token;
 
 					if (request.getUserPrincipal() != null) {
 						PolyomicHandler polyomic = getPolyomicHandler(request);
@@ -933,7 +932,7 @@ public class WorkspacePortlet extends GenericPortlet {
 				}
 				else if (action.equals("getGenomeGroupList")) {
 					JSONArray res = new JSONArray();
-					JSONObject grp = null;
+					JSONObject grp;
 
 					JSONObject filters = new JSONObject();
 					filters.put("key", "type");
@@ -969,12 +968,12 @@ public class WorkspacePortlet extends GenericPortlet {
 							for (Object genome : genomes) {
 								JSONObject jsonGenome = (JSONObject) genome;
 								JSONObject resGenome = new JSONObject();
-								resGenome.put("id", Integer.toString(id) + "_" + Integer.parseInt(jsonGenome.get("genome_info_id").toString()));
+								resGenome.put("id", Integer.toString(id) + "_" + Integer.parseInt(jsonGenome.get("genome_id").toString()));
 								resGenome.put("parentID", Integer.toString(id));
 								resGenome.put("name", jsonGenome.get("genome_name").toString());
 								resGenome.put("leaf", true);
-								resGenome.put("genome_info_id", jsonGenome.get("genome_info_id"));
-								resGenome.put("ncbi_taxon_id", Integer.parseInt(jsonGenome.get("ncbi_tax_id").toString()));
+								resGenome.put("genome_id", jsonGenome.get("genome_id"));
+								resGenome.put("taxon_id", Integer.parseInt(jsonGenome.get("taxon_id").toString()));
 
 								children.add(resGenome);
 							}
@@ -991,7 +990,7 @@ public class WorkspacePortlet extends GenericPortlet {
 				else if (action.equals("getGroupList")) {
 					String grp_type = request.getParameter("group_type");
 					JSONArray res = new JSONArray();
-					JSONObject grp = null;
+					JSONObject grp;
 					JSONObject filters = new JSONObject();
 					filters.put("key", "type");
 					filters.put("value", grp_type);
@@ -1005,7 +1004,7 @@ public class WorkspacePortlet extends GenericPortlet {
 						grp.put("description", group.get("desc").toString());
 
 						List<JSONObject> mapping_trks = ws.findMappingByTagId(Integer.parseInt(group.get("tagId").toString()));
-						List<JSONObject> mapping_tags = null;
+						List<JSONObject> mapping_tags;
 						Set<Integer> tagIDs = new HashSet<>();
 
 						for (JSONObject track : mapping_trks) {
@@ -1114,7 +1113,7 @@ public class WorkspacePortlet extends GenericPortlet {
 
 					Set<Integer> trackIds = new HashSet<>();
 					String strTagIds = request.getParameter("groupIds");
-					String groupType = "";
+					String groupType;
 					String _tagId = null;
 
 					if (strTagIds.contains(",")) {
@@ -1157,20 +1156,21 @@ public class WorkspacePortlet extends GenericPortlet {
 						items = (JSONArray) res.get("results");
 
 						out_sb.append(
-								"Feature Id\tGenome Name\tAccession\tLocus Tag\tRefSeq Locus Tag\tAnnotation\tFeature Type\tStart\tEnd\tLength(NT)\tStrand\t");
+								"Feature Id\tGenome Name\tAccession\tSEED ID\tRefSeq Locus Tag\tAlt Locus Tag\tAnnotation\tFeature Type\tStart\tEnd\tLength(NT)\tStrand\t");
 						out_sb.append("Protein Id\tLength(AA)\tGene Symbol\tProduct\n");
 
 						for (int i = 0; i < items.size(); i++) {
 							item = (JSONObject) items.get(i);
-							out_sb.append(item.get("na_feature_id") + "\t");
+							out_sb.append(item.get("feature_id") + "\t");
 							out_sb.append(item.get("genome_name") + "\t");
 							out_sb.append(item.get("accession") + "\t");
-							out_sb.append(item.get("locus_tag") + "\t");
+							out_sb.append(item.get("seed_id") + "\t");
 							out_sb.append((item.get("refseq_locus_tag") != null ? item.get("refseq_locus_tag") : "") + "\t");
+							out_sb.append((item.get("alt_locus_tag") != null ? item.get("alt_locus_tag") : "") + "\t");
 							out_sb.append(item.get("annotation") + "\t");
 							out_sb.append(item.get("feature_type") + "\t");
-							out_sb.append(item.get("start_max") + "\t");
-							out_sb.append(item.get("end_min") + "\t");
+							out_sb.append(item.get("start") + "\t");
+							out_sb.append(item.get("end") + "\t");
 							out_sb.append(item.get("na_length") + "\t");
 							out_sb.append(item.get("strand") + "\t");
 							out_sb.append((item.get("protein_id") != null ? item.get("protein_id") : "") + "\t");
@@ -1188,7 +1188,7 @@ public class WorkspacePortlet extends GenericPortlet {
 
 						for (int i = 0; i < items.size(); i++) {
 							item = (JSONObject) items.get(i);
-							out_sb.append(item.get("genome_info_id") + "\t");
+							out_sb.append(item.get("genome_id") + "\t");
 							out_sb.append(item.get("genome_name") + "\t");
 							out_sb.append(item.get("genome_status") + "\t");
 							out_sb.append((item.get("host_name") != null ? item.get("host_name") : "") + "\t");
@@ -1201,7 +1201,7 @@ public class WorkspacePortlet extends GenericPortlet {
 					else if (groupType.equals("ExpressionExperiment")) {
 						List<String> collectionIds = new ArrayList<>();
 
-						JSONArray exptracks = null;
+						JSONArray exptracks;
 						JSONArray tracksPATRIC = new JSONArray();
 
 						if (key.containsKey("tracks")) {
@@ -1300,7 +1300,8 @@ public class WorkspacePortlet extends GenericPortlet {
 
 				UIPreference uiPref = getValidUIPreference(request);
 
-				if (action.equals("storage")) {
+				switch (action) {
+				case "storage":
 					if (request.getMethod().equals("GET")) {
 
 						String strUIPref = uiPref.getStateList().toJSONString();
@@ -1311,8 +1312,8 @@ public class WorkspacePortlet extends GenericPortlet {
 					else if (request.getMethod().equals("POST")) {
 
 						JSONParser parser = new JSONParser();
-						JSONObject param = new JSONObject();
-						JSONArray params = new JSONArray();
+						JSONObject param;
+						JSONArray params;
 						try {
 							Object rt = parser.parse(request.getReader());
 							if (rt instanceof JSONObject) {
@@ -1336,8 +1337,8 @@ public class WorkspacePortlet extends GenericPortlet {
 						response.getWriter().write("");
 						response.getWriter().close();
 					}
-				}
-				else if (action.equals("remove")) {
+					break;
+				case "remove":
 					if (request.getParameter("name") != null) {
 						uiPref.resetState(request.getParameter("name"));
 						this.saveUIPreference(request, uiPref);
@@ -1345,13 +1346,14 @@ public class WorkspacePortlet extends GenericPortlet {
 
 					response.getWriter().write("");
 					response.getWriter().close();
-				}
-				else if (action.equals("reset")) {
+					break;
+				case "reset":
 					uiPref.reset();
 					this.saveUIPreference(request, uiPref);
 
 					response.getWriter().write("");
 					response.getWriter().close();
+					break;
 				}
 			}
 		}
