@@ -397,7 +397,7 @@ public class FIGfamData {
 		solr_query.setFacetMinCount(1);
 		solr_query.setFacetLimit(-1);
 
-		LOGGER.debug("getStroupStats() 1/3 " + solr_query.toString());
+		LOGGER.debug("getGroupStats() 1/3:{}", solr_query.toString());
 
 		try {
 			QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(solr_query);
@@ -442,13 +442,14 @@ public class FIGfamData {
 
 		// getting distribution of aa length in each protein family
 
-		solr_query = new SolrQuery("*:*");
+		solr_query = new SolrQuery("annotation:PATRIC AND feature_type:CDS");
 		solr_query.addFilterQuery(getSolrQuery(req));
 		solr_query.setRows(0);
 		solr_query.set("stats", "true");
 		solr_query.set("stats.field", "aa_length");
 		solr_query.set("stats.facet", "figfam_id");
 
+		LOGGER.debug("getGroupStats() 2/3:{}", solr_query.toString());
 		try {
 			QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(solr_query, SolrRequest.METHOD.POST);
 			Map<String, FieldStatsInfo> stats_map = qr.getFieldStatsInfo();
@@ -485,7 +486,7 @@ public class FIGfamData {
 			solr_query.addField("figfam_id,figfam_product");
 			solr_query.setRows(figfams.size());
 
-			LOGGER.trace(solr_query.toString());
+			LOGGER.debug("getGroupStats() 3/3: {}", solr_query.toString());
 			try {
 				QueryResponse qr = solr.getSolrServer(SolrCore.FIGFAM_DIC).query(solr_query, SolrRequest.METHOD.POST);
 				SolrDocumentList sdl = qr.getResults();
