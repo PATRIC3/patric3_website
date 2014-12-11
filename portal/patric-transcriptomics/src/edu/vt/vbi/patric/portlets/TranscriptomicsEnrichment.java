@@ -88,20 +88,43 @@ public class TranscriptomicsEnrichment extends GenericPortlet {
 			writer.write("" + random);
 			writer.close();
 		}
-		//
-		//		if (callType.equals("getGenomeIds")) {
-		//
-		//			HashMap<String, String> key = new HashMap<>();
-		//
-		//			key.put("feature_info_id", req.getParameter("feature_info_id"));
-		//			key.put("map", req.getParameter("map"));
-		//			DBTranscriptomics conn_transcriptomics = new DBTranscriptomics();
-		//			String genomeId = conn_transcriptomics.getGenomeListFromFeatureIds(key, 0, -1);
-		//
-		//			PrintWriter writer = resp.getWriter();
-		//			writer.write(genomeId);
-		//			writer.close();
-		//		}
+
+		if (callType.equals("getGenomeIds")) {
+
+			String featureIds = req.getParameter("feature_info_id");
+			String pathwayId = req.getParameter("map");
+			SolrInterface solr = new SolrInterface();
+//			HashMap<String, String> key = new HashMap<>();
+//
+//			key.put("feature_id", req.getParameter("feature_info_id"));
+//			key.put("map", req.getParameter("map"));
+//			DBTranscriptomics conn_transcriptomics = new DBTranscriptomics();
+//			String genomeId = conn_transcriptomics.getGenomeListFromFeatureIds(key, 0, -1);
+
+			String genomeId = "";
+			if (featureIds != null && !featureIds.equals("") && pathwayId != null && !pathwayId.equals("")) {
+				String[] listFeatureId = featureIds.split(",");
+				try {
+					SolrQuery query = new SolrQuery("pathway_id:(" + pathwayId + ") AND feature_id:(" + StringUtils.join(listFeatureId, " OR ") + ")");
+					query.addField("genome_id").setRows(listFeatureId.length);
+
+					QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query);
+					SolrDocumentList sdl = qr.getResults();
+
+					Set<String> listGenomeId = new HashSet<>();
+					for (SolrDocument doc : sdl) {
+						listGenomeId.add(doc.get("genome_id").toString());
+					}
+					genomeId = StringUtils.join(listGenomeId, ",");
+				}
+				catch (MalformedURLException | SolrServerException e) {
+					LOGGER.error(e.getMessage(), e);
+				}
+			}
+			PrintWriter writer = resp.getWriter();
+			writer.write(genomeId);
+			writer.close();
+		}
 		else if (callType.equals("getFeatureTable")) {
 
 			PortletSession session = req.getPortletSession();
@@ -239,26 +262,6 @@ public class TranscriptomicsEnrichment extends GenericPortlet {
 			jsonResult.put("total", results.size());
 			jsonResult.put("featureRequested", featureIDs.size());
 			jsonResult.put("featureFound", listFeatureID.size());
-
-			//			DBTranscriptomics conn_transcriptomics = new DBTranscriptomics();
-			//			int count_total = conn_transcriptomics.getPathwayEnrichmentCount(key);
-			//			List<ResultType> items = conn_transcriptomics.getPathwayEnrichmentList(key, sort, start, end);
-			//
-			//			JSONObject jsonResult = new JSONObject();
-			//			try {
-			//				jsonResult.put("total", count_total);
-			//				JSONArray results = new JSONArray();
-			//
-			//				for (ResultType item : items) {
-			//					JSONObject obj = new JSONObject();
-			//					obj.putAll(item);
-			//					results.add(obj);
-			//				}
-			//				jsonResult.put("results", results);
-			//			}
-			//			catch (Exception ex) {
-			//				LOGGER.error(ex.getMessage(), ex);
-			//			}
 
 			PrintWriter writer = resp.getWriter();
 			jsonResult.writeJSONString(writer);

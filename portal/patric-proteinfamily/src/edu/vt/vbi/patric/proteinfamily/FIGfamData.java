@@ -357,7 +357,7 @@ public class FIGfamData {
 		if (fields != null && !fields.equals("")) {
 			query.addField(fields);
 		}
-		query.setRows(500000);
+		query.setRows(500000).addSort("genome_name", SolrQuery.ORDER.asc);
 
 		LOGGER.debug("getGenomeDetails() {}", query.toString());
 		JSONObject object = null;
@@ -389,7 +389,8 @@ public class FIGfamData {
 		List<String> genomeIdList = Arrays.asList(req.getParameter("genomeIds").split(","));
 
 		// getting genome counts per figfamID (figfam)
-		SolrQuery solr_query = new SolrQuery("annotation:PATRIC AND feature_type:CDS");
+		SolrQuery solr_query = new SolrQuery("*:*");
+		solr_query.addFilterQuery("annotation:PATRIC AND feature_type:CDS");
 		solr_query.addFilterQuery(getSolrQuery(req));
 		solr_query.setRows(0);
 		solr_query.setFacet(true);
@@ -442,7 +443,8 @@ public class FIGfamData {
 
 		// getting distribution of aa length in each protein family
 
-		solr_query = new SolrQuery("annotation:PATRIC AND feature_type:CDS");
+		solr_query = new SolrQuery("*:*");
+		solr_query.addFilterQuery("annotation:PATRIC AND feature_type:CDS");
 		solr_query.addFilterQuery(getSolrQuery(req));
 		solr_query.setRows(0);
 		solr_query.set("stats", "true");

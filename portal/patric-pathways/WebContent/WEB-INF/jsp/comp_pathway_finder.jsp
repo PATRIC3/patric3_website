@@ -61,7 +61,6 @@ boolean isLoggedIn = (Boolean) request.getAttribute("isLoggedIn");
 				<select id="algorithm" name="algorithm" size="1">
 					<option value="">ALL</option>
 					<option value="PATRIC" selected="selected">PATRIC</option>
-					<option value="BRC1">Legacy BRC</option>
 					<option value="RefSeq">RefSeq</option>
 				</select>
 			</td>

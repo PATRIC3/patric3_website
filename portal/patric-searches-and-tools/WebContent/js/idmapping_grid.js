@@ -50,7 +50,7 @@ function loadFBCD() {
 			requested_data = hash.from;
 		}
 		else if (hash.from == "alt_locus_tag") {
-		    header = "PATRIC2 Locus Tag";
+		    header = "Alt Locus Tag";
 			requested_data = hash.from;
 		}
 		else if (hash.from == "seed_id") {
@@ -71,10 +71,10 @@ function loadFBCD() {
 			property.scm[which] =  [checkbox,
 			    {header:'Genome Name', flex:2, dataIndex: 'genome_name', renderer:renderGenomeName},
                 {header:'Accession', flex:1, align:'center', hidden: true, dataIndex: 'accession', renderer:renderAccession},
-			    {header:'Seed ID', flex:1, align:'center', dataIndex: 'seed_id', renderer:BasicRenderer},
+			    {header:'Seed ID', flex:1, align:'center', dataIndex: 'seed_id', renderer:renderSeedId},
 			    {header:'Alt Locus Tag', flex:1, align:'center', dataIndex: 'alt_locus_tag', renderer:renderLocusTag},
 			    {header: header, flex:1, align:'center', dataIndex: requested_data, renderer:renderURL},
-			    {header:'Genome Browser', flex:1, hidden: true, dataIndex:'', align:'center', renderer:renderGenomeBrowserByFeatureIDMapping},
+			    {header:'Genome Browser', flex:1, hidden: true, dataIndex:'feature_id', align:'center', renderer:renderGenomeBrowserByFeatureIDMapping},
 			    {header:'Start', flex:1, hidden: true, dataIndex:'start', align:'center', renderer:BasicRenderer},
 			    {header:'End', flex:1, hidden: true, dataIndex:'end', align:'center', renderer:BasicRenderer},
 			    {header:'Length (NT)', flex:1, hidden: true, dataIndex:'na_length', align:'center', renderer:BasicRenderer},
@@ -98,7 +98,7 @@ function getSelectedFeatures() {"use strict";
 	var Page = $Page, property = Page.getPageProperties(), sl = Page.getCheckBox().getSelections(), i, fids = property.fids;
 
 	for ( i = 0; i < sl.length; i++)
-		fids.push(sl[i].data.na_feature_id);
+		fids.push(sl[i].data.feature_id);
 
 }
 
@@ -115,51 +115,9 @@ function DownloadFile() {"use strict";
 
 function renderGenomeBrowserByFeatureIDMapping(value, p, record) {
 
-	var tracks = "DNA,", Page = $Page, property = Page.getPageProperties(), hash = property.hash, window_start = Math.max(0, (record.data.start_max - 1000)), window_end = parseInt(record.data.end_min) + 1000;
-	;
+	var tracks = "DNA,PATRICGenes,RefSeqGenes", Page = $Page, property = Page.getPageProperties(), hash = property.hash, window_start = Math.max(0, (record.data.start_max - 1000)), window_end = parseInt(record.data.end_min) + 1000;
 
-	if (record.data.feature_type != null && (record.data.feature_type == "CDS" || record.data.feature_type == "gene")) {
-		tracks += record.data.feature_type;
-	} else if (record.data.name != null && (record.data.name == "CDS" || record.data.name == "gene")) {
-		tracks += record.data.name;
-	} else if (record.data.feature_type != null && record.data.feature_type.indexOf(/.*RNA/) != -1) {
-		tracks += "RNA";
-	} else if (record.data.name != null && record.data.name.indexOf(/.*RNA/) != -1) {
-		tracks += "RNA";
-	} else {
-		tracks += "Misc";
-	}
-
-	if (record.data.annotation == "PATRIC") {
-		tracks += "(PATRIC)";
-	} else if (record.data.algorithm == "PATRIC") {
-		tracks += "(PATRIC)";
-	} else if (record.data.annotation == "Legacy BRC") {
-		tracks += "(BRC)";
-	} else if (record.data.algorithm == "Legacy BRC") {
-		tracks += "(BRC)";
-	} else {
-		tracks += "(RefSeq)";
-	}
-
-	if (hash.to == "RefSeq" || hash.to == "RefSeq LocusTag") {
-		tracks += ",";
-		if (record.data.feature_type != null && (record.data.feature_type == "CDS" || record.data.feature_type == "gene")) {
-			tracks += record.data.feature_type;
-		} else if (record.data.name != null && (record.data.name == "CDS" || record.data.name == "gene")) {
-			tracks += record.data.name;
-		} else if (record.data.feature_type != null && record.data.feature_type.indexOf(/.*RNA/) != -1) {
-			tracks += "RNA";
-		} else if (record.data.name != null && record.data.name.indexOf(/.*RNA/) != -1) {
-			tracks += "RNA";
-		} else {
-			tracks += "Misc";
-		}
-
-		tracks += "(RefSeq)";
-	}
-
-	return Ext.String.format('<a href="GenomeBrowser?cType=genome&cId={0}&loc={1}:{2}..{3}&tracks={4}"><img src="/patric/images/icon_genome_browser.gif"  alt="Genome Browser" style="margin:-4px" /></a>', (!record.data.genome_info_id) ? record.data.gid : record.data.genome_info_id, record.data.accession, window_start, window_end, tracks);
+	return Ext.String.format('<a href="GenomeBrowser?cType=feature&cId={0}&loc={1}:{2}..{3}&tracks={4}"><img src="/patric/images/icon_genome_browser.gif"  alt="Genome Browser" style="margin:-4px" /></a>', value, record.data.accession, window_start, window_end, tracks);
 }
 
 function CallBack() {

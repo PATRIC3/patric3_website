@@ -325,7 +325,7 @@ public class CompPathwayMap extends GenericPortlet {
 			}
 			if (genomeId != null && !genomeId.equals("")) {
 				query.addFilterQuery(
-						SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "genome_id:" + genomeId + " AND genome_status:(complete OR wgs)"));
+						SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "genome_id:(" + genomeId.replaceAll(",", " OR ") + ") AND genome_status:(complete OR wgs)"));
 			}
 			query.setRows(0).setFacet(true);
 			query.add("json.facet",
@@ -343,29 +343,30 @@ public class CompPathwayMap extends GenericPortlet {
 				}
 			}
 
-			query = new SolrQuery("pathway_id:" + map + " AND ec_number:(" + StringUtils.join(ecNumbers, " OR ") + ")");
-			query.setRows(ecNumbers.size()).setFields("ec_number,ec_description,occurrence");
-			query.addSort("ec_number", SolrQuery.ORDER.asc);
+			if (!ecNumbers.isEmpty()) {
+				query = new SolrQuery("pathway_id:" + map + " AND ec_number:(" + StringUtils.join(ecNumbers, " OR ") + ")");
+				query.setRows(ecNumbers.size()).setFields("ec_number,ec_description,occurrence");
+				query.addSort("ec_number", SolrQuery.ORDER.asc);
 
-			qr = solr.getSolrServer(SolrCore.PATHWAY_REF).query(query);
-			SolrDocumentList sdl = qr.getResults();
-			count_total = (int) sdl.getNumFound();
+				qr = solr.getSolrServer(SolrCore.PATHWAY_REF).query(query);
+				SolrDocumentList sdl = qr.getResults();
+				count_total = (int) sdl.getNumFound();
 
-			for (SolrDocument doc : sdl) {
-				String ecNumber = doc.get("ec_number").toString();
-				SimpleOrderedMap stat = mapStat.get(ecNumber);
+				for (SolrDocument doc : sdl) {
+					String ecNumber = doc.get("ec_number").toString();
+					SimpleOrderedMap stat = mapStat.get(ecNumber);
 
-				JSONObject item = new JSONObject();
-				item.put("algorithm", algorithm);
-				item.put("ec_name", doc.get("ec_description"));
-				item.put("ec_number", ecNumber);
-				item.put("occurrence", doc.get("occurrence"));
-				item.put("gene_count", stat.get("gene_count"));
-				item.put("genome_count", stat.get("genome_count"));
+					JSONObject item = new JSONObject();
+					item.put("algorithm", algorithm);
+					item.put("ec_name", doc.get("ec_description"));
+					item.put("ec_number", ecNumber);
+					item.put("occurrence", doc.get("occurrence"));
+					item.put("gene_count", stat.get("gene_count"));
+					item.put("genome_count", stat.get("genome_count"));
 
-				results.add(item);
+					results.add(item);
+				}
 			}
-
 		}
 		catch (MalformedURLException | SolrServerException e) {
 			LOGGER.error(e.getMessage(), e);

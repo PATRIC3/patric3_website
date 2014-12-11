@@ -26,97 +26,6 @@ String definition = (String) request.getAttribute("definition");
 String pathway_name = (String) request.getAttribute("pathway_name");
 String pathway_class = (String) request.getAttribute("pathway_class");
 %>
-<style>
-/*
-	.idvg-legend {
-		background-color: transparent;
-	}
-	
-	.idvg-legend-block {
-		float: left;
-		border: 1px #9EBEC8 solid;
-		padding: 5px;
-		margin:  2px;
-	}
-	
-	#idvg-legend-edges {
-		margin-left: 8px;
-	}
-
-	.idvg-legend-title {
-		font-weight: bold;
-		color: #0E4771;
-		padding-bottom: 6px;
-		padding-left: 4px;
-		padding-top: 3px;
-	}
-	
-	.idvg-legend-entry {
-		margin-left: 8px;
-		padding-bottom: 15px;
-		line-height: 22px;
-	}
-	
-	.idvg-legend-entry-title {
-		padding-bottom: 2px;
-		font-style: italic;
-	}
-	
-	.idvg-legend-symbol img {
-		height: 20px;
-		width:  20px;
-		padding-right: 4px;
-		vertical-align: middle;
-	}
-	
-	.idvg-legend-label {
-		vertical-align: middle;
-	}
-	
-
-.titleClass{
-	color:#15428B;
-	font-family:tahoma,arial,verdana,sans-serif;
-	font-size:11px;
-	font-weight:bold;
-	padding:4px;
-}
-
-table.checkbox {
-	font-family: tahoma,arial,verdana,sans-serif;
-	font-weight: normal;
-	font-size: 9px;
-	color: #404040;
-	width: 100%;
-	background-color: #fafafa;
-	border: 1px #6699CC solid;
-	border-collapse: collapse;
-	border-spacing: 2px;
-	margin-top: 0px;
-}
-table.checkbox th {
-	border-bottom: 2px solid #6699CC;
-	background-color: #FFFFFF;
-	text-align: center;
-	font-family: tahoma,arial,verdana,sans-serif;
-	font-size: 11px;
-	color: #404040;
-	padding-top:4px;
-	padding-bottom:4px;
-}
-table.checkbox td {
-	border-bottom: 1px dotted #6699CC;
-	font-family: tahoma,arial,verdana,sans-serif;
-	font-weight: normal;
-	font-size: 10px;
-	color: #000000;
-	background-color: white;
-	text-align: center;
-	padding-top:3px;
-	padding-bottom:3px;
-}
-*/
-</style>
 
 <form id="fMapForm" action="#" method="post">
 	<input type="hidden" id="tablesource" name="tablesource" value="MapFeatureTable" />
@@ -363,11 +272,6 @@ Ext.onReady(function(){
 	  				refresh("PATRIC");
 				}
 			},{
-				text: 'BRC1',
-				handler: function(){
-					refresh("BRC1");
-				}
-			},{
 				text: 'RefSeq',
 					handler: function(){
 						refresh("RefSeq");
@@ -386,11 +290,6 @@ Ext.onReady(function(){
 				text: 'PATRIC',
 				handler: function(){
 					refreshHeatmap("PATRIC");  				
-				}
-			},{
-				text: 'BRC1',
-				handler: function(){
-					refreshHeatmap("BRC1");
 				}
 			},{
 				text: 'RefSeq',

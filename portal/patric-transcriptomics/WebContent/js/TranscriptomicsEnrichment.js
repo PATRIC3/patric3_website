@@ -76,7 +76,7 @@ function gotoPathwayMap(map) {
 					algorithm : "ALL"
 				},
 				success : function(rs2) {
-					document.location.href = "CompPathwayMap?cType=&cId=&dm=featurelist&map=" + map + "&pk=" + rs2.responseText + "&algorithm=PATRIC&feature_info_id=&ec_number=";
+					document.location.href = "CompPathwayMap?cType=&cId=131567&dm=featurelist&map=" + map + "&pk=" + rs2.responseText + "&algorithm=PATRIC&feature_info_id=&ec_number=";
 				}
 			});
 
