@@ -188,13 +188,13 @@ public class CompPathwayMap extends GenericPortlet {
 			SolrDocumentList sdl = qr.getResults();
 
 			for (SolrDocument doc : sdl) {
-				if (!doc.get("patric_cds").toString().equals("0")) {
+				if (doc.get("patric_cds") != null && !doc.get("patric_cds").toString().equals("0")) {
 					taxongenomecount_patric++;
 				}
-				if (!doc.get("brc1_cds").toString().equals("0")) {
+				if (doc.get("brc1_cds") != null && !doc.get("brc1_cds").toString().equals("0")) {
 					taxongenomecount_brc1++;
 				}
-				if (!doc.get("refseq_cds").toString().equals("0")) {
+				if (doc.get("refseq_cds") != null && !doc.get("refseq_cds").toString().equals("0")) {
 					taxongenomecount_refseq++;
 				}
 			}
