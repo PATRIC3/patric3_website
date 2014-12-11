@@ -1,4 +1,4 @@
-Ext.BLANK_IMAGE_URL = 'http://cdn.sencha.io/ext-4.1.1-gpl/resources/themes/images/default/tree/s.gif';
+Ext.BLANK_IMAGE_URL = '/patric/js/extjs/extjs/resources/themes/images/default/tree/s.gif';
 Ext.Ajax.timeout = 300000;
 
 /* = Get Abstract w/ ajax and toggle layer 
