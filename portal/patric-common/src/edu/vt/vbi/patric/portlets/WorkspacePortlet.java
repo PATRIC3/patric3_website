@@ -123,7 +123,7 @@ public class WorkspacePortlet extends GenericPortlet {
 		PolyomicHandler polyomic = new PolyomicHandler();
 		PortletSession p_session = request.getPortletSession(true);
 		UIPreference uiPref_from_session = (UIPreference) p_session.getAttribute("preference", PortletSession.APPLICATION_SCOPE);
-		UIPreference uiPref = null;
+		UIPreference uiPref;
 
 		if (request.getUserPrincipal() == null) {
 			if (uiPref_from_session != null) {
@@ -336,7 +336,7 @@ public class WorkspacePortlet extends GenericPortlet {
 						}
 					}
 					// find associated tracks
-					List<JSONObject> mapping = null;
+					List<JSONObject> mapping;
 					List<Integer> trackIds = new ArrayList<>();
 					for (int tagId : tagIds) {
 						mapping = ws.findMappingByTagId(tagId);
@@ -968,7 +968,7 @@ public class WorkspacePortlet extends GenericPortlet {
 							for (Object genome : genomes) {
 								JSONObject jsonGenome = (JSONObject) genome;
 								JSONObject resGenome = new JSONObject();
-								resGenome.put("id", Integer.toString(id) + "_" + Integer.parseInt(jsonGenome.get("genome_id").toString()));
+								resGenome.put("id", Integer.toString(id) + "_" + jsonGenome.get("genome_id").toString());
 								resGenome.put("parentID", Integer.toString(id));
 								resGenome.put("name", jsonGenome.get("genome_name").toString());
 								resGenome.put("leaf", true);
@@ -1050,15 +1050,15 @@ public class WorkspacePortlet extends GenericPortlet {
 				if (action.equals("group_list")) {
 					// PersistentCartGroup group = null;
 					JSONArray groups = ws.getGroups();
-					StringBuffer output = new StringBuffer();
+					StringBuilder output = new StringBuilder();
 
 					output.append("<group_set>\n");
-					for (int i = 0; i < groups.size(); i++) {
-						JSONObject group = (JSONObject) groups.get(i);
+					for (Object aGroup : groups) {
+						JSONObject group = (JSONObject) aGroup;
 
 						output.append("\t<group>\n");
-						output.append("\t\t<idx>" + group.get("tagId").toString() + "</idx>\n");
-						output.append("\t\t<name>" + group.get("name").toString() + "</name>\n");
+						output.append("\t\t<idx>").append(group.get("tagId")).append("</idx>\n");
+						output.append("\t\t<name>").append(group.get("name")).append("</name>\n");
 						output.append("\t</group>\n");
 					}
 					output.append("</group_set>");
@@ -1074,17 +1074,16 @@ public class WorkspacePortlet extends GenericPortlet {
 					filter.put("value", strTagIds);
 
 					JSONArray groups = ws.getGroups(filter);
-					JSONObject group = null;
-					StringBuffer o = new StringBuffer();
+					StringBuilder o = new StringBuilder();
 
 					o.append("<group_set>\n");
 
-					for (int i = 0; i < groups.size(); i++) {
-						group = (JSONObject) groups.get(i);
+					for (Object aGroup : groups) {
+						JSONObject group = (JSONObject) aGroup;
 
 						o.append("\t<group>\n");
-						o.append("\t\t<name>" + group.get("name") + "</name>\n");
-						o.append("\t\t<description>" + ((group.get("desc") != null) ? group.get("desc") : "") + "</description>\n");
+						o.append("\t\t<name>").append(group.get("name")).append("</name>\n");
+						o.append("\t\t<description>").append(((group.get("desc") != null) ? group.get("desc") : "")).append("</description>\n");
 						o.append("\t\t<members>\n");
 
 						List<JSONObject> members = ws.findMappingByTagId(Integer.parseInt(group.get("tagId").toString()));
@@ -1094,9 +1093,9 @@ public class WorkspacePortlet extends GenericPortlet {
 							trackIds.add(Integer.parseInt(member.get("trackId").toString()));
 						}
 						JSONArray tracks = ws.getTracks(trackIds);
-						for (int m = 0; m < tracks.size(); m++) {
-							JSONObject member = (JSONObject) tracks.get(m);
-							o.append(member.get("internalId").toString() + "\n");
+						for (Object track : tracks) {
+							JSONObject member = (JSONObject) track;
+							o.append(member.get("internalId")).append("\n");
 						}
 
 						o.append("\t\t</members>\n");
@@ -1143,59 +1142,56 @@ public class WorkspacePortlet extends GenericPortlet {
 					groupType = ((JSONObject) gr.get(0)).get("type").toString();
 
 					SolrInterface solr = new SolrInterface();
-					JSONObject res = null;
+					JSONObject res;
 					Map<String, Object> key = new HashMap<>();
 					key.put("tracks", tracks);
 
-					StringBuffer out_sb = new StringBuffer();
-					JSONArray items = null;
-					JSONObject item = null;
+					StringBuilder out_sb = new StringBuilder();
 
 					if (groupType.equals("Feature")) {
 						res = solr.getFeaturesByID(key);
-						items = (JSONArray) res.get("results");
+						JSONArray items = (JSONArray) res.get("results");
 
 						out_sb.append(
 								"Feature Id\tGenome Name\tAccession\tSEED ID\tRefSeq Locus Tag\tAlt Locus Tag\tAnnotation\tFeature Type\tStart\tEnd\tLength(NT)\tStrand\t");
 						out_sb.append("Protein Id\tLength(AA)\tGene Symbol\tProduct\n");
 
-						for (int i = 0; i < items.size(); i++) {
-							item = (JSONObject) items.get(i);
-							out_sb.append(item.get("feature_id") + "\t");
-							out_sb.append(item.get("genome_name") + "\t");
-							out_sb.append(item.get("accession") + "\t");
-							out_sb.append(item.get("seed_id") + "\t");
-							out_sb.append((item.get("refseq_locus_tag") != null ? item.get("refseq_locus_tag") : "") + "\t");
-							out_sb.append((item.get("alt_locus_tag") != null ? item.get("alt_locus_tag") : "") + "\t");
-							out_sb.append(item.get("annotation") + "\t");
-							out_sb.append(item.get("feature_type") + "\t");
-							out_sb.append(item.get("start") + "\t");
-							out_sb.append(item.get("end") + "\t");
-							out_sb.append(item.get("na_length") + "\t");
-							out_sb.append(item.get("strand") + "\t");
-							out_sb.append((item.get("protein_id") != null ? item.get("protein_id") : "") + "\t");
-							out_sb.append(item.get("aa_length") + "\t");
-							out_sb.append((item.get("gene") != null ? item.get("gene") : "") + "\t");
-							out_sb.append(item.get("product") + "\n");
-							// out_sb.append("\n");
+						for (Object aItem : items) {
+							JSONObject item = (JSONObject) aItem;
+							out_sb.append(item.get("feature_id")).append("\t");
+							out_sb.append(item.get("genome_name")).append("\t");
+							out_sb.append(item.get("accession")).append("\t");
+							out_sb.append(item.get("seed_id")).append("\t");
+							out_sb.append((item.get("refseq_locus_tag") != null ? item.get("refseq_locus_tag") : "")).append("\t");
+							out_sb.append((item.get("alt_locus_tag") != null ? item.get("alt_locus_tag") : "")).append("\t");
+							out_sb.append(item.get("annotation")).append("\t");
+							out_sb.append(item.get("feature_type")).append("\t");
+							out_sb.append(item.get("start")).append("\t");
+							out_sb.append(item.get("end")).append("\t");
+							out_sb.append(item.get("na_length")).append("\t");
+							out_sb.append(item.get("strand")).append("\t");
+							out_sb.append((item.get("protein_id") != null ? item.get("protein_id") : "")).append("\t");
+							out_sb.append(item.get("aa_length")).append("\t");
+							out_sb.append((item.get("gene") != null ? item.get("gene") : "")).append("\t");
+							out_sb.append(item.get("product")).append("\n");
 						}
 					}
 					else if (groupType.equals("Genome")) {
 						res = solr.getGenomesByID(key);
-						items = (JSONArray) res.get("results");
+						JSONArray items = (JSONArray) res.get("results");
 
 						out_sb.append("Genome Id\tGenome Name\tStatus\tHost\tDisease\tIsolation Country\tCollection Date\tCompletion Date\n");
 
-						for (int i = 0; i < items.size(); i++) {
-							item = (JSONObject) items.get(i);
-							out_sb.append(item.get("genome_id") + "\t");
-							out_sb.append(item.get("genome_name") + "\t");
-							out_sb.append(item.get("genome_status") + "\t");
-							out_sb.append((item.get("host_name") != null ? item.get("host_name") : "") + "\t");
-							out_sb.append((item.get("disease") != null ? item.get("disease") : "") + "\t");
-							out_sb.append((item.get("isolation_country") != null ? item.get("isolation_country") : "") + "\t");
-							out_sb.append((item.get("collection_date") != null ? item.get("collection_date") : "") + "\t");
-							out_sb.append((item.get("completion_date") != null ? item.get("completion_date") : "") + "\n");
+						for (Object aItem : items) {
+							JSONObject item = (JSONObject) aItem;
+							out_sb.append(item.get("genome_id")).append("\t");
+							out_sb.append(item.get("genome_name")).append("\t");
+							out_sb.append(item.get("genome_status")).append("\t");
+							out_sb.append((item.get("host_name") != null ? item.get("host_name") : "")).append("\t");
+							out_sb.append((item.get("disease") != null ? item.get("disease") : "")).append("\t");
+							out_sb.append((item.get("isolation_country") != null ? item.get("isolation_country") : "")).append("\t");
+							out_sb.append((item.get("collection_date") != null ? item.get("collection_date") : "")).append("\t");
+							out_sb.append((item.get("completion_date") != null ? item.get("completion_date") : "")).append("\n");
 						}
 					}
 					else if (groupType.equals("ExpressionExperiment")) {
@@ -1208,8 +1204,8 @@ public class WorkspacePortlet extends GenericPortlet {
 							exptracks = (JSONArray) key.get("tracks");
 
 							if (exptracks.size() > 0) {
-								for (int i = 0; i < exptracks.size(); i++) {
-									JSONObject tr = (JSONObject) exptracks.get(i);
+								for (Object exptrack : exptracks) {
+									JSONObject tr = (JSONObject) exptrack;
 									try {
 										Integer.parseInt(tr.get("internalId").toString());
 										tracksPATRIC.add(tr);
@@ -1228,30 +1224,29 @@ public class WorkspacePortlet extends GenericPortlet {
 							keyPATRIC.put("tracks", tracksPATRIC);
 							res = solr.getExperimentsByID(keyPATRIC);
 
-							items = (JSONArray) res.get("results");
-							for (int i = 0; i < items.size(); i++) {
-								item = (JSONObject) items.get(i);
-								out_sb.append(item.get("expid") + "\t");
+							JSONArray items = (JSONArray) res.get("results");
+							for (Object aItem : items) {
+								JSONObject item = (JSONObject) aItem;
+								out_sb.append(item.get("expid")).append("\t");
 								out_sb.append("PATRIC\t");
-								out_sb.append(item.get("title") + "\t");
+								out_sb.append(item.get("title")).append("\t");
 								out_sb.append("Transcriptomics\t"); // TODO: modify later
-								out_sb.append((item.get("accession") != null ? item.get("accession") : "") + "\n");
+								out_sb.append((item.get("accession") != null ? item.get("accession") : "")).append("\n");
 							}
 						}
 
 						if (collectionIds.size() > 0) {
-							PolyomicHandler polyomic = null;
-							polyomic = getPolyomicHandler(request);
+							PolyomicHandler polyomic = getPolyomicHandler(request);
 							res = polyomic.getExperiments(collectionIds);
 
-							items = (JSONArray) res.get("results");
-							for (int i = 0; i < items.size(); i++) {
-								item = (JSONObject) items.get(i);
-								out_sb.append(item.get("expid") + "\t");
+							JSONArray items = (JSONArray) res.get("results");
+							for (Object aItem : items) {
+								JSONObject item = (JSONObject) aItem;
+								out_sb.append(item.get("expid")).append("\t");
 								out_sb.append("me\t");
-								out_sb.append(item.get("title") + "\t");
-								out_sb.append((item.get("data_type") != null ? item.get("data_type") : "") + "\t");
-								out_sb.append((item.get("accession") != null ? item.get("accession") : "") + "\n");
+								out_sb.append(item.get("title")).append("\t");
+								out_sb.append((item.get("data_type") != null ? item.get("data_type") : "")).append("\t");
+								out_sb.append((item.get("accession") != null ? item.get("accession") : "")).append("\n");
 							}
 						}
 					}
