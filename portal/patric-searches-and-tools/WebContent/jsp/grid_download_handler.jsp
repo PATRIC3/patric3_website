@@ -131,11 +131,15 @@
 		SolrInterface solr = new SolrInterface();
 		String keyword = request.getParameter("download_keyword");
 		String taxonId = request.getParameter("taxonId");
+		String genomeId = request.getParameter("genomeId");
 
 		key.put("keyword", keyword);
-		if (taxonId != null && taxonId.equals("") == false) {
+		if (taxonId != null && !taxonId.equals("")) {
 			key.put("taxonId", taxonId);
 			key.put("join", SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + key.get("taxonId")));
+		}
+		if (genomeId != null && !genomeId.equals("")) {
+			key.put("join", "genome_id:" + genomeId);
 		}
 		key.put("fields", StringUtils.join(DownloadHelper.getFieldsForFeatures(), ","));
 
@@ -148,7 +152,8 @@
 			sort.put("direction", sort_dir);
 		}
 		solr.setCurrentInstance(SolrCore.FEATURE);
-		JSONObject object = solr.getData(key, sort, null, 0, -1, false, false, false);
+		// TODO: change later, set max rows to 20,000
+		JSONObject object = solr.getData(key, sort, null, 0, 20000, false, false, false);
 
 		JSONObject obj = (JSONObject) object.get("response");
 		_tbl_source = (JSONArray) obj.get("docs");

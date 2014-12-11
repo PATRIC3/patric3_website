@@ -249,6 +249,8 @@ public class SolrInterface {
 			query.addField(key.get("fields"));
 		}
 
+		LOGGER.debug("getData():{}", query.toString());
+
 		return ConverttoJSON(server, query, facet, highlight);
 	}
 
