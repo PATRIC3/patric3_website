@@ -173,7 +173,7 @@ public class CompPathwayMap extends GenericPortlet {
 			SolrQuery query = new SolrQuery("*:*");
 			if (!genomeId.equals("")) {
 				if (genomeId.contains(",")) {
-					query.addFilterQuery("genome_id:(" + StringUtils.join(genomeId.split(","), " OR") + ")");
+					query.addFilterQuery("genome_id:(" + StringUtils.join(genomeId.split(","), " OR ") + ")");
 				}
 				else {
 					query.addFilterQuery("genome_id:" + genomeId);

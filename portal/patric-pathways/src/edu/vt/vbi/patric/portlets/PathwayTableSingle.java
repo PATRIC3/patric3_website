@@ -106,8 +106,6 @@ public class PathwayTableSingle extends GenericPortlet {
 			String pk = request.getParameter("pk");
 			PortletSession session = request.getPortletSession();
 			ResultType key = (ResultType) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
-			//			ResultType key_clone = (ResultType) key.clone();
-			//			session.setAttribute("key" + pk, key_clone, PortletSession.APPLICATION_SCOPE);
 
 			SolrInterface solr = new SolrInterface();
 			try {
@@ -122,6 +120,9 @@ public class PathwayTableSingle extends GenericPortlet {
 				}
 				if (key.containsKey("ec_number")) {
 					joinConditions.add("ec_number:(" + key.get("ec_number").replaceAll(",", " OR ") + ")");
+				}
+				if (key.containsKey("genomeId")) {
+					joinConditions.add("genome_id:(" + key.get("genomeId").replace(",", " OR ") + ")");
 				}
 
 				if (!joinConditions.isEmpty()) {

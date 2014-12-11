@@ -489,12 +489,6 @@ function getSelectedFeatures(actiontype, showdownload, fastatype, to){
 			pid.push(sl[i].data.pathway_id);
 
 			aid.push(sl[i].data.algorithm);
-//			if(sl[i].data.algorithm == "PATRIC")
-//				aid.push("'RAST'");
-//			else if(sl[i].data.algorithm == "Legacy BRC")
-//				aid.push("'Curation'");
-//			else
-//				aid.push("'RefSeq'");
 						
 			if (hash.aT == "1")
 				ecid.push(sl[i].data.ec_number);

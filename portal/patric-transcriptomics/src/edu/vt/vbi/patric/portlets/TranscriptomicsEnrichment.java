@@ -20,6 +20,7 @@ import edu.vt.vbi.patric.common.SolrCore;
 import edu.vt.vbi.patric.common.SolrInterface;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
@@ -75,8 +76,6 @@ public class TranscriptomicsEnrichment extends GenericPortlet {
 
 			Map<String, String> key = new HashMap<>();
 			key.put("feature_id", req.getParameter("feature_id"));
-
-			LOGGER.debug("Enrichment params: {}", key);
 
 			Random g = new Random();
 			int random = g.nextInt();
@@ -165,6 +164,8 @@ public class TranscriptomicsEnrichment extends GenericPortlet {
 			SolrInterface solr = new SolrInterface();
 			List<String> featureIDs = Arrays.asList(key.get("feature_id").split(","));
 
+			// LOGGER.debug("# features passed:{}", featureIDs.size());
+
 			// 1. get Pathway ID, Pathway Name & genomeID
 			//solr/pathway/select?q=feature_id:(PATRIC.83332.12.NC_000962.CDS.34.1524.fwd)&fl=pathway_name,pathway_id,gid
 
@@ -174,10 +175,11 @@ public class TranscriptomicsEnrichment extends GenericPortlet {
 			Set<String> listPathwayID = new HashSet<>();
 			try {
 				SolrQuery query = new SolrQuery("feature_id:(" + StringUtils.join(featureIDs, " OR ") + ")");
-				query.addField("pathway_name,pathway_id,genome_id,feature_id");
+				int queryRows = Math.max(300000, (featureIDs.size()*2));
+				query.addField("pathway_name,pathway_id,genome_id,feature_id").setRows(queryRows);
 				LOGGER.debug("Enrichment 1/3: {}", query.toString());
 
-				QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query);
+				QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query, SolrRequest.METHOD.POST);
 				SolrDocumentList pathwayList = qr.getResults();
 
 				for (SolrDocument doc : pathwayList) {
@@ -205,7 +207,7 @@ public class TranscriptomicsEnrichment extends GenericPortlet {
 				query.add("json.facet", "{stat:{field:{field:pathway_id,limit:-1,facet:{gene_count:\"unique(feature_id)\"}}}}");
 				LOGGER.debug("Enrichment 2/3: {}", query.toString());
 
-				QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query);
+				QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query, SolrRequest.METHOD.POST);
 				List<SimpleOrderedMap> buckets = (List) ((SimpleOrderedMap) ((SimpleOrderedMap) qr.getResponse().get("facets")).get("stat"))
 						.get("buckets");
 
@@ -227,13 +229,13 @@ public class TranscriptomicsEnrichment extends GenericPortlet {
 			if (!listGenomeID.isEmpty() && !listPathwayID.isEmpty()) {
 				try {
 					SolrQuery query = new SolrQuery(
-							"genome_id:(" + StringUtils.join(listGenomeID, " OR") + ") AND pathway_id:(" + StringUtils.join(listPathwayID, " OR ")
+							"genome_id:(" + StringUtils.join(listGenomeID, " OR ") + ") AND pathway_id:(" + StringUtils.join(listPathwayID, " OR ")
 									+ ")");
 					query.setRows(0).setFacet(true).addFilterQuery("annotation:PATRIC");
 					query.add("json.facet", "{stat:{field:{field:pathway_id,limit:-1,facet:{gene_count:\"unique(feature_id)\"}}}}");
 					LOGGER.debug("Enrichment 3/3: {}", query.toString());
 
-					QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query);
+					QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query, SolrRequest.METHOD.POST);
 					List<SimpleOrderedMap> buckets = (List) ((SimpleOrderedMap) ((SimpleOrderedMap) qr.getResponse().get("facets")).get("stat"))
 							.get("buckets");
 

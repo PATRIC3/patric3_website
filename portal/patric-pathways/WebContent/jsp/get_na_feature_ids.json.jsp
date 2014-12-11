@@ -55,7 +55,7 @@ import="java.net.MalformedURLException" %><%
             query.addFilterQuery("ec_number:(" + ec_number + ")");
         }
 
-        query.setRows(10000).setFields("feature_id");
+        query.setRows(500000).setFields("feature_id");
 
         LOGGER.debug("{}", query.toString());
 

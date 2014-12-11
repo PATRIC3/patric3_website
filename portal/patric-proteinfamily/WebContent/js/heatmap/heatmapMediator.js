@@ -164,7 +164,14 @@ function catchLocusTags(colID, rowID, ajaxHttp) {
 	text = '<b>Genome: </b> ' + parts[0] + '<br />' + '<b>Product: </b> ' + parts[1] + '<br />' + '<b>Figfam ID: </b> ' + colID + '<br />' + '<b>Members: </b> ' + parts[2];
 
 	for ( i = 0; i < locusList.length; i++) {
-		text += "<br />" + locusList[i];
+		text += "<br />   <a href='Feature?cType=feature&cId=" + locusList[i].feature_id + "' target=_blank>" + locusList[i].seed_id + "</a>";
+
+		if (locusList[i].refseq_locus_tag != undefined) {
+			text += ",  " + locusList[i].refseq_locus_tag;
+		}
+		if (locusList[i].alt_locus_tag != undefined) {
+			text += ",  " + locusList[i].alt_locus_tag;
+		}
 	}
 
 	clickPop = new Ext.Window({

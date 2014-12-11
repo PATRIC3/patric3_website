@@ -116,13 +116,13 @@ Ext.onReady(function()
 		sort: [[{
 			property: 'genome_name',
 			direction: 'ASC'
-		}/*,{
+		},{
 			property: 'accession',
 			direction: 'ASC'
 		},{
-			property: 'start_max',
+			property: 'start',
 			direction: 'ASC'
-		}*/]],
+		}]],
 		hash:{
 			aP: [1]
 		},
@@ -132,8 +132,8 @@ Ext.onReady(function()
 		 		{header:'Genome Name', flex:2, dataIndex:'genome_name', renderer:renderGenomeName}, 
 				{header:'Accession', flex:1, dataIndex:'accession', hidden:true, renderer:renderAccession}, 
 				{header:'SEED ID', flex:1, dataIndex:'seed_id', renderer:renderSeedId},
-				{header:'RefSeq Locus Tag', flex:1, dataIndex:'alt_locus_tag', renderer:renderLocusTag},
-				{header:'Alt Locus Tag', flex:1, dataIndex:'refseq_locus_tag', renderer:renderLocusTag},
+				{header:'RefSeq Locus Tag', flex:1, dataIndex:'refseq_locus_tag', renderer:renderLocusTag},
+				{header:'Alt Locus Tag', flex:1, dataIndex:'alt_locus_tag', renderer:renderLocusTag},
 				{header:'Gene Symbol', flex:1, dataIndex:'gene', renderer:BasicRenderer},
 				{header:'Genome Browser', dataIndex:'', align:'center', hidden:true, renderer:renderGenomeBrowserByFeature}, 
 				{header:'Annotation', flex:1, dataIndex:'algorithm', hidden:true, renderer:BasicRenderer}, 

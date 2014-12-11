@@ -159,7 +159,7 @@ public class FIGfamData {
 			SolrQuery solr_query = new SolrQuery();
 			solr_query.setQuery("genome_id:(" + req.getParameter("genomeIds") + ") AND figfam_id:(" + req.getParameter("figfamIds") + ")");
 			solr_query.setFilterQueries("annotation:PATRIC AND feature_type:CDS");
-			solr_query.addField("alt_locus_tag");
+			solr_query.addField("feature_id,seed_id,refseq_locus_tag,alt_locus_tag");
 			solr_query.setRows(150000);
 
 			LOGGER.debug("getLocusTags() {}", solr_query.toString());
@@ -168,10 +168,10 @@ public class FIGfamData {
 			SolrDocumentList sdl = qr.getResults();
 
 			for (SolrDocument doc : sdl) {
-				arr.add(doc.get("alt_locus_tag").toString());
-				//				for (Map.Entry<String, Object> el : d) {
-				//					arr.add(el.getValue());
-				//				}
+				JSONObject item = new JSONObject();
+				item.putAll(doc);
+
+				arr.add(item);
 			}
 		}
 		catch (MalformedURLException | SolrServerException e) {
