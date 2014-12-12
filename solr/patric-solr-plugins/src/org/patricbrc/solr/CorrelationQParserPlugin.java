@@ -254,8 +254,8 @@ public class CorrelationQParserPlugin extends QParserPlugin {
 
 					LOGGER.debug("{}, # conditions: {}, Correlation coefficient: {}, p_value: {}", target, rows, coefficient, p_value);
 
-					if ((filterDirection.equals("pos") && coefficient > filterCutOff)
-							|| (filterDirection.equals("neg") && coefficient < (-1) * filterCutOff)) {
+					if ((filterDirection.equals("pos") && coefficient >= filterCutOff)
+							|| (filterDirection.equals("neg") && coefficient <= (-1) * filterCutOff)) {
 
 						SolrDocument entry = new SolrDocument();
 						entry.put("id", target);
