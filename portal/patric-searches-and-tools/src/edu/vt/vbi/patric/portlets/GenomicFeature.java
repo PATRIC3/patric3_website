@@ -168,12 +168,18 @@ public class GenomicFeature extends GenericPortlet {
 				key.put("exact_search_term", exact_search_term);
 			}
 
+			if (!key.containsKey("genomeId") && cType != null && cType.equals("genome") && cId != null && !cId.equals("")) {
+				key.put("genomeId", cId);
+			}
+			if (!key.containsKey("taxonId") && cType != null && cType.equals("taxon") && cId != null && !cId.equals("")) {
+				key.put("taxonId", cId);
+			}
 			// random
 			Random g = new Random();
 			int random = g.nextInt();
 
-			PortletSession sess = request.getPortletSession(true);
-			sess.setAttribute("key" + random, key, PortletSession.APPLICATION_SCOPE);
+			PortletSession session = request.getPortletSession(true);
+			session.setAttribute("key" + random, key, PortletSession.APPLICATION_SCOPE);
 
 			PrintWriter writer = response.getWriter();
 			writer.write("" + random);
@@ -257,6 +263,9 @@ public class GenomicFeature extends GenericPortlet {
 				// add join condition
 				if (key.containsKey("taxonId") && key.get("taxonId") != null) {
 					key.put("join", SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + key.get("taxonId")));
+				}
+				if (key.containsKey("genomeId") && key.get("genomeId") != null && !key.get("genomeId").equals("")) {
+					key.put("join", "genome_id:(" + key.get("genomeId").replaceAll(",", " OR ") + ")");
 				}
 
 				key.put("fields",
@@ -423,6 +432,8 @@ public class GenomicFeature extends GenericPortlet {
 				JSONArray docs = new JSONArray();
 				long numFound = 0l;
 				try {
+					LOGGER.debug("featurewofacet:{}", query.toString());
+
 					QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query);
 					List<GenomeFeature> records = qr.getBeans(GenomeFeature.class);
 					numFound = qr.getResults().getNumFound();

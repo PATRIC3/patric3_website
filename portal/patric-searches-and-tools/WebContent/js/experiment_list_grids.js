@@ -222,7 +222,7 @@ function linkToGeneListZScore(value, metadata, record, rowIndex, colIndex, store
 
 function renderExpTitle(value, metadata, record, rowIndex, colIndex, store) {
 	metadata.tdAttr = 'data-qtip="' + value + '" data-qclass="x-tip"';
-	return Ext.String.format("<a href=\"SingleExperiment?cType=taxon&cId={2}&eid={1}\">{0}</a>", value, record.data.eid, Ext.getDom("cId").value);
+	return Ext.String.format("<a href=\"SingleExperiment?cType={2}&cId={3}&eid={1}\">{0}</a>", value, record.data.eid, Ext.getDom("cType").value, Ext.getDom("cId").value);
 
 }
 

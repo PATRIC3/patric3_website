@@ -226,7 +226,8 @@ function DownloadFile() {"use strict";
 
 	var form = Ext.getDom("fTableForm");
 
-	form.action = "/patric-searches-and-tools/jsp/grid_download_handler.jsp", form.target = "", form.fileformat.value = arguments[0];
+	form.action = "/patric-searches-and-tools/jsp/grid_download_handler.jsp",
+	form.target = "", form.fileformat.value = arguments[0];
 	getHashFieldsToDownload(form);
 	form.submit();
 }

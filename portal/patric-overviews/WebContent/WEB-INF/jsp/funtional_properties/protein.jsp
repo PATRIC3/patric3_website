@@ -84,11 +84,11 @@ String ENDPOINT = System.getProperty("polyomic.baseUrl", "http://polyomic.patric
 		String regSSGCID = SiteHelper.getGenusByStructuralGenomicsCenter("ssgcid");
 		String regCSGID = SiteHelper.getGenusByStructuralGenomicsCenter("csgid");
 
-		if (genusName.matches(regSSGCID)) {
+		if (genusName != null && genusName.matches(regSSGCID)) {
 			%>
 			<tr><th scope="row">Structure</th><td class="no-underline-links"><a href="#" class="double-arrow-link" onclick="SubmitToStructuralGenomicsCenter('ssgcid');return false;">Submit a request for structure determination to SSGCID</a></td></tr>
 			<%
-		} else if (genusName.matches(regCSGID)) {
+		} else if (genusName != null && genusName.matches(regCSGID)) {
 			%>
 			<tr><th scope="row">Structure</th><td class="no-underline-links"><a href="#" class="double-arrow-link" onclick="SubmitToStructuralGenomicsCenter('csgid');return false;">Submit a request for structure determination to CSGID</a></td></tr>
 			<%

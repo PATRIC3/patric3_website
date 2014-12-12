@@ -205,8 +205,8 @@ public class IDMapping extends GenericPortlet {
 
 				// get UniprotKBAccessions wigh GI
 				try {
-					SolrQuery query = new SolrQuery("id_type:GI AND id_value:(" + StringUtils.join(giList, " OR ") + ")");
-					query.setRows(10000);
+					SolrQuery query = new SolrQuery("id_value:(" + StringUtils.join(giList, " OR ") + ")");
+					query.addFilterQuery("id_type:GI").setRows(10000);
 
 					LOGGER.trace("PATRIC TO Other 2/3: {}", query.toString());
 					QueryResponse qr = solr.getSolrServer(SolrCore.ID_REF).query(query);
@@ -224,9 +224,8 @@ public class IDMapping extends GenericPortlet {
 
 				// get Target Value
 				try {
-					SolrQuery query = new SolrQuery();
-					query.setQuery("id_type:(" + toId + ") AND uniprotkb_accession:(" + StringUtils.join(accessionGiMap.keySet(), " OR ") + ")");
-					query.setRows(accessionGiMap.size());
+					SolrQuery query = new SolrQuery("uniprotkb_accession:(" + StringUtils.join(accessionGiMap.keySet(), " OR ") + ")");
+					query.addFilterQuery("id_type:(" + toId + ")").setRows(accessionGiMap.size());
 
 					LOGGER.trace("PATRIC TO Other 3/3: {}", query.toString());
 					QueryResponse qr = solr.getSolrServer(SolrCore.ID_REF).query(query);
@@ -270,8 +269,8 @@ public class IDMapping extends GenericPortlet {
 			List<Map<Long, String>> giTargetList = new LinkedList<>();
 
 			try {
-				SolrQuery query = new SolrQuery("id_type:" + fromId + " AND id_value:(" + keyword + ")");
-				query.setRows(10000).addField("uniprotkb_accession,id_value");
+				SolrQuery query = new SolrQuery("id_value:(" + keyword + ")");
+				query.addFilterQuery("id_type:" + fromId).setRows(10000).addField("uniprotkb_accession,id_value");
 
 				LOGGER.debug("Other to PATRIC 1/3: {}", query.toString());
 				QueryResponse qr = solr.getSolrServer(SolrCore.ID_REF).query(query);
@@ -286,9 +285,8 @@ public class IDMapping extends GenericPortlet {
 			}
 
 			try {
-				SolrQuery query = new SolrQuery(
-						"id_type:GI AND uniprotkb_accession:(" + StringUtils.join(accessionTargetMap.keySet(), " OR ") + ")");
-				query.setRows(10000);
+				SolrQuery query = new SolrQuery("uniprotkb_accession:(" + StringUtils.join(accessionTargetMap.keySet(), " OR ") + ")");
+				query.addFilterQuery("id_type:GI").setRows(10000);
 
 				LOGGER.debug("Other to PATRIC 2/3: {}", query.toString());
 				QueryResponse qr = solr.getSolrServer(SolrCore.ID_REF).query(query);

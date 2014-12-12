@@ -105,7 +105,7 @@ public class GenomeFinder extends GenericPortlet {
 			ResultType key = new ResultType();
 
 			String genomeId = request.getParameter("genomeId");
-			String taxonId = "";
+			String taxonId = request.getParameter("taxonId");
 			String cType = request.getParameter("cType");
 			String cId = request.getParameter("cId");
 			if (cType != null && cId != null && cType.equals("taxon") && !cId.equals("")) {
@@ -117,10 +117,10 @@ public class GenomeFinder extends GenericPortlet {
 			String exact_search_term = request.getParameter("exact_search_term");
 			String search_on = request.getParameter("search_on");
 
-			if (genomeId != null && !genomeId.equalsIgnoreCase("")) {
+			if (genomeId != null && !genomeId.equals("")) {
 				key.put("genomeId", genomeId);
 			}
-			if (taxonId != null && !taxonId.equalsIgnoreCase("")) {
+			if (taxonId != null && !taxonId.equals("")) {
 				key.put("taxonId", taxonId);
 			}
 			if (keyword != null) {
@@ -138,6 +138,15 @@ public class GenomeFinder extends GenericPortlet {
 			if (search_on != null) {
 				key.put("search_on", search_on);
 			}
+
+			if (!key.containsKey("genomeId") && cType != null && cType.equals("genome") && cId != null && !cId.equals("")) {
+				key.put("genomeId", cId);
+			}
+			if (!key.containsKey("taxonId") && cType != null && cType.equals("taxon") && cId != null && !cId.equals("")) {
+				key.put("taxonId", cId);
+			}
+			LOGGER.debug("param:{}", request.getParameterMap());
+			LOGGER.debug("key:{}", key.toString());
 			// random
 			Random g = new Random();
 			int random = g.nextInt();
@@ -168,7 +177,7 @@ public class GenomeFinder extends GenericPortlet {
 		else {
 
 			String need = request.getParameter("need");
-			String facet, keyword, pk, state, taxonId;
+			String facet, keyword, pk, state, taxonId = null, genomeId = null;
 			boolean hl;
 			PortletSession sess = request.getPortletSession();
 			ResultType key = new ResultType();
@@ -316,6 +325,7 @@ public class GenomeFinder extends GenericPortlet {
 				keyword = request.getParameter("keyword");
 				facet = request.getParameter("facet");
 				taxonId = request.getParameter("taxonId");
+				genomeId = request.getParameter("genomeId");
 
 				String highlight = request.getParameter("highlight");
 
@@ -330,6 +340,13 @@ public class GenomeFinder extends GenericPortlet {
 				else {
 					key = (ResultType) sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
 					key.put("facet", facet);
+				}
+
+				if ((taxonId == null || taxonId.equals("")) && key.containsKey("taxonId") && !key.get("taxonId").equals("")) {
+					taxonId = key.get("taxonId");
+				}
+				if ((genomeId == null || genomeId.equals("")) && key.containsKey("genomeId") && !key.get("genomeId").equals("")) {
+					genomeId = key.get("genomeId");
 				}
 
 				String start_id = request.getParameter("start");
@@ -398,12 +415,17 @@ public class GenomeFinder extends GenericPortlet {
 				// if (key.containsKey("taxonId") && key.get("taxonId") != null) {
 				if (taxonId != null && !taxonId.equals("")) {
 					key.put("join", "taxon_lineage_ids:" + taxonId);
-					query.setFilterQueries("taxon_lineage_ids:" + taxonId);
+					query.addFilterQuery("taxon_lineage_ids:" + taxonId);
+				}
+				if (genomeId != null && !genomeId.equals("")) {
+					key.put("join", "genome_id:(" + genomeId.replaceAll(",", " OR ") + ")");
+					query.addFilterQuery("genome_id:(" + genomeId.replaceAll(",", " OR ") + ")");
 				}
 
 				JSONArray docs = new JSONArray();
 				long numFound = 0l;
 				try {
+					LOGGER.debug("{}", query.toString());
 					QueryResponse qr = solr.getSolrServer(SolrCore.GENOME).query(query, SolrRequest.METHOD.POST);
 					List<Genome> records = qr.getBeans(Genome.class);
 					numFound = qr.getResults().getNumFound();
