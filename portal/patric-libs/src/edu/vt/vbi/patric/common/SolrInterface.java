@@ -1070,7 +1070,7 @@ public class SolrInterface {
 		}
 
 		try {
-			QueryResponse qr = this.getSolrServer(SolrCore.FEATURE).query(query);
+			QueryResponse qr = this.getSolrServer(SolrCore.FEATURE).query(query, SolrRequest.METHOD.POST);
 
 			List<GenomeFeature> listFeature = qr.getBeans(GenomeFeature.class);
 			JSONArray docs = new JSONArray();
@@ -1168,7 +1168,7 @@ public class SolrInterface {
 		LOGGER.debug("getGenomesByID:{}", query.toString());
 
 		try {
-			QueryResponse qr = this.getSolrServer(SolrCore.GENOME).query(query);
+			QueryResponse qr = this.getSolrServer(SolrCore.GENOME).query(query, SolrRequest.METHOD.POST);
 
 			List<Genome> listGenome = qr.getBeans(Genome.class);
 			JSONArray docs = new JSONArray();
@@ -1235,7 +1235,7 @@ public class SolrInterface {
 		}
 
 		try {
-			QueryResponse qr = this.getSolrServer(SolrCore.TRANSCRIPTOMICS_EXPERIMENT).query(query);
+			QueryResponse qr = this.getSolrServer(SolrCore.TRANSCRIPTOMICS_EXPERIMENT).query(query, SolrRequest.METHOD.POST);
 
 			SolrDocumentList sdl = qr.getResults();
 			JSONArray docs = new JSONArray();
