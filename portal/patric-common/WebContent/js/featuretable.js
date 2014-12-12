@@ -119,7 +119,7 @@ function filterFeatureTable() {
 
 function loadFBCD() {
 
-	var Page = $Page, property = Page.getPageProperties(), hash = property.hash, which = hash.hasOwnProperty('cat') ? hash.cat : hash.aT ? hash.aT : 0, timeoutId = 0, hiddenCols = property.featureHiddenCols[hash.fT] ? property.featureHiddenCols[hash.fT] : property.featureHiddenCols["ALL"], scm = property.scm;
+	var Page = $Page, property = Page.getPageProperties(), hash = property.hash, which = hash.hasOwnProperty('cat') ? hash.cat : hash.aT ? hash.aT : 0, timeoutId = 0, /* hiddenCols = property.featureHiddenCols[hash.fT] ? property.featureHiddenCols[hash.fT] : property.featureHiddenCols["ALL"],*/ scm = property.scm;
 
 	SetLoadParameters();
 
@@ -137,20 +137,20 @@ function loadFBCD() {
 		setInputs();
 	}
 
-	for (var i = 1; i < scm[which].length; i++) {
-		scm[which][i]["hidden"] = scm[which][i]["orig_hidden_value"];
-		if (hiddenCols.indexOf(scm[which][i]["dataIndex"]) >= 0) {
-			scm[which][i]["hidden"] = true;
-		}
-	}
-
-	for (var i = 1; i < scm[which].length; i++) {
-		if (scm[which][i]["dataIndex"] == "annotation") {
-			scm[which][i]["hidden"] = (hash.alg != "ALL");
-		} else if (scm[which][i]["dataIndex"] == "feature_type") {
-			scm[which][i]["hidden"] = (hash.fT != "ALL");
-		}
-	}
+//	for (var i = 1; i < scm[which].length; i++) {
+//		scm[which][i]["hidden"] = scm[which][i]["orig_hidden_value"];
+//		if (hiddenCols.indexOf(scm[which][i]["dataIndex"]) >= 0) {
+//			scm[which][i]["hidden"] = true;
+//		}
+//	}
+//
+//	for (var i = 1; i < scm[which].length; i++) {
+//		if (scm[which][i]["dataIndex"] == "annotation") {
+//			scm[which][i]["hidden"] = (hash.alg != "ALL");
+//		} else if (scm[which][i]["dataIndex"] == "feature_type") {
+//			scm[which][i]["hidden"] = (hash.fT != "ALL");
+//		}
+//	}
 
 	loadGrid();
 }

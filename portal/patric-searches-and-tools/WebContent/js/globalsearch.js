@@ -707,6 +707,9 @@ function renderListFeature(value, p, record) {
 				text += renderSeedId(data.product, "", record);
 			text += "</span>";
 			highlights_checked.product = true;
+		} else {
+			console.log(data);
+			text += "<span>" + renderSeedId(data.start + ".." + data.end, "", record) + "</span>";
 		}
 
 		text += renderSubGeneLocusTagGenome(record, highlights_checked);
