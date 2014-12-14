@@ -152,13 +152,14 @@ public class GenomeBrowser extends GenericPortlet {
 							f.getStrand(),
 
 							f.getId(),
-							f.getAltLocusTag(),
+							f.hasSeedId()?f.getSeedId():"",
+							f.hasRefseqLocusTag()?f.getRefseqLocusTag():"",
+							f.hasAltLocusTag()?f.getAltLocusTag():"",
 							annotation,
 							f.getFeatureType(),
 							f.hasProduct()?f.getProduct():"",
 
 							f.hasGene()?f.getGene():"",
-							f.hasRefseqLocusTag()?f.getRefseqLocusTag():"",
 							(f.getFeatureType().equals("CDS") ? 0 : (f.getFeatureType().contains("RNA") ? 1 : 2))
 					));
 
@@ -232,7 +233,7 @@ public class GenomeBrowser extends GenericPortlet {
 						JSONArray classes = new JSONArray();
 						JSONObject aClass = new JSONObject();
 							JSONArray attributes = new JSONArray();
-							attributes.addAll(Arrays.asList("Start", "Start_str", "End", "Strand", "strand_str", "id", "locus_tag", "source", "type", "product", "gene", "refseq", "phase"));
+							attributes.addAll(Arrays.asList("Start", "Start_str", "End", "Strand", "strand_str", "id", "seed_id", "refseq_locus_tag", "alt_locus_tag", "source", "type", "product", "gene", "phase"));
 
 							aClass.put("attributes", attributes);
 							aClass.put("isArrayAttr", new JSONObject());

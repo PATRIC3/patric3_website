@@ -35,7 +35,7 @@ return declare(
 
     region: 'left',
     splitter: true,
-    style: 'width: 15%',
+    style: 'width: 25%',
 
     id: 'hierarchicalTrackPane',
     baseClass: 'jbrowseHierarchicalTrackSelector',
@@ -89,6 +89,19 @@ return declare(
         var tracks = [];
         var thisB = this;
         var categoryFacet = this.get('categoryFacet');
+        var sorter = (this.get('sortHierarchical')=="false"||this.get('sortHierarchical')==false) ? undefined :
+                             [ { attribute: this.get('categoryFacet').toLowerCase()},
+                               { attribute: 'key' },
+                               { attribute: 'label' }
+                             ];
+
+        // add initally collapsed categories to the local storage
+        var arr=(this.get('collapsedCategories')||"").split(",");
+        for(var i=0; i<arr.length;i++) {
+            lang.setObject('collapsed.'+arr[i],true,this.state);
+        }
+        this._saveState();
+
         this.get('trackMetaData').fetch(
             { onItem: function(i) {
                   if( i.conf )
@@ -110,17 +123,14 @@ return declare(
                       thisB.categories.Uncategorized.pane.domNode.style.display = 'none';
                   }
               },
-              sort: [ { attribute: this.get('categoryFacet').toLowerCase()},
-                      { attribute: 'key' },
-                      { attribute: 'label' }
-                    ]
+              sort: sorter 
             });
     },
 
     addTracks: function( tracks, inStartup ) {
         this.pane = this;
         var thisB = this;
-
+       
         array.forEach( tracks, function( track ) {
             var trackConf = track.conf || track;
 
@@ -128,6 +138,7 @@ return declare(
             var categoryNames = (
                 trackConf.metadata && trackConf.metadata[ categoryFacet ]
                     || trackConf[ categoryFacet ]
+                    || track[ categoryFacet ]
                     || 'Uncategorized'
             ).split(/\s*\/\s*/);
 

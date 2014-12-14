@@ -11,6 +11,7 @@ define( "JBrowse/View/Track/WiggleBase", [
             'JBrowse/View/Track/_TrackDetailsStatsMixin',
             'JBrowse/View/Dialog/SetTrackHeight',
             'JBrowse/Util',
+            'JBrowse/has',
             './Wiggle/_Scale'
         ],
         function(
@@ -26,6 +27,7 @@ define( "JBrowse/View/Track/WiggleBase", [
             DetailStatsMixin,
             TrackHeightDialog,
             Util,
+            has,
             Scale
         ) {
 
@@ -39,6 +41,8 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
         }
 
         this.store = args.store;
+
+        this._setupEventHandlers();
     },
 
     _defaultConfig: function() {
@@ -46,6 +50,36 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
             maxExportSpan: 500000,
             autoscale: 'global'
         };
+    },
+
+    _setupEventHandlers: function() {
+        // make a default click event handler
+        var eventConf = dojo.clone( this.config.events || {} );
+        if( ! eventConf.click ) {
+            // unlike CanvasFeatures, linkTemplate or nothing here... no default contentDialog since no equivalent to defaultFeatureDetail
+            if ((this.config.style||{}).linkTemplate) {
+                eventConf.click = { action: "newWindow", url: this.config.style.linkTemplate };
+            }
+        }
+
+        // process the configuration to set up our event handlers
+        this.eventHandlers = (function() {
+            var handlers = dojo.clone( eventConf );
+                // find conf vars that set events, like `onClick`
+                for( var key in this.config ) {
+                    var handlerName = key.replace(/^on(?=[A-Z])/, '');
+                    if( handlerName != key )
+                        handlers[ handlerName.toLowerCase() ] = this.config[key];
+                }
+                // interpret handlers that are just strings to be URLs that should be opened
+                for( key in handlers ) {
+                    if( typeof handlers[key] == 'string' )
+                        handlers[key] = { url: handlers[key] };
+                }
+                return handlers;
+            }).call(this);
+        // only call _makeClickHandler() if we have related settings in config
+        if (this.eventHandlers.click) this.eventHandlers.click = this._makeClickHandler( this.eventHandlers.click );
     },
 
     _getScaling: function( viewArgs, successCallback, errorCallback ) {
@@ -194,19 +228,45 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
               width:  this._canvasWidth(block),
               style: {
                   cursor: 'default',
-                  width: "100%",
-                  height: canvasHeight + "px"
+                  height: canvasHeight + "px",
+                  width: has('inaccurate-html-width') ? "" : "100%",
+                  "min-width": has('inaccurate-html-width')? "100%":"",
+                  "max-width": has('inaccurate-html-width')? "102%":""
+                  
               },
               innerHTML: 'Your web browser cannot display this type of track.',
               className: 'canvas-track'
             },
             block.domNode
         );
+       
+        var ctx = c.getContext('2d');
+        var ratio=Util.getResolution(ctx, this.browser.config.highResolutionMode);
+
+        // upscale canvas if the two ratios don't match
+        if (this.browser.config.highResolutionMode!='disabled' && ratio>=1) {
+            var oldWidth = c.width;
+            var oldHeight = c.height;
+
+            c.width = Math.round(oldWidth * ratio);
+            c.height = Math.round(oldHeight * ratio);
+
+            //c.style.width = oldWidth + 'px';
+            c.style.height = oldHeight + 'px';
+
+            // now scale the context to counter
+            // the fact that we've manually scaled
+            // our canvas element
+            ctx.scale(ratio, ratio);
+        }
+ 
         c.startBase = block.startBase;
         block.canvas = c;
 
+
         //Calculate the score for each pixel in the block
         var pixels = this._calculatePixelScores( c.width, features, featureRects );
+
 
         this._draw( block.scale,    block.startBase,
                     block.endBase,  block,
@@ -214,7 +274,7 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
                     featureRects,   dataScale,
                     pixels,         block.maskingSpans ); // note: spans may be undefined.
 
-        this.heightUpdate( c.height, args.blockIndex );
+        this.heightUpdate( c.height/ratio, args.blockIndex );
         if( !( c.parentNode && c.parentNode.parentNode )) {
             var blockWidth = block.endBase - block.startBase;
 
@@ -230,6 +290,7 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
                 break;
             }
         }
+
     },
 
     fillBlock: function( args ) {
@@ -386,6 +447,10 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
                                                     thisB.mouseover( undefined );
                                                 }))[0];
 
+        // only add if we have config setting a click eventHandler for this track
+        if (thisB.eventHandlers.click  && ! this._mouseClickEvent)
+            this._mouseClickEvent = this.own( on ( this.div, "click", thisB.eventHandlers.click ))[0];
+
         // make elements and events to display it
         if( ! this.scoreDisplay )
             this.scoreDisplay = {
@@ -488,6 +553,7 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
                 new TrackHeightDialog({
                     height: track._canvasHeight(),
                     setCallback: function( newHeight ) {
+                        track.trackHeightChanged=true;
                         track.updateUserStyles({ height: newHeight });
                     }
                 }).show();
@@ -495,6 +561,17 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
         });
 
         return options;
+    },
+
+    // this draws either one or two width pixels based on whether there is a fractional devicePixelRatio
+    _fillRectMod: function( ctx, left, top, width, height ) {
+        var devicePixelRatio = window.devicePixelRatio || 1;
+        var drawWidth=width;
+        // check for fractional devicePixelRatio, and if so, draw wider pixels to avoid subpixel rendering
+        if( this.browser.config.highResolutionMode!='disabled' && (devicePixelRatio-Math.floor(devicePixelRatio)) > 0 ) {
+            drawWidth=width+0.3; // Minimal for subpixel gap, heuristic
+        }
+        ctx.fillRect( left, top, drawWidth, height );
     }
 });
 });

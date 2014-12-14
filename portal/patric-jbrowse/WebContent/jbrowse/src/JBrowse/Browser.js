@@ -22,6 +22,7 @@ define( "JBrowse/Browser", [
             'dijit/form/DropDownButton',
             'dijit/DropDownMenu',
             'dijit/MenuItem',
+            'dojox/form/TriStateCheckBox',
             'JBrowse/Util',
             'JBrowse/Store/LazyTrie',
             'JBrowse/Store/Names/LazyTrieDojoData',
@@ -64,6 +65,7 @@ define( "JBrowse/Browser", [
             dijitDropDownButton,
             dijitDropDownMenu,
             dijitMenuItem,
+            dojoxTriStateCheckBox,
             Util,
             LazyTrie,
             NamesLazyTrieDojoDataStore,
@@ -129,7 +131,7 @@ constructor: function(params) {
             thisB.container.onselectstart = function() { return false; };
 
             // initialize our highlight if one was set in the config
-            if( thisB.config.initialHighlight )
+            if( thisB.config.initialHighlight && thisB.config.initialHighlight != "/" )
                 thisB.setHighlight( new Location( thisB.config.initialHighlight ) );
 
             thisB.loadNames();
@@ -198,7 +200,7 @@ _initialLocation: function() {
 version: function() {
     // when a build is put together, the build system assigns a string
     // to the variable below.
-    var BUILD_SYSTEM_JBROWSE_VERSION;
+    var BUILD_SYSTEM_JBROWSE_VERSION = "patric";
     return BUILD_SYSTEM_JBROWSE_VERSION || 'PATRIC';
 }.call(),
 
@@ -667,6 +669,7 @@ initView: function() {
                                 if( ! /\b(XYPlot|Density)/.test( track.config.type ) )
                                     return;
 
+                                track.trackHeightChanged=true;
                                 track.updateUserStyles({ height: height });
                             });
                         }
@@ -1553,7 +1556,8 @@ _configDefaults: function() {
             yeast:     { url: '?data=sample_data/json/yeast',     name: 'Yeast Example'     }
         },
 
-        highlightSearchedRegions: false
+        highlightSearchedRegions: false,
+        highResolutionMode: 'disabled'
     };
 },
 
@@ -2468,25 +2472,40 @@ createNavBox: function( parent ) {
                 dojo.stopEvent(event);
             })
         }, dojo.create('button',{},navbox));
-
-    this.highlightButton = new dijitToggleButton({
+    this.highlightButtonPreviousState = false;
+    this.highlightButton = new dojoxTriStateCheckBox({
         //label: 'Highlight',
         title: 'highlight a region',
-        iconClass: 'jbrowseIconHighlight',
+        states:[false, true, "mixed"],
         onChange: function() {
-            if( this.get('checked') ) {
+            if( this.get('checked')==true ) {
                 thisB.view._rubberStop();
                 thisB.view.behaviorManager.swapBehaviors('normalMouse','highlightingMouse');
-            } else {
+            } else if( this.get('checked')==false) {
+                var h = thisB.getHighlight();
+                if( h ) {
+                    thisB.clearHighlight();
+                    thisB.view.redrawRegion( h ); 
+                }
+            }
+            else { // mixed
+                // Uncheck since user is cycling three-state instead
+                // of programmatically landing in mixed state
+                if( thisB.highlightButtonPreviousState != true ) {
+                    thisB.highlightButton.set('checked', false);
+                }
+                else {
+                    thisB.highlightButtonPreviousState = false;
+                }
                 thisB.view._rubberStop();
                 thisB.view.behaviorManager.swapBehaviors('highlightingMouse','normalMouse');
             }
         }
     }, dojo.create('button',{},navbox));
+
     this.subscribe('/jbrowse/v1/n/globalHighlightChanged',
                    function() { thisB.highlightButton.set('checked',false); });
 
-    dojo.addClass( this.highlightButton.domNode, 'highlightButton' );
 
     this.afterMilestone('loadRefSeqs', dojo.hitch( this, function() {
 
@@ -2581,9 +2600,14 @@ setHighlight: function( newHighlight ) {
 
 
 _updateHighlightClearButton: function() {
+    var isHighlightSet=!! this._highlight;
     if( this._highlightClearButton ) {
-        this._highlightClearButton.set( 'disabled', !!! this._highlight );
+        this._highlightClearButton.set( 'disabled', !isHighlightSet );
         //this._highlightClearButton.set( 'label', 'Clear highlight' + ( this._highlight ? ' - ' + this._highlight : '' ));
+    }
+    if( this.highlightButton ) {
+        this.highlightButton.set('checked',isHighlightSet?'mixed':false );
+        this.highlightButtonPreviousState=isHighlightSet;
     }
 },
 

@@ -218,18 +218,24 @@ var BamFile = declare( null,
             0,
             thisB.minAlignmentVO ? thisB.minAlignmentVO.block + 65535 : null,
             function(r) {
-                var unc = BAMUtil.unbgzf(r);
-                var uncba = new Uint8Array(unc);
+                try {
+                    var uncba;
+                    try {
+                        uncba = new Uint8Array( BAMUtil.unbgzf(r) );
+                    } catch(e) {
+                        throw new Error( "Could not uncompress BAM data. Is it compressed correctly?" );
+                    }
 
-                if( readInt(uncba, 0) != BAM_MAGIC) {
-                    dlog('Not a BAM file');
-                    failCallback( 'Not a BAM file' );
-                    return;
+                    if( readInt(uncba, 0) != BAM_MAGIC)
+                        throw new Error('Not a BAM file');
+
+                    var headLen = readInt(uncba, 4);
+
+                    thisB._readRefSeqs( headLen+8, 65536*4, successCallback, failCallback );
+                } catch(e) {
+                    dlog( ''+e );
+                    failCallback( ''+e );
                 }
-
-                var headLen = readInt(uncba, 4);
-
-                thisB._readRefSeqs( headLen+8, 65536*4, successCallback, failCallback );
             },
             failCallback
         );
@@ -718,7 +724,6 @@ var readFloat = BAMUtil.readFloat;
 var Feature = Util.fastDeclare(
 {
     constructor: function( args ) {
-        this.store = args.store;
         this.file  = args.file;
         this.data  = {
             type: 'match',
@@ -758,10 +763,11 @@ var Feature = Util.fastDeclare(
         this._parseAllTags();
 
         var tags = [ 'seq', 'seq_reverse_complemented', 'unmapped','qc_failed','duplicate','secondary_alignment','supplementary_alignment' ];
+
         if( ! this._get('unmapped') )
-            tags.push( 'start', 'end', 'strand', 'score', 'qual', 'MQ', 'CIGAR', 'length_on_ref' );
+            tags.push( 'start', 'end', 'strand', 'score', 'qual', 'MQ', 'CIGAR', 'length_on_ref', 'template_length' );
         if( this._get('multi_segment_template') ) {
-            tags.push( 'multi_segment_all_aligned',
+            tags.push( 'multi_segment_all_correctly_aligned',
                        'multi_segment_next_segment_unmapped',
                        'multi_segment_next_segment_reversed',
                        'multi_segment_first',
@@ -773,7 +779,9 @@ var Feature = Util.fastDeclare(
 
         var d = this.data;
         for( var k in d ) {
-            if( d.hasOwnProperty( k ) && k[0] != '_' )
+            if( d.hasOwnProperty( k ) && k[0] != '_'
+                && k != 'multi_segment_all_aligned'
+                && k != 'next_seq_id')
                 tags.push( k );
         }
 
@@ -803,6 +811,10 @@ var Feature = Util.fastDeclare(
         return this._get('name')+'/'+this._get('md')+'/'+this._get('cigar')+'/'+this._get('start');
     },
 
+    multi_segment_all_aligned: function() {
+        return this._get('multi_segment_all_correctly_aligned');
+    },
+
     // special parsers
     /**
      * Mapping quality score.
@@ -827,11 +839,24 @@ var Feature = Util.fastDeclare(
         }
         return qseq.join(' ');
     },
+    /** if not paired then strand comes from seq_reverse_complemented
+        if paired and both forward then forward
+        if paired and both reverse then reverse
+        if paired and opposite then return 'next' strand ie dominant mate
+    **/
     strand: function() {
         var xs = this._get('xs');
         return xs ? ( xs == '-' ? -1 : 1 ) :
-               this._get('seq_reverse_complemented') ? -1 :  1;
+               (this._get('multi_segment_template') &&  this._get('multi_segment_last')) ?
+               (this._get('multi_segment_next_segment_reversed') ? -1 : 1) : 
+               (this._get('seq_reverse_complemented') ? -1 :  1);
     },
+    multi_segment_next_segment_strand: function() {
+      if(this._get('multi_segment_next_segment_unmapped'))
+        return undefined;
+      return this._get('multi_segment_next_segment_reversed') ? -1 : 1;
+    },
+
     /**
      * Length in characters of the read name.
      */
@@ -899,17 +924,13 @@ var Feature = Util.fastDeclare(
         return cigar;
     },
     next_segment_position: function() {
-        var nextRefID = this._get('_next_refid');
-        var nextSegment = this.file.indexToChr[nextRefID];
+        var nextSegment = this.file.indexToChr[this._get('_next_refid')];
         if( nextSegment )
             return nextSegment.name+':'+this._get('_next_pos');
         else
             return undefined;
     },
     subfeatures: function() {
-        if( ! this.store.createSubfeatures )
-            return undefined;
-
         var cigar = this._get('cigar');
         if( cigar )
             return this._cigarToSubfeats( cigar );
@@ -933,6 +954,12 @@ var Feature = Util.fastDeclare(
             return undefined;
 
         return ( this.file.indexToChr[ this._refID ] || {} ).name;
+    },
+
+    next_seq_id: function() {
+        if( this._get('multi_segment_next_segment_unmapped') )
+            return undefined;
+        return ( this.file.indexToChr[this._get('_next_refid')] || {} ).name;
     },
 
     _bin_mq_nl: function() {
@@ -1054,7 +1081,7 @@ var Feature = Util.fastDeclare(
 
     _flagMasks: {
         multi_segment_template:              0x1,
-        multi_segment_all_aligned:           0x2,
+        multi_segment_all_correctly_aligned: 0x2,
         unmapped:                            0x4,
         multi_segment_next_segment_unmapped: 0x8,
         seq_reverse_complemented:            0x10,
@@ -1109,17 +1136,19 @@ var Feature = Util.fastDeclare(
                 // other possible cases
             }
             if( op !== 'N' ) {
-                var subfeat = new SimpleFeature({
-                    data: {
-                    type: op,
-                        start: min,
-                        end: max,
-                        strand: this._get('strand'),
-                        cigar_op: lop+op
-                    },
-                    parent: this
-                });
-                subfeats.push(subfeat);
+                subfeats.push(
+                    new SimpleFeature(
+                        {
+                            data: {
+                                type: op,
+                                start: min,
+                                end: max,
+                                strand: this._get('strand'),
+                                cigar_op: lop+op
+                            },
+                            parent: this
+                        })
+                );
             }
             min = max;
         }
@@ -1130,6 +1159,7 @@ var Feature = Util.fastDeclare(
 
 return Feature;
 });
+
 }}});
 define( "JBrowse/Store/SeqFeature/BAM", [
             'dojo/_base/declare',
@@ -1173,9 +1203,6 @@ var BAMStore = declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesM
      * @constructs
      */
     constructor: function( args ) {
-
-        this.createSubfeatures = args.subfeatures;
-
         var bamBlob = args.bam ||
             new XHRBlob( this.resolveUrl(
                              args.urlTemplate || 'data.bam'

@@ -31,7 +31,7 @@ var Grid = declare([DGrid,DGridDijitRegistry]);
 
 return declare( null, {
 
-    renderDetailField: function( parentElement, title, val, class_ ) {
+    renderDetailField: function( parentElement, title, val, f, class_ ) {
         if( val === null || val === undefined )
             return '';
 
@@ -46,18 +46,22 @@ return declare( null, {
         
         var formatted_title=title;
         // if this object has a config value 'fmtDetailField_Foo' function, apply it to field title
-        if(( fieldSpecificFormatter = this.config['fmtDetailField_'+title] )) {
-            formatted_title= fieldSpecificFormatter(title);
-            if(formatted_title.length==1) formatted_title[0];
+        if(( fieldSpecificFormatter = this.config['fmtDetailField_'+title] ) && f) {
+            formatted_title= fieldSpecificFormatter(title,f);
+            if(!formatted_title) return ''; // if the callback returns null, remove field from dialog
         }
- 
+        else if(( fieldSpecificFormatter = this.config['fmtMetaField_'+title] ) && !f) {
+            formatted_title= fieldSpecificFormatter(title);
+            if(!formatted_title) return ''; // if the callback returns null, remove field from dialog
+        }
+
         // special case for values that include metadata about their
         // meaning, which are formed like { values: [], meta:
         // {description: }.  break it out, putting the meta description in a `title`
         // attr on the field name so that it shows on mouseover, and
         // using the values as the new field value.
         var fieldMeta;
-        if( typeof val == 'object' && ('values' in val) ) {
+        if( typeof val == 'object' && !lang.isArray(val) && ('values' in val) ) {
             fieldMeta = (val.meta||{}).description;
             // join the description if it is an array
             if( lang.isArray( fieldMeta ) )
@@ -65,7 +69,12 @@ return declare( null, {
 
             val = val.values;
         }
-
+        if(( fieldSpecificFormatter = this.config['fmtDetailDescription_'+title] ) && f) {
+            fieldMeta = fieldSpecificFormatter(fieldMeta);
+        }
+        else if(( fieldSpecificFormatter = this.config['fmtMetaDescription_'+title] ) && !f) {
+            fieldMeta = fieldSpecificFormatter(fieldMeta);
+        }
         var titleAttr = fieldMeta ? ' title="'+fieldMeta+'"' : '';
         var fieldContainer = domConstruct.create(
             'div',
@@ -78,7 +87,7 @@ return declare( null, {
                          + class_
             }, fieldContainer );
 
-        var count = this.renderDetailValue( valueContainer, title, val, class_);
+        var count = this.renderDetailValue( valueContainer, title, val, f, class_);
         if( typeof count == 'number' && count > 4 ) {
             query( 'h2', fieldContainer )[0].innerHTML = formatted_title + ' ('+count+')';
         }
@@ -86,10 +95,10 @@ return declare( null, {
         return fieldContainer;
     },
 
-    renderDetailValue: function( parent, title, val, class_ ) {
+    renderDetailValue: function( parent, title, val, f, class_ ) {
         var thisB = this;
 
-        if( val.values )
+        if( !lang.isArray(val) && val.values )
             val = val.values;
 
         // if this object has a 'fmtDetailFooValue' function, delegate to that
@@ -100,8 +109,13 @@ return declare( null, {
         // otherwise, use default formatting
 
         // if this object has a config value 'fmtDetailValue_Foo' function, apply it to val
-        if(( fieldSpecificFormatter = this.config['fmtDetailValue_'+title] )) {
-            val= fieldSpecificFormatter( val );
+        if(( fieldSpecificFormatter = this.config['fmtDetailValue_'+title] ) && f) {
+            val= fieldSpecificFormatter( val,f );
+            if(!val) val='';
+            if(val.length==1) val=val[0]; // avoid recursion when an array of length 1 is returned
+        }
+        else if(( fieldSpecificFormatter = this.config['fmtMetaValue_'+title] ) && !f) {
+            val=fieldSpecificFormatter( val );
             if(val.length==1) val=val[0];
         }
 
@@ -114,7 +128,7 @@ return declare( null, {
             return 0;
         else if( lang.isArray( val ) ) {
             var vals = array.map( val, function(v) {
-                       return this.renderDetailValue( parent, title, v, class_ );
+                       return this.renderDetailValue( parent, title, v, f, class_ );
                    }, this );
             if( vals.length > 1 )
                 domClass.add( parent, 'multi_value' );
@@ -128,6 +142,7 @@ return declare( null, {
                 this.renderDetailValueGrid(
                     parent,
                     title,
+                    f,
                     // iterator
                     function() {
                         if( ! keys.length )
@@ -167,7 +182,7 @@ return declare( null, {
             }
             else {
                 array.forEach( keys, function( k ) {
-                                   return this.renderDetailField( parent, k, val[k], class_ );
+                                   return this.renderDetailField( parent, k, val[k], f, class_ );
                                }, this );
                 return keys.length;
             }
@@ -177,7 +192,7 @@ return declare( null, {
         return 1;
     },
 
-    renderDetailValueGrid: function( parent, title, iterator, attrs ) {
+    renderDetailValueGrid: function( parent, title, f, iterator, attrs ) {
         var thisB = this;
         var rows = [];
         var item;
@@ -190,7 +205,7 @@ return declare( null, {
             return document.createElement('span');
 
         function defaultRenderCell( field, value, node, options ) {
-            thisB.renderDetailValue( node, '', value, '' );
+            thisB.renderDetailValue( node, '', value, f, '' );
         }
 
         var columns = [];

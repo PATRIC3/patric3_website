@@ -57,8 +57,10 @@ return declare( [WiggleXY, AlignmentsMixin],
         var thisB = this;
         var context = canvas.getContext('2d');
         var canvasHeight = canvas.height;
+ 
+        var ratio = Util.getResolution( context, this.browser.config.highResolutionMode );
         var toY = dojo.hitch( this, function( val ) {
-           return canvasHeight * ( 1-dataScale.normalize(val) );
+           return canvasHeight * ( 1-dataScale.normalize(val) ) / ratio;
         });
         var originY = toY( dataScale.origin );
 
@@ -76,6 +78,27 @@ return declare( [WiggleXY, AlignmentsMixin],
                                      className: 'SNP-indicator-track'
                                  }, block.domNode);
         var snpContext = snpCanvas.getContext('2d');
+ 
+        // finally query the various pixel ratios
+        var ratio = Util.getResolution( snpContext, this.browser.config.highResolutionMode );
+        // upscale canvas if the two ratios don't match
+        if ( this.browser.config.highResolutionMode !='disabled' && ratio!=1 ) {
+
+            var oldWidth = snpCanvas.width;
+            var oldHeight = snpCanvas.height;
+
+            snpCanvas.width = oldWidth * ratio;
+            snpCanvas.height = oldHeight * ratio;
+
+            //c.style.width = oldWidth + 'px';
+            snpCanvas.style.height = oldHeight + 'px';
+
+            // now scale the context to counter
+            // the fact that we've manually scaled
+            // our canvas element
+            snpContext.scale(ratio, ratio);
+        }
+ 
 
         var negColor  = this.config.style.neg_color;
         var clipColor = this.config.style.clip_marker_color;
@@ -87,18 +110,18 @@ return declare( [WiggleXY, AlignmentsMixin],
                 context.fillStyle = thisB.colorForBase(ID);
                 if( yPos <= originY ) {
                     // bar goes upward
-                    context.fillRect( fRect.l, yPos, fRect.w, height);
+                    thisB._fillRectMod( context, fRect.l, yPos, fRect.w, height);
                     if( !disableClipMarkers && yPos < 0 ) { // draw clip marker if necessary
                         context.fillStyle = clipColor || negColor;
-                        context.fillRect( fRect.l, 0, fRect.w, 2 );
+                        thisB._fillRectMod( context, fRect.l, 0, fRect.w, 2 );
                     }
                 }
                 else {
                     // bar goes downward
-                    context.fillRect( fRect.l, originY, fRect.w, height );
+                    thisB._fillRectMod( context, fRect.l, originY, fRect.w, height );
                     if( !disableClipMarkers && yPos >= canvasHeight ) { // draw clip marker if necessary
                         context.fillStyle = clipColor || thisB.colorForBase(ID);
-                        context.fillRect( fRect.l, canvasHeight-3, fRect.w, 2 );
+                        thisB._fillRectMod( context, fRect.l, canvasHeight-3, fRect.w, 2 );
                     }
                 }
             }
@@ -112,7 +135,7 @@ return declare( [WiggleXY, AlignmentsMixin],
             // draw the background color if we are configured to do so
             if( bgColor ) {
                 context.fillStyle = bgColor;
-                context.fillRect( fRect.l, 0, fRect.w, canvasHeight );
+                thisB._fillRectMod( context, fRect.l, 0, fRect.w, canvasHeight );
             }
 
             drawRectangle( 'reference', toY( score.total() ), originY-toY( score.get('reference'))+1, fRect);
@@ -126,10 +149,13 @@ return declare( [WiggleXY, AlignmentsMixin],
             // draw indicators of SNPs if base coverage is greater than 50% of total coverage
             score.forEach( function( count, category ) {
                 if ( !{reference:true,skip:true,deletion:true}[category] && count > 0.5*totalHeight ) {
+                    snpContext.save();
+                    if( thisB.browser.config.highResolutionMode != 'disabled' )
+                        snpContext.scale(ratio, 1);
                     snpContext.beginPath();
-                    snpContext.arc( fRect.l + 0.5*fRect.w,
-                                    0.40*snpCanvas.height,
-                                    0.20*snpCanvas.height,
+                    snpContext.arc( (fRect.l + 0.5*fRect.w),
+                                    0.40*snpCanvas.height/ratio,
+                                    0.20*snpCanvas.height/ratio,
                                     1.75 * Math.PI,
                                     1.25 * Math.PI,
                                     false);
@@ -140,6 +166,8 @@ return declare( [WiggleXY, AlignmentsMixin],
                     snpContext.lineWidth = 1;
                     snpContext.strokeStyle = 'black';
                     snpContext.stroke();
+                    if( thisB.browser.config.highResolutionMode != 'disabled' ) 
+                        snpContext.restore();
                 }
             });
 

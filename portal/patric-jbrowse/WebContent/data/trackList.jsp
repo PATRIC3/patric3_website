@@ -18,12 +18,12 @@ response.setContentType("application/json");
 			"key": "PATRIC Annotation",
 			"label": "PATRICGenes",
 			"style": {
-				"label": "function( feature ) { return feature.get('locus_tag'); }"
+				"label": "function( feature ) { return feature.get('seed_id'); }"
 			},
 			"hooks": {
 				"modify": "function(track, feature, div) { div.style.backgroundColor = ['#17487d','#5190d5','#c7daf1'][feature.get('phase')];}"
 			},
-			"tooltip": "<div style='line-height:1.7em'><b>{locus_tag}</b> | {refseq} | {gene}<br>{product}<br>{type}: {start_str} .. {end} ({strand_str})<br> <i>Click for detail information</i></div>",
+			"tooltip": "<div style='line-height:1.7em'><b>{seed_id}</b> | {refseq_locus_tag} | {alt_locus_Tag} | {gene}<br>{product}<br>{type}: {start_str} .. {end} ({strand_str})<br> <i>Click for detail information</i></div>",
 			"metadata": {
 				"Description": "PATRIC annotated genes"
 			},
@@ -38,12 +38,12 @@ response.setContentType("application/json");
 			"label": "RefSeqGenes",
 			"style": {
 				"className": "feature3",
-				"label": "function( feature ) { return feature.get('locus_tag'); }"
+				"label": "function( feature ) { return feature.get('refseq_locus_tag'); }"
 			},
 			"hooks": {
 				"modify": "function(track, feature, div) { div.style.backgroundColor = ['#4c5e22','#9ab957','#c4d59b'][feature.get('phase')];}"
 			},
-			"tooltip": "<div style='line-height:1.7em'><b>{locus_tag}</b> | {gene}<br>{product}<br>{type}: {start_str} .. {end} ({strand_str})<br> <i>Click for detail information</i></div>",
+			"tooltip": "<div style='line-height:1.7em'><b>{refseq_locus_tag}</b> | {gene}<br>{product}<br>{type}: {start_str} .. {end} ({strand_str})<br> <i>Click for detail information</i></div>",
 			"metadata": {
 				"Description": "RefSeq annotated genes"
 			},

@@ -188,7 +188,7 @@ div.vertical_scrollbar .vertical_position_marker {
     position: relative;
     text-align: center;
 }
-#navbox .dijitButton, #navbox .dijitToggleButton, #navbox .dijitTextBox, #navbox .dijitSelect {
+#navbox .dijitButton, #navbox .dijitToggleButton, #navbox .dijitTextBox, #navbox .dijitSelect, #navbox .dojoxTriStateCheckBox {
     height: 20px;
     box-sizing: border-box;
     -moz-box-sizing: border-box;
@@ -207,17 +207,6 @@ div.vertical_scrollbar .vertical_position_marker {
 #navbox * {
     font-size: 12px;
     font-family: sans-serif;
-}
-
-#navbox .highlightButton.dijitChecked .dijitButtonNode {
-    background: #E9F10C;
-}
-#navbox .highlightButton .dijitIcon {
-    position: relative;
-    left: 3px;
-}
-#navbox .highlightButton .dijitButtonContents {
-    outline: none;
 }
 
 .moreMatches {
@@ -393,7 +382,7 @@ div#static_track {
 div.gridline {
     position: absolute;
     left: 0px;
-    top: 0px
+    top: 0px;
     width: 0px;
     height: 100%;
     border-style: none none none solid;
@@ -719,9 +708,9 @@ div.overview .rubber-highlight * {
 }
 
 
-#moveLeft, #moveRight, #bigZoomOut, #zoomOut, #bigZoomIn, #zoomIn{
+#moveLeft, #moveRight, #bigZoomOut, #zoomOut, #bigZoomIn, #zoomIn, #moveLeftSmall, #moveRightSmall, #zoomInSmall, #zoomOutSmall{
 		background: url(img/scroll_zoom_sprites.png) top left no-repeat;
-		background-size: 50px 200px;
+		background-size: 50px 280px;
 		cursor: pointer;
 }
 
@@ -731,9 +720,21 @@ div.overview .rubber-highlight * {
 	width:55px;
 }
 
+#moveLeftSmall {
+	background-position: 0px -200px;
+	height: 20px !important;
+	width: 33px;
+}
+
 #moveRight{
 	background-position: 0px -135px;
 	width:55px;
+}
+
+#moveRightSmall {
+	background-position: 0px -220px;
+	height: 20px !important;
+	width: 33px;
 }
 
 #bigZoomOut{
@@ -746,6 +747,13 @@ div.overview .rubber-highlight * {
 	width: 30px;
 }
 
+#zoomOutSmall{
+	background-position: 0px -240px;
+	height: 20px !important;
+	width: 20px;
+}
+
+
 #bigZoomIn{
 	background-position: 0px -69px;
 	width:35px;
@@ -755,6 +763,13 @@ div.overview .rubber-highlight * {
 	background-position: 0px -2.5px;
 	width: 30px;
 }
+
+#zoomInSmall{
+	background-position: 0px -260px;
+	height: 20px !important;
+	width: 20px;
+}
+
 
 
 input.nav {

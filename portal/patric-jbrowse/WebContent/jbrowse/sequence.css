@@ -99,6 +99,8 @@ td.base {
     font-weight: bold;
     text-shadow: white 0px 0px 1px;
 }
+
+/* colors for bases must be specified as hex or rgb/hsl strings, no named colors such as 'red' */
 .base_n {
     background-color: #C6C6C6;
 }
@@ -109,7 +111,7 @@ td.base {
     background-color: #4747ff;
 }
 .base_t {
-    background-color: red;
+    background-color: #f00;
 }
 .base_g {
     background-color: #d5bb04;
@@ -118,5 +120,5 @@ td.base {
     background-color: #bbb;
 }
 .base_deletion {
-    background-color: black;
+    background-color: #999; 
 }
