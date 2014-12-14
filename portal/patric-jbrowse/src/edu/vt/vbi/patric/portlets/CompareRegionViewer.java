@@ -162,7 +162,7 @@ public class CompareRegionViewer extends GenericPortlet {
 			JSONObject trStyle = new JSONObject();
 			trStyle.put("className", "feature5");
 			trStyle.put("showLabels", false);
-			trStyle.put("label", "function( feature ) { return feature.get('locus_tag'); }");
+			trStyle.put("label", "function( feature ) { return feature.get('seed_id'); }");
 			JSONObject trHooks = new JSONObject();
 			trHooks.put(
 					"modify",
@@ -203,7 +203,7 @@ public class CompareRegionViewer extends GenericPortlet {
 						tr.put("hooks", trHooks);
 						tr.put("type", "FeatureTrack");
 						tr.put("tooltip",
-								"<div style='line-height:1.7em'><b>{locus_tag}</b> | {refseq} | {gene}<br>{product}<br>{type}:{start}...{end} ({strand_str})<br> <i>Click for detail information</i></div>");
+								"<div style='line-height:1.7em'><b>{seed_id}</b> | {refseq_locus_tag} | {alt_locus_tag} | {gene}<br>{product}<br>{type}:{start}...{end} ({strand_str})<br> <i>Click for detail information</i></div>");
 						tr.put("urlTemplate", "/portal/portal/patric/CompareRegionViewer/CRWindow?action=b&cacheability=PAGE&mode=getTrackInfo&key="
 								+ _key + "&rowId=" + crTrack.getRowID() + "&format=.json");
 						tr.put("key", crTrack.getGenomeName());
@@ -299,13 +299,14 @@ public class CompareRegionViewer extends GenericPortlet {
 						feature.getStrand(),
 
 						feature_patric.get("feature_id"),
+						feature_patric.get("seed_id"),
+						feature_patric.get("refseq_locus_tag"),
 						feature_patric.get("alt_locus_tag"),
 						"PATRIC",
 						feature_patric.get("feature_type"),
 						feature_patric.get("product"),
 
 						feature_patric.get("gene"),
-						feature_patric.get("refseq_locus_tag"),
 						feature_patric.get("genome_name"),
 						feature_patric.get("accession"),
 						feature.getPhase()
@@ -324,8 +325,8 @@ public class CompareRegionViewer extends GenericPortlet {
 		JSONObject intervals = new JSONObject();
 		JSONArray _clses = new JSONArray();
 		JSONObject _cls = new JSONObject();
-		_cls.put("attributes", Arrays.asList("Start", "Start_str", "End", "Strand", "strand_str", "id", "locus_tag", "source", "type", "product",
-				"gene", "refseq", "genome_name", "accession", "phase"));
+		_cls.put("attributes", Arrays.asList("Start", "Start_str", "End", "Strand", "strand_str", "id", "seed_id", "refseq_locus_tag", "alt_locus_tag", "source", "type", "product",
+				"gene", "genome_name", "accession", "phase"));
 		_cls.put("isArrayAttr", new JSONObject());
 		_clses.add(_cls);
 		intervals.put("classes", _clses);
