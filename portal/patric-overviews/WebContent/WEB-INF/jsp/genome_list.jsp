@@ -274,7 +274,7 @@ Ext.onReady(function () {
 			{header:'Type Strain',			dataIndex:'type_strain',		flex:1, align:'center', hidden:true},
 			{header:'Sequencing Center',	dataIndex:'sequencing_centers', flex:1, align:'center', hidden:true},
 			{header:'Publication', 			dataIndex:'publication',		flex:1, align:'center', hidden:true},
-			{header:'BioProject Accession', dataIndex:'bioproject_accesion',	flex:1, align:'center', hidden:true},
+			{header:'BioProject Accession', dataIndex:'bioproject_accession',	flex:1, align:'center', hidden:true},
 			{header:'BioSample Accession',  dataIndex:'biosample_accession',	flex:1, align:'center', hidden:true},
 			{header:'Assembly Accession', 	dataIndex:'assembly_accession',	flex:1, align:'center', hidden:true},
 			{header:'GenBank Accessions',	dataIndex:'genbank_accessions',	flex:1, align:'center', hidden:true},
