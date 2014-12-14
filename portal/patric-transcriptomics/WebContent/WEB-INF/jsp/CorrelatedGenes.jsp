@@ -34,11 +34,12 @@ String cId = (request.getParameter("context_id")!=null)?request.getParameter("co
 <script type="text/javascript" src="/patric-common/js/grid/PATRICSelectionModel.js"></script>
 <script type="text/javascript" src="/patric-common/js/grid/PATRICGrid.js"></script>
 <script type="text/javascript" src="/patric-common/js/grid/table_checkboxes.js"></script>
-<script type="text/javascript" src="/patric-common/js/grid/loadgrid.js"></script>
+<script type="text/javascript" src="/patric-common/js/grid/loadMemGrid.js"></script>
 <script type="text/javascript" src="/patric-common/js/parameters.js"></script>
 <script type="text/javascript" src="/patric-searches-and-tools/js/solrKeyword.js"></script>
 <script type="text/javascript" src="/patric/js/vbi/AddToWorkspace.min.js">
 </script><script type="text/javascript" src="/patric/js/vbi/CorrelatedGenesFilter.js"></script>
+<script type="text/javascript" src="/patric/js/extjs/extjs/examples/ux/data/PagingMemoryProxy.js"></script>
 <script type="text/javascript">
 //<![CDATA[
 var $Page;
@@ -96,15 +97,15 @@ Ext.onReady(function()
 			cutoffDir:'positive',
 			cutoffValue:'0.4'
 		},
-		remoteSort:false,
+		remoteSort: true,
 		fids: [],
 		gridType: "Feature",
 		current_hash: window.location.hash?window.location.hash.substring(1):"",
 		url: ['/portal/portal/patric/TranscriptomicsGeneExp/TranscriptomicsGeneExpWindow?action=b&cacheability=PAGE'],
 		loaderFunction: function(){loadFBCD();},
 		stateId: ['correlated'],
-		brder: true /*,
-		pagingBarMsg: ['Displaying features {0} - {1} of {2}']*/
+		border: true,
+		pagingBarMsg: ['Displaying features {0} - {1} of {2}']
 	};
 	
 	SetPageProperties(pageProperties),
@@ -122,8 +123,8 @@ function loadFBCD() {
 	var hash = $Page.getPageProperties().hash;
 	Ext.getCmp("PATRICGridFilterPanel").child("#cutoffValue").setValue( Math.abs(hash.cutoffValue));
 	Ext.getCmp("PATRICGridFilterPanel").child("#cutoffDir").setValue(hash.cutoffDir);
-	loadGrid();
-	//$Page.getGrid().getStore().sort([{'property':'correlation','direction':'desc'}]);
+	Ext.getDom("grid_result_summary").innerHTML = "<b>loading...</b>";
+	loadMemStore(true);
 }
 
 function getExtraParams(){
@@ -174,13 +175,5 @@ function getSelectedFeatures() {
 	for (i=0; i<sl.length;i++) 
 		fids.push(sl[i].data.feature_id);
 };
-
-function renderStrand(value, metadata, record, rowIndex, colIndex, store) {
-	if(value == 1 ) {
-		return "-";
-	} else {
-		return "+";
-	}
-}
 //]]>
 </script>

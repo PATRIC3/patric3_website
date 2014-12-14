@@ -53,7 +53,7 @@ if(ec_number == null) {
 <script type="text/javascript" src="/patric-common/js/grid/copybutton.js"></script>
 <script type="text/javascript" src="/patric-common/js/grid/checkcolumn.js"></script>
 <script type="text/javascript" src="/patric-common/js/parameters.js"></script>
-<script type="text/javascript" src="/patric-common/js/grid/loadgrid.js"></script>
+<script type="text/javascript" src="/patric-common/js/grid/loadMemGrid.js"></script>
 <script type="text/javascript" src="/patric-common/js/grid/pagingbar.js"></script>
 <script type="text/javascript" src="/patric-common/js/grid/toolbar.js"></script>
 <script type="text/javascript" src="/patric-common/js/grid/gridoptions.js"></script>
@@ -63,6 +63,7 @@ if(ec_number == null) {
 <script type="text/javascript" src="/patric-pathways/js/comp_pathway_grids.js"></script>
 <script type="text/javascript" src="/patric-pathways/js/pathway_breadcrumb.js"></script>
 <script type="text/javascript" src="/patric/js/vbi/AddToWorkspace.min.js"></script>
+<script type="text/javascript" src="/patric/js/extjs/extjs/examples/ux/data/PagingMemoryProxy.js"></script>
 
 <script type="text/javascript">
 //<![CDATA[
@@ -82,7 +83,7 @@ Ext.onReady(function()
 		plugintype:"checkbox",
 		extraParams:getExtraParams,
 		callBackFn:CallBack,
-		remoteSort: false,
+		remoteSort: true,
 		border: true, 
 		scm :[[checkbox, {header:'Pathway ID',			dataIndex:'pathway_id',		flex:1, renderer:BasicRenderer},
 						{header:'Pathway Name',			dataIndex:'pathway_name',	flex:2, renderer:renderPathwayName},
@@ -125,9 +126,6 @@ Ext.onReady(function()
 			direction: 'ASC'
 		}],[{
 			property: 'genome_name',
-			direction: 'ASC'
-		},{
-			property: 'seed_id',
 			direction: 'ASC'
 		}]],
 		hash:{

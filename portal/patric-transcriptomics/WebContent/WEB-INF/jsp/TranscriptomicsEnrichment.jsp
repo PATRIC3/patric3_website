@@ -29,7 +29,7 @@ String featureList = (String) request.getAttribute("featureList");
 <script type="text/javascript" src="/patric-common/js/ZeroClipboard.js"></script>
 <script type="text/javascript" src="/patric-common/js/grid/copybutton.js"></script>
 <script type="text/javascript" src="/patric-common/js/grid/checkcolumn.js"></script>
-<script type="text/javascript" src="/patric-common/js/grid/loadgrid.js"></script>
+<script type="text/javascript" src="/patric-common/js/grid/loadMemGrid.js"></script>
 <script type="text/javascript" src="/patric-common/js/parameters.js"></script>
 <script type="text/javascript" src="/patric-common/js/grid/pagingbar.js"></script>
 <script type="text/javascript" src="/patric-common/js/grid/toolbar.js"></script>
@@ -39,6 +39,7 @@ String featureList = (String) request.getAttribute("featureList");
 <script type="text/javascript" src="/patric-common/js/grid/table_checkboxes.js"></script>
 <script type="text/javascript" src="/patric/js/vbi/AddToWorkspace.min.js"></script>
 <script type="text/javascript" src="/patric-transcriptomics/js/TranscriptomicsEnrichment.js"></script>
+<script type="text/javascript" src="/patric/js/extjs/extjs/examples/ux/data/PagingMemoryProxy.js"></script>
 <script type="text/javascript">
 //<![CDATA[
 
@@ -76,7 +77,7 @@ Ext.onReady(function () {
 			aP: [1],
 			key:'<%=pk%>'
 		},
-		remoteSort: false,
+		remoteSort: true,
 		fids: [],
 		gridType: "Feature",
 		scm: [[checkbox,
@@ -87,7 +88,7 @@ Ext.onReady(function () {
 			]],
 		current_hash: window.location.hash?window.location.hash.substring(1):"",
 		url: ['<portlet:resourceURL />'],
-		loaderFunction: function(){SetLoadParameters();loadGrid();}
+		loaderFunction: function(){loadMemStore();}
 	};
 
 	SetPageProperties(pageProperties);
@@ -95,7 +96,8 @@ Ext.onReady(function () {
 	// SetIntervalOrAPI();
 	Ext.QuickTips.init();
 	overrideButtonActions();
-	loadGrid();
+	SetLoadParameters();
+	loadMemStore();
 	$Page.doLayout();
 });
 // ]]

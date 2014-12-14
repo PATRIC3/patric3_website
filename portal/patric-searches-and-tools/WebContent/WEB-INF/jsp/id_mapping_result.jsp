@@ -17,7 +17,7 @@ if(key != null){
 	keyword = key.get("keyword");
 }
 String renderURL = "";
-if(to.equals("PATRIC Locus Tag"))
+if(to.equals("alt_locus_tag"))
 	renderURL = SiteHelper.getExternalLinks(from);
 else
 	renderURL = SiteHelper.getExternalLinks(to);
@@ -46,7 +46,7 @@ int keyword_size = x.replaceAll("[,\\s]+",",").split(",").length;
 </div>
 
 <div id="SearchSummary">
-	<div id="grid_result_summary"></div>
+	<div id="grid_result_summary"><b>Loading...</b></div>
 	<p>To learn how to filer, sort, manipulate, refine, and save data within PATRIC feature tables, 
 	please see <a href="//enews.patricbrc.org/feature-table-faqs/" target="_blank">Feature Table FAQs</a>.</p>
 </div>
@@ -61,7 +61,7 @@ int keyword_size = x.replaceAll("[,\\s]+",",").split(",").length;
 <script type="text/javascript" src="/patric-common/js/grid/PATRICSelectionModel.js"></script>
 <script type="text/javascript" src="/patric-common/js/grid/PATRICGrid.js"></script>
 <script type="text/javascript" src="/patric-common/js/grid/table_checkboxes.js"></script>
-<script type="text/javascript" src="/patric-common/js/grid/loadgrid.js"></script>
+<script type="text/javascript" src="/patric-common/js/grid/loadMemGrid.js"></script>
 <script type="text/javascript" src="/patric-common/js/parameters.js"></script>
 <script type="text/javascript" src="/patric-common/js/createtree.js"></script>
 <script type="text/javascript" src="/patric-searches-and-tools/js/idmapping_grid.js"></script>
@@ -69,6 +69,7 @@ int keyword_size = x.replaceAll("[,\\s]+",",").split(",").length;
 <script type="text/javascript" src="/patric-searches-and-tools/js/solrKeyword.js"></script>
 <script type="text/javascript" src="/patric-searches-and-tools/js/json2.js"></script>
 <script type="text/javascript" src="/patric/js/vbi/AddToWorkspace.min.js"></script>
+<script type="text/javascript" src="/patric/js/extjs/extjs/examples/ux/data/PagingMemoryProxy.js"></script>
 
 <script type="text/javascript">
 //<![CDATA[
@@ -97,8 +98,8 @@ Ext.onReady(function() {
 			{name:'uniprotkb_accession',	type:'string'},
 			{name:'uniprot_id',	type:'string'},
 			{name:'refseq_locus_tag', type:'string'},
-			{name:'gene_id',	type:'string'},
-			{name:'gi_number',	type:'string'},
+			{name:'gene_id',	type:'int'},
+			{name:'gi',			type:'int'},
 			{name:'requested_data',	type:'string'},
 			{name:'seed_id',	type:'string'},
 			{name:'target',     type:'string'}
@@ -116,13 +117,13 @@ Ext.onReady(function() {
 		scm:[],
 		extraParams:getExtraParams,
 		callBackFn:CallBack,
-		sort: [[{/*
+		sort: [[{
 			property: 'genome_name',
 			direction: 'ASC'
-		},{*/
+		}/*,{
 			property: 'seed_id',
 			direction: 'ASC'
-		}]],
+		}*/]],
 		hash:{
 			aP: [1],
 			key: '<%=pk%>',
@@ -134,7 +135,7 @@ Ext.onReady(function() {
 		gridType: "Feature",
 		current_hash: window.location.hash?window.location.hash.substring(1):"",
 		url: ['/portal/portal/patric/IDMapping/IDMappingWindow?action=b&cacheability=PAGE'],
-		loaderFunction: function(){SetLoadParameters();loadFBCD();},
+		loaderFunction: function(){loadFBCD();},
 		renderURL:'<%=renderURL%>',
 		keyword_size: '<%=keyword_size%>',
 		stateId: ['idmapping']

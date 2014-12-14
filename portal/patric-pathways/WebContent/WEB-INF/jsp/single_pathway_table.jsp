@@ -69,8 +69,9 @@ if(key != null && key.containsKey("genomeId"))
 <script type="text/javascript" src="/patric-common/js/grid/PATRICSelectionModel.js"></script>
 <script type="text/javascript" src="/patric-common/js/grid/PATRICGrid.js"></script>    
 <script type="text/javascript" src="/patric-common/js/grid/table_checkboxes.js"></script>
-<script type="text/javascript" src="/patric-common/js/grid/loadgrid.js"></script>
+<script type="text/javascript" src="/patric-common/js/grid/loadMemGrid.js"></script>
 <script type="text/javascript" src="/patric/js/vbi/AddToWorkspace.min.js"></script>
+<script type="text/javascript" src="/patric/js/extjs/extjs/examples/ux/data/PagingMemoryProxy.js"></script>
 <script type="text/javascript">
 //<![CDATA[
 var $Page;
@@ -146,7 +147,7 @@ Ext.onReady(function()
 		gridType: "Feature",
 		current_hash: window.location.hash?window.location.hash.substring(1):"",
 		url: ['<portlet:resourceURL />'],
-		loaderFunction: function(){SetLoadParameters();loadGrid();},
+		loaderFunction: function(){loadMemStore();},
 		stateId: ['PWhmfeaturelist']
 	};
 	
@@ -155,8 +156,9 @@ Ext.onReady(function()
 	// SetIntervalOrAPI(),
 	Ext.QuickTips.init();
 	Ext.get("tabs_pathways") && Ext.get("tabs_pathways").addCls("sel");
-	overrideButtonActions(),	
-	loadGrid(),
+	overrideButtonActions(),
+	SetLoadParameters(),
+	loadMemStore(),
 	$Page.doLayout();
 });
 

@@ -75,7 +75,8 @@ function createLayout(){
 						hash.cwEC = (hash.cwEC && hash.cwEC == "true")?true:false;
 						if(property.pageType == "Finder")KeepParameters();
 						if(!this.ClickFromTab){
-			        		loadGrid();
+							// loadGrid();
+							loadMemStore();
 			        		this.ClickFromTab = true;
 			        	}else{
 			        		hash.aT = parseInt(tab.getId());
@@ -220,9 +221,11 @@ function loadFBCD(){
 	if(property.pageType == "Table")
 		SetComboBoxes();
 		
-	if(hash.aT == parseInt(id)){
-		loadGrid();
-	}else{
+	if (hash.aT == parseInt(id)) {
+		// loadGrid()
+		loadMemStore();
+	}
+	else{
 		tabs.ClickFromTab = false;
 		tabs.setActiveTab(hash.aT);
 	}
@@ -257,7 +260,7 @@ function getExtraParams(){
 function CallBack(){
 	var Page = $Page;
 	
-	// writeBreadCrumb(); //TODO: read from grid result
+	// writeBreadCrumb();
 	var property = Page.getPageProperties(), hash = property.hash
 	var summary = Ext.getDom('grid_result_summary');
     var uniqueCount = Page.getGrid().store.proxy.reader.rawData.unique;
@@ -265,10 +268,10 @@ function CallBack(){
         summary.innerHTML = "<b> " + uniqueCount + " unique pathway(s) found</b><br/>";
     }
     else if (hash.aT == 1) {
-        summary.innerHTML = "<b>" + uniqueCount + " unique EC Number(s) found</b><br/>"; // in" + response.responseText +"pathway(s) </b><br/>";
+        summary.innerHTML = "<b>" + uniqueCount + " unique EC Number(s) found</b><br/>";
     }
     else if (hash.aT == 2) {
-        summary.innerHTML = "<b>" + uniqueCount + " unique gene(s) found</b><br/>";// in"+response.responseText+" pathway(s)</b><br/>";
+        summary.innerHTML = "<b>" + uniqueCount + " unique gene(s) found</b><br/>";
     }
 
 	if(Page.getGrid().sortchangeOption)
@@ -285,7 +288,6 @@ function ShowECTab(pathway_id, pathway_name, pathway_class, algorithm){
 	hash.aP[1] = 1,
 	hash.pId = pathway_id,
 	(property.gridType == "Table")?hash.pClass = pathway_class:"",
-//	hash.alg = algorithm == "PATRIC"?"RAST":algorithm == "Legacy BRC"?"Curation":algorithm,
     hash.alg = algorithm,
 	hash.cwP = true,
 	hash.cwEC = false,
@@ -306,7 +308,6 @@ function ShowFeatureTab(pathway_id, pathway_name, pathway_class, ec_number, algo
 	hash.aP[2] = 1,
 	hash.pId = pathway_id,
 	(property.gridType == "Table")?hash.pClass = pathway_class:"",
-//	hash.alg = algorithm == "PATRIC"?"RAST":algorithm == "Legacy BRC"?"Curation":algorithm,
     hash.alg = algorithm,
 	hash.cwP = (ec_number?false:true),
 	hash.cwEC = (ec_number?true:false),
@@ -331,13 +332,13 @@ function filter() {
 	hash.aP[hash.aT] = 1,
 	hash.cwP = (pId.toLowerCase() == "all")?false:true,
 	hash.cwEC = (ecN.toLowerCase() == "all")?false:true,
-//	hash.alg = (alg.toLowerCase() == "all")?"":alg=="PATRIC"?"RAST":alg == "Legacy BRC"?"Curation":alg,
     hash.alg = alg,
 	hash.pId = (pId.toLowerCase() == "all")?"":pId,
 	hash.pClass = (pClass.toLowerCase() == "all")?"":pClass,
 	hash.ecN = (ecN.toLowerCase() == "all")?"":ecN,
 			
 	createURL();
+	loadMemStore(true);
 }
 
 function SetComboBoxes(){
@@ -351,7 +352,6 @@ function SetComboBoxes(){
 	
 	function setInputs(){
 		if(pId.getStore().data.items.length > 0 && pClass.getStore().data.items.length  > 0 && ecN.getStore().data.items.length > 0){
-//			(hash.alg == "")?alg.setValue("ALL"):alg.setValue(hash.alg == "RAST"?"PATRIC":hash.alg == "Curation"?"Legacy BRC":hash.alg),
             (hash.alg == "")?alg.setValue("ALL"):alg.setValue(hash.alg),
 			(hash.pId == "")?pId.setValue("ALL"):pId.setValue(hash.pId),
 			(hash.pClass == "")?pClass.setValue("ALL"):pClass.setValue(hash.pClass),

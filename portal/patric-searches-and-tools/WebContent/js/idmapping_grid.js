@@ -25,7 +25,7 @@ function loadFBCD() {
 		requested_data = hash.to;
 	}
     else if (hash.to == "alt_locus_tag") {
-        header = "PATRIC2 Locus Tag";
+        header = "Alt Locus Tag";
         requested_data = hash.to;
     }
 	else if (hash.to == "seed_id") {
@@ -81,7 +81,7 @@ function loadFBCD() {
 			    {header:'Strand', flex:1, hidden: true, dataIndex:'strand',align:'center', renderer:BasicRenderer},
 			    {header:'Product', flex:2, dataIndex:'product', renderer:BasicRenderer}]
 	}
-	loadGrid();
+	loadMemStore();
 }
 
 function getExtraParams() {
@@ -122,7 +122,7 @@ function renderGenomeBrowserByFeatureIDMapping(value, p, record) {
 
 function CallBack() {
 	var Page = $Page, property = Page.getPageProperties(), hash = property.hash, which = hash.hasOwnProperty('cat') ? hash.cat : hash.aT ? hash.aT : 0, store = Page.getStore(which), requested_data = "id";
-
+/*
 	if (hash.to == "UniProtKB-ID")
 		requested_data = "uniprotkb_accession";
 	else if (hash.to == "RefSeq Locus Tag")
@@ -139,7 +139,7 @@ function CallBack() {
 		requested_data = "na_feature_id";
 	else if (hash.to == "PSEED ID")
 		requested_data = "pseed_id";
-
+*/
 //	Ext.Ajax.request({
 //		url : "/patric-searches-and-tools/jsp/get_idmapping_to_count.json.jsp",
 //		method : 'POST',
@@ -157,6 +157,7 @@ function CallBack() {
 //		}
 //	});
 
+	Ext.getDom('grid_result_summary').innerHTML = "<b>" + store.totalCount + " features found</b>"
 }
 
 function renderURL(value, p, record) {

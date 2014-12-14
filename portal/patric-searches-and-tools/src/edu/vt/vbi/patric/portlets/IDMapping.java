@@ -22,6 +22,7 @@ import edu.vt.vbi.patric.common.SolrInterface;
 import edu.vt.vbi.patric.dao.ResultType;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -165,8 +166,12 @@ public class IDMapping extends GenericPortlet {
 					SolrQuery query = new SolrQuery(fromId + ":(" + keyword + ")");
 					query.setRows(10000);
 
+					if (toId.equals("gene_id") || toId.equals("gi")) {
+						query.addFilterQuery(toId + ":[1 TO *]");
+					}
+
 					LOGGER.debug("PATRIC TO PATRIC: {}", query.toString());
-					QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query);
+					QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query, SolrRequest.METHOD.POST);
 					List<GenomeFeature> featureList = qr.getBeans(GenomeFeature.class);
 
 					for (GenomeFeature feature : featureList) {
@@ -192,7 +197,7 @@ public class IDMapping extends GenericPortlet {
 					query.setRows(10000);
 					LOGGER.trace("PATRIC TO Other 1/3: {}", query.toString());
 
-					QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query);
+					QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query, SolrRequest.METHOD.POST);
 					featureList = qr.getBeans(GenomeFeature.class);
 
 					for (GenomeFeature feature : featureList) {
@@ -209,7 +214,7 @@ public class IDMapping extends GenericPortlet {
 					query.addFilterQuery("id_type:GI").setRows(10000);
 
 					LOGGER.trace("PATRIC TO Other 2/3: {}", query.toString());
-					QueryResponse qr = solr.getSolrServer(SolrCore.ID_REF).query(query);
+					QueryResponse qr = solr.getSolrServer(SolrCore.ID_REF).query(query, SolrRequest.METHOD.POST);
 					SolrDocumentList uniprotList = qr.getResults();
 
 					for (SolrDocument doc : uniprotList) {
@@ -228,7 +233,7 @@ public class IDMapping extends GenericPortlet {
 					query.addFilterQuery("id_type:(" + toId + ")").setRows(accessionGiMap.size());
 
 					LOGGER.trace("PATRIC TO Other 3/3: {}", query.toString());
-					QueryResponse qr = solr.getSolrServer(SolrCore.ID_REF).query(query);
+					QueryResponse qr = solr.getSolrServer(SolrCore.ID_REF).query(query, SolrRequest.METHOD.POST);
 					SolrDocumentList targets = qr.getResults();
 
 					for (SolrDocument doc : targets) {
