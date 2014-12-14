@@ -74,7 +74,11 @@ metadataGenomeSummaryValue['Project_Info'] = [{
 }, {
 	name : 'BioProject Accession',
 	text : 'bioproject_accession',
-	style : 'none'
+	style : 'none',
+	link : 'http://www.ncbi.nlm.nih.gov/bioproject/?term={0}',
+	value: 'bioproject_accession',
+	linkClass: 'double-arrow-link',
+	cellClass: 'no-underline-links'
 }, {
 	name : 'BioSample Accession',
 	text : 'biosample_accession',
@@ -84,7 +88,7 @@ metadataGenomeSummaryValue['Project_Info'] = [{
 	text : 'assembly_accession',
 	style : 'none'
 }, {
-	name : 'NCBI Project ID',
+/*	name : 'NCBI Project ID',
 	text : 'ncbi_project_id',
 	style : 'none',
 	link : 'http://www.ncbi.nlm.nih.gov/bioproject/{0}',
@@ -99,7 +103,7 @@ metadataGenomeSummaryValue['Project_Info'] = [{
 	value: 'refseq_project_id',
 	linkClass: 'double-arrow-link',
 	cellClass: 'no-underline-links'
-}, {
+}, {*/
 	name : 'GenBank Accessions',
 	text : 'genbank_accessions',
 	style : 'none',

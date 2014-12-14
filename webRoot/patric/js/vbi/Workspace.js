@@ -90,8 +90,6 @@ Ext.define('VBI.Workspace.model.Genome', {
 		{name:'bioproject_accession', type:'string'},
 		{name:'biosample_accession', type:'string'},
 		{name:'assembly_accession', type:'string'},
-		{name:'ncbi_project_id',	type:'string'},
-		{name:'refseq_project_id',	type:'int'},
 		{name:'genbank_accessions',	type:'string'},
 		{name:'refseq_accessions',	type:'string'},
 		{name:'sequencing_status',	type:'string'},
@@ -784,8 +782,6 @@ Ext.define('VBI.Workspace.view.columns.Genome', {
 		{text:'BioProject Accession',	itemId:'Genome_bioproject_accession',	dataIndex:'bioproject_accession',		flex:1, hidden:true},
 		{text:'BioSample Accession',	itemId:'Genome_biosample_accession',	dataIndex:'biosample_accession',		flex:1, hidden:true},
 		{text:'Assembly Accession',		itemId:'Genome_assembly_accession',		dataIndex:'assembly_accession',			flex:1, hidden:true},		
-		{text:'NCBI Project Id', 		itemId:'Genome_ncbi_project',			dataIndex:'ncbi_project_id',			flex:1, hidden:true},
-		{text:'RefSeq Project Id',		itemId:'Genome_refseq_project',			dataIndex:'refseq_project_id',			flex:1, hidden:true},
 		{text:'Genbank Accessions',		itemId:'Genome_genbank_accessions',		dataIndex:'genbank_accessions',			flex:1, hidden:true},
 		{text:'RefSeq Accessions',		itemId:'Genome_refseq_accessions',		dataIndex:'refseq_accessions',			flex:1, hidden:true},
 		{text:'Sequencing Platform',	itemId:'Genome_sequencing_platform',	dataIndex:'sequencing_platform',		flex:1, hidden:true},
@@ -4155,7 +4151,7 @@ Ext.define('VBI.Workspace.controller.Feature', {
 		Ext.Ajax.request({
 			url: "/portal/portal/patric/IDMapping/IDMappingWindow?action=b&cacheability=PAGE",
 			method: 'POST',
-			params: {keyword: selected, from:'feature_id', fromGroup:"PATRIC", 
+			params: {keyword: selected, from:'feature_id', fromGroup:"PATRIC",
 				to:to, toGroup:(["seed_id","feature_id","alt_locus_tag","refseq_locus_tag","protein_id","gene_id","gi"].indexOf(to) > -1)?"PATRIC":"Other",
 				sraction:'save_params'},
 			success: function(response, opts) {

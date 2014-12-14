@@ -277,8 +277,6 @@ Ext.onReady(function () {
 			{header:'BioProject Accession', dataIndex:'bioproject_id',  	flex:1, align:'center', hidden:true},
 			{header:'BioSample Accession',  dataIndex:'biosample_id',	    flex:1, align:'center', hidden:true},
 			{header:'Assembly Accession', 	dataIndex:'assembly_accession',	flex:1, align:'center', hidden:true},
-			{header:'NCBI Project ID', 		dataIndex:'ncbi_project_id',	flex:1, align:'center', hidden:true},
-			{header:'RefSeq Project ID',	dataIndex:'refseq_project_id',	flex:1, align:'center', hidden:true},
 			{header:'GenBank Accessions',	dataIndex:'genbank_accessions',	flex:1, align:'center', hidden:true},
 			{header:'RefSeq Accessions',	dataIndex:'refseq_accessions',	flex:1, align:'center', hidden:true},
 			{header:'Sequencing Platform',	dataIndex:'sequencing_platform',flex:1, align:'center', hidden:true},

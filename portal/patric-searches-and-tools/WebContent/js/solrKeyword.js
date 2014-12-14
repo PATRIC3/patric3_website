@@ -182,12 +182,6 @@ Ext.define('Genome', {
 		name : 'assembly_accession',
 		type : 'string'
 	}, {
-		name : 'ncbi_project_id',
-		type : 'string'
-	}, {
-		name : 'refseq_project_id',
-		type : 'string'
-	}, {
 		name : 'genbank_accessions',
 		type : 'string'
 	}, {
