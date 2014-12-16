@@ -18,7 +18,7 @@
         r0 = {{r0}}
         r1 = {{r1}}
         
-        url = javascript:linkFeature([id])' onmouseover='tooltipFeature(this, [id])
+        url = javascript:linkFeature("[id]")' onmouseover='tooltipFeature(this, "[id]")
     </plot>
 
     {{/tileplots}}

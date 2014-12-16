@@ -316,57 +316,57 @@ Ext.define('Sequence', {
 	}]
 });
 
-Ext.define('Pathway', {
-	extend : 'Ext.data.Model',
-	fields : [{
-		name : 'accession',
-		type : 'string'
-	}, {
-		name : 'annotation',
-		type : 'string'
-	}, {
-		name : 'ec_name',
-		type : 'string'
-	}, {
-		name : 'ec_number',
-		type : 'string'
-	}, {
-		name : 'feature_type',
-		type : 'string'
-	}, {
-		name : 'genome_name',
-		type : 'string'
-	}, {
-		name : 'gid',
-		type : 'string'
-	}, {
-		name : 'locus_tag',
-		type : 'string'
-	}, {
-		name : 'na_feature_id',
-		type : 'string'
-	}, {
-		name : 'ncbi_tax_id',
-		type : 'string'
-	}, {
-		name : 'pathway_id',
-		type : 'string'
-	}, {
-		name : 'pathway_name',
-		type : 'string'
-	}, {
-		name : 'product',
-		type : 'string'
-	}, {
-		name : 'start_max',
-		type : 'int'
-	}, {
-		name : 'end_min',
-		type : 'int'
-	}, {
-		name : 'highlight'
-	}]
-});
+//Ext.define('Pathway', {
+//	extend : 'Ext.data.Model',
+//	fields : [{
+//		name : 'accession',
+//		type : 'string'
+//	}, {
+//		name : 'annotation',
+//		type : 'string'
+//	}, {
+//		name : 'ec_name',
+//		type : 'string'
+//	}, {
+//		name : 'ec_number',
+//		type : 'string'
+//	}, {
+//		name : 'feature_type',
+//		type : 'string'
+//	}, {
+//		name : 'genome_name',
+//		type : 'string'
+//	}, {
+//		name : 'gid',
+//		type : 'string'
+//	}, {
+//		name : 'locus_tag',
+//		type : 'string'
+//	}, {
+//		name : 'na_feature_id',
+//		type : 'string'
+//	}, {
+//		name : 'ncbi_tax_id',
+//		type : 'string'
+//	}, {
+//		name : 'pathway_id',
+//		type : 'string'
+//	}, {
+//		name : 'pathway_name',
+//		type : 'string'
+//	}, {
+//		name : 'product',
+//		type : 'string'
+//	}, {
+//		name : 'start_max',
+//		type : 'int'
+//	}, {
+//		name : 'end_min',
+//		type : 'int'
+//	}, {
+//		name : 'highlight'
+//	}]
+//});
 
 Ext.define('Taxonomy', {
 	extend : 'Ext.data.Model',
@@ -387,45 +387,45 @@ Ext.define('Taxonomy', {
 	}]
 });
 
-Ext.define('Figfam', {
-	extend : 'Ext.data.Model',
-	fields : [{
-		name : 'figfam_id',
-		type : 'string'
-	}, {
-		name : 'figfam_product',
-		type : 'string'
-	}, {
-		name : 'gid',
-		type : 'string'
-	}, {
-		name : 'genome_info_id',
-		type : 'srring'
-	}, {
-		name : 'genome_name',
-		type : 'string'
-	}, {
-		name : 'accession',
-		type : 'string'
-	}, {
-		name : 'locus_tag',
-		type : 'string'
-	}, {
-		name : 'na_feature_id',
-		type : 'int'
-	}, {
-		name : 'start_max',
-		type : 'int'
-	}, {
-		name : 'end_min',
-		type : 'int'
-	}, {
-		name : 'refseq_locus_tag',
-		type : 'string'
-	}, {
-		name : 'highlight'
-	}]
-});
+//Ext.define('Figfam', {
+//	extend : 'Ext.data.Model',
+//	fields : [{
+//		name : 'figfam_id',
+//		type : 'string'
+//	}, {
+//		name : 'figfam_product',
+//		type : 'string'
+//	}, {
+//		name : 'gid',
+//		type : 'string'
+//	}, {
+//		name : 'genome_info_id',
+//		type : 'srring'
+//	}, {
+//		name : 'genome_name',
+//		type : 'string'
+//	}, {
+//		name : 'accession',
+//		type : 'string'
+//	}, {
+//		name : 'locus_tag',
+//		type : 'string'
+//	}, {
+//		name : 'na_feature_id',
+//		type : 'int'
+//	}, {
+//		name : 'start_max',
+//		type : 'int'
+//	}, {
+//		name : 'end_min',
+//		type : 'int'
+//	}, {
+//		name : 'refseq_locus_tag',
+//		type : 'string'
+//	}, {
+//		name : 'highlight'
+//	}]
+//});
 
 Ext.define('Cart', {
 	extend : 'Ext.data.Model',
@@ -573,101 +573,101 @@ Ext.define('Sample', {
 	}]
 });
 
-Ext.define('Proteomics_Experiment', {
-	extend : 'Ext.data.Model',
-	idProperty : 'pid',
-	fields : [{
-		name : 'sample_name',
-		type : 'string'
-	}, {
-		name : 'taxon_name',
-		type : 'string'
-	}, {
-		name : 'contact_details',
-		type : 'string'
-	}, {
-		name : 'accession',
-		type : 'int'
-	}, {
-		name : 'contact_name',
-		type : 'string'
-	}, {
-		name : 'proteins',
-		type : 'int'
-	}, {
-		name : 'taxon_id',
-		type : 'int'
-	}, {
-		name : 'project_name',
-		type : 'string'
-	}, {
-		name : 'experiment_label',
-		type : 'string'
-	}, {
-		name : 'experiment_title',
-		type : 'string'
-	}, {
-		name : 'institution',
-		type : 'string'
-	}, {
-		name : 'source',
-		type : 'string'
-	}, {
-		name : 'experiment_type',
-		type : 'string'
-	}, {
-		name : 'experiment_id',
-		type : 'int'
-	}]
-});
-
-Ext.define('Proteomics_Protein', {
-	extend : 'Ext.data.Model',
-	idProperty : 'pid',
-	fields : [{
-		name : 'accession',
-		type : 'string'
-	}, {
-		name : 'taxon_id',
-		type : 'int'
-	}, {
-		name : 'na_feature_id',
-		type : 'int'
-	}, {
-		name : 'experiment_label',
-		type : 'string'
-	}, {
-		name : 'experiment_title',
-		type : 'string'
-	}, {
-		name : 'source',
-		type : 'string'
-	}, {
-		name : 'experiment_id',
-		type : 'int'
-	}, {
-		name : 'taxon_name',
-		type : 'string'
-	}, {
-		name : 'genome_name',
-		type : 'string'
-	}, {
-		name : 'refseq_locus_tag',
-		type : 'string'
-	}, {
-		name : 'locus_tag',
-		type : 'string'
-	}, {
-		name : 'product',
-		type : 'string'
-	}, {
-		name : 'refseq_gene',
-		type : 'string'
-	}, {
-		name : 'pubmed_id',
-		type : 'string'
-	}]
-});
+//Ext.define('Proteomics_Experiment', {
+//	extend : 'Ext.data.Model',
+//	idProperty : 'pid',
+//	fields : [{
+//		name : 'sample_name',
+//		type : 'string'
+//	}, {
+//		name : 'taxon_name',
+//		type : 'string'
+//	}, {
+//		name : 'contact_details',
+//		type : 'string'
+//	}, {
+//		name : 'accession',
+//		type : 'int'
+//	}, {
+//		name : 'contact_name',
+//		type : 'string'
+//	}, {
+//		name : 'proteins',
+//		type : 'int'
+//	}, {
+//		name : 'taxon_id',
+//		type : 'int'
+//	}, {
+//		name : 'project_name',
+//		type : 'string'
+//	}, {
+//		name : 'experiment_label',
+//		type : 'string'
+//	}, {
+//		name : 'experiment_title',
+//		type : 'string'
+//	}, {
+//		name : 'institution',
+//		type : 'string'
+//	}, {
+//		name : 'source',
+//		type : 'string'
+//	}, {
+//		name : 'experiment_type',
+//		type : 'string'
+//	}, {
+//		name : 'experiment_id',
+//		type : 'int'
+//	}]
+//});
+//
+//Ext.define('Proteomics_Protein', {
+//	extend : 'Ext.data.Model',
+//	idProperty : 'pid',
+//	fields : [{
+//		name : 'accession',
+//		type : 'string'
+//	}, {
+//		name : 'taxon_id',
+//		type : 'int'
+//	}, {
+//		name : 'na_feature_id',
+//		type : 'int'
+//	}, {
+//		name : 'experiment_label',
+//		type : 'string'
+//	}, {
+//		name : 'experiment_title',
+//		type : 'string'
+//	}, {
+//		name : 'source',
+//		type : 'string'
+//	}, {
+//		name : 'experiment_id',
+//		type : 'int'
+//	}, {
+//		name : 'taxon_name',
+//		type : 'string'
+//	}, {
+//		name : 'genome_name',
+//		type : 'string'
+//	}, {
+//		name : 'refseq_locus_tag',
+//		type : 'string'
+//	}, {
+//		name : 'locus_tag',
+//		type : 'string'
+//	}, {
+//		name : 'product',
+//		type : 'string'
+//	}, {
+//		name : 'refseq_gene',
+//		type : 'string'
+//	}, {
+//		name : 'pubmed_id',
+//		type : 'string'
+//	}]
+//});
 
 Ext.define('SpecialtyGene', {
 	extend : 'Ext.data.Model',
