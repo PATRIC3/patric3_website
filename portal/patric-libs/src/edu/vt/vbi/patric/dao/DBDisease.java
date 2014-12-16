@@ -171,11 +171,11 @@ public class DBDisease {
 				sql = " SELECT count(*) cnt from (";
 			}
 
-			sql += " SELECT distinct b.VF_ID, b.VF_NAME, b.vfg_id, b.gene_name, b.na_feature_id, df.genome_info_id, df.genome_name, df.accession, df.source_id as locus_tag, df.product ";
+			sql += " SELECT distinct b.VF_ID, b.VF_NAME, b.vfg_id, b.gene_name, b.na_feature_id, df.genome_info_id, df.genome_name, df.accession, df.source_id as locus_tag, df.product, pi.genome_id, pi.feature_id, pi.seed_id, pi.refseq_locus_tag, pi.alt_locus_tag ";
 
 		}
 
-		sql += " from diseasedb.vf_summary b, app.dnafeature df WHERE b.na_feature_id = df.na_feature_id ";
+		sql += " from diseasedb.vf_summary b, app.dnafeature df, app.p3_identifiers pi WHERE b.na_feature_id = df.na_feature_id AND df.na_feature_id = pi.na_feature_id ";
 
 		if (key.containsKey("cId")) {
 
@@ -432,6 +432,11 @@ public class DBDisease {
 			row.put("accession", obj[7]);
 			row.put("locus_tag", obj[8]);
 			row.put("product", obj[9]);
+			row.put("genome_id", obj[10]);
+			row.put("feature_id", obj[11]);
+			row.put("seed_id", obj[12]);
+			row.put("refseq_locus_tag", obj[13]);
+			row.put("alt_locus_tag", obj[14]);
 
 			results.add(row);
 		}

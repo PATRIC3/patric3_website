@@ -83,7 +83,12 @@ Ext.onReady(function () {
 			{name:'accession',		type:'string'},
 			{name:'locus_tag',		type:'string'},
 			{name:'na_feature_id',	type:'string'},
-			{name:'product',		type:'string'}
+			{name:'product',		type:'string'},
+			{name:'genome_id',		type:'string'},
+			{name:'feature_id',		type:'string'},
+			{name:'seed_id',		type:'string'},
+			{name:'refseq_locus_tag', type:'string'},
+			{name:'alt_locus_tag',	type:'string'}
 		]
 	});
 	
@@ -113,7 +118,9 @@ Ext.onReady(function () {
 			],[checkbox,
 				{text:"Genome Name",				dataIndex:'genome_name',	flex:2, renderer:renderGenomeNameVFDB},
 				{text:"Accession",					dataIndex:'accession',		flex:1, hidden: true, renderer:renderAccession},
-				{text:"Locus Tag",					dataIndex:'locus_tag',		flex:2, renderer:renderLocusTag},
+				{text:"PATRIC ID",					dataIndex:'seed_id',		flex:2, renderer:renderSeedId},
+				{text:"RefSeq Locus Tag",			dataIndex:'refseq_locus_tag', flex:2, renderer:renderLocusTag},
+				{text:"Alt Locus Tag",				dataIndex:'alt_locus_tag',	flex:2, renderer:renderLocusTag},
 				{text:"Product Description",		dataIndex:'product',		flex:2, renderer:BasicRenderer},
 				{text:"VFG ID",						dataIndex:'vfg_id',			flex:1, align:'center', renderer:renderVFG},
 				{text:"Gene Name",					dataIndex:'gene_name',		flex:1, align:'center', renderer:BasicRenderer},
