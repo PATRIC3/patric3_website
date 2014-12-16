@@ -15,12 +15,11 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.common;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Map;
 
 public class ExpressionDataGene {
 
@@ -35,6 +34,7 @@ public class ExpressionDataGene {
 	int down = 0;
 
 	String feature_id;
+	String p2_feature_id;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ExpressionDataGene.class);
 
@@ -42,7 +42,12 @@ public class ExpressionDataGene {
 		samples = new JSONObject();
 		this.refseq_locus_tag = (data.get("refseq_locus_tag") != null) ? data.get("refseq_locus_tag").toString() : data.get("exp_locus_tag")
 				.toString();
-		this.feature_id = data.get("feature_id").toString();
+		if (data.containsKey("feature_id")) {
+			this.feature_id = data.get("feature_id").toString();
+		}
+		else if (data.containsKey("na_feature_id")) {
+			this.p2_feature_id = data.get("na_feature_id").toString();
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -129,6 +134,14 @@ public class ExpressionDataGene {
 
 	public String getFeatureID() {
 		return this.feature_id;
+	}
+
+	public boolean hasFeatureId() {
+		return (this.feature_id != null);
+	}
+
+	public String getP2FeatureId() {
+		return this.p2_feature_id;
 	}
 
 	public JSONObject getSamples() {

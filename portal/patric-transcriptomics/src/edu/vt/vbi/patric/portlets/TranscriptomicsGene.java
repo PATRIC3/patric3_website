@@ -354,7 +354,13 @@ public class TranscriptomicsGene extends GenericPortlet {
 		for (Object aData : data) {
 
 			JSONObject a = (JSONObject) aData;
-			String id = a.get("feature_id").toString();
+			String id;
+			if (a.containsKey("feature_id")) {
+				id = a.get("feature_id").toString();
+			}
+			else {
+				id = a.get("na_feature_id").toString();
+			}
 			ExpressionDataGene b;
 
 			if (genes.containsKey(id)) {
@@ -370,6 +376,7 @@ public class TranscriptomicsGene extends GenericPortlet {
 
 		List<String> idList = new ArrayList<>();
 		JSONObject temp = new JSONObject();
+		boolean hasFeatureId = false;
 
 		for (Map.Entry<String, ExpressionDataGene> entry : genes.entrySet()) {
 
@@ -384,23 +391,44 @@ public class TranscriptomicsGene extends GenericPortlet {
 			a.put("sample_size", value.getSampleCounts());
 			a.put("samples", value.getSamples());
 
-			idList.add(value.getFeatureID());
-
-			temp.put(value.getFeatureID(), a);
+			if (value.hasFeatureId()) {
+				hasFeatureId = true;
+				idList.add(value.getFeatureID());
+				temp.put(value.getFeatureID(), a);
+			}
+			else {
+				hasFeatureId = false;
+				idList.add(value.getP2FeatureId());
+				temp.put(value.getP2FeatureId(), a);
+			}
 		}
 
 		SolrInterface solr = new SolrInterface();
 
-		SolrQuery query = new SolrQuery("feature_id:(" + StringUtils.join(idList, " OR ") + ")");
-		query.setFields("feature_id,strand,product,accession,start,end,seed_id,alt_locus_tag,genome_name,gene");
+		SolrQuery query = new SolrQuery("*:*");
+		if (hasFeatureId) {
+			query.addFilterQuery("feature_id:(" + StringUtils.join(idList, " OR ") + ")");
+		}
+		else {
+			query.addFilterQuery("p2_feature_id:(" + StringUtils.join(idList, " OR ") + ")");
+		}
+		query.setFields("feature_id,p2_feature_id,strand,product,accession,start,end,seed_id,alt_locus_tag,genome_name,gene");
 		query.setRows(idList.size());
+
+		LOGGER.debug("getExperimentStats:{}", query.toString());
 
 		try {
 			QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query, SolrRequest.METHOD.POST);
 			List<GenomeFeature> features = qr.getBeans(GenomeFeature.class);
 
 			for (GenomeFeature feature : features) {
-				JSONObject json = (JSONObject) temp.get(feature.getId());
+				JSONObject json;
+				if (hasFeatureId) {
+					json = (JSONObject) temp.get(feature.getId());
+				}
+				else {
+					json = (JSONObject) temp.get(""+feature.getP2FeatureId());
+				}
 				json.put("strand", feature.getStrand());
 				json.put("patric_product", feature.getProduct());
 				json.put("patric_accession", feature.getAccession());

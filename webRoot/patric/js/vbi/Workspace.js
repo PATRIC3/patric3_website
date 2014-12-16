@@ -4053,7 +4053,7 @@ Ext.define('VBI.Workspace.controller.Experiment', {
 		});
 	},
 	runGeneList: function(param) {
-		document.location.href = "/portal/portal/patric/TranscriptomicsGene?cType=&cId=&dm=result&log_ratio=&zscore="+param;
+		document.location.href = "/portal/portal/patric/TranscriptomicsGene?cType=taxon&cId=131567&dm=result&log_ratio=&zscore="+param;
 	},
 	toggleEditorFields: function(button, event, options) {
 		var target = button.findParentByType('experimentinfoeditor');
