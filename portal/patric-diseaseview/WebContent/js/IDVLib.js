@@ -286,481 +286,515 @@ function mkLegendEntry(label, imgSrc, align) {
 
 function mkToolbar_Graph() {
 	graphToolbar = new Ext.Toolbar({
-		items:[
-					 {title: 'Workspace',  
-					columns: 1, 
-					xtype: 'buttongroup', 
-					width: 120,
-					height:80,
+		items:[{
+			title: 'Workspace',
+			columns: 1,
+			xtype: 'buttongroup',
+			width: 120,
+			height:80,
+			items:[{
+				scale: 'large',
+				rowspan: 2,
+				 width: 120,
+				iconAlign: 'top',
+				text:'Add to Group',
+				icon: '/patric/images/toolbar_cart.png',
+				handler: function(){
+					AddToCart_Graph();
+				}
+			}]
+		}, '-', {
+			title: 'View',
+			columns: 2,
+			xtype: 'buttongroup',
+			width: 120,
+			height:80,
+			items:[{
+				scale: 'small',
+				iconAlign: 'left',
+				text:'FASTA DNA',
+				icon: '/patric/images/toolbar_dna.png',
+				handler: function(){
+					ShowDownloadFasta_Graph('display', 'dna');
+				}
+			},{
+				scale: 'small',
+				iconAlign: 'left',
+				text:'FASTA Protein',
+				icon: '/patric/images/toolbar_protein.png',
+				handler: function(){
+					ShowDownloadFasta_Graph('display', 'protein');
+				}
+			},{
+				scale: 'small',
+				iconAlign: 'left',
+				text:'FASTA DNA/Protein',
+				icon: '/patric/images/toolbar_dna_protein.png',
+				handler: function(){
+					ShowDownloadFasta_Graph('display', 'both');
+				}
+			}]
+		}, '-', {
+			title: 'Download',
+			columns: 1,
+			xtype: 'buttongroup',
+			width:120,
+			height:80,
+			items:[{
+				scale: 'small',
+				iconAlign: 'left',
+				width: 120,
+				text:'Table',
+				icon: '/patric/images/toolbar_table.png',
+				xtype:'splitbutton',
+				menu: [{
+					text: 'Text File (.txt)',
+					icon: '/patric/images/toolbar_text.png',
+					handler: function(){
+						DownloadFile('txt');
+					}
+				}, {
+					text: 'Excel file (.xls)',
+					icon: '/patric/images/toolbar_excel.png',
+					handler: function(){
+						DownloadFile('xls');
+					}
+				}]
+			}, {
+				scale: 'small',
+				iconAlign: 'left',
+				text:'FASTA',
+				width: 120,
+				icon: '/patric/images/toolbar_fasta.png',
+				xtype:'splitbutton',
+				menu: [{text: 'DNA',
+					icon: '/patric/images/toolbar_dna.png',
+					handler: function(){
+						ShowDownloadFasta_Graph('download', 'dna');
+					}
+				}, {
+					text: 'Protein',
+					icon: '/patric/images/toolbar_protein.png',
+					handler: function(){
+						ShowDownloadFasta_Graph('download', 'protein');
+					}
+				}, {
+					text: 'DNA/Protein',
+					icon: '/patric/images/toolbar_dna_protein.png',
+					handler: function(){
+						ShowDownloadFasta_Graph('download', 'both');
+					}
+				}]
+			}]
+		}, '-', {
+			title: 'Tools',
+			columns: 2,
+			width:120,
+			height:80,
+			xtype: 'buttongroup',
+			items:[{
+				scale: 'large',
+				rowspan: 2,
+				iconAlign: 'top',
+				width:80,
+				text:'M S A',
+				icon: '/patric/images/toolbar_msa.png',
+				handler: function(){
+					callAlign_Graph();
+				}
+			},{
+				scale: 'large',
+				rowspan: 2,
+				iconAlign: 'top',
+				width:80,
+				text:'ID Mapping',
+				icon: '/patric/images/toolbar_id_mapping.png',
+				menu: {
+					layout: 'column',
+					width: 411,
+					autoHeight: true,
+					cls:'x-menu-cstm',
+					defaults: {
+						xtype: 'menu',
+						floating: false,
+						columnWidth: 0.33,
+						hidden: false,
+						style: {
+							'border-color': 'transparent',
+							'background-image': 'none'
+						}
+					},
 					items:[{
-						scale: 'large',  
-						rowspan: 2, 
-						 width: 120,
-						iconAlign: 'top', 
-						text:'Add to Group', 
-						icon: '/patric/images/toolbar_cart.png', 
-						handler: function(){
-							AddToCart_Graph();
-						}
-					}]
-					}, '-',
-					{title: 'View', 
-					 columns: 2, 
-					 xtype: 'buttongroup', 
-					 width: 120,
-					 height:80,
-					 items:[{
-						 scale: 'small', 
-						 iconAlign: 'left', 
-						 text:'FASTA DNA', 
-							icon: '/patric/images/toolbar_dna.png',
+						items:['<b class="menu-title">PATRIC Identifiers</b>',
+						{
+							text: 'PATRIC ID',
+							itemCls:'x-menu-item-cstm',
 							handler: function(){
-							ShowDownloadFasta_Graph('display', 'dna');
-						}
-					 },{
-						 scale: 'small',  
-						 iconAlign: 'left', 
-						 text:'FASTA Protein', 
-						 icon: '/patric/images/toolbar_protein.png',
-						 handler: function(){
-							ShowDownloadFasta_Graph('display', 'protein');
-						}
-					 },{
-						 scale: 'small',  
-						 iconAlign: 'left', 
-						 text:'FASTA DNA/Protein', 
-						icon: '/patric/images/toolbar_dna_protein.png',
-						 handler: function(){
-							ShowDownloadFasta_Graph('display', 'both');
-						}
-					 }]
-					}, '-',
-					{title: 'Download', 
-					 columns: 1, 
-					 xtype: 'buttongroup', 
-						width:120,
-						height:80,
-					// items:[btnTableDownload, btnFastaDownload]
-					 items:[{
-						 scale: 'small',  
-						 iconAlign: 'left', 
-						 width: 120,
-						 text:'Table', 
-						 icon: '/patric/images/toolbar_table.png', 
-						 xtype:'splitbutton',
-						 menu: [{text: 'Text File (.txt)',
-									icon: '/patric/images/toolbar_text.png',
-								handler: function(){
-									DownloadFile('txt');
-									
-							
-								}
-								}, 
-								{text: 'Excel file (.xls)',
-								icon: '/patric/images/toolbar_excel.png',
-								handler: function(){
-									DownloadFile('xls');
-									
-								}
-							}]
-						},{
-						 scale: 'small',  
-						 iconAlign: 'left', 
-						 text:'FASTA', 
-						 width: 120,
-						 icon: '/patric/images/toolbar_fasta.png', 
-						 xtype:'splitbutton',
-						 menu: [{text: 'DNA',
-									icon: '/patric/images/toolbar_dna.png',
-							handler: function(){
-								ShowDownloadFasta_Graph('download', 'dna');
+							callIDMapping_Graph("seed_id");
 							}
-							}, 
-							{text: 'Protein',
-							icon: '/patric/images/toolbar_protein.png',
+						}, {
+							text: 'Feature ID',
+							itemCls:'x-menu-item-cstm',
 							handler: function(){
-								ShowDownloadFasta_Graph('download', 'protein');
+							callIDMapping_Graph("feature_id");
 							}
-							}, 
-							{text: 'DNA/Protein',
-							icon: '/patric/images/toolbar_dna_protein.png',
+						}, {
+							text: 'Alt Locus Tag',
+							itemCls:'x-menu-item-cstm',
 							handler: function(){
-								ShowDownloadFasta_Graph('download', 'both');
-								
+							callIDMapping_Graph("alt_locus_tag");
 							}
 						}]
-					 }]
-					}, '-',
-					{title: 'Tools', 
-					 columns: 2, 
-						width:120,
-						height:80,
-					 xtype: 'buttongroup',   
-					 items:[{
-							scale: 'large',  
-							rowspan: 2, 
-							iconAlign: 'top', 
-							width:80,
-							text:'M S A', 
-							icon: '/patric/images/toolbar_msa.png', 
+					}, {
+						items:['<b class="menu-title">RefSeq Identifiers</b>',
+						{
+							text: 'RefSeq Locus Tag',
+							itemCls:'x-menu-item-cstm',
 							handler: function(){
-								callAlign_Graph();
+								callIDMapping_Graph("refseq_locus_tag");
 							}
-						 
-					 },{
-							scale: 'large',  
-							rowspan: 2, 
-							iconAlign: 'top', 
-							width:80,
-							text:'ID Mapping', 
-							icon: '/patric/images/toolbar_id_mapping.png', 
-							menu: {
-									layout: 'column',
-													width: 411,
-													autoHeight: true,
-													cls:'x-menu-cstm',
-													defaults: {
-															xtype: 'menu',
-															floating: false,
-															columnWidth: 0.33,
-															hidden: false,
-															style: {
-																	'border-color': 'transparent',
-																	'background-image': 'none'
-															}
-													},
-													items:[{items:[
-																	 '<b class="menu-title">PATRIC Identifiers</b>', 
-																 {text: 'PATRIC Locus Tag', 
-																itemCls:'x-menu-item-cstm',
-																handler: function(){
-												callIDMapping_Graph("PATRIC Locus Tag");
-											}},
-																 {text: 'PATRIC ID', 
-											itemCls:'x-menu-item-cstm',
-																handler: function(){
-												callIDMapping_Graph("PATRIC ID");
-											}},
-																 {text: 'PSEED ID', 
-											itemCls:'x-menu-item-cstm',
-																handler: function(){
-												callIDMapping_Graph("PSEED ID");
-											}}]
-									}, 
-									{items:['<b class="menu-title">REFSEQ Identifiers</b>',
-													{text: 'RefSeq Locus Tag', 
-											itemCls:'x-menu-item-cstm',
-																	handler: function(){
-													callIDMapping_Graph("RefSeq Locus Tag");
-											}},
-													{text: 'RefSeq', 
-											itemCls:'x-menu-item-cstm',
-																	handler: function(){
-													callIDMapping_Graph("RefSeq");
-											}},
-													{text: 'Gene ID', 
-											itemCls:'x-menu-item-cstm',
-																	handler: function(){
-													callIDMapping_Graph("Gene ID");
-											}},
-													{text: 'GI', 
-											itemCls:'x-menu-item-cstm',
-																	handler: function(){
-													callIDMapping_Graph("GI");
-											}}]
-									},
-															{items:['<b class="menu-title">Other Identifiers</b>',
-													{text:'Allergome', 
-											itemCls:'x-menu-item-cstm',
-																	handler: function(){
-													callIDMapping_Graph("Allergome");
-											}},
-											{text:'BioCyc', 
-											itemCls:'x-menu-item-cstm',
-																	handler: function(){
-													callIDMapping_Graph("BioCyc");
-											}},
-											{text:'DIP', 
-											itemCls:'x-menu-item-cstm',
-																	handler: function(){
-													callIDMapping_Graph("DIP");
-											}},
-											{text:'DisProt', 
-											itemCls:'x-menu-item-cstm',
-																	handler: function(){
-													callIDMapping_Graph("DisProt");
-											}},
-												{text:'DrugBank', 
-											itemCls:'x-menu-item-cstm',
-																	handler: function(){
-													callIDMapping_Graph("DrugBank");
-											}},
-												{text:'ECO2DBASE', 
-											itemCls:'x-menu-item-cstm',
-																	handler: function(){
-													callIDMapping_Graph("ECO2DBASE");
-											}},
-												{text:'EMBL', 
-											itemCls:'x-menu-item-cstm',
-																	handler: function(){
-													callIDMapping_Graph("EMBL");
-											}},
-												{text:'EMBL-CDS', 
-											itemCls:'x-menu-item-cstm',
-																	handler: function(){
-													callIDMapping_Graph("EMBL-CDS");
-											}},
-											{text:'More ...', 
-											itemCls:'x-menu-item-cstm',
-											menu:{
-														layout: 'column',
-																	width: 411,
-																	autoHeight: true,
-																	cls:'x-menu-cstm',
-																	defaults: {
-																			xtype: 'menu',
-																				floating: false,
-																				columnWidth: 0.33,
-																				hidden: false,
-																				style: {
-																						'border-color': 'transparent',
-																						'background-image': 'none'
-																				}
-																		},
-																		items:[{
-																			items:[{
-																			text:'EchoBASE',
-																			itemCls:'x-menu-item-cstm',
-																			handler: function(){
-																				callIDMapping_Graph("EchoBASE");
-																			}},{
-																			text:'EcoGene',
-																			itemCls:'x-menu-item-cstm',
-																			handler: function(){
-																				callIDMapping_Graph("EcoGene");
-																			}	
-																			},{
-																			text:'EnsemblGenome',
-																			itemCls:'x-menu-item-cstm',
-																			handler: function(){
-																				callIDMapping_Graph("EnsemblGenome");
-																			}
-																			},{
-																			text:'EchoBASE',
-																			itemCls:'x-menu-item-cstm',
-																			handler: function(){
-																				callIDMapping_Graph("EchoBASE");
-																			}
-																			},{
-																			text:'EnsemblGenome_PRO',
-																			itemCls:'x-menu-item-cstm',
-																			handler: function(){
-																				callIDMapping_Graph("EnsemblGenome_PRO");
-																			}
-																			},{
-																			text:'EnsemblGenome_TRS',
-																			itemCls:'x-menu-item-cstm',
-																			handler: function(){
-																				callIDMapping_Graph("EnsemblGenome_TRS");
-																			}
-																			},{
-																			text:'GeneTree',
-																			itemCls:'x-menu-item-cstm',
-																			handler: function(){
-																				callIDMapping_Graph("GeneTree");
-																			}
-																			},{
-																			text:'GenoList',
-																			itemCls:'x-menu-item-cstm',
-																			handler: function(){
-																				callIDMapping_Graph("GenoList");
-																			}
-																			},{
-																			text:'GenomeReviews',
-																			itemCls:'x-menu-item-cstm',
-																			handler: function(){
-																				callIDMapping_Graph("GenomeReviews");
-																			}
-																			},{
-																			text:'HOGENOM',
-																			itemCls:'x-menu-item-cstm',
-																			handler: function(){
-																				callIDMapping_Graph("HOGENOM");
-																			}
-																			},{
-																			text:'HSSP',
-																			itemCls:'x-menu-item-cstm',
-																			handler: function(){
-																				callIDMapping_Graph("HSSP");
-																			}
-																			},{
-																			text:'KEGG',
-																			itemCls:'x-menu-item-cstm',
-																			handler: function(){
-																				callIDMapping_Graph("KEGG");
-																			}
-																			}]
-																		},{
-																			items:[{
-																			text:'LegioList',
-																			itemCls:'x-menu-item-cstm',
-																			handler: function(){
-																				callIDMapping_Graph("LegioList");
-																			}
-																			},{
-																			text:'Leproma',
-																			itemCls:'x-menu-item-cstm',
-																			handler: function(){
-																				callIDMapping_Graph("Leproma");
-																			}
-																			},{
-																			text:'MEROPS',
-																			itemCls:'x-menu-item-cstm',
-																			handler: function(){
-																				callIDMapping_Graph("MEROPS");
-																			}},{
-																			text:'MINT',
-																			itemCls:'x-menu-item-cstm',
-																			handler: function(){
-																				callIDMapping_Graph("MINT");
-																			}},{
-																			text:'NMPDR',
-																			itemCls:'x-menu-item-cstm',
-																			handler: function(){
-																				callIDMapping_Graph("NMPDR");
-																			}},{
-																			text:'OMA',
-																			itemCls:'x-menu-item-cstm',
-																			handler: function(){
-																				callIDMapping_Graph("OMA");
-																			}},{
-																			text:'OrthoDB',
-																			itemCls:'x-menu-item-cstm',
-																			handler: function(){
-																				callIDMapping_Graph("OrthoDB");
-																			}},{
-																			text:'PDB',
-																			itemCls:'x-menu-item-cstm',
-																			handler: function(){
-																				callIDMapping_Graph("PDB");
-																			}},{
-																			text:'PeroxiBase',
-																			itemCls:'x-menu-item-cstm',
-																			handler: function(){
-																				callIDMapping_Graph("PeroxiBase");
-																			}},{
-																			text:'PptaseDB',
-																			itemCls:'x-menu-item-cstm',
-																			handler: function(){
-																				callIDMapping_Graph("PptaseDB");
-																			}},{
-																			text:'ProtClustDB',
-																			itemCls:'x-menu-item-cstm',
-																			handler: function(){
-																				callIDMapping_Graph("ProtClustDB");
-																			}},{
-																			text:'PseudoCAP',
-																			itemCls:'x-menu-item-cstm',
-																			handler: function(){
-																				callIDMapping_Graph("PseudoCAP");
-																			}}]
-																		},
-																		{
-																			items:[{
-																			text:'REBASE',
-																			itemCls:'x-menu-item-cstm',
-																			handler: function(){
-																				callIDMapping_Graph("REBASE");
-																			}},{
-																			text:'Reactome',
-																			itemCls:'x-menu-item-cstm',
-																			handler: function(){
-																				callIDMapping_Graph("Reactome");
-																			}},{
-																			text:'RefSeq_NT',
-																			itemCls:'x-menu-item-cstm',
-																			handler: function(){
-																				callIDMapping_Graph("RefSeq_NT");
-																			}},{
-																			text:'TCDB',
-																			itemCls:'x-menu-item-cstm',
-																			handler: function(){
-																				callIDMapping_Graph("TCDB");
-																			}},{
-																			text:'TIGR',
-																			itemCls:'x-menu-item-cstm',
-																			handler: function(){
-																				callIDMapping_Graph("TIGR");
-																			}},{
-																			text:'TubercuList',
-																			itemCls:'x-menu-item-cstm',
-																			handler: function(){
-																				callIDMapping_Graph("TubercuList");
-																			}},{
-																			text:'UniParc',
-																			itemCls:'x-menu-item-cstm',
-																			handler: function(){
-																				callIDMapping_Graph("UniParc");
-																			}},{
-																			text:'UniProtKB-ID',
-																			itemCls:'x-menu-item-cstm',
-																			handler: function(){
-																				callIDMapping_Graph("UniProtKB-ID");
-																			}},{
-																			text:'UniRef100',
-																			itemCls:'x-menu-item-cstm',
-																			handler: function(){
-																				callIDMapping_Graph("UniRef100");
-																			}},{
-																			text:'UniRef50',
-																			itemCls:'x-menu-item-cstm',
-																			handler: function(){
-																				callIDMapping_Graph("UniRef50");
-																			}},{
-																			text:'UniRef90',
-																			itemCls:'x-menu-item-cstm',
-																			handler: function(){
-																				callIDMapping_Graph("UniRef90");
-																			}},{
-																			text:'World-2DPAGE',
-																			itemCls:'x-menu-item-cstm',
-																			handler: function(){
-																				callIDMapping_Graph("World-2DPAGE");
-																			}},{
-																			text:'eggNOG',
-																			itemCls:'x-menu-item-cstm',
-																			handler: function(){
-																				callIDMapping_Graph("eggNOG");
-																			}}]
-																			}]
-																		}
-																	}]
+						}, {
+							text: 'RefSeq',
+							itemCls:'x-menu-item-cstm',
+							handler: function(){
+								callIDMapping_Graph("protein_id");
+							}
+						}, {
+							text: 'Gene ID',
+							itemCls:'x-menu-item-cstm',
+							handler: function(){
+								callIDMapping_Graph("gene_id");
+							}
+						}, {text: 'GI',
+							itemCls:'x-menu-item-cstm',
+							handler: function(){
+								callIDMapping_Graph("gi");
+							}
+						}]
+					}, {
+						items:['<b class="menu-title">Other Identifiers</b>',
+						{
+							text:'Allergome',
+							itemCls:'x-menu-item-cstm',
+							handler: function(){
+								callIDMapping_Graph("Allergome");
+							}
+						}, {
+							text:'BioCyc',
+							itemCls:'x-menu-item-cstm',
+							handler: function(){
+								callIDMapping_Graph("BioCyc");
+							}
+						}, {
+							text:'DIP',
+							itemCls:'x-menu-item-cstm',
+							handler: function(){
+								callIDMapping_Graph("DIP");
+							}
+						}, {
+							text:'DisProt',
+							itemCls:'x-menu-item-cstm',
+							handler: function(){
+								callIDMapping_Graph("DisProt");
+							}
+						}, {
+							text:'DrugBank',
+							itemCls:'x-menu-item-cstm',
+							handler: function(){
+								callIDMapping_Graph("DrugBank");
+							}
+						}, {
+							text:'ECO2DBASE',
+							itemCls:'x-menu-item-cstm',
+							handler: function(){
+								callIDMapping_Graph("ECO2DBASE");
+							}
+						}, {
+							text:'EMBL',
+							itemCls:'x-menu-item-cstm',
+							handler: function(){
+								callIDMapping_Graph("EMBL");
+							}
+						}, {
+							text:'EMBL-CDS',
+							itemCls:'x-menu-item-cstm',
+							handler: function(){
+								callIDMapping_Graph("EMBL-CDS");
+							}
+						}, {
+							text:'More ...',
+							itemCls:'x-menu-item-cstm',
+							menu:{
+								layout: 'column',
+								width: 411,
+								autoHeight: true,
+								cls:'x-menu-cstm',
+								defaults: {
+									xtype: 'menu',
+									floating: false,
+									columnWidth: 0.33,
+									hidden: false,
+									style: {
+										'border-color': 'transparent',
+										'background-image': 'none'
+									}
+								},
+								items:[{
+									items:[{
+										text:'EchoBASE',
+										itemCls:'x-menu-item-cstm',
+										handler: function(){
+											callIDMapping_Graph("EchoBASE");
 										}
-									]
-													}
-						 
-					 }]
-					},'->', '-',
-					{title: 'Help', 
-					 columns: 1, 
-					width:120,
-					height:80,
-					 xtype: 'buttongroup',
-					 items:[{
-							scale: 'large',  
-							rowspan: 2, 
-							width:120,
-							iconAlign: 'top',
-							text:'PATRIC FAQs', 
-							style: 'padding-left:5px; padding-right:5px;',
-							icon: '/patric/images/toolbar_faq.png', 
-							handler: function(){
-								window.open ("http://enews.patricbrc.org/faqs/", "_new","menubar=1,resizable=1,scrollbars=1, fullscreen=1, toolbar=1,titlebar=1,status=1"); 
-
+									},{
+										text:'EcoGene',
+										itemCls:'x-menu-item-cstm',
+										handler: function(){
+											callIDMapping_Graph("EcoGene");
+										}
+									},{
+										text:'EnsemblGenome',
+										itemCls:'x-menu-item-cstm',
+										handler: function(){
+										callIDMapping_Graph("EnsemblGenome");
+										}
+									},{
+										text:'EchoBASE',
+										itemCls:'x-menu-item-cstm',
+										handler: function(){
+											callIDMapping_Graph("EchoBASE");
+										}
+									},{
+										text:'EnsemblGenome_PRO',
+										itemCls:'x-menu-item-cstm',
+										handler: function(){
+											callIDMapping_Graph("EnsemblGenome_PRO");
+										}
+									},{
+										text:'EnsemblGenome_TRS',
+										itemCls:'x-menu-item-cstm',
+										handler: function(){
+											callIDMapping_Graph("EnsemblGenome_TRS");
+										}
+									},{
+										text:'GeneTree',
+										itemCls:'x-menu-item-cstm',
+										handler: function(){
+											callIDMapping_Graph("GeneTree");
+										}
+									},{
+										text:'GenoList',
+										itemCls:'x-menu-item-cstm',
+										handler: function(){
+											callIDMapping_Graph("GenoList");
+										}
+									},{
+										text:'GenomeReviews',
+										itemCls:'x-menu-item-cstm',
+										handler: function(){
+											callIDMapping_Graph("GenomeReviews");
+										}
+									},{
+										text:'HOGENOM',
+										itemCls:'x-menu-item-cstm',
+										handler: function(){
+											callIDMapping_Graph("HOGENOM");
+										}
+									},{
+										text:'HSSP',
+										itemCls:'x-menu-item-cstm',
+										handler: function(){
+											callIDMapping_Graph("HSSP");
+										}
+									},{
+										text:'KEGG',
+										itemCls:'x-menu-item-cstm',
+										handler: function(){
+											callIDMapping_Graph("KEGG");
+										}
+									}]
+								},{
+									items:[{
+										text:'LegioList',
+										itemCls:'x-menu-item-cstm',
+										handler: function(){
+											callIDMapping_Graph("LegioList");
+										}
+									},{
+										text:'Leproma',
+										itemCls:'x-menu-item-cstm',
+										handler: function(){
+											callIDMapping_Graph("Leproma");
+										}
+									},{
+										text:'MEROPS',
+										itemCls:'x-menu-item-cstm',
+										handler: function(){
+											callIDMapping_Graph("MEROPS");
+										}
+									},{
+										text:'MINT',
+										itemCls:'x-menu-item-cstm',
+										handler: function(){
+											callIDMapping_Graph("MINT");
+										}
+									},{
+										text:'NMPDR',
+										itemCls:'x-menu-item-cstm',
+										handler: function(){
+											callIDMapping_Graph("NMPDR");
+										}
+									},{
+										text:'OMA',
+										itemCls:'x-menu-item-cstm',
+										handler: function(){
+											callIDMapping_Graph("OMA");
+										}
+									},{
+										text:'OrthoDB',
+										itemCls:'x-menu-item-cstm',
+										handler: function(){
+											callIDMapping_Graph("OrthoDB");
+										}
+									},{
+										text:'PDB',
+										itemCls:'x-menu-item-cstm',
+										handler: function(){
+											callIDMapping_Graph("PDB");
+										}
+									},{
+										text:'PeroxiBase',
+										itemCls:'x-menu-item-cstm',
+										handler: function(){
+											callIDMapping_Graph("PeroxiBase");
+										}
+									},{
+										text:'PptaseDB',
+										itemCls:'x-menu-item-cstm',
+										handler: function(){
+											callIDMapping_Graph("PptaseDB");
+										}
+									},{
+										text:'ProtClustDB',
+										itemCls:'x-menu-item-cstm',
+										handler: function(){
+											callIDMapping_Graph("ProtClustDB");
+										}
+									},{
+										text:'PseudoCAP',
+										itemCls:'x-menu-item-cstm',
+										handler: function(){
+											callIDMapping_Graph("PseudoCAP");
+										}
+									}]
+								}, {
+									items:[{
+										text:'REBASE',
+										itemCls:'x-menu-item-cstm',
+										handler: function(){
+											callIDMapping_Graph("REBASE");
+										}
+									},{
+										text:'Reactome',
+										itemCls:'x-menu-item-cstm',
+										handler: function(){
+											callIDMapping_Graph("Reactome");
+										}
+									},{
+										text:'RefSeq_NT',
+										itemCls:'x-menu-item-cstm',
+										handler: function(){
+											callIDMapping_Graph("RefSeq_NT");
+										}
+									},{
+										text:'TCDB',
+										itemCls:'x-menu-item-cstm',
+										handler: function(){
+											callIDMapping_Graph("TCDB");
+										}
+									},{
+										text:'TIGR',
+										itemCls:'x-menu-item-cstm',
+										handler: function(){
+											callIDMapping_Graph("TIGR");
+										}
+									},{
+										text:'TubercuList',
+										itemCls:'x-menu-item-cstm',
+										handler: function(){
+											callIDMapping_Graph("TubercuList");
+										}
+									},{
+										text:'UniParc',
+										itemCls:'x-menu-item-cstm',
+										handler: function(){
+											callIDMapping_Graph("UniParc");
+										}
+									},{
+										text:'UniProtKB-ID',
+										itemCls:'x-menu-item-cstm',
+										handler: function(){
+											callIDMapping_Graph("UniProtKB-ID");
+										}
+									},{
+										text:'UniRef100',
+										itemCls:'x-menu-item-cstm',
+										handler: function(){
+											callIDMapping_Graph("UniRef100");
+										}
+									},{
+										text:'UniRef50',
+										itemCls:'x-menu-item-cstm',
+										handler: function(){
+											callIDMapping_Graph("UniRef50");
+										}
+									},{
+										text:'UniRef90',
+										itemCls:'x-menu-item-cstm',
+										handler: function(){
+											callIDMapping_Graph("UniRef90");
+										}
+									},{
+										text:'World-2DPAGE',
+										itemCls:'x-menu-item-cstm',
+										handler: function(){
+											callIDMapping_Graph("World-2DPAGE");
+										}
+									},{
+										text:'eggNOG',
+										itemCls:'x-menu-item-cstm',
+										handler: function(){
+											callIDMapping_Graph("eggNOG");
+										}
+									}]
+								}]
 							}
-					 }]
-					}]
-		});
+						}]
+					}
+				]
+			}
+		}]
+	},'->', '-', {
+		title: 'Help',
+		columns: 1,
+		width:120,
+		height:80,
+		xtype: 'buttongroup',
+		items:[{
+			scale: 'large',
+			rowspan: 2,
+			width:120,
+			iconAlign: 'top',
+			text:'PATRIC FAQs',
+			style: 'padding-left:5px; padding-right:5px;',
+			icon: '/patric/images/toolbar_faq.png',
+			handler: function(){
+			window.open ("http://enews.patricbrc.org/faqs/", "_new","menubar=1,resizable=1,scrollbars=1, fullscreen=1, toolbar=1,titlebar=1,status=1");
+
+			}
+		}]
+	}]
+});
 }
 
 
