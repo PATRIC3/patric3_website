@@ -136,7 +136,7 @@ Ext.onReady(function()
 		scm:[[checkbox, 
 			{header:'Genome Name',			dataIndex:'genome_name', 		flex:2, renderer:renderGenomeName},
 			{header:'Accession',			dataIndex:'accession',			hidden:true, flex:1, align:'center', renderer:renderAccession},
-			{header:'SEED ID',  			dataIndex:'seed_id', 			flex:2, renderer:renderSeedId},
+			{header:'PATRIC ID',  			dataIndex:'seed_id', 			flex:2, renderer:renderSeedId},
 			{header:'RefSeq Locus Tag',		dataIndex:'refseq_locus_tag', 	flex:2, renderer:renderLocusTag},
 			{header:'Alt Locus Tag',		dataIndex:'alt_locus_tag', 		flex:2, renderer:renderLocusTag},
 			{header:'Gene Symbol',			dataIndex:'gene', 				flex:1, align:'center', renderer:BasicRenderer},

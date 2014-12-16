@@ -21,7 +21,7 @@ import java.util.List;
 public class DownloadHelper {
 
 	public static List<String> getHeaderForFeatures() {
-		return Arrays.asList("Genome", "Accession", "SEED ID", "RefSeq Locus Tag", "Alt Locus Tag", "Feature Id",
+		return Arrays.asList("Genome", "Accession", "PATRIC ID", "RefSeq Locus Tag", "Alt Locus Tag", "Feature ID",
 				"Annotation", "Feature Type", "Start", "End", "Length", "Strand", "Protein ID", "AA Length", "Gene Symbol", "Product");
 	}
 
@@ -35,7 +35,7 @@ public class DownloadHelper {
 				"Strain", "Serovar", "Biovar", "Pathovar", "MLST", "Other Typing",
 				"Culture Collection", "Type Strain",
 				"Completion Date", "Publication",
-				"BioProject Accession", "BioSample Accession", "Assembly Accession", "NCBI Project ID", "RefSeq Project ID", "GenBank Accessions",
+				"BioProject Accession", "BioSample Accession", "Assembly Accession", "GenBank Accessions",
 				"RefSeq Accessions",
 				"Sequencing Centers", "Sequencing Status", "Sequencing Platform", "Sequencing Depth", "Assembly Method",
 				"Chromosomes", "Plasmids", "Contigs", "Sequences", "Genome Length", "GC Content",
@@ -54,7 +54,7 @@ public class DownloadHelper {
 				"strain", "serovar", "biovar", "pathovar", "mlst", "other_typing",
 				"culture_collection", "type_strain",
 				"completion_date", "publication",
-				"bioproject_accession", "biosample_accession", "assembly_accession", "ncbi_project_id", "refseq_project_id", "genbank_accessions",
+				"bioproject_accession", "biosample_accession", "assembly_accession", "genbank_accessions",
 				"refseq_accessions",
 				"sequencing_centers", "sequencing_status", "sequencing_platform", "sequencing_depth", "assembly_method",
 				"chromosomes", "plasmids", "contigs", "sequences", "genome_length", "gc_content",

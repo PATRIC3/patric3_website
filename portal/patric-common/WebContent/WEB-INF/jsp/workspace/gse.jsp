@@ -97,7 +97,7 @@ var selectionListener = function() {
       else if (myType === 'Feature') {
         // genome name, locus_tag, refseq locus tag, gene, product
         thead.append("th").text("Genome Name");
-        thead.append("th").text("SEED ID");
+        thead.append("th").text("PATRIC ID");
         thead.append("th").text("RefSeq Locus Tag");
         thead.append("th").text("Alt Locus Tag");
         thead.append("th").text("Gene");

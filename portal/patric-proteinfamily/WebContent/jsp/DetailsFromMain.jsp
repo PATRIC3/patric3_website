@@ -17,7 +17,7 @@
 
 	JSONArray _tbl_source = figger.getDetails(genomeIds, figfamIds);
 
-	_tbl_header.addAll(Arrays.asList("Group Id", "Genome Name", "Accession", "SEED ID", "RefSeq Locus Tag", "Alt Locus Tag", "Start", "End", "Length(NT)", "Strand",
+	_tbl_header.addAll(Arrays.asList("Group Id", "Genome Name", "Accession", "PATRIC ID", "RefSeq Locus Tag", "Alt Locus Tag", "Start", "End", "Length(NT)", "Strand",
 			"Length(AA)", "Gene Symbol", "Product Description"));
 	_tbl_field.addAll(Arrays.asList("figfam_id", "genome_name", "accession", "seed_id", "refseq_locus_tag", "alt_locus_tag", "start", "end", "na_length", "strand",
 			"aa_length", "gene", "product"));

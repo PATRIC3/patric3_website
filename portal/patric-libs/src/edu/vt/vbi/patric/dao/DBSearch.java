@@ -127,107 +127,107 @@ public class DBSearch {
 		return results;
 	}
 
-	public ArrayList<ResultType> getIDSearchResult(Map<String, String> key, Map<String, String> sort, int start, int end) {
-		String sql = "";
-
-		sql = this.getIDSearchSQL(key, sort, "function");
-
-		Session session = factory.getCurrentSession();
-		session.beginTransaction();
-		SQLQuery q = session.createSQLQuery(sql);
-
-		if (end > 0) {
-			q.setMaxResults(end);
-		}
-		q.setTimeout(300);
-
-		ScrollableResults scr = q.scroll();
-		ArrayList<ResultType> results = new ArrayList<ResultType>();
-		Object[] obj = null;
-		if (start > 1) {
-			scr.setRowNumber(start - 1);
-		}
-		else {
-			scr.beforeFirst();
-		}
-
-		for (int i = start; (end > 0 && i < end && scr.next() == true) || (end == -1 && scr.next() == true); i++) {
-			obj = scr.get();
-			ResultType row = new ResultType();
-
-			row.put("genome_info_id", obj[0]);
-			row.put("genome_name", obj[1]);
-			row.put("accession", obj[2]);
-			row.put("na_feature_id", obj[3]);
-			row.put("na_sequence_id", obj[4]);
-			row.put("name", obj[5]);
-			row.put("locus_tag", obj[6]);
-			row.put("algorithm", obj[7]);
-			row.put("strand", obj[8]);
-			row.put("debug_field", obj[9]);
-			row.put("start_min", obj[10]);
-			row.put("start_max", obj[11]);
-			row.put("end_min", obj[12]);
-			row.put("end_max", obj[13]);
-			row.put("na_length", obj[14]);
-			row.put("product", obj[15]);
-			row.put("gene", obj[16]);
-			row.put("aa_length", obj[17]);
-			row.put("is_pseudo", obj[18]);
-			row.put("bound_moiety", obj[19]);
-			row.put("anticodon", obj[20]);
-			row.put("pseed_id", obj[21]);
-
-			if (key.get("to").equalsIgnoreCase("UniProtKB-ID")) {
-				row.put("uniprotkb_accession", obj[22]);
-				row.put("uniprot_id", obj[23]);
-			}
-			else if (key.get("to").equalsIgnoreCase("RefSeq Locus Tag")) {
-				row.put("refseq_source_id", obj[22]);
-			}
-			else if (key.get("to").equalsIgnoreCase("Gene ID")) {
-				row.put("gene_id", obj[22]);
-			}
-			else if (key.get("to").equalsIgnoreCase("GI")) {
-				row.put("gi_number", obj[22]);
-			}
-			else if (key.get("to").equalsIgnoreCase("RefSeq")) {
-				row.put("protein_id", obj[22]);
-			}
-			else if (key.get("to").equalsIgnoreCase("PATRIC Locus Tag")) {
-
-				if (key.get("from").equalsIgnoreCase("UniProtKB-ID")) {
-					row.put("uniprotkb_accession", obj[22]);
-					row.put("uniprot_id", obj[23]);
-				}
-				else if (key.get("from").equalsIgnoreCase("RefSeq Locus Tag")) {
-					row.put("refseq_source_id", obj[22]);
-				}
-				else if (key.get("from").equalsIgnoreCase("RefSeq")) {
-					row.put("protein_id", obj[22]);
-				}
-				else if (key.get("from").equalsIgnoreCase("Gene ID")) {
-					row.put("gene_id", obj[22]);
-				}
-				else if (key.get("from").equalsIgnoreCase("GI")) {
-					row.put("gi_number", obj[22]);
-				}
-				else if (!key.get("from").equalsIgnoreCase("PATRIC ID") && !key.get("from").equalsIgnoreCase("PSEED ID")) {
-					row.put("requested_data", obj[22]);
-				}
-			}
-			else if (!key.get("to").equalsIgnoreCase("PATRIC ID") && !key.get("to").equalsIgnoreCase("PATRIC Locus Tag")
-					&& !key.get("to").equalsIgnoreCase("PSEED ID")) {
-				row.put("requested_data", obj[22]);
-			}
-
-			results.add(row);
-		}
-
-		session.getTransaction().commit();
-
-		return results;
-	}
+//	public ArrayList<ResultType> getIDSearchResult(Map<String, String> key, Map<String, String> sort, int start, int end) {
+//		String sql = "";
+//
+//		sql = this.getIDSearchSQL(key, sort, "function");
+//
+//		Session session = factory.getCurrentSession();
+//		session.beginTransaction();
+//		SQLQuery q = session.createSQLQuery(sql);
+//
+//		if (end > 0) {
+//			q.setMaxResults(end);
+//		}
+//		q.setTimeout(300);
+//
+//		ScrollableResults scr = q.scroll();
+//		ArrayList<ResultType> results = new ArrayList<ResultType>();
+//		Object[] obj = null;
+//		if (start > 1) {
+//			scr.setRowNumber(start - 1);
+//		}
+//		else {
+//			scr.beforeFirst();
+//		}
+//
+//		for (int i = start; (end > 0 && i < end && scr.next() == true) || (end == -1 && scr.next() == true); i++) {
+//			obj = scr.get();
+//			ResultType row = new ResultType();
+//
+//			row.put("genome_info_id", obj[0]);
+//			row.put("genome_name", obj[1]);
+//			row.put("accession", obj[2]);
+//			row.put("na_feature_id", obj[3]);
+//			row.put("na_sequence_id", obj[4]);
+//			row.put("name", obj[5]);
+//			row.put("locus_tag", obj[6]);
+//			row.put("algorithm", obj[7]);
+//			row.put("strand", obj[8]);
+//			row.put("debug_field", obj[9]);
+//			row.put("start_min", obj[10]);
+//			row.put("start_max", obj[11]);
+//			row.put("end_min", obj[12]);
+//			row.put("end_max", obj[13]);
+//			row.put("na_length", obj[14]);
+//			row.put("product", obj[15]);
+//			row.put("gene", obj[16]);
+//			row.put("aa_length", obj[17]);
+//			row.put("is_pseudo", obj[18]);
+//			row.put("bound_moiety", obj[19]);
+//			row.put("anticodon", obj[20]);
+//			row.put("pseed_id", obj[21]);
+//
+//			if (key.get("to").equalsIgnoreCase("UniProtKB-ID")) {
+//				row.put("uniprotkb_accession", obj[22]);
+//				row.put("uniprot_id", obj[23]);
+//			}
+//			else if (key.get("to").equalsIgnoreCase("RefSeq Locus Tag")) {
+//				row.put("refseq_source_id", obj[22]);
+//			}
+//			else if (key.get("to").equalsIgnoreCase("Gene ID")) {
+//				row.put("gene_id", obj[22]);
+//			}
+//			else if (key.get("to").equalsIgnoreCase("GI")) {
+//				row.put("gi_number", obj[22]);
+//			}
+//			else if (key.get("to").equalsIgnoreCase("RefSeq")) {
+//				row.put("protein_id", obj[22]);
+//			}
+//			else if (key.get("to").equalsIgnoreCase("PATRIC Locus Tag")) {
+//
+//				if (key.get("from").equalsIgnoreCase("UniProtKB-ID")) {
+//					row.put("uniprotkb_accession", obj[22]);
+//					row.put("uniprot_id", obj[23]);
+//				}
+//				else if (key.get("from").equalsIgnoreCase("RefSeq Locus Tag")) {
+//					row.put("refseq_source_id", obj[22]);
+//				}
+//				else if (key.get("from").equalsIgnoreCase("RefSeq")) {
+//					row.put("protein_id", obj[22]);
+//				}
+//				else if (key.get("from").equalsIgnoreCase("Gene ID")) {
+//					row.put("gene_id", obj[22]);
+//				}
+//				else if (key.get("from").equalsIgnoreCase("GI")) {
+//					row.put("gi_number", obj[22]);
+//				}
+//				else if (!key.get("from").equalsIgnoreCase("PATRIC ID") && !key.get("from").equalsIgnoreCase("PSEED ID")) {
+//					row.put("requested_data", obj[22]);
+//				}
+//			}
+//			else if (!key.get("to").equalsIgnoreCase("PATRIC ID") && !key.get("to").equalsIgnoreCase("PATRIC Locus Tag")
+//					&& !key.get("to").equalsIgnoreCase("PSEED ID")) {
+//				row.put("requested_data", obj[22]);
+//			}
+//
+//			results.add(row);
+//		}
+//
+//		session.getTransaction().commit();
+//
+//		return results;
+//	}
 
 	private String getIDSearchSQL(Map<String, String> key, Map<String, String> sort, String where) {
 

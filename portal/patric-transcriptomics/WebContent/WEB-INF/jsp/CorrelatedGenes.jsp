@@ -70,7 +70,7 @@ Ext.onReady(function()
 		scm:[[checkbox,
 				{text:'Genome Name',		dataIndex:'genome_name',		flex:3,	align:'center', renderer:renderGenomeName},
 				{text:'Accession',			dataIndex:'accession',			flex:1,	hidden:true, align:'center', renderer:renderAccession},
-				{text:'SEED ID',			dataIndex:'seed_id',	    	flex:2,	align:'center', renderer:renderSeedId},
+				{text:'PATRIC ID',			dataIndex:'seed_id',	    	flex:2,	align:'center', renderer:renderSeedId},
 				{text:'Alt Locus Tag',		dataIndex:'alt_locus_tag',		flex:2,	align:'center', renderer:renderLocusTag},
 				{text:'RefSeq Locus Tag',	dataIndex:'refseq_locus_tag',	flex:2,	align:'center', renderer:BasicRenderer},
 				{text:'Gene Symbol',		dataIndex:'gene',				flex:1,	align:'center', renderer:BasicRenderer},

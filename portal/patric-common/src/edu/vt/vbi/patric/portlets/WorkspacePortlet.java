@@ -1153,7 +1153,7 @@ public class WorkspacePortlet extends GenericPortlet {
 						JSONArray items = (JSONArray) res.get("results");
 
 						out_sb.append(
-								"Feature Id\tGenome Name\tAccession\tSEED ID\tRefSeq Locus Tag\tAlt Locus Tag\tAnnotation\tFeature Type\tStart\tEnd\tLength(NT)\tStrand\t");
+								"Feature ID\tGenome Name\tAccession\tPATRIC ID\tRefSeq Locus Tag\tAlt Locus Tag\tAnnotation\tFeature Type\tStart\tEnd\tLength(NT)\tStrand\t");
 						out_sb.append("Protein Id\tLength(AA)\tGene Symbol\tProduct\n");
 
 						for (Object aItem : items) {
@@ -1180,7 +1180,7 @@ public class WorkspacePortlet extends GenericPortlet {
 						res = solr.getGenomesByID(key);
 						JSONArray items = (JSONArray) res.get("results");
 
-						out_sb.append("Genome Id\tGenome Name\tStatus\tHost\tDisease\tIsolation Country\tCollection Date\tCompletion Date\n");
+						out_sb.append("Genome ID\tGenome Name\tStatus\tHost\tDisease\tIsolation Country\tCollection Date\tCompletion Date\n");
 
 						for (Object aItem : items) {
 							JSONObject item = (JSONObject) aItem;

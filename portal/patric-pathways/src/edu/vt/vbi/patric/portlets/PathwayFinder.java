@@ -663,7 +663,7 @@ public class PathwayFinder extends GenericPortlet {
 		else if (request.getParameter("aT").equals("2")) {
 			_tbl_source = (JSONArray) this.processGeneTab(pathwayId, ecNumber, annotation, taxonId, genomeId, keyword).get("results");
 			_tbl_header.addAll(Arrays
-					.asList("Feature ID", "Genome Name", "Accession", "SEED ID", "RefSeq Locus Tag", "Alt Locus Tag", "Gene Symbol", "Product Name",
+					.asList("Feature ID", "Genome Name", "Accession", "PATRIC ID", "RefSeq Locus Tag", "Alt Locus Tag", "Gene Symbol", "Product Name",
 							"Annotation",
 							"Pathway ID", "Pathway Name", "Ec Number", "EC Description"));
 			_tbl_field.addAll(Arrays
@@ -709,7 +709,7 @@ public class PathwayFinder extends GenericPortlet {
 
 		_tbl_source = (JSONArray) this.processGeneTab(pathwayId, ecNumber, annotation, taxonId, genomeId, "").get("results");
 		_tbl_header.addAll(Arrays
-				.asList("Feature ID", "Genome Name", "Accession", "SEED ID", "RefSeq Locus Tag", "Alt Locus Tag", "Gene Symbol", "Product Name",
+				.asList("Feature ID", "Genome Name", "Accession", "PATRIC ID", "RefSeq Locus Tag", "Alt Locus Tag", "Gene Symbol", "Product Name",
 						"Annotation", "Pathway ID", "Pathway Name", "Ec Number", "EC Description"));
 		_tbl_field.addAll(Arrays
 				.asList("feature_id", "genome_name", "accession", "seed_id", "refseq_locus_tag", "alt_locus_tag", "gene", "product", "algorithm",

@@ -81,7 +81,7 @@ Ext.onReady(function()
 			{text:'ID',		            dataIndex:'figfam_id',		hidden: ('<%=length%>' > 1)?false:true, flex:1,	renderer:BasicRenderer},
 			{text:'Genome Name',		dataIndex:'genome_name',		hidden: false, flex:2,	renderer:renderGenomeName},
 			{text:'Accession',			dataIndex:'accession',			hidden: true,	flex:1, renderer:renderAccession},
-			{text:'SEED ID',			dataIndex:'seed_id',			flex:1, renderer:renderSeedId},
+			{text:'PATRIC ID',			dataIndex:'seed_id',			flex:1, renderer:renderSeedId},
 			{text:'RefSeq Locus Tag',	dataIndex:'refseq_locus_tag',	flex:1, renderer:BasicRenderer},
 			{text:'Alt Locus Tag',		dataIndex:'alt_locus_tag',			flex:1, renderer:renderLocusTag},
 			{text:'Gene Symbol',		dataIndex:'gene',		flex:1, renderer:BasicRenderer},

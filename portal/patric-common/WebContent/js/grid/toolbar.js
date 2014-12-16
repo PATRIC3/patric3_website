@@ -359,7 +359,7 @@ function createToolbar(type, download_option, workspace_type) {
 				text : '<b>PATRIC Identifiers</b>',
 				plain : true
 			}, {
-				text : 'SEED ID',
+				text : 'PATRIC ID',
 				handler : function() {
 					if (Page.exemptList.some(function(element, index, array) {
 							return property.name && property.name == element;
@@ -369,7 +369,7 @@ function createToolbar(type, download_option, workspace_type) {
 						callOperation('DoIDMapping', "seed_id", 'No item(s) are selected. To run id mapping tool, at least one item must be selected.');
 				}
 			}, {
-				text : 'PATRIC ID',
+				text : 'Feature ID',
 				handler : function() {
 					if (Page.exemptList.some(function(element, index, array) {
 							return property.name && property.name == element;

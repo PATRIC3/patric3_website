@@ -289,7 +289,7 @@
 			id = "requested_data";
 		}
 
-		ArrayList<ResultType> _tbl_source_ = conn_search.getIDSearchResult(key.toHashMap(), sort, 0, -1);
+//		ArrayList<ResultType> _tbl_source_ = conn_search.getIDSearchResult(key.toHashMap(), sort, 0, -1);
 		_tbl_source = new JSONArray();
 		JSONObject object = null;
 		for (ResultType obj : _tbl_source_) {
@@ -738,7 +738,7 @@
 
         _tbl_source = (JSONArray) jsonResult.get("results");
 
-		_tbl_header.addAll(Arrays.asList("Genome Name", "Accession", "SEED ID", "Alt Locus Tag", "RefSeq Locus Tag", "Gene Symbol", "Annotation",
+		_tbl_header.addAll(Arrays.asList("Genome Name", "Accession", "PATRIC ID", "Alt Locus Tag", "RefSeq Locus Tag", "Gene Symbol", "Annotation",
 				"Feature Type", "Start", "End", "Length(NT)", "Strand", "Protein ID", "Length(AA)", "Product Description", "Correlations",
 				"Comparisons"));
 		_tbl_field.addAll(Arrays.asList("genome_name", "accession", "seed_id", "alt_locus_tag", "refseq_locus_tag", "gene", "annotation", "feature_type",
@@ -806,7 +806,7 @@
 		JSONObject obj_t = (JSONObject) object_t.get("response");
 		_tbl_source = (JSONArray) obj_t.get("docs");
 
-		_tbl_header.addAll(Arrays.asList("Evidence", "Property", "Source", "Genome Name", "SEED ID", "RefSeq Locus Tag", "Alt Locus Tag", "Source ID",
+		_tbl_header.addAll(Arrays.asList("Evidence", "Property", "Source", "Genome Name", "PATRIC ID", "RefSeq Locus Tag", "Alt Locus Tag", "Source ID",
 				"Source Organism", "Gene", "Product", "Function", "Classification", "PubMed", "Subject Coverage", "Query Coverage",
 				"Identity", "E-value"));
 

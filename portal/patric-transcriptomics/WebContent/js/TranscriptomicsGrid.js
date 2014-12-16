@@ -237,7 +237,7 @@ function pickPanel() {
 				dataIndex : 'genome_name',
 				renderer : BasicRenderer
 			}, {
-				header : 'SEED ID',
+				header : 'PATRIC ID',
 				sortable : true,
 				flex : 1,
 				dataIndex : 'seed_id',
