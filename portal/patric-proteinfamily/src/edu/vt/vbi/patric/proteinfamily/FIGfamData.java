@@ -401,7 +401,7 @@ public class FIGfamData {
 		LOGGER.debug("getGroupStats() 1/3:{}", solr_query.toString());
 
 		try {
-			QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(solr_query);
+			QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(solr_query, SolrRequest.METHOD.POST);
 
 			NamedList<List<PivotField>> pivots = qr.getFacetPivot();
 

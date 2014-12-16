@@ -62,7 +62,7 @@ Click on a pathway name to view a pathway map.
 <script type="text/javascript" src="/patric-common/js/grid/copybutton.js"></script>
 <script type="text/javascript" src="/patric-common/js/grid/checkcolumn.js"></script>
 <script type="text/javascript" src="/patric-common/js/parameters.js"></script>
-<script type="text/javascript" src="/patric-common/js/grid/loadgrid.js"></script>
+<script type="text/javascript" src="/patric-common/js/grid/loadMemGrid.js"></script>
 <script type="text/javascript" src="/patric-common/js/grid/pagingbar.js"></script>
 <script type="text/javascript" src="/patric-common/js/grid/toolbar.js"></script>
 <script type="text/javascript" src="/patric-common/js/grid/gridoptions.js"></script>
@@ -72,6 +72,7 @@ Click on a pathway name to view a pathway map.
 <script type="text/javascript" src="/patric-pathways/js/comp_pathway_grids.js"></script>
 <script type="text/javascript" src="/patric-pathways/js/pathway_breadcrumb.js"></script>
 <script type="text/javascript" src="/patric/js/vbi/AddToWorkspace.min.js"></script>
+<script type="text/javascript" src="/patric/js/extjs/extjs/examples/ux/data/PagingMemoryProxy.js"></script>
 
 <script type="text/javascript">
 //<![CDATA[           

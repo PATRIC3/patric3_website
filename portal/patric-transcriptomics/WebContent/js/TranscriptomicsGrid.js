@@ -419,6 +419,7 @@ function pickPanel() {
 				this.store.removeAll();
 				Ext.getDom('grid_result_summary').innerHTML = "<b>No genes found</b><br/>";
 				Ext.get("sample-layout").mask('No results found');
+				$('#sample-layout').find('.x-mask-msg > div > div').css('background-image', 'none').css("padding", "5px 10px 5px 5px");
 			}
 		}
 	} else {
@@ -459,6 +460,7 @@ function pickPanel() {
 			this.isHeatMapLoaded = false;
 			Ext.getDom('grid_result_summary').innerHTML = "<b>No genes found</b><br/>";
 			Ext.get("sample-layout").mask('No results found');
+			$('#sample-layout').find('.x-mask-msg > div > div').css('background-image', 'none').css("padding", "5px 10px 5px 5px");
 
 		}
 	}

@@ -314,7 +314,7 @@ public class PathwayFinder extends GenericPortlet {
 					"{stat:{field:{field:pathway_id,limit:-1,facet:{genome_count:\"unique(genome_id)\",gene_count:\"unique(feature_id)\",ec_count:\"unique(ec_number)\",genome_ec:\"unique(genome_ec)\"}}}}");
 
 			LOGGER.debug("processPathwayTab 1:{}", query.toString());
-			QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query);
+			QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query, SolrRequest.METHOD.POST);
 			List<SimpleOrderedMap> buckets = (List) ((SimpleOrderedMap) ((SimpleOrderedMap) qr.getResponse().get("facets")).get("stat")).get(
 					"buckets");
 
@@ -435,7 +435,7 @@ public class PathwayFinder extends GenericPortlet {
 			query.add("json.facet",
 					"{stat:{field:{field:pathway_ec,limit:-1,facet:{genome_count:\"unique(genome_id)\",gene_count:\"unique(feature_id)\",ec_count:\"unique(ec_number)\"}}}}");
 
-			QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query);
+			QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query, SolrRequest.METHOD.POST);
 
 			List<SimpleOrderedMap> buckets = (List) ((SimpleOrderedMap) ((SimpleOrderedMap) qr.getResponse().get("facets")).get("stat"))
 					.get("buckets");

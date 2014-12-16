@@ -6,7 +6,7 @@ function MaskGrid(total, fn) {
 		if (Ext.getDom("grid_result_summary")) {
 			Ext.getDom("grid_result_summary").innerHTML = "<b>0 results found</b>";
 			Ext.get("PATRICGrid").mask('No results found');
-			$('#PATRICGrid').find('.x-mask-msg > div').css('background-image', 'none').css("padding", "5px 10px 5px 5px");
+			$('#PATRICGrid').find('.x-mask-msg > div > div').css('background-image', 'none').css("padding", "5px 10px 5px 5px");
 		}
 	}
 }

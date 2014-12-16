@@ -72,6 +72,7 @@ function loadFBCD() {
 			    {header:'Genome Name', flex:2, dataIndex: 'genome_name', renderer:renderGenomeName},
                 {header:'Accession', flex:1, align:'center', hidden: true, dataIndex: 'accession', renderer:renderAccession},
 			    {header:'Seed ID', flex:1, align:'center', dataIndex: 'seed_id', renderer:renderSeedId},
+			    {header:'RefSeq Locus Tag', flex:1, align:'center', dataIndex: 'refseq_locus_tag', renderer:renderLocusTag},
 			    {header:'Alt Locus Tag', flex:1, align:'center', dataIndex: 'alt_locus_tag', renderer:renderLocusTag},
 			    {header: header, flex:1, align:'center', dataIndex: requested_data, renderer:renderURL},
 			    {header:'Genome Browser', flex:1, hidden: true, dataIndex:'feature_id', align:'center', renderer:renderGenomeBrowserByFeatureIDMapping},

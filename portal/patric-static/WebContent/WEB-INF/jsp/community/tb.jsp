@@ -9,29 +9,10 @@
 <%@ page import="org.json.simple.JSONObject" %>
 <%@ page import="org.json.simple.JSONArray" %>
 <%
-int mtbTaxon = 77643;//1773;
-SolrInterface solr = new SolrInterface();
-Map<Object,Object> genomes = new HashMap<Object,Object>();
-int cntExperiments = -1;
-JSONObject res = null;
-ResultType key = new ResultType();
-JSONArray docs = null;
 
-// getting genome count
-solr.setCurrentInstance(SolrCore.TAXONOMY);
-key.put("keyword", "taxon_id:(1773 OR 77643)");
-res = solr.getData(key, null, null, 0, 3, false, false, false);
-docs = (JSONArray)((JSONObject)res.get("response")).get("docs");
-
-for (Object tx:docs) {
-	JSONObject taxonomy = (JSONObject)tx;
-	genomes.put(taxonomy.get("taxon_id"),taxonomy.get("genomes"));
-}
-
-// getting expression data count
-DBTranscriptomics conn_transcriptopics = new DBTranscriptomics();
-List<String> items = conn_transcriptopics.getEIDs("1763");
-cntExperiments = items.size();
+Map<Integer, Integer> genomes = (Map<Integer, Integer>) request.getAttribute("genomes");
+int cntExperiments = (Integer) request.getAttribute("cntExperiments");
+int mtbTaxon = (Integer) request.getAttribute("mtbTaxon");
 
 %>
 <script type="text/javascript">
@@ -47,7 +28,6 @@ function searchGenome() {
 	cType = "taxon";
 	genomeId = "";
 	keyword = Ext.getDom("keyword_genome").value;
-	//searchbykeyword(taxonId, 'taxon');
 
 	var object = {};
 	if (keyword == "" || keyword == "*") { 
@@ -69,8 +49,8 @@ function searchGenome() {
 			for(var i=1; i< genomes.ids.length; i++) {
 				ids += "##"+genomes.ids[i].id;
 			}
-			ids +="##59918##75906"; //add two outgroup genomes 
-			object["gid"] = ids;
+			ids += "##246196.19##216594.6"; //add two outgroup genomes
+			object["genome_id"] = ids;
 			search__(constructKeyword(object, name), cId, cType);
 		}
 	});
@@ -123,12 +103,12 @@ function searchFeature() {
 				if (outgroup.length > 0) {
 					ids += "##"+outgroup.join("##");
 				}
-				object["gid"] = ids;
+				object["genome_id"] = ids;
 				search__(constructKeyword(object, name), cId, cType);
 			}
 		});
 	} else {
-		object["gid"] = genomeId;
+		object["genome_id"] = genomeId;
 		search__(constructKeyword(object, name), cId, cType);
 	}
 }
@@ -176,12 +156,12 @@ function searchSpecialtyGene() {
 				for(var i=1; i< genomes.ids.length; i++) {
 					ids += "##"+genomes.ids[i].id;
 				}
-				object["genome_info_id"] = ids;
+				object["genome_id"] = ids;
 				search__(constructKeyword(object, name), cId, cType);
 			}
 		});
 	} else {
-		object["genome_info_id"] = genomeId;
+		object["genome_id"] = genomeId;
 		search__(constructKeyword(object, name), cId, cType);
 	}
 }
@@ -252,7 +232,7 @@ function launchCPT() {
 		params: {cType: "taxon", cId:<%=mtbTaxon%> , genomeId:genomeId, algorithm:"", status:""},
 		success: function(response, opts) {
 			genomes = Ext.JSON.decode(response.responseText);
-			var ids="59918,75906";
+			var ids = "246196.19,216594.6";
 			for(var i=0; i< genomes.ids.length; i++)
 				ids += ","+genomes.ids[i].id;
 			_launchCPT(ids);
@@ -285,7 +265,7 @@ function launchPFS() {
 		params: {cType: "taxon", cId:<%=mtbTaxon%> , genomeId:genomeId, algorithm:"", status:""},
 		success: function(response, opts) {
 			genomes = Ext.JSON.decode(response.responseText);
-			var ids="59918,75906";
+			var ids = "246196.19,216594.6"; // "246196.19,216594.6";
 			for(var i=0; i< genomes.ids.length; i++)
 				ids += ","+genomes.ids[i].id;
 			_launchPFS(ids);
@@ -300,7 +280,7 @@ function _launchPFS(idList) {
 		timeout: 600000,
 		params: {callType: "toSorter", genomeIds: idList, keyword:""},
 		success: function(rs) {
-			document.location.href = "FIGfam?bm=tool&dm=result&pk=" + rs.responseText + "#gs_0=0";
+			document.location.href = "FIGfam?cType=taxon&cId=<%=mtbTaxon%>&bm=tool&dm=result&pk=" + rs.responseText + "#gs_0=0";
 		}
 	});
 }
@@ -367,9 +347,9 @@ function launchTranscriptomicsUploader() {
 					<div id="tb-home-genomes" class="no-underline-links">
 						<table class="far">
 							<tr>
-								<td style="width:280px"><a href="Genome?cType=genome&amp;cId=87468">Mycobacterium tuberculosis H37Rv</a></td>
+								<td style="width:280px"><a href="Genome?cType=genome&amp;cId=83332.12">Mycobacterium tuberculosis H37Rv</a></td>
 								<td>
-									<a href="FeatureTable?cType=genome&amp;cId=87468&amp;featuretype=CDS&amp;annotation=PATRIC&amp;filtertype="><img src="/patric/images/icon_table.gif" alt="Feature Table" title="Feature Table"></a>
+									<a href="FeatureTable?cType=genome&amp;cId=83332.12&amp;featuretype=CDS&amp;annotation=PATRIC&amp;filtertype="><img src="/patric/images/icon_table.gif" alt="Feature Table" title="Feature Table"></a>
 								</td>
 							</tr>
 							<tr>
@@ -385,15 +365,15 @@ function launchTranscriptomicsUploader() {
 								</td>
 							</tr>
 							<tr>
-								<td><a href="Genome?cType=genome&amp;cId=59918">Mycobacterium smegmatis str. MC2 155</a></td>
+								<td><a href="Genome?cType=genome&amp;cId=246196.19">Mycobacterium smegmatis str. MC2 155</a></td>
 								<td>
-									<a href="FeatureTable?cType=genome&amp;cId=59918&amp;featuretype=CDS&amp;annotation=PATRIC&amp;filtertype="><img src="/patric/images/icon_table.gif" alt="Feature Table" title="Feature Table"></a>
+									<a href="FeatureTable?cType=genome&amp;cId=246196.19&amp;featuretype=CDS&amp;annotation=PATRIC&amp;filtertype="><img src="/patric/images/icon_table.gif" alt="Feature Table" title="Feature Table"></a>
 								</td>
 							</tr>
 							<tr>
-								<td><a href="Genome?cType=genome&amp;cId=75906">Mycobacterium marinum M</a></td>
+								<td><a href="Genome?cType=genome&amp;cId=216594.6">Mycobacterium marinum M</a></td>
 								<td>
-									<a href="FeatureTable?cType=genome&amp;cId=75906&amp;featuretype=CDS&amp;annotation=PATRIC&amp;filtertype="><img src="/patric/images/icon_table.gif" alt="Feature Table" title="Feature Table"></a>
+									<a href="FeatureTable?cType=genome&amp;cId=216594.6&amp;featuretype=CDS&amp;annotation=PATRIC&amp;filtertype="><img src="/patric/images/icon_table.gif" alt="Feature Table" title="Feature Table"></a>
 								</td>
 							</tr>
 						</table>
@@ -451,13 +431,13 @@ function launchTranscriptomicsUploader() {
 						<form action="#" onsubmit="return false;">
 							<div class="left">
 								<input type="radio" name="scope" value="83332" checked="checked"> H37Rv Reference Genome <br/>
-								<input type="radio" name="scope" value="1773"> Mtb genomes (<%=genomes.get("1773") %> genomes) <br/>
-								<input type="radio" name="scope" value="77643"> Mtb complex genomes (<%=genomes.get("77643") %> genomes) <br/>
+								<input type="radio" name="scope" value="1773"> Mtb genomes (<%=genomes.get(1773) %> genomes) <br/>
+								<input type="radio" name="scope" value="77643"> Mtb complex genomes (<%=genomes.get(77643) %> genomes) <br/>
 							</div>
 							<div class="left" style="margin:0px 0px 10px 30px;padding-left:5px;border-left:1px dashed #DFDFEF">
 								<span class="bold">Include:</span><br/>
-								<input type="checkbox" name="outgroup" value="59918"> M.smegmatis str. MC2 155 <br/>
-								<input type="checkbox" name="outgroup" value="75906"> M.marinum M
+								<input type="checkbox" name="outgroup" value="246196.19"> M.smegmatis str. MC2 155 <br/>
+								<input type="checkbox" name="outgroup" value="216594.6"> M.marinum M
 							</div>
 							<div class="clear"></div>
 							<input type="text" id="keyword_feature" style="width:440px">
@@ -482,11 +462,11 @@ function launchTranscriptomicsUploader() {
 								<input type="checkbox" name="property" value="Human Homolog"> Human Homolog<br/>
 								<input type="checkbox" name="property" value="Virulence Factor"> Virulence Factor<br/>
 							</div>
-							<div class="left" style="margin:0px 0px 10px 30px;padding-left:5px;border-left:1px dashed #DFDFEF">
+							<div class="left" style="margin:0px 0px 10px 25px;padding-left:5px;border-left:1px dashed #DFDFEF">
 								<span class="bold">In:</span><br/>
 								<input type="radio" name="scope" value="83332" checked="checked"> H37Rv Reference Genome <br/>
-								<input type="radio" name="scope" value="1773"> Mtb genomes (<%=genomes.get("1773") %> genomes) <br/>
-								<input type="radio" name="scope" value="77643"> Mtb complex genomes (<%=genomes.get("77643") %> genomes) <br/>
+								<input type="radio" name="scope" value="1773"> Mtb genomes (<%=genomes.get(1773) %> genomes) <br/>
+								<input type="radio" name="scope" value="77643"> Mtb complex genomes (<%=genomes.get(77643) %> genomes) <br/>
 							</div>
 							<div class="clear"></div>
 							<input type="text" id="keyword_spgene" style="width:440px">
