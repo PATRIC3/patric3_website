@@ -36,15 +36,15 @@ import="java.net.MalformedURLException" %><%
 	try {
         SolrQuery query = new SolrQuery("*:*");
 
-        if (cType.equals("taxon")) {
+        if (cType != null && cType.equals("taxon")) {
             query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + cId + " AND genome_status:(complete OR wgs)"));
         }
-        else if (cType.equals("genome")) {
+        else if (cType != null && cType.equals("genome")) {
             query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "genome_id:(" + cId + ") AND genome_status:(complete OR wgs)"));
         }
 
         if (map != null && !map.equals("")) {
-            query.addFilterQuery("pathway_id:(" + map + ")");
+            query.addFilterQuery("pathway_id:(" + map.replaceAll(",", " OR ") + ")");
         }
 
         if (algorithm != null && !algorithm.equals("")) {
@@ -52,7 +52,11 @@ import="java.net.MalformedURLException" %><%
         }
 
         if (ec_number != null && !ec_number.equals("")) {
-            query.addFilterQuery("ec_number:(" + ec_number + ")");
+            query.addFilterQuery("ec_number:(" + ec_number.replaceAll(",", " OR ") + ")");
+        }
+
+        if (featureList != null && !featureList.equals("")) {
+            query.addFilterQuery("feature_id:(" + featureList.replaceAll(",", " OR ") + ")");
         }
 
         query.setRows(500000).setFields("feature_id");

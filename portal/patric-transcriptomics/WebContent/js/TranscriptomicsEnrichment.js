@@ -29,12 +29,12 @@ function getSelectedFeatures() {
 		params : {
 			map : pid.join(','),
 			featureList : Ext.getDom("featureList").value,
-			algorithm : "'RAST'"
+			algorithm : "'PATRIC'"
 		},
 		success : function(response, opts) {
 			na_features = Ext.JSON.decode(response.responseText);
-			for ( i = 0; i < na_features.genes.length; i++)
-				property.fids.push(na_features.genes[i].genes);
+			for ( i = 0; i < na_features.length; i++)
+				property.fids.push(na_features[i]);
 		}
 	});
 }
