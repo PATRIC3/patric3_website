@@ -45,25 +45,16 @@ public class LostPasswordAction extends org.jboss.portal.core.identity.ui.action
 
 	private static final Logger log = Logger.getLogger(LostPasswordAction.class);
 
-	private IdentityUserBean identityUserBean;
-
 	private String email;
 
 	public void setEmail(String email) {
 		this.email = email;
 	}
 
-	public IdentityUserBean getIdentityUserBean() {
-		return identityUserBean;
-	}
-
-	public void setIdentityUserBean(IdentityUserBean identityUserBean) {
-		this.identityUserBean = identityUserBean;
-	}
-
 	public String doomed() {
 
-		User user = null;
+		User user;
+		IdentityUserBean identityUserBean = (IdentityUserBean) super.getIdentityUserBean();
 		ResourceBundle bundle = ResourceBundle.getBundle("conf.bundles.Identity", FacesContext.getCurrentInstance()
 				.getViewRoot().getLocale());
 
