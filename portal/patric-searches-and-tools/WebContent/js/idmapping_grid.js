@@ -30,7 +30,7 @@ function loadFBCD() {
     }
 	else if (hash.to == "seed_id") {
 		if (hash.from == "refseq_locus_tag") {
-		    header = "RefSeq Locus Tag"
+		    header = "RefSeq Locus Tag";
 			requested_data = hash.from;
 		}
 		else if (hash.from == "protein_id") {
@@ -39,14 +39,14 @@ function loadFBCD() {
 		}
 		else if (hash.from == "gene_id") {
 		    header = "Gene ID";
-			requested_data = hash.from;;
+			requested_data = hash.from;
 		}
 		else if (hash.from == "gi") {
 		    header = "GI";
 			requested_data = hash.from;
 		}
 		else if (hash.from == "feature_id") {
-		    header = "PATRIC ID";
+		    header = "Feature ID";
 			requested_data = hash.from;
 		}
 		else if (hash.from == "alt_locus_tag") {
@@ -54,7 +54,7 @@ function loadFBCD() {
 			requested_data = hash.from;
 		}
 		else if (hash.from == "seed_id") {
-		    header = "Seed ID";
+		    header = "PATRIC ID";
 		    requested_data = hash.from;
 		}
 		else {
@@ -71,7 +71,7 @@ function loadFBCD() {
 			property.scm[which] =  [checkbox,
 			    {header:'Genome Name', flex:2, dataIndex: 'genome_name', renderer:renderGenomeName},
                 {header:'Accession', flex:1, align:'center', hidden: true, dataIndex: 'accession', renderer:renderAccession},
-			    {header:'Seed ID', flex:1, align:'center', dataIndex: 'seed_id', renderer:renderSeedId},
+			    {header:'PATRIC ID', flex:1, align:'center', dataIndex: 'seed_id', renderer:renderSeedId},
 			    {header:'RefSeq Locus Tag', flex:1, align:'center', dataIndex: 'refseq_locus_tag', renderer:renderLocusTag},
 			    {header:'Alt Locus Tag', flex:1, align:'center', dataIndex: 'alt_locus_tag', renderer:renderLocusTag},
 			    {header: header, flex:1, align:'center', dataIndex: requested_data, renderer:renderURL},
@@ -107,7 +107,8 @@ function DownloadFile() {"use strict";
 
 	var form = Ext.getDom("fTableForm");
 
-	form.action = "/patric-searches-and-tools/jsp/grid_download_handler.jsp";
+	// form.action = "/patric-searches-and-tools/jsp/grid_download_handler.jsp";
+	form.action = "/portal/portal/patric/IDMapping/IDMappingWindow?action=b&cacheability=PAGE&sraction=download";
 	form.fileformat.value = arguments[0];
 	form.target = "";
 	getHashFieldsToDownload(form);
@@ -123,24 +124,24 @@ function renderGenomeBrowserByFeatureIDMapping(value, p, record) {
 
 function CallBack() {
 	var Page = $Page, property = Page.getPageProperties(), hash = property.hash, which = hash.hasOwnProperty('cat') ? hash.cat : hash.aT ? hash.aT : 0, store = Page.getStore(which), requested_data = "id";
-/*
-	if (hash.to == "UniProtKB-ID")
-		requested_data = "uniprotkb_accession";
-	else if (hash.to == "RefSeq Locus Tag")
-		requested_data = "refseq_source_id";
-	else if (hash.to == "RefSeq")
-		requested_data = "rm.protein_id";
-	else if (hash.to == "Gene ID")
-		requested_data = "gene_id";
-	else if (hash.to == "GI")
-		requested_data = "gi_number";
-	else if (hash.to == "PATRIC Locus Tag")
-		requested_data = "source_id";
-	else if (hash.to == "PATRIC ID")
-		requested_data = "na_feature_id";
-	else if (hash.to == "PSEED ID")
-		requested_data = "pseed_id";
-*/
+
+//	if (hash.to == "UniProtKB-ID")
+//		requested_data = "uniprotkb_accession";
+//	else if (hash.to == "RefSeq Locus Tag")
+//		requested_data = "refseq_source_id";
+//	else if (hash.to == "RefSeq")
+//		requested_data = "rm.protein_id";
+//	else if (hash.to == "Gene ID")
+//		requested_data = "gene_id";
+//	else if (hash.to == "GI")
+//		requested_data = "gi_number";
+//	else if (hash.to == "PATRIC Locus Tag")
+//		requested_data = "source_id";
+//	else if (hash.to == "PATRIC ID")
+//		requested_data = "na_feature_id";
+//	else if (hash.to == "PSEED ID")
+//		requested_data = "pseed_id";
+//
 //	Ext.Ajax.request({
 //		url : "/patric-searches-and-tools/jsp/get_idmapping_to_count.json.jsp",
 //		method : 'POST',

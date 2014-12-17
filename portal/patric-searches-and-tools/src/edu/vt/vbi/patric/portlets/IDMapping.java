@@ -16,6 +16,7 @@
 package edu.vt.vbi.patric.portlets;
 
 import edu.vt.vbi.patric.beans.GenomeFeature;
+import edu.vt.vbi.patric.common.ExcelHelper;
 import edu.vt.vbi.patric.common.SiteHelper;
 import edu.vt.vbi.patric.common.SolrCore;
 import edu.vt.vbi.patric.common.SolrInterface;
@@ -96,58 +97,132 @@ public class IDMapping extends GenericPortlet {
 			writer.close();
 		}
 		else if (sraction != null && sraction.equals("filters")) {
-
 			// this.responseWriteFilters(response);
 			this.responseWriteFiltersStatic(response);
 		}
+		else if (sraction != null && sraction.equals("download")) {
+			processDownload(request, response);
+		}
 		else {
-
 			String pk = request.getParameter("pk");
 
-			// String start_id = request.getParameter("start");
-			// String limit = request.getParameter("limit");
-			// int start = Integer.parseInt(start_id);
-			// int end = start + Integer.parseInt(limit);
 			PortletSession session = request.getPortletSession();
 			ResultType key = (ResultType) session.getAttribute("key" + pk);
 
-			// TODO: implement sorting, paging
-			// sorting
-			//			Map<String, String> sort = null;
-			//			if (request.getParameter("sort") != null) {
-			//				// sorting
-			//				JSONParser a = new JSONParser();
-			//				JSONArray sorter;
-			//				String sort_field = "";
-			//				String sort_dir = "";
-			//				try {
-			//					sorter = (JSONArray) a.parse(request.getParameter("sort"));
-			//					sort_field += ((JSONObject) sorter.get(0)).get("property").toString();
-			//					sort_dir += ((JSONObject) sorter.get(0)).get("direction").toString();
-			//					for (int i = 1; i < sorter.size(); i++) {
-			//						sort_field += "," + ((JSONObject) sorter.get(i)).get("property").toString();
-			//					}
-			//				}
-			//				catch (ParseException e) {
-			//					LOGGER.error(e.getMessage(), e);
-			//				}
-			//
-			//				sort = new HashMap<>();
-			//
-			//				if (!sort_field.equals("") && !sort_dir.equals("")) {
-			//					sort.put("field", sort_field);
-			//					sort.put("direction", sort_dir);
-			//				}
-			//
-			//			}
-
 			LOGGER.debug("id mapping param: {}", key);
 
-			JSONObject jsonResult = this
-					.processIDMapping(key.get("from"), key.get("fromGroup"), key.get("to"), key.get("toGroup"), key.get("keyword"));
+			JSONObject jsonResult = processIDMapping(key.get("from"), key.get("fromGroup"), key.get("to"), key.get("toGroup"), key.get("keyword"));
 
 			response.setContentType("application/json");
 			jsonResult.writeJSONString(response.getWriter());
+		}
+	}
+
+	private void processDownload(ResourceRequest request, ResourceResponse response) throws PortletException, IOException {
+
+		String paramFrom = request.getParameter("from");
+		String paramFromGroup = request.getParameter("fromGroup");
+		String paramTo = request.getParameter("to");
+		String paramToGroup = request.getParameter("toGroup");
+		String paramKeyword = request.getParameter("keyword");
+
+		String _header, _field;
+
+		switch (paramTo) {
+		case "refseq_locus_tag":
+			_header = "RefSeq Locus Tag";
+			_field = paramTo;
+			break;
+		case "protein_id":
+			_header = "Protein ID";
+			_field = paramTo;
+			break;
+		case "gene_id":
+			_header = "Gene ID";
+			_field = paramTo;
+			break;
+		case "gi":
+			_header = "GI";
+			_field = paramTo;
+			break;
+		case "feature_id":
+			_header = "PATRIC ID";
+			_field = paramTo;
+			break;
+		case "alt_locus_tag":
+			_header = "Alt Locus Tag";
+			_field = paramTo;
+			break;
+		case "seed_id":
+			switch (paramFrom) {
+			case "refseq_locus_tag":
+				_header = "RefSeq Locus Tag";
+				_field = paramFrom;
+				break;
+			case "protein_id":
+				_header = "RefSeq";
+				_field = paramFrom;
+				break;
+			case "gene_id":
+				_header = "Gene ID";
+				_field = paramFrom;
+				break;
+			case "gi":
+				_header = "GI";
+				_field = paramFrom;
+				break;
+			case "feature_id":
+				_header = "Feature ID";
+				_field = paramFrom;
+				break;
+			case "alt_locus_tag":
+				_header = "Alt Locus Tag";
+				_field = paramFrom;
+				break;
+			case "seed_id":
+				_header = "PATRIC ID";
+				_field = paramFrom;
+				break;
+			default:
+				_header = paramFrom;
+				_field = "target";
+				break;
+			}
+			break;
+		default:
+			_header = paramTo;
+			_field = "target";
+			break;
+		}
+
+		JSONArray _tbl_source;
+		List<String> _tbl_header = Arrays.asList("Genome", "Accession", "PATRIC ID", "RefSeq Locus Tag", "Alt Locus Tag", _header, "Annotation", "Feature Type", "Start", "End",
+				"Length(NT)", "Strand", "Length (AA)", "Product Description");
+		List<String> _tbl_field = Arrays.asList("genome_name", "accession", "seed_id", "refseq_locus_tag", "alt_locus_tag", _field, "annotation", "feature_type", "start", "end",
+						"na_length", "strand", "aa_length", "product");
+
+		String fileFormat = request.getParameter("fileformat");
+		String fileName = "IDMapping";
+
+		JSONObject jsonResult = processIDMapping(paramFrom, paramFromGroup, paramTo, paramToGroup, paramKeyword);
+		_tbl_source = (JSONArray) jsonResult.get("results");
+
+		ExcelHelper excel = new ExcelHelper("xssf", _tbl_header, _tbl_field, _tbl_source);
+		excel.buildSpreadsheet();
+
+		if (fileFormat.equalsIgnoreCase("xlsx")) {
+
+			response.setContentType("application/octetstream");
+			response.setProperty("Content-Disposition", "attachment; filename=\"" + fileName + "." + fileFormat + "\"");
+
+			excel.writeSpreadsheettoBrowser(response.getPortletOutputStream());
+		}
+		else if (fileFormat.equalsIgnoreCase("txt")) {
+
+			response.setContentType("application/octetstream");
+			response.setProperty("Content-Disposition", "attachment; filename=\"" + fileName + "." + fileFormat + "\"");
+
+			response.getWriter().write(excel.writeToTextFile());
 		}
 	}
 
@@ -170,7 +245,7 @@ public class IDMapping extends GenericPortlet {
 						query.addFilterQuery(toId + ":[1 TO *]");
 					}
 
-					LOGGER.debug("PATRIC TO PATRIC: {}", query.toString());
+					LOGGER.trace("PATRIC TO PATRIC: {}", query.toString());
 					QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query, SolrRequest.METHOD.POST);
 					List<GenomeFeature> featureList = qr.getBeans(GenomeFeature.class);
 
@@ -277,8 +352,8 @@ public class IDMapping extends GenericPortlet {
 				SolrQuery query = new SolrQuery("id_value:(" + keyword + ")");
 				query.addFilterQuery("id_type:" + fromId).setRows(10000).addField("uniprotkb_accession,id_value");
 
-				LOGGER.debug("Other to PATRIC 1/3: {}", query.toString());
-				QueryResponse qr = solr.getSolrServer(SolrCore.ID_REF).query(query);
+				LOGGER.trace("Other to PATRIC 1/3: {}", query.toString());
+				QueryResponse qr = solr.getSolrServer(SolrCore.ID_REF).query(query, SolrRequest.METHOD.POST);
 				SolrDocumentList accessions = qr.getResults();
 
 				for (SolrDocument doc : accessions) {
@@ -293,8 +368,8 @@ public class IDMapping extends GenericPortlet {
 				SolrQuery query = new SolrQuery("uniprotkb_accession:(" + StringUtils.join(accessionTargetMap.keySet(), " OR ") + ")");
 				query.addFilterQuery("id_type:GI").setRows(10000);
 
-				LOGGER.debug("Other to PATRIC 2/3: {}", query.toString());
-				QueryResponse qr = solr.getSolrServer(SolrCore.ID_REF).query(query);
+				LOGGER.trace("Other to PATRIC 2/3: {}", query.toString());
+				QueryResponse qr = solr.getSolrServer(SolrCore.ID_REF).query(query, SolrRequest.METHOD.POST);
 				SolrDocumentList accessions = qr.getResults();
 
 				for (SolrDocument doc : accessions) {
@@ -313,13 +388,13 @@ public class IDMapping extends GenericPortlet {
 				LOGGER.error(e.getMessage(), e);
 			}
 
-			LOGGER.debug("giTargetList:{}", giTargetList);
+			LOGGER.trace("giTargetList:{}", giTargetList);
 			try {
 				SolrQuery query = new SolrQuery("gi:(" + StringUtils.join(giList, " OR ") + ")");
 				query.setRows(10000);
 
-				LOGGER.debug("Other to PATRIC 3/3: {}", query.toString());
-				QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query);
+				LOGGER.trace("Other to PATRIC 3/3: {}", query.toString());
+				QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query, SolrRequest.METHOD.POST);
 				List<GenomeFeature> featureList = qr.getBeans(GenomeFeature.class);
 
 				for (GenomeFeature feature : featureList) {

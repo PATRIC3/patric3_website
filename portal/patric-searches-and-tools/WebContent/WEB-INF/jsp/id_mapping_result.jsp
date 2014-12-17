@@ -9,11 +9,13 @@ String cId = request.getParameter("context_id");
 String pk = request.getParameter("param_key");
 
 ResultType key = (ResultType) portletSession.getAttribute("key"+pk);
-String to = "", from = "", keyword = "";
+String to = "", toGroup = "", from = "", fromGroup = "", keyword = "";
 
 if(key != null){
 	to = key.get("to");
+	toGroup = key.get("toGroup");
 	from = key.get("from");
+	fromGroup = key.get("fromGroup");
 	keyword = key.get("keyword");
 }
 String renderURL = "";
@@ -39,7 +41,9 @@ int keyword_size = x.replaceAll("[,\\s]+",",").split(",").length;
 	<input type="hidden" id="cType" name="cType" value="<%=cType %>" />
 	<input type="hidden" id="keyword" name="keyword" value="<%=keyword %>" />
 	<input type="hidden" id="to" name="to" value="<%=to %>" />
+	<input type="hidden" id="toGroup" name="toGroup" value="<%=toGroup %>" />
 	<input type="hidden" id="from" name="from" value="<%=from %>" />
+	<input type="hidden" id="fromGroup" name="fromGroup" value="<%=fromGroup %>" />
 </form>
 <div style="padding:3px;">
 	<input type="button" class="button leftarrow" id="search_modify" value="Modify Search Criteria" onclick="returntoSearchPage();"/>
