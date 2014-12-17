@@ -475,11 +475,11 @@ function linkFeature(id) {
 function createPopup(feature) {
   var strFeature = Ext.String.format("{0}{1}{2}", feature.seed_id, (feature.refseq_locus_tag != null ? " | " + feature.refseq_locus_tag : ""),
           (feature.gene != null ? " | " + feature.gene : ""));
-  var strLoc = Ext.String.format("{0}: {1}..{2} ({3})", feature.feature_type, feature.start_max, feature.end_min, feature.strand);
+  var strLoc = Ext.String.format("{0}: {1}..{2} ({3})", feature.feature_type, feature.start, feature.end, feature.strand);
 
   var linkFeature = Ext.String.format("Feature?cType=feature&cId={0}", feature.feature_id);
-  var linkGB = Ext.String.format("GenomeBrowser?cType=feature&cId={0}&loc={1}..{2}&tracks=DNA,PATRICGenes", feature.feature_id, feature.start_max,
-          feature.end_min);
+  var linkGB = Ext.String.format("GenomeBrowser?cType=feature&cId={0}&loc={1}..{2}&tracks=DNA,PATRICGenes", feature.feature_id, feature.start,
+          feature.end);
   var linkCRV = Ext.String.format("CompareRegionViewer?cType=feature&cId={0}&tracks=&regions=5&window=10000&loc=1..10000", feature.feature_id);
   var linkPW = Ext.String.format("PathwayTable?cType=feature&cId={0}", feature.feature_id);
   var linkTR = Ext.String.format("TranscriptomicsGeneExp?cType=feature&cId={0}&sampleId=&colId=&log_ratio=&zscore=", feature.feature_id);
