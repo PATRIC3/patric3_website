@@ -1,24 +1,22 @@
-<%@ page import="java.util.*" %>
-<%@ page import="edu.vt.vbi.patric.dao.DBPathways" %>
-<%@ page import="edu.vt.vbi.patric.dao.DBSummary" %>
-<%@ page import="edu.vt.vbi.patric.dao.ResultType" %>
-<%@ page import="org.json.simple.*" %>
-<%@ page import="org.slf4j.Logger" %>
-<%@ page import="org.slf4j.LoggerFactory" %>
-<%@ page import="edu.vt.vbi.patric.beans.Genome" %>
-<%@ page import="edu.vt.vbi.patric.common.SolrCore" %>
-<%@ page import="edu.vt.vbi.patric.common.SolrInterface" %>
-<%@ page import="org.apache.commons.lang.StringUtils" %>
-<%@ page import="org.apache.solr.client.solrj.SolrQuery" %>
-<%@ page import="org.apache.solr.client.solrj.SolrRequest" %>
-<%@ page import="org.apache.solr.client.solrj.SolrServerException" %>
-<%@ page import="org.apache.solr.client.solrj.response.FacetField" %>
-<%@ page import="org.apache.solr.client.solrj.response.QueryResponse" %>
-<%@ page import="org.apache.solr.common.SolrDocument" %>
-<%@ page import="org.apache.solr.common.SolrDocumentList" %>
-<%@ page import="org.apache.solr.common.util.SimpleOrderedMap" %>
-<%@ page import="java.net.MalformedURLException" %>
-<%
+<%@ page import="java.util.*"
+%><%@ page import="edu.vt.vbi.patric.dao.DBPathways"
+%><%@ page import="org.json.simple.*"
+%><%@ page import="org.slf4j.Logger"
+%><%@ page import="org.slf4j.LoggerFactory"
+%><%@ page import="edu.vt.vbi.patric.beans.Genome"
+%><%@ page import="edu.vt.vbi.patric.common.SolrCore"
+%><%@ page import="edu.vt.vbi.patric.common.SolrInterface"
+%><%@ page import="org.apache.commons.lang.StringUtils"
+%><%@ page import="org.apache.solr.client.solrj.SolrQuery"
+%><%@ page import="org.apache.solr.client.solrj.SolrRequest"
+%><%@ page import="org.apache.solr.client.solrj.SolrServerException"
+%><%@ page import="org.apache.solr.client.solrj.response.FacetField"
+%><%@ page import="org.apache.solr.client.solrj.response.QueryResponse"
+%><%@ page import="org.apache.solr.common.SolrDocument"
+%><%@ page import="org.apache.solr.common.SolrDocumentList"
+%><%@ page import="org.apache.solr.common.util.SimpleOrderedMap"
+%><%@ page import="java.net.MalformedURLException"
+%><%
 // TODO: move this business logic into portlet class
 
     Logger LOGGER = LoggerFactory.getLogger(DBPathways.class);
@@ -104,7 +102,7 @@
 		        query.addFilterQuery("brc1_cds:[1 TO *]");
 		    }
 		}
-        query.setFields("genome_id,genome_name").setRows(10000);
+        query.setFields("genome_id,genome_name").setRows(10000).addSort("genome_name", SolrQuery.ORDER.asc);
 
         QueryResponse qr = solr.getSolrServer(SolrCore.GENOME).query(query);
         List<Genome> genomes = qr.getBeans(Genome.class);
@@ -128,5 +126,6 @@
         LOGGER.error(e.getMessage(), e);
     }
 
+    response.setContentType("application/json");
 	json.writeJSONString(out);
 %>
