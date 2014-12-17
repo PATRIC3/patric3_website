@@ -207,7 +207,7 @@
 
 		_filename = "GlobalSearch";
 	}
-	else if (_tablesource.equalsIgnoreCase("IDMapping")) {
+/*	else if (_tablesource.equalsIgnoreCase("IDMapping")) {
 
 		String from = request.getParameter("from");
 		String to = request.getParameter("to");
@@ -303,7 +303,7 @@
 				"na_length", "strand", "aa_length", "product"));
 
 		_filename = "IDMapping";
-	}
+	}*/
 	else if (_tablesource.equalsIgnoreCase("Workspace")) {
 		String idType = request.getParameter("idType");
 		String idList = request.getParameter("fids");
