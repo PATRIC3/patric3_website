@@ -224,6 +224,9 @@ function getSelectedFeatures() {"use strict";
 
 function DownloadFile() {"use strict";
 
+	if (isOverDownloadLimit()) {
+		return false;
+	}
 	var form = Ext.getDom("fTableForm");
 
 	form.action = "/patric-searches-and-tools/jsp/grid_download_handler.jsp",

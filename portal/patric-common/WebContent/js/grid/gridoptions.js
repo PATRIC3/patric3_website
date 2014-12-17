@@ -327,3 +327,14 @@ function getHashFieldsToDownload(form) {"use strict";
 			tmp.value = hash[tmp.id];
 	}
 }
+
+function isOverDownloadLimit() {
+	var totalCount = $Page.getGrid().store.totalCount;
+	if (totalCount > 20000) {
+		alert("You are trying to download " + totalCount.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,") + " records and we can support up to 20,000 at a time. Please filter down your search result");
+		return true;
+	}
+	else {
+		return false;
+	}
+}

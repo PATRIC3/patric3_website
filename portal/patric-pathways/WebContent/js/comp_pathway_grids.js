@@ -539,7 +539,10 @@ function KeepParameters(){
 
 function DownloadFile(){
 	"use strict";
-	
+
+	if (isOverDownloadLimit()) {
+		return false;
+	}
 	var form = Ext.getDom("fTableForm");
 	
 	form.action = "/portal/portal/patric/CompPathwayTable/CompPathwayTableWindow?action=b&cacheability=PAGE&need=download";

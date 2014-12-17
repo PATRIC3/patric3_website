@@ -148,6 +148,10 @@ function DownloadFile() {"use strict";
 
 	var Page = $Page, property = Page.getPageProperties(), tree = property.tree, form = Ext.getDom("fTableForm");
 
+	if (isOverDownloadLimit()) {
+		return false;
+	}
+
 	if (tree.getSelectedTerms()["Keyword"] == null) {
 		tree.selectedTerm["Keyword"] = Ext.getDom("keyword").value;
 	}

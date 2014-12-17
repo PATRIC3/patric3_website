@@ -438,7 +438,7 @@
 				</bindings>
 			</coordination>
 		</page>
-	</deployment>
+	</deployment><!--
 	<deployment>
 		<parent-ref>patric</parent-ref>
 		<if-exists>overwrite</if-exists>
@@ -576,7 +576,7 @@
 				</bindings>
 			</coordination>
 		</page>
-	</deployment>
+	</deployment>-->
 	<deployment>
 		<parent-ref>patric</parent-ref>
 		<if-exists>overwrite</if-exists>
