@@ -57,7 +57,7 @@ metadataGenomeSummaryValue['Organism_Info'] = [{
 }, {
 	name : 'Antimicrobial Resistance',
 	text : 'antimicrobial_resistance',
-	style : 'none'
+	style : 'visible'
 }, {
 	name : 'Antimicrobial Resistance Evidence',
 	text : 'antimicrobial_resistance_evidence',
