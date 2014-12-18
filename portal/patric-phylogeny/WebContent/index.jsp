@@ -83,7 +83,7 @@ if (!orderList.isEmpty()) {
 
 <%
 } else {
-	%>wrong parameter<%
+	%><p>Phylogeny tree is not available for this taxonomy/genome currently. Please <a href="//enews.patricbrc.org/contact-us/" target="_blank">contact us</a> for further questions.</p><%
 }
 %>
 <script type="text/javascript" src="/patric/static/phylogeny/outgroups.js"></script>
