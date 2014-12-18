@@ -41,63 +41,60 @@
 		key.put("map", val.get("map").toString());
 		map = val.get("map").toString();
 
+        List<String> annotations = Arrays.asList("PATRIC", "RefSeq");
+
         // getting coordinates
 		try {
-
-            Set<String> ecNumbers = new HashSet<String>();
-
-            // step1. genome_count, feature_count
-            // pathway/select?q=pathway_id:00053+AND+annotation:PATRIC&fq={!join+from=genome_id+to=genome_id+fromIndex=genome}taxon_lineage_ids:83332+AND+genome_status:(complete+OR+wgs)
-            // &rows=0&facet=true&json.facet={stat:{field:{field:ec_number,limit:-1,facet:{annotation:{field:{field:annotation_sort,facet:{genome_count:"unique(genome_id)",gene_count:"unique(feature_id)"}}}}}}}
-
-            SolrQuery query = new SolrQuery("pathway_id:" + map);
-            if (!taxonId.equals("")) {
-                query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + taxonId + " AND genome_status:(complete OR wgs)"));
-            }
-            if (!genomeId.equals("")) {
-                query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "genome_id:(" + genomeId.replaceAll(",", " OR ") + ") AND genome_status:(complete OR wgs)"));
-            }
-            query.setRows(0).setFacet(true);
-
-            query.add("json.facet","{stat:{field:{field:ec_number,limit:-1,facet:{annotation:{field:{field:annotation,facet:{genome_count:\"unique(genome_id)\",gene_count:\"unique(feature_id)\"}}}}}}}");
-
-            LOGGER.debug("step 1. {}", query.toString());
-
-            QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query);
-            List<SimpleOrderedMap> buckets = (List) ((SimpleOrderedMap) ((SimpleOrderedMap) qr.getResponse().get("facets")).get("stat")).get("buckets");
-
-            Map<String, SimpleOrderedMap> mapStat = new HashMap<String, SimpleOrderedMap>();
-            for (SimpleOrderedMap value: buckets) {
-                if (Integer.parseInt(value.get("count").toString()) > 0) {
-                    mapStat.put(value.get("val").toString(), value);
-                    ecNumbers.add(value.get("val").toString());
-                }
-            }
-
-            // step2. coordinates, occurrence
-            // pathway_ref/select?q=pathway_id:00010+AND+map_type:enzyme%+AND+ec_number:("1.2.1.3"+OR+"1.1.1.1")&fl=ec_number,ec_description,map_location,occurrence
-
             JSONArray listCoordinates = new JSONArray();
 
-            if (!ecNumbers.isEmpty()) {
-                query = new SolrQuery("pathway_id:" + map + " AND map_type:enzyme AND ec_number:(" + StringUtils.join(ecNumbers, " OR ") + ")");
-                query.setFields("ec_number,ec_description,map_location,occurrence");
-                query.setRows(100000);
+            for (String annotation : annotations) {
+                Set<String> ecNumbers = new HashSet<String>();
 
-                qr = solr.getSolrServer(SolrCore.PATHWAY_REF).query(query);
-                SolrDocumentList sdl = qr.getResults();
+                // step1. genome_count, feature_count
+                // pathway/select?q=pathway_id:00053+AND+annotation:PATRIC&fq={!join+from=genome_id+to=genome_id+fromIndex=genome}taxon_lineage_ids:83332+AND+genome_status:(complete+OR+wgs)
+                // &rows=0&facet=true&json.facet={stat:{field:{field:ec_number,limit:-1,facet:{genome_count:"unique(genome_id)",gene_count:"unique(feature_id)"}}}}
 
-                for (SolrDocument doc: sdl) {
-                    String ecNumber = doc.get("ec_number").toString();
-                    SimpleOrderedMap stat = mapStat.get(ecNumber);
+                SolrQuery query = new SolrQuery("pathway_id:" + map + " AND annotation:" + annotation);
+                if (!taxonId.equals("")) {
+                    query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + taxonId + " AND genome_status:(complete OR wgs)"));
+                }
+                if (!genomeId.equals("")) {
+                    query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "genome_id:(" + genomeId.replaceAll(",", " OR ") + ") AND genome_status:(complete OR wgs)"));
+                }
+                query.setRows(0).setFacet(true);
 
-                    List<SimpleOrderedMap> annotationBuckets = (List) ((SimpleOrderedMap) stat.get("annotation")).get("buckets");
+                query.add("json.facet","{stat:{field:{field:ec_number,limit:-1,facet:{genome_count:\"unique(genome_id)\",gene_count:\"unique(feature_id)\"}}}}");
 
-                    for (SimpleOrderedMap annotationBucket: annotationBuckets) {
-                        String annotation = annotationBucket.get("val").toString();
+                LOGGER.debug("step 1. {}", query.toString());
 
-                        if (!annotationBucket.get("gene_count").toString().equals("0")) {
-                            // LOGGER.debug("{}", annotationBucket);
+                QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query);
+                List<SimpleOrderedMap> buckets = (List) ((SimpleOrderedMap) ((SimpleOrderedMap) qr.getResponse().get("facets")).get("stat")).get("buckets");
+
+                Map<String, SimpleOrderedMap> mapStat = new HashMap<String, SimpleOrderedMap>();
+                for (SimpleOrderedMap value: buckets) {
+                    if (Integer.parseInt(value.get("count").toString()) > 0) {
+                        mapStat.put(value.get("val").toString(), value);
+                        ecNumbers.add(value.get("val").toString());
+                    }
+                }
+
+                // step2. coordinates, occurrence
+                // pathway_ref/select?q=pathway_id:00010+AND+map_type:enzyme%+AND+ec_number:("1.2.1.3"+OR+"1.1.1.1")&fl=ec_number,ec_description,map_location,occurrence
+
+                if (!ecNumbers.isEmpty()) {
+                    query = new SolrQuery("pathway_id:" + map + " AND map_type:enzyme AND ec_number:(" + StringUtils.join(ecNumbers, " OR ") + ")");
+                    query.setFields("ec_number,ec_description,map_location,occurrence");
+                    query.setRows(100000);
+
+                    qr = solr.getSolrServer(SolrCore.PATHWAY_REF).query(query);
+                    SolrDocumentList sdl = qr.getResults();
+
+                    for (SolrDocument doc: sdl) {
+                        String ecNumber = doc.get("ec_number").toString();
+                        SimpleOrderedMap stat = mapStat.get(ecNumber);
+
+                        if (!stat.get("gene_count").toString().equals("0")) {
+
                             List<String> locations = (List<String>) doc.get("map_location");
                             for (String location : locations) {
 
@@ -105,7 +102,7 @@
                                 coordinate.put("algorithm", annotation);
                                 coordinate.put("description", doc.get("ec_description"));
                                 coordinate.put("ec_number", ecNumber);
-                                coordinate.put("genome_count", annotationBucket.get("genome_count"));
+                                coordinate.put("genome_count", stat.get("genome_count"));
 
                                 String[] loc = location.split(",");
                                 coordinate.put("x", loc[0]);
@@ -131,7 +128,7 @@
         try {
 			// key.remove("map");
 
-            SolrQuery query = new SolrQuery("*:*");
+            SolrQuery query = new SolrQuery("annotation:(" + StringUtils.join(annotations, " OR ") + ")");
             if (!taxonId.equals("")) {
                 query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + taxonId + " AND genome_status:(complete OR wgs)"));
             }
