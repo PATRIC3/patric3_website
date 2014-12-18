@@ -54,6 +54,14 @@ metadataGenomeSummaryValue['Organism_Info'] = [{
 	name : 'Type Strain',
 	text : 'type_strain',
 	style : 'none'
+}, {
+	name : 'Antimicrobial Resistance',
+	text : 'antimicrobial_resistance',
+	style : 'none'
+}, {
+	name : 'Antimicrobial Resistance Evidence',
+	text : 'antimicrobial_resistance_evidence',
+	style : 'none'
 }];
 metadataGenomeSummaryValue['Project_Info'] = [{
 	name : 'Sequencing Center',
@@ -252,14 +260,6 @@ metadataGenomeSummaryValue['Host_Info'] = [{
 }, {
 	name : 'Other Clinical',
 	text : 'other_clinical',
-	style : 'none'
-}, {
-	name : 'Antimicrobial Resistance',
-	text : 'antimicrobial_resistance',
-	style : 'none'
-}, {
-	name : 'Antimicrobial Resistance Evidence',
-	text : 'antimicrobial_resistance_evidence',
 	style : 'none'
 }];
 metadataGenomeSummaryValue['Phenotype_Info'] = [{
