@@ -96,30 +96,14 @@ function boxData(options){
 	this.width = parseInt(options.width) || 0,
 	this.height = parseInt(options.height) || 0,
 	this.coordinates = [{x:parseInt(options.x), y:parseInt(options.y)}] || null,
-	this.genome_count = {"RefSeq":0, "PATRIC":0, "BRC":0},
+	this.genome_count = {"RefSeq":0, "PATRIC":0, "BRC1":0},
 	this.RefSeq = getAlgorithm(options.algorithm) == "RefSeq",
 	this.PATRIC = getAlgorithm(options.algorithm) == "PATRIC",
-	this.BRC = getAlgorithm(options.algorithm) == "BRC";
+	this.BRC1 = getAlgorithm(options.algorithm) == "BRC1";
 }
 
 function getAlgorithm(pass, reverse){
     return pass;
-//	if(reverse){
-//		if(pass == "RAST" || pass == "PATRIC")
-//			return "RAST";
-//		else if(pass == "Curation" || pass == "Legacy BRC" || pass == "BRC")
-//			return "Curation";
-//		else
-//			return "RefSeq";
-//	}else{
-//		if(pass == "RAST" || pass == "PATRIC")
-//			return "PATRIC";
-//		else if(pass == "Curation" || pass == "Legacy BRC" || pass == "BRC")
-//			return "BRC";
-//		else if(pass == "RefSeq")
-//			return "RefSeq";
-//	}
-//	return null;
 }
 
 function drawMap(type){

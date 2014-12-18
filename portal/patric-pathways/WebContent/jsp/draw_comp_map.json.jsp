@@ -105,7 +105,7 @@
                                 coordinate.put("algorithm", annotation);
                                 coordinate.put("description", doc.get("ec_description"));
                                 coordinate.put("ec_number", ecNumber);
-                                coordinate.put("genome_count", stat.get("genome_count"));
+                                coordinate.put("genome_count", annotationBucket.get("genome_count"));
 
                                 String[] loc = location.split(",");
                                 coordinate.put("x", loc[0]);
