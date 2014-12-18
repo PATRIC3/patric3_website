@@ -17,7 +17,7 @@ outgroups["Lactobacillales"] = ["Alicyclobacillus_acidocaldarius_subsp._acidocal
 
 outgroups["Legionellales"] = ["Aeromonas_salmonicida_subsp._salmonicida_A449","Alkalilimnicola_ehrlichii_MLHE-1","Cardiobacterium_hominis_ATCC_15826","Dichelobacter_nodosus_VCS1703A","Escherichia_coli_str._K-12_substr._DH10B","Francisella_tularensis_subsp._tularensis_SCHU_S4","Marinomonas_sp._MWYL1","Methylococcus_capsulatus_str._Bath","Nitrosococcus_oceani_ATCC_19707","Pasteurella_multocida_subsp._multocida_str._Pm70","Shewanella_oneidensis_MR-1","Vibrio_cholerae_O1_biovar_El_Tor_str._N16961","Xanthomonas_axonopodis_pv._citri_str._306"];
 
-outgroups["Rhizobiales"] = ["Candidatus_Pelagibacter_sp._HTCC7211","Caulobacter_crescentus_CB15","Ehrlichia_canis_str._Jake","Erythrobacter_litoralis_HTCC2594","Granulibacter_bethesdensis_CGDNIH1","Oceanicaulis_sp._HTCC2633","Pseudovibrio_sp._JE062","Rickettsia_rickettsii_str._Iowa","Sphingomonas_wittichii_RW1"];
+outgroups['Rhizobiales'] = ["Sphingomonas_sanxanigenens_DSM_19645_=_NX02", "Magnetospirillum_magneticum_AMB-1"];
 
 outgroups["Rickettsiales"] = ["Bradyrhizobium_japonicum_USDA_110","Brucella_suis_1330","Caulobacter_crescentus_CB15","Erythrobacter_litoralis_HTCC2594","Granulibacter_bethesdensis_CGDNIH1","Oceanicaulis_sp._HTCC2633","Pseudovibrio_sp._JE062","Sphingomonas_wittichii_RW1"];
 
