@@ -82,7 +82,7 @@ public class GenomeBrowser extends GenericPortlet {
 		else if (contextType.equals("feature")) {
 			query.setQuery(SolrCore.FEATURE.getSolrCoreJoin("genome_id", "genome_id", "feature_id:" + contextId));
 		}
-		query.setRows(1000);
+		query.setRows(1000).addSort("accession", SolrQuery.ORDER.asc);
 
 		JSONArray jsonResult = new JSONArray();
 
