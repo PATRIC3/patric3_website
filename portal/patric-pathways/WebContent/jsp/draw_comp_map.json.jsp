@@ -282,7 +282,9 @@
                 if (map != null && !map.equals("")) {
                     query.addFilterQuery("pathway_id:(" + map + ")");
                 }
-                query.addFilterQuery(SolrCore.PATHWAY.getSolrCoreJoin("ec_number", "ec_number", "feature_id:(" + val.get("value").toString() + ")"));
+                if (!val.get("value").toString().equals("")) {
+                    query.addFilterQuery(SolrCore.PATHWAY.getSolrCoreJoin("ec_number", "ec_number", "feature_id:(" + val.get("value").toString() + ")"));
+                }
 
                 LOGGER.trace("need:{},{}", need, query.toString());
 

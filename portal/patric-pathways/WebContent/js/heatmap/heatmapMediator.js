@@ -83,7 +83,7 @@ function catchLocusTags(colID, rowID, responseText) {
 		i,
 		parts = getCellData_ECGenome(colID, rowID),
 		algorithm = Ext.getDom("algorithm").value,
-		memberCount = responseText.genes.length,
+		memberCount = responseText.length,
 		buttonList = [],
 		showDetails = null,
 		download = null,
@@ -94,9 +94,9 @@ function catchLocusTags(colID, rowID, responseText) {
 		colID = colID,
 		rowID = rowID;
 		
-	for(i=0;i<responseText.genes.length; i++){
-		locusList.push(responseText.genes[i].locustags);
-		na_idList.push(responseText.genes[i].genes);
+	for(i=0;i<responseText.length; i++){
+//		locusList.push(responseText.genes[i].locustags);
+		na_idList.push(responseText[i]);
 	}
 			
 //	if(algorithm == "PATRIC")
@@ -174,7 +174,7 @@ function catchLocusTags(colID, rowID, responseText) {
 	text += '<b>Genome: </b> ' + parts[1] + '<br />'+
 		'<b>Product: </b> ' + parts[0] + '<br />' +
 		'<b>EC Number: </b> ' + rowID + '<br />' +
-		'<b>Members: </b> ' + responseText.genes.length;
+		'<b>Members: </b> ' + responseText.length;
 			
 	for(i = 0; i < locusList.length; i++) {
 		text += "<br />" + locusList[i];
@@ -280,8 +280,8 @@ function catchLocusTagsMultiple(affectedColumns, affectedRows, selectGenomes, se
 		text = "";
 		
 	for(i=0;i<members.length; i++){
-		locusList.push(members[i].locustags);
-		na_idList.push(members[i].genes);
+		//locusList.push(members[i].locustags);
+		na_idList.push(members[i]);
 	}
 	
 	

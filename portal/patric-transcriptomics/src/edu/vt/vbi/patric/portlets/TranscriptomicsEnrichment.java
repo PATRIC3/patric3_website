@@ -107,7 +107,7 @@ public class TranscriptomicsEnrichment extends GenericPortlet {
 					SolrQuery query = new SolrQuery("pathway_id:(" + pathwayId + ") AND feature_id:(" + StringUtils.join(listFeatureId, " OR ") + ")");
 					query.addField("genome_id").setRows(listFeatureId.length);
 
-					QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query);
+					QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query, SolrRequest.METHOD.POST);
 					SolrDocumentList sdl = qr.getResults();
 
 					Set<String> listGenomeId = new HashSet<>();

@@ -51,7 +51,7 @@ if(key != null && key.containsKey("genomeId"))
 <div id="copy-button"  style="display:none"></div>
 <div class="table-container">
 <table width="100%"><tr><td>
-	<div id="grid_result_summary"></div>
+	<div id="grid_result_summary"><b>Loading...</b></div>
 	<p>
 	Feature tables contain all of the identified features for all of the genomes in a particular genus.  
 	Tables may be refined to show subsets of features via various user controls, as described in <a href="http://enews.patricbrc.org/faqs/feature-table-faqs/" target="_blank">Feature Table FAQs</a>.

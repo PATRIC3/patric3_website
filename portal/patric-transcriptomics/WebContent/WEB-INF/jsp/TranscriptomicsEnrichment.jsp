@@ -23,7 +23,7 @@ String featureList = (String) request.getAttribute("featureList");
 </form>
 
 <div id="copy-button" style="display:none"></div>
-<div id="grid_result_summary"></div>
+<div id="grid_result_summary"><b>Loading...</b></div>
 <div id='PATRICGrid'></div>
 
 <script type="text/javascript" src="/patric-common/js/ZeroClipboard.js"></script>
