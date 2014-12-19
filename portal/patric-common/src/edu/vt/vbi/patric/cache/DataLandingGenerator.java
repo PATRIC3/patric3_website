@@ -35,6 +35,7 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.params.FacetParams;
+import org.apache.solr.common.util.SimpleOrderedMap;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -730,6 +731,9 @@ public class DataLandingGenerator {
 					case "Pig, Sus scrofa domesticus":
 						icon = "/patric/images/hosts/pig.png";
 						break;
+					case "Pig, Sus scrofa":
+						icon = "/patric/images/hosts/pig.png";
+						break;
 					case "Cassava, Manihot esculenta":
 						icon = "/patric/images/hosts/cassava.png";
 						break;
@@ -756,6 +760,9 @@ public class DataLandingGenerator {
 						break;
 					case "sheep":
 						icon = "/patric/images/hosts/sheep.png";
+						break;
+					case "Chicken, Gallus gallus":
+						icon = "/patric/images/hosts/blank.png";
 						break;
 					case "USA":
 						icon = "/patric/images/flags/United-States.png";
@@ -786,12 +793,12 @@ public class DataLandingGenerator {
 					data.set(0, item);
 				}
 				jsonData = new JSONObject();
-				if (type.equals("host_name_f")) {
+				if (type.equals("host_name")) {
 					jsonData.put("chart_title", "Bacterial Host");
 					jsonData.put("chart_desc", "Top 5 Bacterial Hosts");
 					jsonData.put("tab_title", "Host");
 				}
-				else if (type.equals("isolation_country_f")) {
+				else if (type.equals("isolation_country")) {
 					jsonData.put("chart_title", "Isolation Country");
 					jsonData.put("chart_desc", "Top 5 Isolation Countries");
 					jsonData.put("tab_title", "Isolation Country");
@@ -912,7 +919,7 @@ public class DataLandingGenerator {
 			meta.put("collection_date", genome.hasCollectionDate()? genome.getCollectionDate(): "");
 			meta.put("isolation_country", genome.hasIsolationCountry()? genome.getIsolationCountry(): "");
 			meta.put("host_name", genome.hasHostName()? genome.getHostName(): "");
-			meta.put("disease", genome.hasDisease()? genome.getDisease(): "");
+			meta.put("disease", genome.hasDisease()? StringUtils.join(genome.getDisease(), ", "): "");
 			meta.put("chromosomes", genome.getChromosomes());
 			meta.put("plasmids", genome.getPlasmids());
 			meta.put("contigs", genome.getContigs());
@@ -936,7 +943,21 @@ public class DataLandingGenerator {
 			pw.put("description", "Pathways");
 			pw.put("link", URL_PATHWAY_TAB.replace("{cType}", "genome").replace("{cId}", genomeId).replace("{pId}", ""));
 			pw.put("picture", "/patric/images/icon-popular-pathway.png");
-			int cntPathway = connPW.getCompPathwayPathwayCount(key);
+//			int cntPathway = connPW.getCompPathwayPathwayCount(key);
+			int cntPathway = 0;
+			try {
+				SolrQuery query = new SolrQuery("genome_id:" + genomeId);
+				// {stat:{field:{field:genome_id,facet:{pathway_count:"unique(pathway_id)"}}}}}
+				query.setRows(0).setFacet(true).set("json.facet", "{stat:{field:{field:genome_id,facet:{pathway_count:\"unique(pathway_id)\"}}}}}");
+
+				QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query);
+				List<SimpleOrderedMap> buckets = (List) ((SimpleOrderedMap) ((SimpleOrderedMap) qr.getResponse().get("facets")).get("stat")).get("buckets");
+				SimpleOrderedMap pathwayStat = buckets.get(0);
+				cntPathway = (Integer) pathwayStat.get("pathway_count");
+			}
+			catch (MalformedURLException | SolrServerException e) {
+				LOGGER.error(e.getMessage(), e);
+			}
 			pw.put("data", cntPathway);
 			data.add(pw);
 
@@ -1468,7 +1489,7 @@ public class DataLandingGenerator {
 		SolrInterface solr = new SolrInterface();
 		LBHttpSolrServer lbHttpSolrServer = null;
 		try {
-			lbHttpSolrServer = solr.getSolrServer(SolrCore.SPECIALTY_GENE_MAPPING);
+			lbHttpSolrServer = solr.getSolrServer(SolrCore.TRANSCRIPTOMICS_EXPERIMENT);
 		}
 		catch (MalformedURLException e) {
 			LOGGER.error(e.getMessage(), e);

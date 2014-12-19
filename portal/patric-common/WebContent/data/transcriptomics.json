@@ -1,588 +1,588 @@
 {
-	"process": {
-		"content": "",
-		"tools": [],
-		"title": "DLP-Transcriptomics-Process",
-		"workflows": [],
-		"subtitle": "How Do We Process and Clean Up Our Data?",
-		"image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2013\/11\/final_transcriptomics.jpg",
-		"tab_title": ""
-	},
-	"tools": {
-		"content": "",
-		"tools": [{
-			"content": "<p>Browse through all publically available Experimental datasets in PATRIC with the Experiment List of studies or the Comparison List of curated pair-wise comparisons of two samples or experimental conditions. Filter the lists via manually curated Metadata (such as Organism, Strain, Gene Modification, and Experimental Condition) to quickly find datasets of interest.<\/p>\n",
-			"category": "Specialized Searches",
-			"title": "Transcriptomics Experiment and Comparison Lists",
-			"subtitle": "",
-			"image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2013\/06\/Experimentand-ComparisonList_170sq.jpg",
-			"url": "http:\/\/patricbrc.org\/portal\/portal\/patric\/ExperimentList?cType=taxon&cId=2&kw"
-		}, {
-			"content": "<p>Mine selected transcriptomics datasets and filter based on Log Ratio or Z-score cut-off, up\/down regulation, or gene functions. The associated Heatmap is an interactive visualization providing an overview of the distribution of gene regulation within a selected set of experiments or comparisons, enabling discovery of genes with similar expression patterns. <b>Note:<\/b> <i>Links to example Gene List from GEO Accession: <\/i><i>GSE8839.  <\/i><\/p>\n",
-			"category": "Comparative Analyses",
-			"title": "Transcriptomics Gene List and Heatmap",
-			"subtitle": "",
-			"image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2013\/06\/TranscriptomicsGeneListandHeatmap_170sq.jpg",
-			"url": "http:\/\/patricbrc.org\/portal\/portal\/patric\/TranscriptomicsGene?cType=taxon&cId=1763&dm=result&expId=233094&sampleId=&colId=&log_ratio=0&zscore=0&pk="
-		}, {
-			"content": "<p>Summarizes all comparisons in which a gene is differentially expressed and associated metadata such as Strain, Gene Modification, and Experimental Condition. Expression value based filters and metadata graphical summaries enable quick discovery of top experimental conditions and gene manipulations related to the differential expression of the gene. <b>Note:<\/b> <i>Links to example Gene Page for <\/i><i>VBIMycTub87468_2933<\/i><i>. <\/i><\/p>\n",
-			"category": "Specialized Searches",
-			"title": "Gene Page Transcriptomics",
-			"subtitle": "",
-			"image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2013\/06\/GenePageTranscriptomics_170sq.jpg",
-			"url": "http:\/\/patricbrc.org\/portal\/portal\/patric\/TranscriptomicsGeneExp?cType=feature&cId=18154431&sampleId=&colId=&log_ratio=&zscore"
-		}, {
-			"content": "<p>View genes with correlated expression profiles (positive and negative) across all available data sets. See gene functions and filter via correlation cutoff. <strong>Note:<\/strong> <em>Links to example Correlated Genes Tab for VBIMycTub87468_2933<\/em>.<\/p>\n",
-			"category": "Miscellaneous",
-			"title": "Correlated Genes",
-			"subtitle": "",
-			"image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2014\/02\/CorrelatedGenes_notext.jpg",
-			"url": "http:\/\/patricbrc.org\/portal\/portal\/patric\/TranscriptomicsGeneCorrelated?cType=feature&cId=18154431  "
-		}, {
-			"content": "<p>Supports processing and analyzing high throughput RNA sequencing data using PATRIC genomes as reference, providing alignment and quantitative expression data, records provenance information, batch analysis for multiple samples, and results sharing and publishing. <em><strong>Note:<\/strong> Links to Pathogen Portal.<\/em><\/p>\n",
-			"category": "Annotation Pipelines",
-			"title": "RNA-Seq Pipeline @ Pathogen Portal",
-			"subtitle": "",
-			"image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2012\/05\/RNASeq_Andrew_170sq_1_resize.jpg",
-			"url": "http:\/\/rnaseq.pathogenportal.org\/"
-		}],
-		"title": "DLP-Transcriptomics-Tools",
-		"workflows": [{
-			"summary": null,
-			"headline": null,
-			"content": "<p>PATRIC has three primary types of experiment data, Taxonomy or Genome level, Gene or CoDing Sequence level, and Your Own Uploaded Experiment data.  Learn about these types of experiment data, where you can find them, and some of the potential analyses you can do.<\/p>\n",
-			"title": "Transcriptomics Data at PATRIC",
-			"bottom_right_headline": null,
-			"bottom_left_headline": null,
-			"subtitle": "",
-			"image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2013\/08\/Trans_video_thumbnail.jpg",
-			"url": "transcriptomics-data-at-patric"
-		}, {
-			"summary": null,
-			"headline": null,
-			"content": "<p>We use transcriptomics analysis at different taxonomic levels to find significant expression patterns that could help to infer gene function.  Specifically, here we find genes that are highly expressed in an anaerobic environment at the organism level and then look for similar expression patterns at the gene level.  Finding evidence that a gene is highly expressed in multiple experiments utilizing a low-oxygen environment could indicate that it impacts survival of the bacterium in the intracellular environment.<\/p>\n",
-			"title": "Exploring Expression Data",
-			"bottom_right_headline": null,
-			"bottom_left_headline": null,
-			"subtitle": "",
-			"image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2013\/07\/Exploring_expression_data_thumbnail_overlay.jpg",
-			"url": "exploring-expression-data"
-		}, {
-			"summary": null,
-			"headline": null,
-			"content": "<p>Follow us step-by-step as we take you through finding a hypothetical protein to explore, examining the hypothetical gene of interest, and looking for expression patterns across a group of correlated genes.<\/p>\n",
-			"title": "Using Transcriptomics to Examine the Function of Hypothetical Proteins",
-			"bottom_right_headline": null,
-			"bottom_left_headline": null,
-			"subtitle": "",
-			"image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2013\/11\/step-by-step-pdf_hypotheticalproteins_Thumbnail.jpg",
-			"url": "using-transcriptomics-to-examine-the-function-of-hypothetical-proteins"
-		}, {
-			"summary": null,
-			"headline": null,
-			"content": "<p>With Pathogen Portal\u2019s RNA-Rocket you can align your Illumina fastQ reads against supported genomes, view supported genomes, and estimate gene expression values.  This tutorial provides an overview of creating an account, exploring the site, getting data, checking quality, starting analysis, and further analysis.<\/p>\n",
-			"title": "Using RNA-Seq analysis Pipeline, RNA-Rocket",
-			"bottom_right_headline": null,
-			"bottom_left_headline": null,
-			"subtitle": "",
-			"image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2013\/09\/step-by-step-pdf_RNA_Seq+pipeline_Thumbnail.jpg",
-			"url": "using-rna-seq-analysis-pipeline-rna-rocket"
-		}, {
-			"summary": null,
-			"headline": null,
-			"content": "<p>Learn how to upload your own pre-processed transcriptomics datasets, generated by microarray or RNA-seq technologies, to your personal and private Workspace, where you can use PATRIC tools and functionality to analyze your dataset and\/or conduct comparative analyses with public experimental datasets.<\/p>\n",
-			"title": "Upload Your Own Transcriptomics Data",
-			"bottom_right_headline": null,
-			"bottom_left_headline": null,
-			"subtitle": "",
-			"image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2013\/06\/upload-transcriptomics-thumbnail.png",
-			"url": "upload-your-own-transcriptomics-data"
-		}, {
-			"summary": null,
-			"headline": null,
-			"content": "<p>See how to use PATRIC tables and the Table Toolbar including sorting, downloading, analysis tools, creating persistent column customization, and saving items to your workspace.<\/p>\n",
-			"title": "Using PATRIC Tables",
-			"bottom_right_headline": null,
-			"bottom_left_headline": null,
-			"subtitle": "",
-			"image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2013\/07\/PATRIC-tables-thumbnail.png",
-			"url": "using-patric-tables"
-		}, {
-			"summary": null,
-			"headline": null,
-			"content": "<p>Find out more about PATRIC data, analysis tools, and functionality in our Frequently Asked Questions.<\/p>\n",
-			"title": "Frequently Asked Questions",
-			"bottom_right_headline": null,
-			"bottom_left_headline": null,
-			"subtitle": "",
-			"image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2014\/01\/FAQs_Thumbnail.jpg",
-			"url": "frequently-asked-questions"
-		}],
-		"subtitle": "Find, Upload, and Analyze Experiment Data with PATRIC Tools",
-		"tab_title": ""
-	},
-	"featuredExperiment": {
+  "process": {
+	"content": "",
+	"tools": [],
+	"title": "DLP-Transcriptomics-Process",
+	"workflows": [],
+	"subtitle": "How Do We Process and Clean Up Our Data?",
+	"image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2013\/11\/final_transcriptomics.jpg",
+	"tab_title": ""
+  },
+  "tools": {
+	"content": "",
+	"tools": [{
+	  "content": "<p>Browse through all publically available Experimental datasets in PATRIC with the Experiment List of studies or the Comparison List of curated pair-wise comparisons of two samples or experimental conditions. Filter the lists via manually curated Metadata (such as Organism, Strain, Gene Modification, and Experimental Condition) to quickly find datasets of interest.<\/p>\n",
+	  "category": "Specialized Searches",
+	  "title": "Transcriptomics Experiment and Comparison Lists",
+	  "subtitle": "",
+	  "image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2013\/06\/Experimentand-ComparisonList_170sq.jpg",
+	  "url": "http:\/\/patricbrc.org\/portal\/portal\/patric\/ExperimentList?cType=taxon&cId=2&kw"
+	}, {
+	  "content": "<p>Mine selected transcriptomics datasets and filter based on Log Ratio or Z-score cut-off, up\/down regulation, or gene functions. The associated Heatmap is an interactive visualization providing an overview of the distribution of gene regulation within a selected set of experiments or comparisons, enabling discovery of genes with similar expression patterns. <b>Note:<\/b> <i>Links to example Gene List from GEO Accession: <\/i><i>GSE8839.  <\/i><\/p>\n",
+	  "category": "Comparative Analyses",
+	  "title": "Transcriptomics Gene List and Heatmap",
+	  "subtitle": "",
+	  "image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2013\/06\/TranscriptomicsGeneListandHeatmap_170sq.jpg",
+	  "url": "http:\/\/patricbrc.org\/portal\/portal\/patric\/TranscriptomicsGene?cType=taxon&cId=1763&dm=result&expId=233094&sampleId=&colId=&log_ratio=0&zscore=0&pk="
+	}, {
+	  "content": "<p>Summarizes all comparisons in which a gene is differentially expressed and associated metadata such as Strain, Gene Modification, and Experimental Condition. Expression value based filters and metadata graphical summaries enable quick discovery of top experimental conditions and gene manipulations related to the differential expression of the gene. <b>Note:<\/b> <i>Links to example Gene Page for <\/i><i>VBIMycTub87468_2933<\/i><i>. <\/i><\/p>\n",
+	  "category": "Specialized Searches",
+	  "title": "Gene Page Transcriptomics",
+	  "subtitle": "",
+	  "image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2013\/06\/GenePageTranscriptomics_170sq.jpg",
+	  "url": "http:\/\/patricbrc.org\/portal\/portal\/patric\/TranscriptomicsGeneExp?cType=feature&cId=18154431&sampleId=&colId=&log_ratio=&zscore"
+	}, {
+	  "content": "<p>View genes with correlated expression profiles (positive and negative) across all available data sets. See gene functions and filter via correlation cutoff. <strong>Note:<\/strong> <em>Links to example Correlated Genes Tab for VBIMycTub87468_2933<\/em>.<\/p>\n",
+	  "category": "Miscellaneous",
+	  "title": "Correlated Genes",
+	  "subtitle": "",
+	  "image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2014\/02\/CorrelatedGenes_notext.jpg",
+	  "url": "http:\/\/patricbrc.org\/portal\/portal\/patric\/TranscriptomicsGeneCorrelated?cType=feature&cId=18154431  "
+	}, {
+	  "content": "<p>Supports processing and analyzing high throughput RNA sequencing data using PATRIC genomes as reference, providing alignment and quantitative expression data, records provenance information, batch analysis for multiple samples, and results sharing and publishing. <em><strong>Note:<\/strong> Links to Pathogen Portal.<\/em><\/p>\n",
+	  "category": "Annotation Pipelines",
+	  "title": "RNA-Seq Pipeline @ Pathogen Portal",
+	  "subtitle": "",
+	  "image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2012\/05\/RNASeq_Andrew_170sq_1_resize.jpg",
+	  "url": "http:\/\/rnaseq.pathogenportal.org\/"
+	}],
+	"title": "DLP-Transcriptomics-Tools",
+	"workflows": [{
+	  "summary": null,
+	  "headline": null,
+	  "content": "<p>PATRIC has three primary types of experiment data, Taxonomy or Genome level, Gene or CoDing Sequence level, and Your Own Uploaded Experiment data.  Learn about these types of experiment data, where you can find them, and some of the potential analyses you can do.<\/p>\n",
+	  "title": "Transcriptomics Data at PATRIC",
+	  "bottom_right_headline": null,
+	  "bottom_left_headline": null,
+	  "subtitle": "",
+	  "image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2013\/08\/Trans_video_thumbnail.jpg",
+	  "url": "transcriptomics-data-at-patric"
+	}, {
+	  "summary": null,
+	  "headline": null,
+	  "content": "<p>We use transcriptomics analysis at different taxonomic levels to find significant expression patterns that could help to infer gene function.  Specifically, here we find genes that are highly expressed in an anaerobic environment at the organism level and then look for similar expression patterns at the gene level.  Finding evidence that a gene is highly expressed in multiple experiments utilizing a low-oxygen environment could indicate that it impacts survival of the bacterium in the intracellular environment.<\/p>\n",
+	  "title": "Exploring Expression Data",
+	  "bottom_right_headline": null,
+	  "bottom_left_headline": null,
+	  "subtitle": "",
+	  "image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2013\/07\/Exploring_expression_data_thumbnail_overlay.jpg",
+	  "url": "exploring-expression-data"
+	}, {
+	  "summary": null,
+	  "headline": null,
+	  "content": "<p>Follow us step-by-step as we take you through finding a hypothetical protein to explore, examining the hypothetical gene of interest, and looking for expression patterns across a group of correlated genes.<\/p>\n",
+	  "title": "Using Transcriptomics to Examine the Function of Hypothetical Proteins",
+	  "bottom_right_headline": null,
+	  "bottom_left_headline": null,
+	  "subtitle": "",
+	  "image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2013\/11\/step-by-step-pdf_hypotheticalproteins_Thumbnail.jpg",
+	  "url": "using-transcriptomics-to-examine-the-function-of-hypothetical-proteins"
+	}, {
+	  "summary": null,
+	  "headline": null,
+	  "content": "<p>With Pathogen Portal\u2019s RNA-Rocket you can align your Illumina fastQ reads against supported genomes, view supported genomes, and estimate gene expression values.  This tutorial provides an overview of creating an account, exploring the site, getting data, checking quality, starting analysis, and further analysis.<\/p>\n",
+	  "title": "Using RNA-Seq analysis Pipeline, RNA-Rocket",
+	  "bottom_right_headline": null,
+	  "bottom_left_headline": null,
+	  "subtitle": "",
+	  "image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2013\/09\/step-by-step-pdf_RNA_Seq+pipeline_Thumbnail.jpg",
+	  "url": "using-rna-seq-analysis-pipeline-rna-rocket"
+	}, {
+	  "summary": null,
+	  "headline": null,
+	  "content": "<p>Learn how to upload your own pre-processed transcriptomics datasets, generated by microarray or RNA-seq technologies, to your personal and private Workspace, where you can use PATRIC tools and functionality to analyze your dataset and\/or conduct comparative analyses with public experimental datasets.<\/p>\n",
+	  "title": "Upload Your Own Transcriptomics Data",
+	  "bottom_right_headline": null,
+	  "bottom_left_headline": null,
+	  "subtitle": "",
+	  "image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2013\/06\/upload-transcriptomics-thumbnail.png",
+	  "url": "upload-your-own-transcriptomics-data"
+	}, {
+	  "summary": null,
+	  "headline": null,
+	  "content": "<p>See how to use PATRIC tables and the Table Toolbar including sorting, downloading, analysis tools, creating persistent column customization, and saving items to your workspace.<\/p>\n",
+	  "title": "Using PATRIC Tables",
+	  "bottom_right_headline": null,
+	  "bottom_left_headline": null,
+	  "subtitle": "",
+	  "image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2013\/07\/PATRIC-tables-thumbnail.png",
+	  "url": "using-patric-tables"
+	}, {
+	  "summary": null,
+	  "headline": null,
+	  "content": "<p>Find out more about PATRIC data, analysis tools, and functionality in our Frequently Asked Questions.<\/p>\n",
+	  "title": "Frequently Asked Questions",
+	  "bottom_right_headline": null,
+	  "bottom_left_headline": null,
+	  "subtitle": "",
+	  "image": "http:\/\/enews.patricbrc.org\/wp-content\/uploads\/2014\/01\/FAQs_Thumbnail.jpg",
+	  "url": "frequently-asked-questions"
+	}],
+	"subtitle": "Find, Upload, and Analyze Experiment Data with PATRIC Tools",
+	"tab_title": ""
+  },
+  "featuredExperiment": {
+	"data": [{
+	  "title": "Characterization of the GbdR regulon in Pseudomonas aeruginosa",
+	  "pmid": "24097953",
+	  "link": "SingleExperiment?cType=taxon&cId=2&eid=1223795",
+	  "accession": "GSE49759",
+	  "organism": "Pseudomonas aeruginosa"
+	}, {
+	  "title": "Transcriptional profiles of Campylobacter jejuni NCTC 11168 to 0.125mg\/L erythromycin treatment",
+	  "pmid": "23767761",
+	  "link": "SingleExperiment?cType=taxon&cId=2&eid=1201089",
+	  "accession": "GSE43024",
+	  "organism": "Campylobacter jejuni"
+	}, {
+	  "title": "Transcriptional profiles of Campylobacter jejuni NCTC 11168 to 4mg\/L erythromycin treatment",
+	  "pmid": "23767761",
+	  "link": "SingleExperiment?cType=taxon&cId=2&eid=1224258",
+	  "accession": "GSE43023",
+	  "organism": "Campylobacter jejuni"
+	}]
+  },
+  "data": {
+	"content": "<p>Our manual curation includes a review of the experiment description and the related publication to understand experimental design; combines data from replicates; and creates pair-wise comparisons or contrasts as described in the publication to identify differential gene expression, data normalization and log-transformation. Available analyses consist of a suite of integrated tools to explore, visualize and compare a large number of published transcriptomics datasets. PATRIC also allows researchers to upload and analyze their own gene expression data in their private workspace and compare it to existing data. Learn more in our <a href=\"http:\/\/enews.patricbrc.org\/faqs\/transcriptomics-faqs\/\" >Transcriptomics FAQs<\/a>.<b><\/b><\/p>\n",
+	"tools": [],
+	"title": "DLP-Transcriptomics-Data",
+	"workflows": [],
+	"subtitle": "PATRIC Collects and Curates New Microarray Gene Datasets from GEO Every Month",
+	"tab_title": "Testing Data sub-tab Title field"
+  },
+  "download": {
+	"content": "",
+	"tools": [],
+	"title": "DLP-Transcriptomics-Download",
+	"workflows": [],
+	"subtitle": "Download Data",
+	"tab_title": ""
+  },
+  "popularGenomes": {
+	"popularTitle": "Select Genomes",
+	"popularList": [{
+	  "link": "ExperimentList?cType=genome&cId=83332.12&kw=",
+	  "GeneModifications": {
+		"title": "Gene Modifications",
 		"data": [{
-			"title": "Characterization of the GbdR regulon in Pseudomonas aeruginosa",
-			"pmid": "24097953",
-			"link": "SingleExperiment?cType=taxon&cId=2&eid=1223795",
-			"accession": "GSE49759",
-			"organism": "Pseudomonas aeruginosa"
+		  "value": 4,
+		  "label": "dosR"
 		}, {
-			"title": "Transcriptional profiles of Campylobacter jejuni NCTC 11168 to 0.125mg\/L erythromycin treatment",
-			"pmid": "23767761",
-			"link": "SingleExperiment?cType=taxon&cId=2&eid=1201089",
-			"accession": "GSE43024",
-			"organism": "Campylobacter jejuni"
+		  "value": 2,
+		  "label": "dosS"
 		}, {
-			"title": "Transcriptional profiles of Campylobacter jejuni NCTC 11168 to 4mg\/L erythromycin treatment",
-			"pmid": "23767761",
-			"link": "SingleExperiment?cType=taxon&cId=2&eid=1224258",
-			"accession": "GSE43023",
-			"organism": "Campylobacter jejuni"
+		  "value": 2,
+		  "label": "dosT"
+		}, {
+		  "value": 1,
+		  "label": "Bif1"
+		}, {
+		  "value": 1,
+		  "label": "H37Ra"
 		}]
-	},
-	"data": {
-		"content": "<p>Our manual curation includes a review of the experiment description and the related publication to understand experimental design; combines data from replicates; and creates pair-wise comparisons or contrasts as described in the publication to identify differential gene expression, data normalization and log-transformation. Available analyses consist of a suite of integrated tools to explore, visualize and compare a large number of published transcriptomics datasets. PATRIC also allows researchers to upload and analyze their own gene expression data in their private workspace and compare it to existing data. Learn more in our <a href=\"http:\/\/enews.patricbrc.org\/faqs\/transcriptomics-faqs\/\" >Transcriptomics FAQs<\/a>.<b><\/b><\/p>\n",
-		"tools": [],
-		"title": "DLP-Transcriptomics-Data",
-		"workflows": [],
-		"subtitle": "PATRIC Collects and Curates New Microarray Gene Datasets from GEO Every Month",
-		"tab_title": "Testing Data sub-tab Title field"
-	},
-	"download": {
-		"content": "",
-		"tools": [],
-		"title": "DLP-Transcriptomics-Download",
-		"workflows": [],
-		"subtitle": "Download Data",
-		"tab_title": ""
-	},
-	"popularGenomes": {
-		"popularTitle": "Select Genomes",
-		"popularList": [{
-			"link": "ExperimentList?cType=genome&cId=87468&kw=",
-			"GeneModifications": {
-				"title": "Gene Modifications",
-				"data": [{
-					"value": 4,
-					"label": "dosR"
-				}, {
-					"value": 2,
-					"label": "dosS"
-				}, {
-					"value": 2,
-					"label": "dosT"
-				}, {
-					"value": 1,
-					"label": "Bif1"
-				}, {
-					"value": 1,
-					"label": "H37Ra"
-				}]
-			},
-			"ExperimentConditions": {
-				"title": "Experiment Conditions",
-				"data": [{
-					"value": 22,
-					"label": "mutant vs wild type"
-				}, {
-					"value": 6,
-					"label": "mutant"
-				}, {
-					"value": 4,
-					"label": "strain comparison"
-				}, {
-					"value": 3,
-					"label": "SDS"
-				}, {
-					"value": 3,
-					"label": "diamide"
-				}]
-			},
-			"popularName": "Mycobacterium tuberculosis H37Rv"
-		}, {
-			"link": "ExperimentList?cType=genome&cId=129921&kw=",
-			"GeneModifications": {
-				"title": "Gene Modifications",
-				"data": [{
-					"value": 9,
-					"label": "rpoS"
-				}, {
-					"value": 4,
-					"label": "crp"
-				}, {
-					"value": 4,
-					"label": "luxS"
-				}, {
-					"value": 3,
-					"label": "arcA"
-				}, {
-					"value": 3,
-					"label": "dam"
-				}]
-			},
-			"ExperimentConditions": {
-				"title": "Experiment Conditions",
-				"data": [{
-					"value": 60,
-					"label": "mutant vs wild type"
-				}, {
-					"value": 33,
-					"label": "mutant"
-				}, {
-					"value": 10,
-					"label": "overexpression"
-				}, {
-					"value": 10,
-					"label": "strain comparison"
-				}, {
-					"value": 10,
-					"label": "time point"
-				}]
-			},
-			"popularName": "Escherichia coli str. K-12 substr. MG1655"
-		}, {
-			"link": "ExperimentList?cType=genome&cId=20916&kw=",
-			"GeneModifications": {
-				"title": "Gene Modifications",
-				"data": [{
-					"value": 2,
-					"label": "cheA"
-				}, {
-					"value": 2,
-					"label": "cheB"
-				}, {
-					"value": 2,
-					"label": "cheY"
-				}, {
-					"value": 2,
-					"label": "cheZ"
-				}, {
-					"value": 2,
-					"label": "hfq"
-				}]
-			},
-			"ExperimentConditions": {
-				"title": "Experiment Conditions",
-				"data": [{
-					"value": 25,
-					"label": "mutant vs wild type"
-				}, {
-					"value": 3,
-					"label": "in vivo"
-				}, {
-					"value": 3,
-					"label": "time point"
-				}, {
-					"value": 2,
-					"label": "H2O2"
-				}, {
-					"value": 2,
-					"label": "Mitomycin C"
-				}]
-			},
-			"popularName": "Salmonella enterica subsp. enterica serovar Typhimurium str. LT2"
-		}, {
-			"link": "ExperimentList?cType=genome&cId=58763&kw=",
-			"GeneModifications": {
-				"title": "Gene Modifications",
-				"data": [{
-					"value": 2,
-					"label": "anr"
-				}, {
-					"value": 1,
-					"label": "PA0149"
-				}, {
-					"value": 1,
-					"label": "PA0675"
-				}, {
-					"value": 1,
-					"label": "PA2050"
-				}, {
-					"value": 1,
-					"label": "PA2093"
-				}]
-			},
-			"ExperimentConditions": {
-				"title": "Experiment Conditions",
-				"data": [{
-					"value": 10,
-					"label": "mutant vs wild type"
-				}, {
-					"value": 6,
-					"label": "mutant vs wildtype"
-				}, {
-					"value": 5,
-					"label": "strain comparison"
-				}, {
-					"value": 4,
-					"label": "mutant"
-				}, {
-					"value": 4,
-					"label": "time point"
-				}]
-			},
-			"popularName": "Pseudomonas aeruginosa PAO1"
-		}, {
-			"link": "ExperimentList?cType=genome&cId=7843&kw=",
-			"GeneModifications": {
-				"title": "Gene Modifications",
-				"data": [{
-					"value": 2,
-					"label": "ompR"
-				}, {
-					"value": 1,
-					"label": "LPP"
-				}, {
-					"value": 1,
-					"label": "fur"
-				}, {
-					"value": 1,
-					"label": "hfq"
-				}, {
-					"value": 1,
-					"label": "oxyR"
-				}]
-			},
-			"ExperimentConditions": {
-				"title": "Experiment Conditions",
-				"data": [{
-					"value": 4,
-					"label": "mutant vs wild type"
-				}, {
-					"value": 3,
-					"label": "temperature"
-				}, {
-					"value": 1,
-					"label": "H2O2"
-				}, {
-					"value": 1,
-					"label": "Mg2"
-				}, {
-					"value": 1,
-					"label": "chloramphenicol"
-				}]
-			},
-			"popularName": "Yersinia pestis CO92"
-		}, {
-			"link": "ExperimentList?cType=genome&cId=69206&kw=",
-			"GeneModifications": {
-				"title": "Gene Modifications",
-				"data": [{
-					"value": 3,
-					"label": "prfA"
-				}, {
-					"value": 3,
-					"label": "sigB"
-				}, {
-					"value": 1,
-					"label": "Hpr KP"
-				}, {
-					"value": 1,
-					"label": "LhrA"
-				}, {
-					"value": 1,
-					"label": "LiaRLM"
-				}]
-			},
-			"ExperimentConditions": {
-				"title": "Experiment Conditions",
-				"data": [{
-					"value": 16,
-					"label": "mutant vs wild type"
-				}, {
-					"value": 4,
-					"label": "growth media"
-				}, {
-					"value": 3,
-					"label": "mutant"
-				}, {
-					"value": 3,
-					"label": "pH"
-				}, {
-					"value": 3,
-					"label": "temperature"
-				}]
-			},
-			"popularName": "Listeria monocytogenes EGD-e"
-		}, {
-			"link": "ExperimentList?cType=genome&cId=116463&kw=",
-			"GeneModifications": {
-				"title": "Gene Modifications",
-				"data": [{
-					"value": 1,
-					"label": "SACOL2645"
-				}, {
-					"value": 1,
-					"label": "arg"
-				}, {
-					"value": 1,
-					"label": "ccpA"
-				}, {
-					"value": 1,
-					"label": "lexA"
-				}, {
-					"value": 1,
-					"label": "pknB"
-				}]
-			},
-			"ExperimentConditions": {
-				"title": "Experiment Conditions",
-				"data": [{
-					"value": 6,
-					"label": "mutant vs wild type"
-				}, {
-					"value": 5,
-					"label": "strain comparison"
-				}, {
-					"value": 1,
-					"label": "CCCP"
-				}, {
-					"value": 1,
-					"label": "CPV"
-				}, {
-					"value": 1,
-					"label": "Cathelicidin LL-37"
-				}]
-			},
-			"popularName": "Staphylococcus aureus subsp. aureus N315"
-		}, {
-			"link": "ExperimentList?cType=genome&cId=27904&kw=",
-			"GeneModifications": {
-				"title": "Gene Modifications",
-				"data": [{
-					"value": 4,
-					"label": "ccpA"
-				}, {
-					"value": 1,
-					"label": "ahrC"
-				}, {
-					"value": 1,
-					"label": "argR1"
-				}, {
-					"value": 1,
-					"label": "argR1-ahrC"
-				}, {
-					"value": 1,
-					"label": "celR"
-				}]
-			},
-			"ExperimentConditions": {
-				"title": "Experiment Conditions",
-				"data": [{
-					"value": 13,
-					"label": "mutant vs wild type"
-				}, {
-					"value": 1,
-					"label": "LL37"
-				}, {
-					"value": 1,
-					"label": "arginine"
-				}, {
-					"value": 1,
-					"label": "bacitracin"
-				}, {
-					"value": 1,
-					"label": "copper"
-				}]
-			},
-			"popularName": "Streptococcus pneumoniae D39"
-		}, {
-			"link": "ExperimentList?cType=genome&cId=92729&kw=",
-			"GeneModifications": {
-				"title": "Gene Modifications",
-				"data": [{
-					"value": 2,
-					"label": "vjbR"
-				}, {
-					"value": 1,
-					"label": "babR"
-				}, {
-					"value": 1,
-					"label": "blxR"
-				}, {
-					"value": 1,
-					"label": "mucR"
-				}, {
-					"value": 1,
-					"label": "prlR"
-				}]
-			},
-			"ExperimentConditions": {
-				"title": "Experiment Conditions",
-				"data": [{
-					"value": 5,
-					"label": "mutant vs wild type"
-				}, {
-					"value": 1,
-					"label": "C12-HSL"
-				}, {
-					"value": 1,
-					"label": "growth phase"
-				}]
-			},
-			"popularName": "Brucella melitensis bv. 1 str. 16M"
-		}, {
-			"link": "ExperimentList?cType=genome&cId=33062&kw=",
-			"GeneModifications": {
-				"title": "Gene Modifications",
-				"data": [{
-					"value": 1,
-					"label": "ArsRS"
-				}, {
-					"value": 1,
-					"label": "HP0244"
-				}, {
-					"value": 1,
-					"label": "HP0518"
-				}, {
-					"value": 1,
-					"label": "HP1021"
-				}, {
-					"value": 1,
-					"label": "HopZ"
-				}]
-			},
-			"ExperimentConditions": {
-				"title": "Experiment Conditions",
-				"data": [{
-					"value": 6,
-					"label": "mutant vs wild type"
-				}, {
-					"value": 4,
-					"label": "time point"
-				}, {
-					"value": 1,
-					"label": "Cipro"
-				}, {
-					"value": 1,
-					"label": "ex vivo (cell line)"
-				}, {
-					"value": 1,
-					"label": "gentamycin"
-				}]
-			},
-			"popularName": "Helicobacter pylori 26695"
-		}]
-	},
-	"topSpecies": {
-		"title": "TOP 5 Species with Transcriptomics Data",
+	  },
+	  "ExperimentConditions": {
+		"title": "Experiment Conditions",
 		"data": [{
-			"value": 216,
-			"label": "Escherichia coli"
+		  "value": 22,
+		  "label": "mutant vs wild type"
 		}, {
-			"value": 63,
-			"label": "Pseudomonas aeruginosa"
+		  "value": 6,
+		  "label": "mutant"
 		}, {
-			"value": 48,
-			"label": "Salmonella enterica"
+		  "value": 4,
+		  "label": "strain comparison"
 		}, {
-			"value": 45,
-			"label": "Mycobacterium tuberculosis"
+		  "value": 3,
+		  "label": "SDS"
 		}, {
-			"value": 36,
-			"label": "Listeria monocytogenes"
+		  "value": 3,
+		  "label": "diamide"
 		}]
-	}
+	  },
+	  "popularName": "Mycobacterium tuberculosis H37Rv"
+	}, {
+	  "link": "ExperimentList?cType=genome&cId=511145.12&kw=",
+	  "GeneModifications": {
+		"title": "Gene Modifications",
+		"data": [{
+		  "value": 9,
+		  "label": "rpoS"
+		}, {
+		  "value": 4,
+		  "label": "crp"
+		}, {
+		  "value": 4,
+		  "label": "luxS"
+		}, {
+		  "value": 3,
+		  "label": "arcA"
+		}, {
+		  "value": 3,
+		  "label": "dam"
+		}]
+	  },
+	  "ExperimentConditions": {
+		"title": "Experiment Conditions",
+		"data": [{
+		  "value": 60,
+		  "label": "mutant vs wild type"
+		}, {
+		  "value": 33,
+		  "label": "mutant"
+		}, {
+		  "value": 10,
+		  "label": "overexpression"
+		}, {
+		  "value": 10,
+		  "label": "strain comparison"
+		}, {
+		  "value": 10,
+		  "label": "time point"
+		}]
+	  },
+	  "popularName": "Escherichia coli str. K-12 substr. MG1655"
+	}, {
+	  "link": "ExperimentList?cType=genome&cId=99287.12&kw=",
+	  "GeneModifications": {
+		"title": "Gene Modifications",
+		"data": [{
+		  "value": 2,
+		  "label": "cheA"
+		}, {
+		  "value": 2,
+		  "label": "cheB"
+		}, {
+		  "value": 2,
+		  "label": "cheY"
+		}, {
+		  "value": 2,
+		  "label": "cheZ"
+		}, {
+		  "value": 2,
+		  "label": "hfq"
+		}]
+	  },
+	  "ExperimentConditions": {
+		"title": "Experiment Conditions",
+		"data": [{
+		  "value": 25,
+		  "label": "mutant vs wild type"
+		}, {
+		  "value": 3,
+		  "label": "in vivo"
+		}, {
+		  "value": 3,
+		  "label": "time point"
+		}, {
+		  "value": 2,
+		  "label": "H2O2"
+		}, {
+		  "value": 2,
+		  "label": "Mitomycin C"
+		}]
+	  },
+	  "popularName": "Salmonella enterica subsp. enterica serovar Typhimurium str. LT2"
+	}, {
+	  "link": "ExperimentList?cType=genome&cId=208964.12&kw=",
+	  "GeneModifications": {
+		"title": "Gene Modifications",
+		"data": [{
+		  "value": 2,
+		  "label": "anr"
+		}, {
+		  "value": 1,
+		  "label": "PA0149"
+		}, {
+		  "value": 1,
+		  "label": "PA0675"
+		}, {
+		  "value": 1,
+		  "label": "PA2050"
+		}, {
+		  "value": 1,
+		  "label": "PA2093"
+		}]
+	  },
+	  "ExperimentConditions": {
+		"title": "Experiment Conditions",
+		"data": [{
+		  "value": 10,
+		  "label": "mutant vs wild type"
+		}, {
+		  "value": 6,
+		  "label": "mutant vs wildtype"
+		}, {
+		  "value": 5,
+		  "label": "strain comparison"
+		}, {
+		  "value": 4,
+		  "label": "mutant"
+		}, {
+		  "value": 4,
+		  "label": "time point"
+		}]
+	  },
+	  "popularName": "Pseudomonas aeruginosa PAO1"
+	}, {
+	  "link": "ExperimentList?cType=genome&cId=214092.21&kw=",
+	  "GeneModifications": {
+		"title": "Gene Modifications",
+		"data": [{
+		  "value": 2,
+		  "label": "ompR"
+		}, {
+		  "value": 1,
+		  "label": "LPP"
+		}, {
+		  "value": 1,
+		  "label": "fur"
+		}, {
+		  "value": 1,
+		  "label": "hfq"
+		}, {
+		  "value": 1,
+		  "label": "oxyR"
+		}]
+	  },
+	  "ExperimentConditions": {
+		"title": "Experiment Conditions",
+		"data": [{
+		  "value": 4,
+		  "label": "mutant vs wild type"
+		}, {
+		  "value": 3,
+		  "label": "temperature"
+		}, {
+		  "value": 1,
+		  "label": "H2O2"
+		}, {
+		  "value": 1,
+		  "label": "Mg2"
+		}, {
+		  "value": 1,
+		  "label": "chloramphenicol"
+		}]
+	  },
+	  "popularName": "Yersinia pestis CO92"
+	}, {
+	  "link": "ExperimentList?cType=genome&cId=169963.11&kw=",
+	  "GeneModifications": {
+		"title": "Gene Modifications",
+		"data": [{
+		  "value": 3,
+		  "label": "prfA"
+		}, {
+		  "value": 3,
+		  "label": "sigB"
+		}, {
+		  "value": 1,
+		  "label": "Hpr KP"
+		}, {
+		  "value": 1,
+		  "label": "LhrA"
+		}, {
+		  "value": 1,
+		  "label": "LiaRLM"
+		}]
+	  },
+	  "ExperimentConditions": {
+		"title": "Experiment Conditions",
+		"data": [{
+		  "value": 16,
+		  "label": "mutant vs wild type"
+		}, {
+		  "value": 4,
+		  "label": "growth media"
+		}, {
+		  "value": 3,
+		  "label": "mutant"
+		}, {
+		  "value": 3,
+		  "label": "pH"
+		}, {
+		  "value": 3,
+		  "label": "temperature"
+		}]
+	  },
+	  "popularName": "Listeria monocytogenes EGD-e"
+	}, {
+	  "link": "ExperimentList?cType=genome&cId=158879.11&kw=",
+	  "GeneModifications": {
+		"title": "Gene Modifications",
+		"data": [{
+		  "value": 1,
+		  "label": "SACOL2645"
+		}, {
+		  "value": 1,
+		  "label": "arg"
+		}, {
+		  "value": 1,
+		  "label": "ccpA"
+		}, {
+		  "value": 1,
+		  "label": "lexA"
+		}, {
+		  "value": 1,
+		  "label": "pknB"
+		}]
+	  },
+	  "ExperimentConditions": {
+		"title": "Experiment Conditions",
+		"data": [{
+		  "value": 6,
+		  "label": "mutant vs wild type"
+		}, {
+		  "value": 5,
+		  "label": "strain comparison"
+		}, {
+		  "value": 1,
+		  "label": "CCCP"
+		}, {
+		  "value": 1,
+		  "label": "CPV"
+		}, {
+		  "value": 1,
+		  "label": "Cathelicidin LL-37"
+		}]
+	  },
+	  "popularName": "Staphylococcus aureus subsp. aureus N315"
+	}, {
+	  "link": "ExperimentList?cType=genome&cId=373153.27&kw=",
+	  "GeneModifications": {
+		"title": "Gene Modifications",
+		"data": [{
+		  "value": 4,
+		  "label": "ccpA"
+		}, {
+		  "value": 1,
+		  "label": "ahrC"
+		}, {
+		  "value": 1,
+		  "label": "argR1"
+		}, {
+		  "value": 1,
+		  "label": "argR1-ahrC"
+		}, {
+		  "value": 1,
+		  "label": "celR"
+		}]
+	  },
+	  "ExperimentConditions": {
+		"title": "Experiment Conditions",
+		"data": [{
+		  "value": 13,
+		  "label": "mutant vs wild type"
+		}, {
+		  "value": 1,
+		  "label": "LL37"
+		}, {
+		  "value": 1,
+		  "label": "arginine"
+		}, {
+		  "value": 1,
+		  "label": "bacitracin"
+		}, {
+		  "value": 1,
+		  "label": "copper"
+		}]
+	  },
+	  "popularName": "Streptococcus pneumoniae D39"
+	}, {
+	  "link": "ExperimentList?cType=genome&cId=224914.11&kw=",
+	  "GeneModifications": {
+		"title": "Gene Modifications",
+		"data": [{
+		  "value": 2,
+		  "label": "vjbR"
+		}, {
+		  "value": 1,
+		  "label": "babR"
+		}, {
+		  "value": 1,
+		  "label": "blxR"
+		}, {
+		  "value": 1,
+		  "label": "mucR"
+		}, {
+		  "value": 1,
+		  "label": "prlR"
+		}]
+	  },
+	  "ExperimentConditions": {
+		"title": "Experiment Conditions",
+		"data": [{
+		  "value": 5,
+		  "label": "mutant vs wild type"
+		}, {
+		  "value": 1,
+		  "label": "C12-HSL"
+		}, {
+		  "value": 1,
+		  "label": "growth phase"
+		}]
+	  },
+	  "popularName": "Brucella melitensis bv. 1 str. 16M"
+	}, {
+	  "link": "ExperimentList?cType=genome&cId=85962.8&kw=",
+	  "GeneModifications": {
+		"title": "Gene Modifications",
+		"data": [{
+		  "value": 1,
+		  "label": "ArsRS"
+		}, {
+		  "value": 1,
+		  "label": "HP0244"
+		}, {
+		  "value": 1,
+		  "label": "HP0518"
+		}, {
+		  "value": 1,
+		  "label": "HP1021"
+		}, {
+		  "value": 1,
+		  "label": "HopZ"
+		}]
+	  },
+	  "ExperimentConditions": {
+		"title": "Experiment Conditions",
+		"data": [{
+		  "value": 6,
+		  "label": "mutant vs wild type"
+		}, {
+		  "value": 4,
+		  "label": "time point"
+		}, {
+		  "value": 1,
+		  "label": "Cipro"
+		}, {
+		  "value": 1,
+		  "label": "ex vivo (cell line)"
+		}, {
+		  "value": 1,
+		  "label": "gentamycin"
+		}]
+	  },
+	  "popularName": "Helicobacter pylori 26695"
+	}]
+  },
+  "topSpecies": {
+	"title": "TOP 5 Species with Transcriptomics Data",
+	"data": [{
+	  "value": 216,
+	  "label": "Escherichia coli"
+	}, {
+	  "value": 63,
+	  "label": "Pseudomonas aeruginosa"
+	}, {
+	  "value": 48,
+	  "label": "Salmonella enterica"
+	}, {
+	  "value": 45,
+	  "label": "Mycobacterium tuberculosis"
+	}, {
+	  "value": 36,
+	  "label": "Listeria monocytogenes"
+	}]
+  }
 }
