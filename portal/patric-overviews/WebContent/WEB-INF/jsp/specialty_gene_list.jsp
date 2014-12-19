@@ -98,7 +98,7 @@ Ext.onReady(function () {
 			{header:'Source',				dataIndex:'source', 			flex:1, align:'center', renderer:renderSource},
 			{header:'Genome Name',			dataIndex:'genome_name',		flex:2, renderer:renderGenomeName <%=cType.equals("genome")?", hidden:true":""%>},
 			{header:'PATRIC ID',	       	dataIndex:'seed_id',       		flex:2, renderer:renderSeedId, align:'center'},
-			{header:'RefSeq Locus Tag',		dataIndex:'refseq_locus_tag',	flex:1, align:'center', renderer:BasicRenderer},
+			{header:'RefSeq Locus Tag',		dataIndex:'refseq_locus_tag',	flex:1, align:'center', renderer:renderLocusTag},
 			{header:'Alt Locus Tag',		dataIndex:'alt_locus_tag', 		flex:2, renderer:renderLocusTag, align:'center'},
 			{header:'Source ID',			dataIndex:'source_id', 			flex:1, align:'center', renderer:renderSourceId},
 			{header:'Source Organism',		dataIndex:'organism', 			flex:1, align:'center', renderer:BasicRenderer, hidden:true},

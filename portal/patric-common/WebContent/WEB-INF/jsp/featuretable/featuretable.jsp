@@ -91,7 +91,7 @@ Ext.onReady(function()
 			{text:'Genome Name',		dataIndex:'genome_name',		orig_hidden_value: ("<%=cType%>" == "genome"),	hidden: ("<%=cType%>" == "genome")?true:false, flex:2,	renderer:renderGenomeName},
 			{text:'Accession',			dataIndex:'accession',			orig_hidden_value: true,	hidden: true,	flex:1, renderer:renderAccession},
 			{text:'PATRIC ID',			dataIndex:'seed_id',			orig_hidden_value: false,	flex:2, renderer:renderSeedId},
-			{text:'RefSeq Locus Tag',	dataIndex:'refseq_locus_tag',	orig_hidden_value: false,	flex:2, renderer:BasicRenderer},
+			{text:'RefSeq Locus Tag',	dataIndex:'refseq_locus_tag',	orig_hidden_value: false,	flex:2, renderer:renderLocusTag},
 			{text:'Alt Locus Tag',		dataIndex:'alt_locus_tag',		orig_hidden_value: false,	flex:2, renderer:renderLocusTag},
 			{text:'Gene Symbol',		dataIndex:'gene',				orig_hidden_value: false,	flex:1, renderer:BasicRenderer},
 			{text:'Genome Browser',		dataIndex:'feature_id',			orig_hidden_value: true,	hidden: true,	align:'center', flex:1, sortable: false, renderer:renderGenomeBrowserByFeature},

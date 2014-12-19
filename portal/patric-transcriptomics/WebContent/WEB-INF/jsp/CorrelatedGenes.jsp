@@ -72,7 +72,7 @@ Ext.onReady(function()
 				{text:'Accession',			dataIndex:'accession',			flex:1,	hidden:true, align:'center', renderer:renderAccession},
 				{text:'PATRIC ID',			dataIndex:'seed_id',	    	flex:2,	align:'center', renderer:renderSeedId},
 				{text:'Alt Locus Tag',		dataIndex:'alt_locus_tag',		flex:2,	align:'center', renderer:renderLocusTag},
-				{text:'RefSeq Locus Tag',	dataIndex:'refseq_locus_tag',	flex:2,	align:'center', renderer:BasicRenderer},
+				{text:'RefSeq Locus Tag',	dataIndex:'refseq_locus_tag',	flex:2,	align:'center', renderer:renderLocusTag},
 				{text:'Gene Symbol',		dataIndex:'gene',				flex:1,	align:'center', renderer:BasicRenderer},
 				{text:'Annotation',			dataIndex:'annotation',			flex:1, hidden:true, renderer:BasicRenderer}, 
 				{text:'Feature Type',		dataIndex:'feature_type',		flex:1, hidden:true, renderer:BasicRenderer},

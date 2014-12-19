@@ -97,7 +97,7 @@ Ext.onReady(function()
 				{text:'Genome Name',			dataIndex:'genome_name',		flex:2, renderer:renderGenomeName},
 				{text:'Accession',				dataIndex:'accession',			flex:1, hidden:true, renderer:renderAccession},
 				{text:'PATRIC ID',				dataIndex:'seed_id',			flex:1, renderer:renderSeedId},
-				{text:'RefSeq Locus Tag',		dataIndex:'refseq_locus_tag',	flex:1, renderer:BasicRenderer},
+				{text:'RefSeq Locus Tag',		dataIndex:'refseq_locus_tag',	flex:1, renderer:renderLocusTag},
 				{text:'Alt Locus Tag',			dataIndex:'alt_locus_tag',		flex:1, renderer:renderLocusTag},
 				{text:'Gene Symbol',			dataIndex:'gene',				flex:1, renderer:BasicRenderer},
 				{text:'Genome Browser',			dataIndex:'',					flex:1, hidden:true, align:'center', sortable:false, renderer:renderGenomeBrowserByFeature},

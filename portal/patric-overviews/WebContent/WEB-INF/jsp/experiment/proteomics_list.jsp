@@ -130,7 +130,7 @@ Ext.onReady(function()
 				{header:'Accession',			dataIndex:'accession',	hidden: true,	flex:1, renderer:BasicRenderer},
 				{header:'Peptides',			dataIndex:'',	hidden: false,	flex:1, renderer:renderPeptide},
 				{header:'Locus Tag',			dataIndex:'locus_tag', flex:2, renderer: renderLocusTag},
-				{header:'RefSeq Locus Tag',			dataIndex:'refseq_locus_tag', flex:2, renderer: BasicRenderer},
+				{header:'RefSeq Locus Tag',			dataIndex:'refseq_locus_tag', flex:2, renderer: renderLocusTag},
 				{header:'Gene Symbol',		dataIndex:'refseq_gene', flex:1, renderer:BasicRenderer},
 				{header:'Description',			dataIndex:'product', flex:3, renderer: BasicRenderer}
 				//{header:'Annotation',			dataIndex:'annotation',	hidden: true,	flex:1, renderer:BasicRenderer}
