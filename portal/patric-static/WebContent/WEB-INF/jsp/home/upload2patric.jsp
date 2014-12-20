@@ -9,7 +9,8 @@ String fileFormat = request.getParameter("file_format");
 <script type="text/javascript" src="/patric/js/vbi/TranscriptomicsUpload.min.js"></script>
 <script type="text/javascript">
 function launchTranscriptomicsUploader() {
-
+alert("Transcriptomics data upload is not available until Feb 2015.");
+/*
 	Ext.Ajax.request({
 		url: '/portal/portal/patric/BreadCrumb/WorkspaceWindow?action=b&cacheability=PAGE',
 		params: {
@@ -57,6 +58,7 @@ function launchTranscriptomicsUploader() {
 			console.log("FAIL:", response);
 		}
 	});
+*/
 }
 
 Ext.onReady(function () {

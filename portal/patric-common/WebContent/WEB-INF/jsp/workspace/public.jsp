@@ -3,6 +3,8 @@
 <script type="text/javascript">
 var msgCt;
 function launchTranscriptomicsUploader() {
+alert("Transcriptomics data upload is not available until Feb 2015.");
+/*
 	Ext.Ajax.request({
 		url: '/portal/portal/patric/BreadCrumb/WorkspaceWindow?action=b&cacheability=PAGE',
 		params: {
@@ -33,6 +35,7 @@ function launchTranscriptomicsUploader() {
 			}
 		}
 	});
+*/
 }
 </script>
 <div class="right no-underline-links" style="width:270px; font-size:11px;">
