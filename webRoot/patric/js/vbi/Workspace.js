@@ -2909,12 +2909,12 @@ Ext.define('VBI.Workspace.view.toolbar.Genome', {
 					me.showMenu();
 				}
 			}
-		}/*, {
+		}, {
 			xtype: 'tbar_btn_resetcolumnstate',
 			handler: function(me) {
 				this.fireEvent("resetColumnState");
 			}
-		}*/]
+		}]
 	}, '->', '-',
 	{
 		xtype: 'tbar_btngrp_help'
@@ -3736,7 +3736,7 @@ Ext.define('VBI.Workspace.view.Toolbar.button.ResetColumnState', {
 	scale: 'large',
 	iconAlign: 'left',
 	//icon: '/patric/images/toolbar_hideshow.png',
-	text: 'Reset<br/>Configs'
+	text: 'Default'
 });
 
 /**

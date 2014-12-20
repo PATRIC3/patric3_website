@@ -3,7 +3,7 @@ function createToolbar(type, download_option, workspace_type) {
 
 	var hide = Ext.create('Ext.container.ButtonGroup', {
 		title : 'Columns',
-		columns : 1,
+		columns : 2,
 		xtype : 'buttongroup',
 		height : height,
 		id : 'grid_column_toolbar_sh',
@@ -14,12 +14,30 @@ function createToolbar(type, download_option, workspace_type) {
 			text : 'Show/Hide',
 			icon : '/patric/images/toolbar_hideshow.png',
 			menu : []
+		}, {
+			scale : 'large',
+			width : 50,
+			text : 'Default',
+			handler: function() {
+				var Page = $Page, property = Page.getPageProperties(), hash = property.hash, which = hash.hasOwnProperty('cat') ? hash.cat : hash.aT ? hash.aT : 0, stateId = property.stateId[which];
+
+				if (stateId != undefined) {
+					var url = "/portal/portal/patric/BreadCrumb/WorkspaceWindow?action=b&cacheability=PAGE&action_type=HTTPProvider&action=remove&name=" + stateId;
+					Ext.Ajax.request({
+						url: url,
+						method: 'GET',
+						success: function(response, opts) {
+							console.log("resetColumnState");
+						}
+					});
+				}
+			}
 		}]
 	});
 
 	var hide_small = Ext.create('Ext.container.ButtonGroup', {
 		title : 'Columns',
-		columns : 1,
+		columns : 2,
 		xtype : 'buttongroup',
 		height : height_small,
 		id : 'grid_column_toolbar_sh_min',
@@ -30,6 +48,24 @@ function createToolbar(type, download_option, workspace_type) {
 			text : 'Show/Hide',
 			icon : '/patric/images/toolbar_hideshow_small.png',
 			menu : []
+		}, {
+			scale : 'small',
+			width : 50,
+			text : 'Default',
+			handler: function() {
+				var Page = $Page, property = Page.getPageProperties(), hash = property.hash, which = hash.hasOwnProperty('cat') ? hash.cat : hash.aT ? hash.aT : 0, stateId = property.stateId[which];
+
+				if (stateId != undefined) {
+					var url = "/portal/portal/patric/BreadCrumb/WorkspaceWindow?action=b&cacheability=PAGE&action_type=HTTPProvider&action=remove&name=" + stateId;
+					Ext.Ajax.request({
+						url: url,
+						method: 'GET',
+						success: function(response, opts) {
+							console.log("resetColumnState");
+						}
+					});
+				}
+			}
 		}]
 	});
 
