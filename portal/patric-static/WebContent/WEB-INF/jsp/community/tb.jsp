@@ -286,8 +286,8 @@ function _launchPFS(idList) {
 }
 
 function launchTranscriptomicsUploader() {
-alert("Transcriptomics data upload is disabled to allow infrastructure modifications. Upload functionality will be enhanced and available in the next release planned for Feb, 2015.");
-/*
+alert("Due to infrastructure changes in progress, transcriptomics data upload only supports genomes included in PATRIC through the October 2014 release.  Upload functionality will be enhanced in the next release planned for Feb, 2015.");
+
 	Ext.Ajax.request({
 		url: '/portal/portal/patric/BreadCrumb/WorkspaceWindow?action=b&cacheability=PAGE',
 		params: {
@@ -321,7 +321,7 @@ alert("Transcriptomics data upload is disabled to allow infrastructure modificat
 			}
 		}
 	});
-*/
+
 }
 //]]>
 </script>

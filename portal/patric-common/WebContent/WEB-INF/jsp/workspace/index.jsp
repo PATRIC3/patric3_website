@@ -5,8 +5,8 @@
 <script type="text/javascript">var popup; </script>
 <script type="text/javascript">
 function launchTranscriptomicsUploader() {
-	alert("Transcriptomics data upload is disabled to allow infrastructure modifications. Upload functionality will be enhanced and available in the next release planned for Feb, 2015.");
-/*
+alert("Due to infrastructure changes in progress, transcriptomics data upload only supports genomes included in PATRIC through the October 2014 release.  Upload functionality will be enhanced in the next release planned for Feb, 2015.");
+
 	Ext.Ajax.request({
 		url: '/portal/portal/patric/BreadCrumb/WorkspaceWindow?action=b&cacheability=PAGE',
 		params: {
@@ -34,7 +34,7 @@ function launchTranscriptomicsUploader() {
 		failure: function(response) {
 		}
 	});
-*/
+
 }
 </script>
 <script type="text/javascript" src="/patric/js/vbi/Workspace.min.js"></script>
