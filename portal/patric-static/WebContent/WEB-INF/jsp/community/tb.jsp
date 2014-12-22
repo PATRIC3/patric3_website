@@ -286,7 +286,7 @@ function _launchPFS(idList) {
 }
 
 function launchTranscriptomicsUploader() {
-alert("Transcriptomics data upload is not available until Feb 2015.");
+alert("Transcriptomics data upload is disabled to allow infrastructure modifications. Upload functionality will be enhanced and available in the next release planned for Feb, 2015.");
 /*
 	Ext.Ajax.request({
 		url: '/portal/portal/patric/BreadCrumb/WorkspaceWindow?action=b&cacheability=PAGE',
