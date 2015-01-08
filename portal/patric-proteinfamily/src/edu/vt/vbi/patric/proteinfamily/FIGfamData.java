@@ -20,6 +20,7 @@ import edu.vt.vbi.patric.beans.GenomeFeature;
 import edu.vt.vbi.patric.beans.Taxonomy;
 import edu.vt.vbi.patric.common.SolrCore;
 import edu.vt.vbi.patric.common.SolrInterface;
+import edu.vt.vbi.patric.dao.ResultType;
 import edu.vt.vbi.patric.msa.Aligner;
 import edu.vt.vbi.patric.msa.SequenceData;
 import org.apache.commons.lang.StringUtils;
@@ -38,6 +39,7 @@ import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.portlet.PortletSession;
 import javax.portlet.ResourceRequest;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -359,6 +361,14 @@ public class FIGfamData {
 		}
 		query.setRows(500000).addSort("genome_name", SolrQuery.ORDER.asc);
 
+		String pk = req.getParameter("param_key");
+		PortletSession session = req.getPortletSession(true);
+		ResultType key = (ResultType) session.getAttribute("key" + pk);
+
+		if (key != null && key.containsKey("genomeIds") && !key.get("genomeIds").equals("")) {
+			query.addFilterQuery("genome_id:(" + key.get("genomeIds").replaceAll(",", " OR ") + ")");
+		}
+
 		LOGGER.debug("getGenomeDetails() {}", query.toString());
 		JSONObject object = null;
 		try {
@@ -573,6 +583,17 @@ public class FIGfamData {
 				}
 				keyword += "(genome_id:(" + listText.replaceAll(",", " OR ") + "))";
 			}
+		}
+
+		String pk = req.getParameter("param_key");
+		PortletSession session = req.getPortletSession(true);
+		ResultType key = (ResultType) session.getAttribute("key" + pk);
+
+		if (key != null && key.containsKey("genomeIds") && !key.get("genomeIds").equals("")) {
+			if (!keyword.equals("")) {
+				keyword += " AND ";
+			}
+			keyword += "genome_id:(" + key.get("genomeIds").replaceAll(",", " OR ") + ")";
 		}
 
 		return keyword;

@@ -1,43 +1,41 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <%@ page import="edu.vt.vbi.patric.common.OrganismTreeBuilder" %>
-<%@ page import="edu.vt.vbi.patric.dao.DBShared" %>
-<%@ page import="edu.vt.vbi.patric.dao.ResultType" %>
-<%@ page import="edu.vt.vbi.patric.proteinfamily.FIGfamData" %>
+<%@ page import="edu.vt.vbi.patric.common.SolrInterface" %>
+<%@ page import="edu.vt.vbi.patric.beans.Taxonomy" %>
+<%@ page import="edu.vt.vbi.patric.beans.Genome" %>
 <%@ page import="java.util.*" %>
 <portlet:defineObjects />
 <%
 String resourceURL = (renderResponse.createResourceURL()).toString();
 
-DBShared conn_shared = new DBShared();
-HashMap<String, String> key = new HashMap<String,String>();
+SolrInterface solr = new SolrInterface();
 // TODO: if genomeId is given, set key attribute to that it is selected.
 
-String ncbi_taxon_id = null;
 String cType = request.getParameter("context_type");
 String cId = request.getParameter("context_id");
 
 String expander = "";
 String taxonName = "";
-ArrayList<ResultType> ids = null;
+int taxonId = -1;
 
-if (cType!=null && cId!=null && cType.equals("taxon")) {
-	ncbi_taxon_id = (cId.equals(""))?"2":cId;
-	key.put("ncbi_taxon_id", ncbi_taxon_id);
-	FIGfamData access = new FIGfamData();
-	taxonName = access.getTaxonName(ncbi_taxon_id);
-} 
-expander = ((!taxonName.equals("Bacteria"))?"<div style='float:right'><div class='searchtool-inside'><h2 align='center'>Want to make comparisons not limited to " + taxonName + "?</h2><br />Use PATRIC's <a href='FIGfam?cType=taxon&cId=&dm='>Protein Family Sorter</a> located in Searches & Tools.<br/><b><br/>* Any genome selections you have made will be discarded!<b/></div></div>":"");
-String name = "";
 if(cId == null || cId.equals("")) {
-	name = "Bacteria";
+	taxonId = 131567;
+	taxonName = "cellular organism";
 }
 else {
 	if(cType.equals("taxon")) {
-		name = conn_shared.getOrganismName(cId);
+		Taxonomy taxonomy = solr.getTaxonomy(Integer.parseInt(cId));
+		taxonId = taxonomy.getId();
+		taxonName = taxonomy.getTaxonName();
+
 	} else if (cType.equals("genome")) {
-		name = conn_shared.getGenomeName(cId);
+		Genome genome = solr.getGenome(cId);
+		taxonId = genome.getTaxonId();
+		taxonName = genome.getGenomeName();
 	}
 }
+
+expander = ((taxonId != 131567)?"<div style='float:right'><div class='searchtool-inside'><h2 align='center'>Want to make comparisons not limited to " + taxonName + "?</h2><br />Use PATRIC's <a href='FIGfam?cType=taxon&cId=131567&dm='>Protein Family Sorter</a> located in Searches & Tools.<br/><b><br/>* Any genome selections you have made will be discarded!<b/></div></div>":"");
 
 boolean loggedIn = false;
 if (request.getUserPrincipal() == null) {
@@ -97,8 +95,8 @@ Ext.onReady(function(){
 		width: 480,
 		height: 550,
 		border:false,
-		parentTaxon: <%=(ncbi_taxon_id==null)?"2":ncbi_taxon_id %>,
-		organismName:'<%=name%>'
+		parentTaxon: '<%=taxonId %>',
+		organismName:'<%=taxonName %>'
 	});
 	
 	Ext.create('Ext.form.field.TextArea', {
@@ -120,7 +118,7 @@ function checkGenomes() {
 			timeout : 600000,
 			params : {
 				callType : "getTaxonIds",
-				taxonId : '<%=(cId.equals(""))?2:cId %>'
+				taxonId : '<%=taxonId %>'
 			},
 			success : function(rs) {
 				//idList = Ext.JSON.decode(rs.responseText);

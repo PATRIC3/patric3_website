@@ -132,8 +132,8 @@ public class FIGfam extends GenericPortlet {
 				getGenomeIds(req, key);
 				Random g = new Random();
 				int random = g.nextInt();
-				PortletSession sess = req.getPortletSession(true);
-				sess.setAttribute("key" + random, key);
+				PortletSession session = req.getPortletSession(true);
+				session.setAttribute("key" + random, key);
 				PrintWriter writer = resp.getWriter();
 				writer.write("" + random);
 				writer.close();
