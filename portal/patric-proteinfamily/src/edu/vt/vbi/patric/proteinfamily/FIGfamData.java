@@ -92,7 +92,9 @@ public class FIGfamData {
 				sdl = qr.getResults();
 
 				solr_query.setRows((int) sdl.getNumFound());
-				solr_query.addSort("seed_id", SolrQuery.ORDER.asc);
+				solr_query.addSort("accession", SolrQuery.ORDER.asc);
+				solr_query.addSort("start", SolrQuery.ORDER.asc);
+//				solr_query.addSort("seed_id", SolrQuery.ORDER.asc);
 			}
 			catch (SolrServerException e) {
 				LOGGER.error(e.getMessage(), e);
