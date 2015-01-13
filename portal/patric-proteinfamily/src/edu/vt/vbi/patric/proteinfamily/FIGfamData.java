@@ -81,7 +81,7 @@ public class FIGfamData {
 
 			SolrQuery solr_query = new SolrQuery("genome_id:" + genomeId);
 			solr_query.setRows(1);
-			solr_query.setFilterQueries("annotation:PATRIC AND feature_type:CDS");
+			solr_query.setFilterQueries("annotation:PATRIC AND feature_type:CDS AND figfam_id:[* TO *]");
 			solr_query.addField("figfam_id");
 
 			QueryResponse qr;
@@ -130,8 +130,7 @@ public class FIGfamData {
 				SyntonyOrder[] orderSave = new SyntonyOrder[collect.size()];
 				collect.toArray(orderSave);// orderSave is array in order of Figfam ID
 				SyntonyOrder[] toSort = new SyntonyOrder[collect.size()];
-				System.arraycopy(orderSave, 0, toSort, 0, toSort.length);// copy the array so it can be sorted based on
-				// position in the genome
+				System.arraycopy(orderSave, 0, toSort, 0, toSort.length);// copy the array so it can be sorted based on position in the genome
 				Arrays.sort(toSort); // sort based on figfamIDs
 				SyntonyOrder start = toSort[0];
 				for (int i = 1; i < toSort.length; i++) {
@@ -400,8 +399,24 @@ public class FIGfamData {
 		List<String> figfamIdList = new ArrayList<>();
 		List<String> genomeIdList = Arrays.asList(req.getParameter("genomeIds").split(","));
 
+		// get genome list in order
+		SolrQuery solr_query = new SolrQuery("genome_id:(" + StringUtils.join(genomeIdList, " OR ") + ")");
+		solr_query.addSort("genome_name", SolrQuery.ORDER.asc).addField("genome_id").setRows(genomeIdList.size());
+
+		try {
+			QueryResponse qr = solr.getSolrServer(SolrCore.GENOME).query(solr_query, SolrRequest.METHOD.POST);
+
+			genomeIdList = new ArrayList<>();
+			for (SolrDocument doc: qr.getResults()) {
+				genomeIdList.add(doc.get("genome_id").toString());
+			}
+		}
+		catch (MalformedURLException | SolrServerException e) {
+			LOGGER.error(e.getMessage(), e);
+		}
+
 		// getting genome counts per figfamID (figfam)
-		SolrQuery solr_query = new SolrQuery("*:*");
+		solr_query = new SolrQuery("*:*");
 		solr_query.addFilterQuery("annotation:PATRIC AND feature_type:CDS");
 		solr_query.addFilterQuery(getSolrQuery(req));
 		solr_query.setRows(0);
@@ -434,6 +449,7 @@ public class FIGfamData {
 							index = genomeIdList.indexOf(pivotGenome.getValue().toString());
 							hex = Integer.toHexString(pivotGenome.getCount());
 							genomeIdsStr[index] = hex.length() < 2 ? "0" + hex : hex;
+//							LOGGER.debug("{},{},{},{}", pivotGenome.getValue(), index, hex, genomeIdsStr);
 							count += pivotGenome.getCount();
 						}
 
