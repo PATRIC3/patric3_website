@@ -45,10 +45,12 @@
              query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + taxonId + " AND genome_status:(complete OR wgs)"));
         }
         if (genomeId != null && !genomeId.equals("")) {
-            query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "genome_id:" + genomeId + " AND genome_status:(complete OR wgs)"));
+            query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "genome_id:(" + genomeId.replaceAll(",", " OR ") + ") AND genome_status:(complete OR wgs)"));
         }
         query.setRows(100000).setFacet(true);
         query.add("json.facet","{stat:{field:{field:genome_ec,limit:-1,facet:{gene_count:\"unique(feature_id)\"}}}}");
+
+        LOGGER.debug("step 1: {}", query.toString());
 
         QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query);
         List<SimpleOrderedMap> buckets = (List) ((SimpleOrderedMap) ((SimpleOrderedMap) qr.getResponse().get("facets")).get("stat")).get("buckets");
@@ -89,7 +91,7 @@
 		     query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + taxonId + " AND genome_status:(complete OR wgs)"));
 		}
 		if (genomeId != null && !genomeId.equals("")) {
-            query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "genome_id:" + genomeId + " AND genome_status:(complete OR wgs)"));
+            query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "genome_id:(" + genomeId.replaceAll(",", " OR ") + ") AND genome_status:(complete OR wgs)"));
 		}
 		if (algorithm != null && !algorithm.equals("")) {
 		    if (algorithm.equals("PATRIC")) {
@@ -103,6 +105,8 @@
 		    }
 		}
         query.setFields("genome_id,genome_name").setRows(10000).addSort("genome_name", SolrQuery.ORDER.asc);
+
+        LOGGER.debug("step 2: {}", query.toString());
 
         QueryResponse qr = solr.getSolrServer(SolrCore.GENOME).query(query);
         List<Genome> genomes = qr.getBeans(Genome.class);

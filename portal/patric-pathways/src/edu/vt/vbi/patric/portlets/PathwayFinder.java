@@ -81,7 +81,7 @@ public class PathwayFinder extends GenericPortlet {
 			if (key != null && key.containsKey("genomeId")) {
 				genomeId = key.get("genomeId");
 			}
-			if (searchOn.equalsIgnoreCase("Keyword")) {
+			if (searchOn.equalsIgnoreCase("Keyword") && key != null && key.get("keyword") != null) {
 				keyword = key.get("keyword");
 			}
 
@@ -200,38 +200,6 @@ public class PathwayFinder extends GenericPortlet {
 		else {
 
 			String need = request.getParameter("need");
-			JSONObject jsonResult = new JSONObject();
-			//			JSONArray results = new JSONArray();
-
-			// sorting
-			//			JSONParser a = new JSONParser();
-			//			JSONArray sorter;
-			//			String sort_field = "";
-			//			String sort_dir = "";
-			//			try {
-			//				sorter = (JSONArray) a.parse(request.getParameter("sort"));
-			//				sort_field += ((JSONObject) sorter.get(0)).get("property").toString();
-			//				sort_dir += ((JSONObject) sorter.get(0)).get("direction").toString();
-			//				for (int i = 1; i < sorter.size(); i++) {
-			//					sort_field += "," + ((JSONObject) sorter.get(i)).get("property").toString();
-			//				}
-			//			}
-			//			catch (ParseException e) {
-			//				LOGGER.error(e.getMessage(), e);
-			//			}
-			//
-			//			HashMap<String, String> sort = new HashMap<>();
-			//
-			//			if (!sort_field.equals("") && !sort_dir.equals("")) {
-			//				sort.put("field", sort_field);
-			//				sort.put("direction", sort_dir);
-			//			}
-
-			//			int start = Integer.parseInt(request.getParameter("start"));
-			//			int end = start + Integer.parseInt(request.getParameter("limit"));
-			//			List<ResultType> items = new ArrayList<>();
-			//			int count_total = 0;
-			//			DBPathways conn_summary = new DBPathways();
 
 			String pk = request.getParameter("pk");
 			PortletSession session = request.getPortletSession();
@@ -239,7 +207,7 @@ public class PathwayFinder extends GenericPortlet {
 
 			switch (need) {
 			case "0":
-				jsonResult = this
+				JSONObject jsonResult = this
 						.processPathwayTab(key.get("map"), key.get("ec_number"), key.get("algorithm"), key.get("taxonId"), key.get("genomeId"),
 								key.get("keyword"));
 				response.setContentType("application/json");
@@ -696,7 +664,7 @@ public class PathwayFinder extends GenericPortlet {
 
 		List<String> _tbl_header = new ArrayList<>();
 		List<String> _tbl_field = new ArrayList<>();
-		JSONArray _tbl_source = null;
+
 		String fileFormat = request.getParameter("fileformat");
 		String fileName;
 
@@ -707,7 +675,7 @@ public class PathwayFinder extends GenericPortlet {
 		String taxonId = request.getParameter("taxonId");
 		String genomeId = request.getParameter("genomeId");
 
-		_tbl_source = (JSONArray) this.processGeneTab(pathwayId, ecNumber, annotation, taxonId, genomeId, "").get("results");
+		JSONArray _tbl_source = (JSONArray) this.processGeneTab(pathwayId, ecNumber, annotation, taxonId, genomeId, "").get("results");
 		_tbl_header.addAll(Arrays
 				.asList("Feature ID", "Genome Name", "Accession", "PATRIC ID", "RefSeq Locus Tag", "Alt Locus Tag", "Gene Symbol", "Product Name",
 						"Annotation", "Pathway ID", "Pathway Name", "Ec Number", "EC Description"));

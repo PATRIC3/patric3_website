@@ -510,14 +510,8 @@ function flipAxises() {
 }
 
 function flashColSelected(flashObjectID,colID) {
-	var algorithm = Ext.getDom("algorithm").value;	
-	
-//	if(algorithm == "PATRIC")
-//		algorithm = "RAST";
-//	else if(algorithm == "Legacy BRC" || algorithm == "BRC")
-//		algorithm = "Curation";
-		
-		
+	var algorithm = Ext.getDom("algorithm").value;
+
 	Ext.Ajax.request({
 		url: "/patric-pathways/jsp/get_na_feature_ids.json.jsp",
 		method: 'POST',
@@ -534,14 +528,8 @@ function flashColSelected(flashObjectID,colID) {
   	@param rowID {int} the rowID of the selected row.
 */
 function flashRowSelected(flashObjectID,rowID) {
-  	var algorithm = Ext.getDom("algorithm").value;	
-	
-//	if(algorithm == "PATRIC")
-//		algorithm = "RAST";
-//	else if(algorithm == "Legacy BRC" || algorithm == "BRC")
-//		algorithm = "Curation";
-		
-		
+	var algorithm = Ext.getDom("algorithm").value;
+
 	Ext.Ajax.request({
 		url: "/patric-pathways/jsp/get_na_feature_ids.json.jsp",
 		method: 'POST',
