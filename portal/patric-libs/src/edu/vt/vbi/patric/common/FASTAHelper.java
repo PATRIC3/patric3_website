@@ -18,6 +18,7 @@ package edu.vt.vbi.patric.common;
 import edu.vt.vbi.patric.beans.GenomeFeature;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.slf4j.Logger;
@@ -40,7 +41,7 @@ public class FASTAHelper {
 			query.setFields("feature_id,seed_id,alt_locus_tag,refseq_locus_tag,annotation,gi,product,genome_id,genome_name,na_sequence,aa_sequence");
 			query.setRows(featureIds.size());
 
-			QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query);
+			QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query, SolrRequest.METHOD.POST);
 			List<GenomeFeature> features = qr.getBeans(GenomeFeature.class);
 
 			for (GenomeFeature feature: features) {

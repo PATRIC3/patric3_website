@@ -274,7 +274,7 @@ public class FIGfamData {
 			query.addField("genome_name,seed_id,refseq_locus_tag,alt_locus_tag,aa_sequence");
 			query.setRows(featureIds.length);
 
-			QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query);
+			QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query, SolrRequest.METHOD.POST);
 			List<GenomeFeature> features = qr.getBeans(GenomeFeature.class);
 
 			for (GenomeFeature feature : features) {
