@@ -47,18 +47,19 @@
         if (genomeId != null && !genomeId.equals("")) {
             query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "genome_id:(" + genomeId.replaceAll(",", " OR ") + ") AND genome_status:(complete OR wgs)"));
         }
-        query.setRows(100000).setFacet(true);
-        query.add("json.facet","{stat:{field:{field:genome_ec,limit:-1,facet:{gene_count:\"unique(feature_id)\"}}}}");
+        query.setRows(100000).setFields("genome_id,annotation,ec_number,ec_description").setFacet(true);
+        // {stat:{field:{field:genome_ec,limit:-1,facet:{gene_count:\"unique(feature_id)\"}}}}
+        query.add("json.facet","{stat:{field:{field:genome_ec,limit:-1}}}}");
 
-        LOGGER.debug("step 1: {}", query.toString());
+        LOGGER.debug("heatmap step 1: {}", query.toString());
 
         QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query);
         List<SimpleOrderedMap> buckets = (List) ((SimpleOrderedMap) ((SimpleOrderedMap) qr.getResponse().get("facets")).get("stat")).get("buckets");
 
         Map<String, Integer> mapStat = new HashMap<String, Integer>();
         for (SimpleOrderedMap value: buckets) {
-            if (Integer.parseInt(value.get("gene_count").toString()) > 0) {
-                mapStat.put(value.get("val").toString(), (Integer) value.get("gene_count"));
+            if (Integer.parseInt(value.get("count").toString()) > 0) {
+                mapStat.put(value.get("val").toString(), (Integer) value.get("count"));
             }
         }
 
