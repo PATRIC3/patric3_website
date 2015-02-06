@@ -48,7 +48,7 @@ String flag = "";
 			<li id="tabs_specialtygenes"><a href="SpecialtyGeneList?cType=genome&amp;cId=<%=gId %>&amp;kw="
 				title=""><span>Specialty Genes</span></a></li>
 			<li id="tabs_pathways"><a href="CompPathwayTable?cType=genome&amp;cId=<%=gId %>&amp;algorithm=PATRIC&amp;ec_number="><span>Pathways</span></a></li>
-			<li id="tabs_proteinfamilysorter"><a href="FIGfam?cType=genome&amp;cId=<%=gId %>&amp;dm=result&amp;bm="><span>Protein Families</span></a></li>
+			<li id="tabs_proteinfamilysorter"><a href="FIGfam?cType=genome&amp;cId=<%=gId %>&amp;dm=result&amp;bm=&pk="><span>Protein Families</span></a></li>
 			<li id="tabs_explist"><a href="ExperimentList?cType=genome&amp;cId=<%=gId %>&amp;kw=" 
 				title=""><span>Transcriptomics</span></a></li>
 			<%--<li id="tabs_proteomics"><a href="ProteomicsList?cType=genome&amp;cId=<%=gId %>&amp;kw=" title=""><span>Proteomics</span></a></li>--%>
