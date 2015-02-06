@@ -20,7 +20,7 @@ if (feature != null) {
 		window_start = window_start - 1000;
 	}
 	int window_end = feature.getEnd() + 1000;
-	String gb_link = "GenomeBrowser?cType=feature&amp;cId="+fId+"&amp;loc="+window_start+".."+window_end+"&amp;tracks="+tracks;
+	String gb_link = "GenomeBrowser?cType=feature&amp;cId=" + fId + "&amp;loc=" + feature.getAccession() + ":" + window_start + ".." + window_end + "&amp;tracks=" + tracks;
 	String crv_link = "CompareRegionViewer?cType=feature&amp;cId=" + feature.getId() +"&amp;tracks=&amp;regions=5&amp;window=10000&amp;loc=1..10000";
 	%>
 	<nav class="breadcrumbs" style="width=100%">
