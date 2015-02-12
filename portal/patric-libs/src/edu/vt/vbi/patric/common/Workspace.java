@@ -15,6 +15,7 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.common;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,7 +32,7 @@ import org.json.simple.JSONObject;
 /**
  * 
  */
-public class Workspace {
+public class Workspace implements Serializable {
 
 	public final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 

@@ -15,6 +15,7 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.common;
 
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,28 +23,28 @@ import java.util.Map;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-public class UIPreference {
+public class UIPreference implements Serializable {
 
-	public HashMap<String, String> state;
+	public Map<String, String> state;
 
 	public long timestamp;
 
 	public UIPreference() {
-		state = new HashMap<String, String>();
+		state = new HashMap<>();
 		setTimestamp();
 	}
 
 	/**
 	 * Construct UIPreference with given UIPreference Object
 	 * 
-	 * @param ws JSONObject
+	 * @param pref JSONObject
 	 */
 	public UIPreference(JSONObject pref) {
 
-		state = new HashMap<String, String>();
+		state = new HashMap<>();
 
 		JSONArray stateArray = (JSONArray) pref.get("state");
-		if (stateArray != null && stateArray.isEmpty() == false) {
+		if (stateArray != null && !stateArray.isEmpty()) {
 			this.setStateList(stateArray);
 		}
 
