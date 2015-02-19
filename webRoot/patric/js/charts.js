@@ -730,7 +730,7 @@ be added and the real value reported above the bar.
 							"label": datum.pathogen,
 							"genomes": datum.genomes,
 							"total": parseInt(datum.total),
-							"fvh": [parseInt(datum.functional), parseInt(datum.hypotheticals)],
+							"fvh": [parseInt(datum.functional), parseInt(datum.hypothetical)],
 							"cva": [parseInt(datum.core), parseInt(datum.accessory)]
 						};
 					})(datum));

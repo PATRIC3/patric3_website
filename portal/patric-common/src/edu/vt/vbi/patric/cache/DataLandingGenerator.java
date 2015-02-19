@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2014 Virginia Polytechnic Institute and State University
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,7 +20,6 @@ import edu.vt.vbi.patric.beans.Taxonomy;
 import edu.vt.vbi.patric.common.SolrCore;
 import edu.vt.vbi.patric.common.SolrInterface;
 import edu.vt.vbi.patric.dao.DBPathways;
-import edu.vt.vbi.patric.dao.DBSummary;
 import edu.vt.vbi.patric.dao.ResultType;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.ResponseHandler;
@@ -47,19 +46,20 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @SuppressWarnings("unchecked")
 public class DataLandingGenerator {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(DataLandingGenerator.class);
+
 	final String baseURL = "http://enews.patricbrc.org";
 
-	final String[] REFERENCE_GENOME_IDS = { "83332.12", "511145.12", "99287.12", "198215.6", "214092.21", "169963.11", "158879.11", "373153.27", "224914.11", "85962.8" };
+	final String[] REFERENCE_GENOME_IDS = { "83332.12", "511145.12", "99287.12", "198215.6", "214092.21", "169963.11", "158879.11", "373153.27",
+			"224914.11", "85962.8" };
 
-	final String[] REFERENCE_GENOME_IDS_TRANSCRIPTOMICS = { "83332.12", "511145.12", "99287.12", "208964.12", "214092.21", "169963.11", "158879.11", "373153.27", "224914.11", "85962.8" };
+	final String[] REFERENCE_GENOME_IDS_TRANSCRIPTOMICS = { "83332.12", "511145.12", "99287.12", "208964.12", "214092.21", "169963.11", "158879.11",
+			"373153.27", "224914.11", "85962.8" };
 
 	final Integer[] GENUS_TAXON_IDS = { 1386, 773, 138, 234, 32008, 194, 83553, 1485, 776, 943, 561, 262, 209, 1637, 1763, 780, 590, 620, 1279, 1301,
 			662, 629 };
@@ -83,12 +83,6 @@ public class DataLandingGenerator {
 	final String URL_PATHWAY_GENE_TAB = "CompPathwayTable?cType=genome&cId={cId}&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId={pId}&pClass=&ecN=";
 
 	final String ULR_SPECIALTY_GENE_TAB = "SpecialtyGeneList?cType=genome&cId={cId}&kw=source:{source}";
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(DataLandingGenerator.class);
-
-//	public void setBaseURL(String url) {
-//		baseURL = url;
-//	}
 
 	public boolean createCacheFileGenomes(String filePath) {
 		boolean isSuccess = false;
@@ -531,24 +525,21 @@ public class DataLandingGenerator {
 		JSONObject jsonData;
 		JSONArray series = new JSONArray();
 
-		DBSummary conn = new DBSummary();
 		SolrInterface solr = new SolrInterface();
 
 		for (Integer txId : GENUS_TAXON_IDS) {
-			// TODO: need to implement this with solr
-			ResultType stat = conn.getFIGFamStat(txId);
-			// Map<String, Integer> stat = getFIGFamStat(txId);
+			Map<String, Integer> stat = getFIGFamStat(txId);
 
 			Taxonomy taxonomy = solr.getTaxonomy(txId);
 
 			JSONObject item = new JSONObject();
 			item.put("pathogen", taxonomy.getTaxonName());
 			item.put("genomes", taxonomy.getGenomeCount());
-			item.put("total", Integer.parseInt(stat.get("total")));
-			item.put("functional", Integer.parseInt(stat.get("functional")));
-			item.put("hypotheticals", Integer.parseInt(stat.get("hypotheticals")));
-			item.put("core", Integer.parseInt(stat.get("core")));
-			item.put("accessory", Integer.parseInt(stat.get("accessory")));
+			item.put("total", stat.get("total"));
+			item.put("functional", stat.get("functional"));
+			item.put("hypothetical", stat.get("hypothetical"));
+			item.put("core", stat.get("core"));
+			item.put("accessory", stat.get("accessory"));
 
 			series.add(item);
 		}
@@ -564,35 +555,15 @@ public class DataLandingGenerator {
 	private JSONObject getPopularGeneraFigfam() {
 		JSONObject jsonData;
 		JSONArray list = new JSONArray();
-		DBSummary conn = new DBSummary();
 		SolrInterface solr = new SolrInterface();
-		List<ResultType> dist;
 
 		for (Integer txId : GENUS_TAXON_IDS) {
-			// TODO: implement this with solr
-			dist = conn.getFIGFamConservDist(txId);
 			Taxonomy taxonomy = solr.getTaxonomy(txId);
-			JSONArray data = new JSONArray();
 
-			// initialize map
-			Map<Integer, Integer> distMap = new HashMap<>();
-			for (int i = 1; i <= 10; i++) {
-				distMap.put(i, 0);
-			}
-			// update map
-			for (ResultType pt : dist) {
-				distMap.put(Integer.parseInt(pt.get("grp")), Integer.parseInt(pt.get("cnt")));
-			}
-			// convert map to JSONObject;
-			for (int i = 1; i <= 10; i++) {
-				JSONObject o = new JSONObject();
-				o.put("x", i + "0%");
-				o.put("y", distMap.get(i));
-				data.add(o);
-			}
+			JSONArray data = getFIGFamConservationDistribution(txId);
 
 			JSONObject item = new JSONObject();
-			item.put("link", "/portal/portal/patric/FIGfam?cType=taxon&cId=" + txId + "&dm=result&bm=");
+			item.put("link", "/portal/portal/patric/FIGfam?cType=taxon&cId=" + txId + "&dm=result&bm=&pk=");
 			item.put("popularName", taxonomy.getTaxonName());
 			item.put("popularData", data);
 
@@ -896,13 +867,9 @@ public class DataLandingGenerator {
 		JSONObject jsonData = null;
 		JSONArray list = new JSONArray();
 
-		DBPathways connPW = new DBPathways();
 		SolrInterface solr = new SolrInterface();
 
 		for (String genomeId : REFERENCE_GENOME_IDS) {
-			Map<String, String> key = new HashMap<>();
-			key.put("genomeId", genomeId);
-			key.put("algorithm", "RAST");
 
 			Genome genome = solr.getGenome(genomeId);
 
@@ -915,11 +882,11 @@ public class DataLandingGenerator {
 			// meta data
 			JSONObject meta = new JSONObject();
 			meta.put("genome_status", genome.getGenomeStatus());
-			meta.put("completion_date", genome.hasCompletionDate()? genome.getCompletionDate(): "");
-			meta.put("collection_date", genome.hasCollectionDate()? genome.getCollectionDate(): "");
-			meta.put("isolation_country", genome.hasIsolationCountry()? genome.getIsolationCountry(): "");
-			meta.put("host_name", genome.hasHostName()? genome.getHostName(): "");
-			meta.put("disease", genome.hasDisease()? StringUtils.join(genome.getDisease(), ", "): "");
+			meta.put("completion_date", genome.hasCompletionDate() ? genome.getCompletionDate() : "");
+			meta.put("collection_date", genome.hasCollectionDate() ? genome.getCollectionDate() : "");
+			meta.put("isolation_country", genome.hasIsolationCountry() ? genome.getIsolationCountry() : "");
+			meta.put("host_name", genome.hasHostName() ? genome.getHostName() : "");
+			meta.put("disease", genome.hasDisease() ? StringUtils.join(genome.getDisease(), ", ") : "");
 			meta.put("chromosomes", genome.getChromosomes());
 			meta.put("plasmids", genome.getPlasmids());
 			meta.put("contigs", genome.getContigs());
@@ -943,7 +910,7 @@ public class DataLandingGenerator {
 			pw.put("description", "Pathways");
 			pw.put("link", URL_PATHWAY_TAB.replace("{cType}", "genome").replace("{cId}", genomeId).replace("{pId}", ""));
 			pw.put("picture", "/patric/images/icon-popular-pathway.png");
-//			int cntPathway = connPW.getCompPathwayPathwayCount(key);
+
 			int cntPathway = 0;
 			try {
 				SolrQuery query = new SolrQuery("genome_id:" + genomeId);
@@ -951,7 +918,8 @@ public class DataLandingGenerator {
 				query.setRows(0).setFacet(true).set("json.facet", "{stat:{field:{field:genome_id,facet:{pathway_count:\"unique(pathway_id)\"}}}}}");
 
 				QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query);
-				List<SimpleOrderedMap> buckets = (List) ((SimpleOrderedMap) ((SimpleOrderedMap) qr.getResponse().get("facets")).get("stat")).get("buckets");
+				List<SimpleOrderedMap> buckets = (List) ((SimpleOrderedMap) ((SimpleOrderedMap) qr.getResponse().get("facets")).get("stat"))
+						.get("buckets");
 				SimpleOrderedMap pathwayStat = buckets.get(0);
 				cntPathway = (Integer) pathwayStat.get("pathway_count");
 			}
@@ -1227,7 +1195,7 @@ public class DataLandingGenerator {
 			// Pathway
 			link = new JSONObject();
 			link.put("name", "Pathway");
-			link.put("link", URL_PATHWAY_TAB.replace("{cType}", "genome").replace("{cId}", genomeId).replace("{pId}", "") );
+			link.put("link", URL_PATHWAY_TAB.replace("{cType}", "genome").replace("{cId}", genomeId).replace("{pId}", ""));
 			links.add(link);
 
 			// Transcriptomics
@@ -1252,12 +1220,13 @@ public class DataLandingGenerator {
 		JSONArray list = new JSONArray();
 
 		SolrInterface solr = new SolrInterface();
-		LBHttpSolrServer lbHttpSolrServer = null;
+		LBHttpSolrServer lbHttpSolrServer;
 		try {
 			lbHttpSolrServer = solr.getSolrServer(SolrCore.SPECIALTY_GENE_MAPPING);
 		}
 		catch (MalformedURLException e) {
 			LOGGER.error(e.getMessage(), e);
+			return null;
 		}
 
 		for (String genomeId : REFERENCE_GENOME_IDS) {
@@ -1342,12 +1311,13 @@ public class DataLandingGenerator {
 		JSONArray list = new JSONArray();
 
 		SolrInterface solr = new SolrInterface();
-		LBHttpSolrServer lbHttpSolrServer = null;
+		LBHttpSolrServer lbHttpSolrServer;
 		try {
 			lbHttpSolrServer = solr.getSolrServer(SolrCore.SPECIALTY_GENE_MAPPING);
 		}
 		catch (MalformedURLException e) {
 			LOGGER.error(e.getMessage(), e);
+			return null;
 		}
 
 		for (String genomeId : REFERENCE_GENOME_IDS) {
@@ -1487,12 +1457,13 @@ public class DataLandingGenerator {
 		JSONObject jsonData = null;
 		JSONArray list = new JSONArray();
 		SolrInterface solr = new SolrInterface();
-		LBHttpSolrServer lbHttpSolrServer = null;
+		LBHttpSolrServer lbHttpSolrServer;
 		try {
 			lbHttpSolrServer = solr.getSolrServer(SolrCore.TRANSCRIPTOMICS_EXPERIMENT);
 		}
 		catch (MalformedURLException e) {
 			LOGGER.error(e.getMessage(), e);
+			return null;
 		}
 
 		for (String genomeId : REFERENCE_GENOME_IDS_TRANSCRIPTOMICS) {
@@ -1517,7 +1488,7 @@ public class DataLandingGenerator {
 				QueryResponse qr = lbHttpSolrServer.query(query);
 				SolrDocumentList sdl = qr.getResults();
 
-				for (SolrDocument doc: sdl) {
+				for (SolrDocument doc : sdl) {
 					eIds.add(doc.get("eid").toString());
 				}
 			}
@@ -1616,9 +1587,9 @@ public class DataLandingGenerator {
 				total += v;
 			}
 			item.put("total", total);
-//			JSONArray jDist = new JSONArray();
-//			jDist.addAll(dist);
-//			item.put("dist", jDist);
+			//			JSONArray jDist = new JSONArray();
+			//			jDist.addAll(dist);
+			//			item.put("dist", jDist);
 			item.put("dist", dist);
 
 			series.add(item);
@@ -1653,35 +1624,55 @@ public class DataLandingGenerator {
 		}
 		return jsonData;
 	}
-/*
+
 	private Map<String, Integer> getFIGFamStat(int taxonId) {
 		Map<String, Integer> stat = new HashMap<>();
 
 		SolrInterface solr = new SolrInterface();
-		LBHttpSolrServer lbHttpSolrServer = null;
-		try {
-			lbHttpSolrServer = solr.getSolrServer(SolrCore.FEATURE);
-		}
-		catch (MalformedURLException e) {
-			LOGGER.error(e.getMessage(), e);
-		}
 
 		try {
-			SolrQuery query = new SolrQuery();
-			query.setQuery("*:*");
+			LBHttpSolrServer lbHttpSolrServer = solr.getSolrServer(SolrCore.FEATURE);
+
+			SolrQuery query = new SolrQuery("*:*");
+			query.addFilterQuery("feature_type:CDS AND annotation:PATRIC");
 			query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + taxonId));
 			query.setRows(0).setFacet(true).setFacetMinCount(1).setFacetLimit(-1).addFacetField("figfam_id");
 
 			QueryResponse qrTotal = lbHttpSolrServer.query(query);
 			int total = qrTotal.getFacetField("figfam_id").getValueCount();
 
-			query.setQuery("product:hypothetical");
+			query.setQuery("product:(hypothetical AND protein)");
+			LOGGER.debug("getFIGFamStat(), 1/2, {}", query.toString());
 			QueryResponse qrHypo = lbHttpSolrServer.query(query);
 			int hypothetical = qrHypo.getFacetField("figfam_id").getValueCount();
 
 			stat.put("total", total);
 			stat.put("hypothetical", hypothetical);
 			stat.put("functional", (total - hypothetical));
+
+			// counting core vs accessary
+			int countCore = 0;
+			query.setQuery("*:*");
+			query.set("json.facet", "{stat:{field:{field:figfam_id,limit:-1,allBuckets:true,facet:{genome_count:\"unique(genome_id)\"}}}}");
+
+			LOGGER.debug("getFIGFamStat(), 2/2, {}", query.toString());
+			QueryResponse qrCore = lbHttpSolrServer.query(query);
+
+			SimpleOrderedMap allBuckets = (SimpleOrderedMap) ((SimpleOrderedMap) ((SimpleOrderedMap) qrCore.getResponse().get("facets")).get("stat"))
+					.get("allBuckets");
+			double genomeCount = ((Integer) allBuckets.get("genome_count")).doubleValue();
+			double cutoff = 0.95 * genomeCount;
+
+			List<SimpleOrderedMap> buckets = (List) ((SimpleOrderedMap) ((SimpleOrderedMap) qrCore.getResponse().get("facets")).get("stat"))
+					.get("buckets");
+
+			for (SimpleOrderedMap bucket : buckets) {
+				if (((Integer) bucket.get("genome_count")).doubleValue() > cutoff) {
+					countCore++;
+				}
+			}
+			stat.put("core", countCore);
+			stat.put("accessory", (total - countCore));
 		}
 		catch (MalformedURLException | SolrServerException e) {
 			LOGGER.error(e.getMessage(), e);
@@ -1689,5 +1680,60 @@ public class DataLandingGenerator {
 
 		return stat;
 	}
-*/
+
+	private JSONArray getFIGFamConservationDistribution(int taxonId) {
+		JSONArray dist = new JSONArray();
+
+		SolrInterface solr = new SolrInterface();
+
+		try {
+			Map<Integer, List<String>> distMap = new LinkedHashMap<>();
+
+			SolrQuery query = new SolrQuery("*:*");
+			query.addFilterQuery("feature_type:CDS AND annotation:PATRIC");
+			query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + taxonId));
+			query.setRows(0).setFacet(true)
+					.set("json.facet", "{stat:{field:{field:figfam_id,limit:-1,allBuckets:true,facet:{genome_count:\"unique(genome_id)\"}}}}");
+
+			LOGGER.debug("getFIGFamConservationDistribution(), {}", query.toString());
+			QueryResponse qrCore = solr.getSolrServer(SolrCore.FEATURE).query(query);
+
+			SimpleOrderedMap allBuckets = (SimpleOrderedMap) ((SimpleOrderedMap) ((SimpleOrderedMap) qrCore.getResponse().get("facets")).get("stat"))
+					.get("allBuckets");
+			double totalGenomeCount = ((Integer) allBuckets.get("genome_count")).doubleValue();
+
+			List<SimpleOrderedMap> buckets = (List) ((SimpleOrderedMap) ((SimpleOrderedMap) qrCore.getResponse().get("facets")).get("stat"))
+					.get("buckets");
+
+			for (SimpleOrderedMap bucket : buckets) {
+				String figfamID = (String) bucket.get("val");
+				double genomeCount = ((Integer) bucket.get("genome_count")).doubleValue();
+				int groupHash = ((Double) Math.ceil(genomeCount / totalGenomeCount * 10.0d)).intValue();
+
+				LOGGER.trace("group hashing.. {}:{}/{} -> {}", figfamID, genomeCount, totalGenomeCount, groupHash);
+				if (distMap.get(groupHash) == null) {
+					distMap.put(groupHash, new LinkedList<String>());
+				}
+				distMap.get(groupHash).add(figfamID);
+			}
+
+			for (int i = 1; i <= 10; i++) {
+				JSONObject item = new JSONObject();
+				if (distMap.get(i) != null && !distMap.get(i).isEmpty()) {
+					item.put("x", (i) + "0%");
+					item.put("y", distMap.get(i).size());
+				}
+				else {
+					item.put("x", (i) + "0%");
+					item.put("y", 0);
+				}
+				dist.add(item);
+			}
+		}
+		catch (MalformedURLException | SolrServerException e) {
+			LOGGER.error(e.getMessage(), e);
+		}
+
+		return dist;
+	}
 }
