@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2014 Virginia Polytechnic Institute and State University
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,42 +15,33 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.portlets;
 
+import edu.vt.vbi.patric.beans.Genome;
+import edu.vt.vbi.patric.beans.Taxonomy;
+import edu.vt.vbi.patric.common.SiteHelper;
+import edu.vt.vbi.patric.common.SolrCore;
+import edu.vt.vbi.patric.common.SolrInterface;
+import edu.vt.vbi.patric.dao.ResultType;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.portlet.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-import javax.portlet.GenericPortlet;
-import javax.portlet.PortletException;
-import javax.portlet.PortletRequestDispatcher;
-import javax.portlet.PortletSession;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
-import javax.portlet.ResourceRequest;
-import javax.portlet.ResourceResponse;
-
-import edu.vt.vbi.patric.beans.Genome;
-import edu.vt.vbi.patric.beans.Taxonomy;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
-import edu.vt.vbi.patric.common.SiteHelper;
-import edu.vt.vbi.patric.common.SolrCore;
-import edu.vt.vbi.patric.common.SolrInterface;
-import edu.vt.vbi.patric.dao.ResultType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class AntibioticResistanceGeneSearch extends GenericPortlet {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(AntibioticResistanceGeneSearch.class);
 
 	SolrInterface solr = new SolrInterface();
 
 	JSONParser jsonParser = new JSONParser();
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(AntibioticResistanceGeneSearch.class);
 
 	@Override
 	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
@@ -64,6 +55,9 @@ public class AntibioticResistanceGeneSearch extends GenericPortlet {
 			prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/antibiotic_resistance_gene_search_result.jsp");
 		}
 		else {
+
+			boolean isLoggedInd = Downloads.isLoggedIn(request);
+			request.setAttribute("isLoggedIn", isLoggedInd);
 
 			String contextType = request.getParameter("context_type");
 			String contextId = request.getParameter("context_id");
@@ -225,7 +219,8 @@ public class AntibioticResistanceGeneSearch extends GenericPortlet {
 						sort.put("direction", sort_dir);
 					}
 				}
-				key.put("fields", "genome_id,genome_name,taxon_id,feature_id,alt_locus_tag,refseq_locus_tag,gene,product,property,source,property_source,source_id,organism,function,classification,pmid,query_coverage,subject_coverage,identity,e_value,same_species,same_genus,same_genome,evidence");
+				key.put("fields",
+						"genome_id,genome_name,taxon_id,feature_id,alt_locus_tag,refseq_locus_tag,gene,product,property,source,property_source,source_id,organism,function,classification,pmid,query_coverage,subject_coverage,identity,e_value,same_species,same_genus,same_genome,evidence");
 				// add join condition
 				if (taxonId != null && !taxonId.equals("")) {
 					key.put("taxonId", taxonId);

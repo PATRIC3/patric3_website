@@ -44,11 +44,11 @@ import java.util.Random;
 
 public class GenomicFeature extends GenericPortlet {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(GenomicFeature.class);
+
 	SolrInterface solr = new SolrInterface();
 
 	JSONParser jsonParser = new JSONParser();
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(GenomicFeature.class);
 
 	@Override
 	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
@@ -62,6 +62,9 @@ public class GenomicFeature extends GenericPortlet {
 			prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/feature_finder_result.jsp");
 		}
 		else {
+
+			boolean isLoggedInd = Downloads.isLoggedIn(request);
+			request.setAttribute("isLoggedIn", isLoggedInd);
 
 			String contextType = request.getParameter("context_type");
 			String contextId = request.getParameter("context_id");

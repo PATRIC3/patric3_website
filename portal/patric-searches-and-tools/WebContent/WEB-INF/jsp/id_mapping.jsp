@@ -1,15 +1,11 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" 
 %><%@ page import="edu.vt.vbi.patric.common.OrganismTreeBuilder" 
-%><%@ page import="edu.vt.vbi.patric.dao.DBSummary" 
-%><%@ page import="edu.vt.vbi.patric.dao.DBShared" 
-%><%@ page import="edu.vt.vbi.patric.dao.ResultType" 
-%><%@ page import="java.util.*" 
+%><%@ page import="edu.vt.vbi.patric.dao.ResultType"
 %><portlet:defineObjects/><%
 String cType = request.getParameter("context_type");
 String cId = request.getParameter("context_id");
 String pk = request.getParameter("param_key");
 String to = request.getParameter("to") == null?"UniProtKB-ID":request.getParameter("to");
-// String from = request.getParameter("from") == null?"PATRIC Locus Tag":request.getParameter("from");
 String from = request.getParameter("from") == null?"seed_id":request.getParameter("from");
 String keyword = request.getParameter("id") == null?"":request.getParameter("id");
 
@@ -30,12 +26,7 @@ if (request.getParameter("display_mode") != null && request.getParameter("displa
 	keyword = "";
 }
 
-boolean loggedIn = false;
-if (request.getUserPrincipal() == null) {
-	loggedIn = false;
-} else {
-	loggedIn = true;
-}
+boolean isLoggedIn = (Boolean) request.getAttribute("isLoggedIn)";
 %>
 	<div id="intro" class="searchtool-intro"> 
 		<p>The ID Mapping Tool enables researchers to locate synonymous identifiers across multiple-source databases.  
@@ -73,7 +64,7 @@ if (request.getUserPrincipal() == null) {
 <script type="text/javascript"> 
 //<![CDATA[
 var store, combo, combo2, readerx;
-var loggedIn = <%=loggedIn%>;
+var loggedIn = <%=isLoggedIn %>;
 var combo_prev_value = "PATRIC Locus Tag", combo2_prev_value = "UniProtKB-ID";
 Ext.onReady(function(){
 

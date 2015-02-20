@@ -6,13 +6,8 @@ int taxonId = (Integer) request.getAttribute("taxonId");
 String organismName = (String) request.getAttribute("organismName");
 String cType = (String) request.getAttribute("cType");
 String cId = (String) request.getAttribute("cId");
+boolean isLoggedIn = (Boolean) request.getAttribute("isLoggedIn)";
 
-boolean loggedIn = false;
-if(request.getUserPrincipal() == null){
-	loggedIn = false;
-} else {
-	loggedIn = true;
-}
 %>
 
 	<div id="intro" class="searchtool-intro">
@@ -79,7 +74,7 @@ if(request.getUserPrincipal() == null){
 var tabs = "";
 var name = "SpecialtyGeneMapping";
 var url = "/portal/portal/patric/SpecialtyGeneSearch/SpecialtyGeneSearchWindow?action=b&cacheability=PAGE";
-var loggedIn = <%=loggedIn%>;
+var loggedIn = <%=isLoggedIn %>;
 
 Ext.onReady(function(){
 

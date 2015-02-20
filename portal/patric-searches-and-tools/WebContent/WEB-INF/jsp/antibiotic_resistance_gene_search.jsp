@@ -1,17 +1,11 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" 
 %><%@ page import="edu.vt.vbi.patric.common.OrganismTreeBuilder" 
-%><%@ page import="java.util.*"
 %><%
 int taxonId = (Integer) request.getAttribute("taxonId");
 String organismName = (String) request.getAttribute("organismName");
 String cType = (String) request.getAttribute("cType");
 String cId = (String) request.getAttribute("cId");
-
-boolean loggedIn = false;
-if(request.getUserPrincipal() == null){
-	loggedIn = false;
-}else
-	loggedIn = true;
+boolean isLoggedIn = (Boolean) request.getAttribute("isLoggedIn)";
 
 %>
 
@@ -77,7 +71,7 @@ if(request.getUserPrincipal() == null){
 var tabs = "";
 var name = "AntibioticResistanceGeneMapping";
 var url = "/portal/portal/patric/AntibioticResistanceGeneSearch/AntibioticResistanceGeneSearchWindow?action=b&cacheability=PAGE";
-var loggedIn = <%=loggedIn%>;
+var loggedIn = <%=isLoggedIn %>;
 
 Ext.onReady(function(){
 

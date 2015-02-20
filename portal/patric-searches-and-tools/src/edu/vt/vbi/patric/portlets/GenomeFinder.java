@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2014 Virginia Polytechnic Institute and State University
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -38,7 +38,6 @@ import org.slf4j.LoggerFactory;
 import javax.portlet.*;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -46,9 +45,9 @@ import java.util.Random;
 
 public class GenomeFinder extends GenericPortlet {
 
-	SolrInterface solr = new SolrInterface();
-
 	private static final Logger LOGGER = LoggerFactory.getLogger(GenomeFinder.class);
+
+	SolrInterface solr = new SolrInterface();
 
 	@Override
 	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
@@ -63,6 +62,9 @@ public class GenomeFinder extends GenericPortlet {
 			prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/genome_finder_result.jsp");
 		}
 		else {
+
+			boolean isLoggedInd = Downloads.isLoggedIn(request);
+			request.setAttribute("isLoggedIn", isLoggedInd);
 
 			String contextType = request.getParameter("context_type");
 			String contextId = request.getParameter("context_id");
@@ -213,7 +215,7 @@ public class GenomeFinder extends GenericPortlet {
 				query.setFilterQueries("taxon_lineage_ids:" + key.get("taxonId"));
 				query.addField("genome_id");
 				query.setRows(500000);
-				
+
 				query.setFacet(true);
 				query.setFacetMinCount(1);
 				query.setFacetLimit(-1);
@@ -247,7 +249,7 @@ public class GenomeFinder extends GenericPortlet {
 						key.put("facets", facets.toString());
 					}
 
-					for (Genome item: records) {
+					for (Genome item : records) {
 						listGenomeId.add(item.getId());
 					}
 				}
@@ -280,9 +282,10 @@ public class GenomeFinder extends GenericPortlet {
 					JSONArray sorter;
 					try {
 						sorter = (JSONArray) new JSONParser().parse(request.getParameter("sort"));
-						for (Object aSort: sorter) {
+						for (Object aSort : sorter) {
 							JSONObject jsonSort = (JSONObject) aSort;
-							query.addSort(SolrQuery.SortClause.create(jsonSort.get("property").toString(), jsonSort.get("direction").toString().toLowerCase()));
+							query.addSort(SolrQuery.SortClause
+									.create(jsonSort.get("property").toString(), jsonSort.get("direction").toString().toLowerCase()));
 						}
 					}
 					catch (ParseException e) {
@@ -291,7 +294,7 @@ public class GenomeFinder extends GenericPortlet {
 				}
 
 				if (key.containsKey("taxonId") && key.get("taxonId") != null) {
-					query.setFilterQueries( SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + key.get("taxonId")));
+					query.setFilterQueries(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + key.get("taxonId")));
 				}
 
 				// fetch
@@ -302,7 +305,7 @@ public class GenomeFinder extends GenericPortlet {
 					List<GenomeSequence> records = qr.getBeans(GenomeSequence.class);
 					numFound = qr.getResults().getNumFound();
 
-					for (GenomeSequence item: records) {
+					for (GenomeSequence item : records) {
 						docs.add(item.toJSONObject());
 					}
 				}
@@ -363,7 +366,8 @@ public class GenomeFinder extends GenericPortlet {
 				}
 
 				// set fields
-				query.addField("genome_id,genome_name,taxon_id,genome_status,genome_length,chromosomes,plasmids,contigs,sequences,patric_cds,brc1_cds,refseq_cds,isolation_country,host_name,disease,collection_date,completion_date,strain,serovar,biovar,pathovar,mlst,other_typing,culture_collection,type_strain,sequencing_centers,publication,bioproject_accession,biosample_accession,assembly_accession,ncbi_project_id,refseq_project_id,genbank_accessions,refseq_accessions,sequencing_platform,sequencing_depth,assembly_method,gc_content,isolation_site,isolation_source,isolation_comments,geographic_location,latitude,longitude,altitude,depth,other_environmental,host_gender,host_age,host_health,body_sample_site,body_sample_subsite,other_clinical,antimicrobial_resistance,antimicrobial_resistance_evidence,gram_stain,cell_shape,motility,sporulation,temperature_range,salinity,oxygen_requirement,habitat,comments,additional_metadata");
+				query.addField(
+						"genome_id,genome_name,taxon_id,genome_status,genome_length,chromosomes,plasmids,contigs,sequences,patric_cds,brc1_cds,refseq_cds,isolation_country,host_name,disease,collection_date,completion_date,strain,serovar,biovar,pathovar,mlst,other_typing,culture_collection,type_strain,sequencing_centers,publication,bioproject_accession,biosample_accession,assembly_accession,ncbi_project_id,refseq_project_id,genbank_accessions,refseq_accessions,sequencing_platform,sequencing_depth,assembly_method,gc_content,isolation_site,isolation_source,isolation_comments,geographic_location,latitude,longitude,altitude,depth,other_environmental,host_gender,host_age,host_health,body_sample_site,body_sample_subsite,other_clinical,antimicrobial_resistance,antimicrobial_resistance_evidence,gram_stain,cell_shape,motility,sporulation,temperature_range,salinity,oxygen_requirement,habitat,comments,additional_metadata");
 
 				// paging
 				query.setStart(start);
@@ -376,9 +380,10 @@ public class GenomeFinder extends GenericPortlet {
 					JSONArray sorter;
 					try {
 						sorter = (JSONArray) new JSONParser().parse(request.getParameter("sort"));
-						for (Object aSort: sorter) {
+						for (Object aSort : sorter) {
 							JSONObject jsonSort = (JSONObject) aSort;
-							query.addSort(SolrQuery.SortClause.create(jsonSort.get("property").toString(), jsonSort.get("direction").toString().toLowerCase()));
+							query.addSort(SolrQuery.SortClause
+									.create(jsonSort.get("property").toString(), jsonSort.get("direction").toString().toLowerCase()));
 						}
 					}
 					catch (ParseException e) {
@@ -397,7 +402,7 @@ public class GenomeFinder extends GenericPortlet {
 
 						String[] facetFields = facet_data.get("facet").toString().split(",");
 
-						for (String facetField: facetFields) {
+						for (String facetField : facetFields) {
 							if (!facetField.equals("completion_date") && !facetField.equals("release_date")) {
 								query.addFacetField(facetField);
 							}
@@ -435,7 +440,7 @@ public class GenomeFinder extends GenericPortlet {
 						key.put("facets", facets.toString());
 					}
 
-					for (Genome item: records) {
+					for (Genome item : records) {
 						docs.add(item.toJSONObject());
 					}
 				}
@@ -470,7 +475,8 @@ public class GenomeFinder extends GenericPortlet {
 
 				if (key.containsKey("state")) {
 					state = key.get("state");
-				} else {
+				}
+				else {
 					state = request.getParameter("state");
 				}
 

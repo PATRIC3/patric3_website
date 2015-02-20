@@ -57,6 +57,10 @@ public class IDMapping extends GenericPortlet {
 			prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/id_mapping_result.jsp");
 		}
 		else {
+
+			boolean isLoggedInd = Downloads.isLoggedIn(request);
+			request.setAttribute("isLoggedIn", isLoggedInd);
+
 			prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/id_mapping.jsp");
 		}
 		prd.include(request, response);
@@ -196,9 +200,13 @@ public class IDMapping extends GenericPortlet {
 		}
 
 		JSONArray _tbl_source;
-		List<String> _tbl_header = Arrays.asList("Genome", "Accession", "PATRIC ID", "RefSeq Locus Tag", "Alt Locus Tag", _header, "Annotation", "Feature Type", "Start", "End",
-				"Length(NT)", "Strand", "Length (AA)", "Product Description");
-		List<String> _tbl_field = Arrays.asList("genome_name", "accession", "seed_id", "refseq_locus_tag", "alt_locus_tag", _field, "annotation", "feature_type", "start", "end",
+		List<String> _tbl_header = Arrays
+				.asList("Genome", "Accession", "PATRIC ID", "RefSeq Locus Tag", "Alt Locus Tag", _header, "Annotation", "Feature Type", "Start",
+						"End",
+						"Length(NT)", "Strand", "Length (AA)", "Product Description");
+		List<String> _tbl_field = Arrays
+				.asList("genome_name", "accession", "seed_id", "refseq_locus_tag", "alt_locus_tag", _field, "annotation", "feature_type", "start",
+						"end",
 						"na_length", "strand", "aa_length", "product");
 
 		String fileFormat = request.getParameter("fileformat");

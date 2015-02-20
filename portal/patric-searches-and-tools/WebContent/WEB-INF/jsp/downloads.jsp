@@ -1,52 +1,10 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" 
 %><%@ page import="edu.vt.vbi.patric.common.OrganismTreeBuilder" 
-%><%@ page import="edu.vt.vbi.patric.dao.DBShared" 
-%><%@ page import="edu.vt.vbi.patric.dao.ResultType" 
-%><%@ page import="java.util.*" 
 %><%
-DBShared conn_shared = new DBShared();
-HashMap<String, String> key = new HashMap<String,String>();
+boolean isLoggedIn = (Boolean) request.getAttribute("isLoggedIn");
+String organismName = (String) request.getAttribute("organismName");
+int taxonId = (Integer) request.getAttribute("taxonId");
 
-String ncbi_taxon_id = null;
-String genome_info_id = null;
-String feature_info_id = null;
-String cType = request.getParameter("context_type");
-String cId = request.getParameter("context_id");
-
-if (cType!=null && cId!=null) {
-	if (cType.equals("taxon") && !cId.equals("")) {
-		ncbi_taxon_id = cId;
-		key.put("ncbi_taxon_id", ncbi_taxon_id);
-	}else if (cType.equals("taxon")){
-		ncbi_taxon_id = "2";
-		key.put("ncbi_taxon_id", ncbi_taxon_id);
-	}
-	
-	if (cType.equals("genome") && !cId.equals("")) {
-		ResultType names = conn_shared.getNamesFromGenomeInfoId(cId);
-		ncbi_taxon_id = names.get("ncbi_taxon_id");
-		key.put("genome_info_id", cId);
-	}
-}
-
-String name = "";
-
-if(cId == null || cId.equals("")) {
-	name = "Bacteria";
-} else {
-	if(cType.equals("taxon")) {
-		name = conn_shared.getOrganismName(cId);
-	} else if (cType.equals("genome")) {
-		name = conn_shared.getGenomeName(cId);
-	}
-}
-
-boolean loggedIn = false;
-if(request.getUserPrincipal() == null){
-	loggedIn = false;
-} else {
-	loggedIn = true;
-}
 %>
 	<div id="intro" class="searchtool-intro">
 		<p>To use PATRIC's download tool, select one or more genomes of interest, then one or more annotation sources, followed by the file types.
@@ -66,14 +24,13 @@ if(request.getUserPrincipal() == null){
 		<input type="hidden" id="cType" name="cType" value="" />
 		<input type="hidden" id="cId" name="cId" value="" />
 		<input type="hidden" id="genomeId" name="genomeId" value="" />
-		<input type="hidden" id="taxonId" name="taxonId" value="<%=(ncbi_taxon_id!=null)?ncbi_taxon_id:"" %>" />
+		<input type="hidden" id="taxonId" name="taxonId" value="<%=taxonId %>" />
 		<input type="hidden" id="finalfiletype" name="finalfiletype" value="" />
 		<input type="hidden" id="finalalgorithm" name="finalalgorithm" value="" />
 
 			<h3><img src="/patric/images/number2.gif" alt="2" height="14" width="14" /> Choose Annotation Source</h3>
 			<div class="far queryblock">
 				<input id="annotation_patric" type="checkbox" name="algorithm" value=".PATRIC" checked="checked"/> <label for="annotation_patric">PATRIC</label>
-<%--			<input id="annotation_brc" type="checkbox" name="algorithm" value=".BRC"/> <label for="annotation_brc">Legacy BRC</label>--%>
 				<input id="annotation_refseq" type="checkbox" name="algorithm" value=".RefSeq"/> <label for="annotation_refseq">RefSeq</label>
 			</div>
 			
@@ -106,15 +63,15 @@ if(request.getUserPrincipal() == null){
 //<![CDATA[
 var menu1=null;
 var tabs= "";
-var loggedIn = <%=loggedIn%>;
+var loggedIn = <%=isLoggedIn %>;
 Ext.onReady(function() {
 	tabs = Ext.create('VBI.GenomeSelector.Panel', {
 		renderTo: 'GenomeSelector',
 		width: 480,
 		height: 550,
 		border:false,
-		parentTaxon: <%=(ncbi_taxon_id==null)?"2":ncbi_taxon_id %>,
-		organismName:'<%=name%>'
+		parentTaxon: <%=taxonId %>,
+		organismName:'<%=organismName%>'
 	});
 });
 
@@ -159,7 +116,7 @@ function download() {
 			}
 		});
 	} else {
-		if("<%=cId%>" != "" && "<%=cId%>" != null && (tabs.getSelectedInString() == null || tabs.getSelectedInString() == "")){
+		if((tabs.getSelectedInString() == null || tabs.getSelectedInString() == "")){
 			
 			Ext.Ajax.request({
 				url: "/portal/portal/patric/Downloads/DownloadsWindow?action=b&cacheability=PAGE",
