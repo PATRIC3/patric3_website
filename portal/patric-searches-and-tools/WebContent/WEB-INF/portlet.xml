@@ -117,36 +117,6 @@
 		<supported-public-render-parameter>param_key</supported-public-render-parameter>
 	</portlet>
 	<portlet>
-		<portlet-name>GOSearch</portlet-name>
-		<portlet-class>edu.vt.vbi.patric.portlets.GOSearch</portlet-class>
-		<supports>
-			<mime-type>text/html</mime-type>
-			<portlet-mode>VIEW</portlet-mode>
-		</supports>
-		<portlet-info>
-			<title>GO Search</title>
-		</portlet-info>
-		<supported-public-render-parameter>context_type</supported-public-render-parameter>
-		<supported-public-render-parameter>context_id</supported-public-render-parameter>
-		<supported-public-render-parameter>display_mode</supported-public-render-parameter>
-		<supported-public-render-parameter>param_key</supported-public-render-parameter>
-	</portlet>
-	<portlet>
-		<portlet-name>ECSearch</portlet-name>
-		<portlet-class>edu.vt.vbi.patric.portlets.ECSearch</portlet-class>
-		<supports>
-			<mime-type>text/html</mime-type>
-			<portlet-mode>VIEW</portlet-mode>
-		</supports>
-		<portlet-info>
-			<title>EC Search</title>
-		</portlet-info>
-		<supported-public-render-parameter>context_type</supported-public-render-parameter>
-		<supported-public-render-parameter>context_id</supported-public-render-parameter>
-		<supported-public-render-parameter>display_mode</supported-public-render-parameter>
-		<supported-public-render-parameter>param_key</supported-public-render-parameter>
-	</portlet>
-	<portlet>
 		<portlet-name>GlobalTaxonomy</portlet-name>
 		<portlet-class>edu.vt.vbi.patric.portlets.GlobalTaxonomy</portlet-class>
 		<supports>

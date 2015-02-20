@@ -54,20 +54,8 @@
 	</deployment>
 	<deployment>
 		<instance>
-			<instance-id>GOSearchInstance</instance-id>
-			<portlet-ref>GOSearch</portlet-ref>
-		</instance>
-	</deployment>
-	<deployment>
-		<instance>
 			<instance-id>GlobalTaxonomyInstance</instance-id>
 			<portlet-ref>GlobalTaxonomy</portlet-ref>
-		</instance>
-	</deployment>
-	<deployment>
-		<instance>
-			<instance-id>ECSearchInstance</instance-id>
-			<portlet-ref>ECSearch</portlet-ref>
 		</instance>
 	</deployment>
 	<deployment>
