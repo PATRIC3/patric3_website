@@ -6,7 +6,7 @@ int taxonId = (Integer) request.getAttribute("taxonId");
 String organismName = (String) request.getAttribute("organismName");
 String cType = (String) request.getAttribute("cType");
 String cId = (String) request.getAttribute("cId");
-boolean isLoggedIn = (Boolean) request.getAttribute("isLoggedIn)";
+boolean isLoggedIn = (Boolean) request.getAttribute("isLoggedIn");
 
 %>
 

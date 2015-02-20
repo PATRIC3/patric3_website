@@ -7,7 +7,7 @@ String organismName = (String) request.getAttribute("organismName");
 String cType = (String) request.getAttribute("cType");
 String cId = (String) request.getAttribute("cId");
 List<String> featureTypes = (List<String>) request.getAttribute("featureTypes");
-boolean isLoggedIn = (Boolean) request.getAttribute("isLoggedIn)";
+boolean isLoggedIn = (Boolean) request.getAttribute("isLoggedIn");
 
 %>
 

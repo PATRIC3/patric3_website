@@ -37,7 +37,7 @@ else {
 
 expander = ((taxonId != 131567)?"<div style='float:right'><div class='searchtool-inside'><h2 align='center'>Want to make comparisons not limited to " + taxonName + "?</h2><br />Use PATRIC's <a href='FIGfam?cType=taxon&cId=131567&dm='>Protein Family Sorter</a> located in Searches & Tools.<br/><b><br/>* Any genome selections you have made will be discarded!<b/></div></div>":"");
 
-boolean isLoggedIn = (Boolean) request.getAttribute("isLoggedIn)";
+boolean isLoggedIn = (Boolean) request.getAttribute("isLoggedIn");
 %>
 
 <div style="padding: 5px;" >

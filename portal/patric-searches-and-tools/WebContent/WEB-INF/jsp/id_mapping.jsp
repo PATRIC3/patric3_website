@@ -26,7 +26,7 @@ if (request.getParameter("display_mode") != null && request.getParameter("displa
 	keyword = "";
 }
 
-boolean isLoggedIn = (Boolean) request.getAttribute("isLoggedIn)";
+boolean isLoggedIn = (Boolean) request.getAttribute("isLoggedIn");
 %>
 	<div id="intro" class="searchtool-intro"> 
 		<p>The ID Mapping Tool enables researchers to locate synonymous identifiers across multiple-source databases.  
