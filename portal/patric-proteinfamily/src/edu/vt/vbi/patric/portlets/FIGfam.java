@@ -23,16 +23,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Random;
 
-import javax.portlet.GenericPortlet;
-import javax.portlet.PortletConfig;
-import javax.portlet.PortletContext;
-import javax.portlet.PortletException;
-import javax.portlet.PortletRequestDispatcher;
-import javax.portlet.PortletSession;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
-import javax.portlet.ResourceRequest;
-import javax.portlet.ResourceResponse;
+import javax.portlet.*;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -50,6 +41,18 @@ public class FIGfam extends GenericPortlet {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(FIGfam.class);
 
+	public boolean isLoggedIn(PortletRequest request) {
+		boolean isLoggedIn = false;
+
+		PortletSession session = request.getPortletSession(true);
+
+		if (session.getAttribute("authorizationToken", PortletSession.APPLICATION_SCOPE) != null) {
+			isLoggedIn = true;
+		}
+
+		return isLoggedIn;
+	}
+
 	public void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 		response.setContentType("text/html");
 
@@ -65,6 +68,10 @@ public class FIGfam extends GenericPortlet {
 			prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/msa.jsp");
 		}
 		else {
+
+			boolean isLoggedIn = isLoggedIn(request);
+			request.setAttribute("isLoggedIn", isLoggedIn);
+
 			// Protein Family Sorter Tool Landing Page
 			prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/proteinfamily_tool.jsp");
 		}

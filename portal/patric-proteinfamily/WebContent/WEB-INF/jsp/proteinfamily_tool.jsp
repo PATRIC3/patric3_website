@@ -37,13 +37,7 @@ else {
 
 expander = ((taxonId != 131567)?"<div style='float:right'><div class='searchtool-inside'><h2 align='center'>Want to make comparisons not limited to " + taxonName + "?</h2><br />Use PATRIC's <a href='FIGfam?cType=taxon&cId=131567&dm='>Protein Family Sorter</a> located in Searches & Tools.<br/><b><br/>* Any genome selections you have made will be discarded!<b/></div></div>":"");
 
-boolean loggedIn = false;
-if (request.getUserPrincipal() == null) {
-	loggedIn = false;
-}
-else {
-	loggedIn = true;
-}
+boolean isLoggedIn = (Boolean) request.getAttribute("isLoggedIn)";
 %>
 
 <div style="padding: 5px;" >
@@ -86,7 +80,7 @@ else {
 <script type="text/javascript" src="/patric/js/vbi/AddToWorkspace.min.js"></script>
 <script type="text/javascript">
 //<![CDATA[
-var loggedIn = <%=loggedIn%>;
+var loggedIn = <%=isLoggedIn %>;
 var tabs = "";
 
 Ext.onReady(function(){

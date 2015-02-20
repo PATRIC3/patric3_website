@@ -44,6 +44,18 @@ public class PathwayFinder extends GenericPortlet {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(PathwayFinder.class);
 
+	public boolean isLoggedIn(PortletRequest request) {
+		boolean isLoggedIn = false;
+
+		PortletSession session = request.getPortletSession(true);
+
+		if (session.getAttribute("authorizationToken", PortletSession.APPLICATION_SCOPE) != null) {
+			isLoggedIn = true;
+		}
+
+		return isLoggedIn;
+	}
+
 	@Override
 	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 
@@ -128,7 +140,7 @@ public class PathwayFinder extends GenericPortlet {
 				taxonName = solr.getTaxonomy(Integer.parseInt(taxonId)).getTaxonName();
 			}
 
-			boolean isLoggedIn = request.getUserPrincipal() != null;
+			boolean isLoggedIn = isLoggedIn(request);
 
 			request.setAttribute("contextType", contextType);
 			request.setAttribute("contextId", contextId);
