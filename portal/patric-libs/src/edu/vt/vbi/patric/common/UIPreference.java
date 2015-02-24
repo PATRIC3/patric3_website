@@ -43,9 +43,17 @@ public class UIPreference implements Serializable {
 
 		state = new HashMap<>();
 
-		JSONArray stateArray = (JSONArray) pref.get("state");
-		if (stateArray != null && !stateArray.isEmpty()) {
-			this.setStateList(stateArray);
+		if (pref.get("state") instanceof JSONArray) {
+			JSONArray stateArray = (JSONArray) pref.get("state");
+			if (stateArray != null && !stateArray.isEmpty()) {
+				this.setStateList(stateArray);
+			}
+		}
+		else if (pref.get("state") instanceof JSONObject) {
+			JSONObject stateObject = (JSONObject) pref.get("state");
+			if (stateObject != null && !stateObject.isEmpty()) {
+				this.setState(stateObject);
+			}
 		}
 
 		if (pref.get("timestamp") != null) {
