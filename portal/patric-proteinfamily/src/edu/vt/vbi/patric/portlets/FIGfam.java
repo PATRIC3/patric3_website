@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2014 Virginia Polytechnic Institute and State University
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,31 +15,25 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.portlets;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Random;
-
-import javax.portlet.*;
-
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-
 import edu.vt.vbi.ci.util.CommandResults;
 import edu.vt.vbi.ci.util.ExecUtilities;
 import edu.vt.vbi.patric.common.SiteHelper;
-import edu.vt.vbi.patric.dao.HibernateHelper;
 import edu.vt.vbi.patric.dao.ResultType;
 import edu.vt.vbi.patric.proteinfamily.FIGfamData;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.portlet.*;
+import java.io.*;
+import java.util.Random;
 
 public class FIGfam extends GenericPortlet {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(FIGfam.class);
+
+	private final boolean removeAfterClusterComputed = true;
 
 	public boolean isLoggedIn(PortletRequest request) {
 		boolean isLoggedIn = false;
@@ -118,7 +112,8 @@ public class FIGfam extends GenericPortlet {
 	private String getKeyValue(String name, ResultType key) {
 		if (key != null && key.containsKey(name) && key.get(name) != null) {
 			return key.get(name);
-		} else {
+		}
+		else {
 			return "";
 		}
 	}
@@ -279,9 +274,9 @@ public class FIGfam extends GenericPortlet {
 				String pk = req.getParameter("pk");
 				String action = req.getParameter("action");
 
-				String folder = "/tmp/";
-				String filename = folder + "tmp_" + pk + ".txt";
-				String output_filename = folder + "cluster_tmp_" + pk;
+				String tmpDir = System.getProperty("java.io.tmpdir", "/tmp");
+				String filename = tmpDir + "/tmp_" + pk + ".txt";
+				String output_filename = tmpDir + "/cluster_tmp_" + pk;
 				try {
 					PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(filename, true)));
 					out.write(data);
@@ -314,7 +309,6 @@ public class FIGfam extends GenericPortlet {
 	@SuppressWarnings("unchecked")
 	public JSONObject doCLustering(String filename, String outputfilename, String g, String e, String m, String ge) throws IOException {
 
-		boolean remove = true;
 		JSONObject output = new JSONObject();
 
 		String exec = "runMicroArrayClustering.sh " + filename + " " + outputfilename + " " + ((g.equals("1")) ? ge : "0") + " "
@@ -348,8 +342,8 @@ public class FIGfam extends GenericPortlet {
 			output.put("rows", rows);
 		}
 
-		if (remove) {
-			exec = "rm " + filename + " " + outputfilename;
+		if (removeAfterClusterComputed) {
+			exec = "rm " + filename + " " + outputfilename + "*";
 			ExecUtilities.exec(exec);
 		}
 
