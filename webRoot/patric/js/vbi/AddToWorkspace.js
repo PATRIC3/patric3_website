@@ -26,7 +26,8 @@ function addSelectedItems(workspace_type){
 				});*/
 			} else {
 				// user logged in
-				setPopupStatus(workspace_type);
+				//setPopupStatus(workspace_type);
+				DecideToShowPopup(workspace_type);
 			}
 		}
 	});
@@ -261,7 +262,7 @@ function getCartWindow(workspace_type) {
 	
 	return popup;
 }
-
+/*
 function getSignUpPopupWindow(workspace_type){
 	signup_popup = Ext.create('Ext.Window', {
 		closeAction:'hide',
@@ -344,12 +345,12 @@ function getSignUpPopupWindow(workspace_type){
 	
 	return signup_popup;
 }
-
+*/
 function LoginonPopupClick(){
 	popup.hide();
 	alertModal('login-modal','login-modal-msg', window.location.href.replace("portal/portal", "portal/auth/portal"));
 }
-
+/*
 function setPopupStatus(workspace_type){
 	PopupModalLoading = false;
 	isPopupModalLoaded = true;
@@ -363,7 +364,7 @@ function setPopupStatus(workspace_type){
 			DecideToShowPopup(workspace_type);
 		}
 	});
-}
+}*/
 
 function getLoginUpPopupWindow(windowlTitle, msgTitle, actionTitle){
 	Ext.create('Ext.Window', {
