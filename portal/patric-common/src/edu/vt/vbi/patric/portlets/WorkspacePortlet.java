@@ -41,6 +41,10 @@ public class WorkspacePortlet extends GenericPortlet {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(WorkspacePortlet.class);
 
+	private final String WORKSPACE_API_URL = "http://p3.theseed.org/services/Workspace";
+
+	private final String DEFAULT_WORKSPACE_NAME = "/home";
+
 	@Override
 	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 		// do nothing
@@ -189,12 +193,11 @@ public class WorkspacePortlet extends GenericPortlet {
 			}
 		}
 		else {
-			String userName = getUserId(request);
 			String token = getAuthorizationToken(request);
-			String path = "/" + userName + "@patricbrc.org/home/.preferences.json";
+			String path = getUserWorkspacePath(request, DEFAULT_WORKSPACE_NAME) + "/.preferences.json";
 
 			try {
-				Workspace serviceWS = new Workspace("http://p3.theseed.org/services/Workspace", token);
+				Workspace serviceWS = new Workspace(WORKSPACE_API_URL, token);
 				get_params gp = new get_params();
 				gp.objects = Arrays.asList(path);
 				gp.metadata_only = 0;
@@ -252,14 +255,14 @@ public class WorkspacePortlet extends GenericPortlet {
 	//			p_session.setAttribute("preference", uiPref, PortletSession.APPLICATION_SCOPE);
 	//		}
 	//	}
+
 	public void saveUIPreference(ResourceRequest request, UIPreference uiPref) {
 		if (isLoggedIn(request)) {
-			String userName = getUserId(request);
 			String token = getAuthorizationToken(request);
-			String path = "/" + userName + "@patricbrc.org/home/.preferences.json";
+			String path = getUserWorkspacePath(request, DEFAULT_WORKSPACE_NAME) + "/.preferences.json";
 
 			try {
-				Workspace serviceWS = new Workspace("http://p3.theseed.org/services/Workspace", token);
+				Workspace serviceWS = new Workspace(WORKSPACE_API_URL, token);
 				create_params cp = new create_params();
 				Workspace_tuple_1 tuple = new Workspace_tuple_1();
 				tuple.e_1 = path;
@@ -1001,12 +1004,11 @@ public class WorkspacePortlet extends GenericPortlet {
 
 					if (isLoggedIn(request)) {
 						String token = getAuthorizationToken(request);
-						String userName = getUserId(request);
-						String pathGenomeGroup = "/" + userName + "@patricbrc.org/home/Genome Groups";
+						String pathGenomeGroup = getUserWorkspacePath(request, DEFAULT_WORKSPACE_NAME) + "/Genome Groups";
 
 						try {
 							SolrInterface solr = new SolrInterface();
-							Workspace serviceWS = new Workspace("http://p3.theseed.org/services/Workspace", token);
+							Workspace serviceWS = new Workspace(WORKSPACE_API_URL, token);
 							list_params params = new list_params();
 							params.paths = Arrays.asList(pathGenomeGroup);
 							Map<String, List<ObjectMeta>> resp = serviceWS.ls(params);
@@ -1135,10 +1137,52 @@ public class WorkspacePortlet extends GenericPortlet {
 				else if (action.equals("getGroupList")) {
 					String grp_type = request.getParameter("group_type");
 					JSONArray res = new JSONArray();
-					JSONObject grp;
-					JSONObject filters = new JSONObject();
-					filters.put("key", "type");
-					filters.put("value", grp_type);
+
+					String grp_path = getUserWorkspacePath(request, DEFAULT_WORKSPACE_NAME);
+					switch (grp_type) {
+					case "Genome":
+						grp_path += "/Genome Groups";
+						break;
+					case "Feature":
+						grp_path += "/Feature Groups";
+						break;
+					case "ExpressionExperiment":
+						grp_path += "/Experiment Groups";
+						break;
+					default:
+						//
+					}
+
+					String token = getAuthorizationToken(request);
+					Workspace serviceWS = new Workspace(WORKSPACE_API_URL, token);
+					list_params params = new list_params();
+					params.paths = Arrays.asList(grp_path);
+
+					try {
+						Map<String, List<ObjectMeta>> resp = serviceWS.ls(params);
+						List<ObjectMeta> groupList = resp.get(grp_path);
+
+						for (ObjectMeta group : groupList) {
+							String groupId = group.e_5;  // e_5, object id
+							String groupName = group.e_1; // e_1, object name
+							// TODO: how to read group description???
+
+							JSONObject grp = new JSONObject();
+							grp.put("name", groupName);
+							grp.put("description", "");
+							grp.put("tag", "");
+							grp.put("id", groupId);
+
+							res.add(grp);
+						}
+					}
+					catch (Exception e) {
+						e.printStackTrace();
+					}
+
+					//					JSONObject filters = new JSONObject();
+					//					filters.put("key", "type");
+					//					filters.put("value", grp_type);
 					// TODO: implement with Workspac API
 					//					JSONArray groups = ws.getGroups(filters);
 					//
@@ -1419,24 +1463,24 @@ public class WorkspacePortlet extends GenericPortlet {
 					}
 				}
 			}
-			else if (action_type.equals("PopupShowedStatus")) {
-				PortletSession session = request.getPortletSession(true);
-				if (action.equals("getPopupStatus")) {
-					String popupshowed = (String) session.getAttribute("popupshowed", PortletSession.APPLICATION_SCOPE);
-					if (popupshowed == null) {
-						popupshowed = "false";
-					}
-					response.setContentType("text/plain");
-					response.getWriter().write(popupshowed);
-					response.getWriter().close();
-				}
-				else if (action.equals("setPopupStatus")) {
-					session.setAttribute("popupshowed", "ture", PortletSession.APPLICATION_SCOPE);
-					response.setContentType("text/plain");
-					response.getWriter().write("true");
-					response.getWriter().close();
-				}
-			}
+			//			else if (action_type.equals("PopupShowedStatus")) {
+			//				PortletSession session = request.getPortletSession(true);
+			//				if (action.equals("getPopupStatus")) {
+			//					String popupshowed = (String) session.getAttribute("popupshowed", PortletSession.APPLICATION_SCOPE);
+			//					if (popupshowed == null) {
+			//						popupshowed = "false";
+			//					}
+			//					response.setContentType("text/plain");
+			//					response.getWriter().write(popupshowed);
+			//					response.getWriter().close();
+			//				}
+			//				else if (action.equals("setPopupStatus")) {
+			//					session.setAttribute("popupshowed", "ture", PortletSession.APPLICATION_SCOPE);
+			//					response.setContentType("text/plain");
+			//					response.getWriter().write("true");
+			//					response.getWriter().close();
+			//				}
+			//			}
 			else if (action_type.equals("HTTPProvider")) {
 
 				UIPreference uiPref = getValidUIPreference(request);
@@ -1535,5 +1579,17 @@ public class WorkspacePortlet extends GenericPortlet {
 		}
 
 		return token;
+	}
+
+	public String getUserWorkspacePath(PortletRequest request, String defaultWorkspaceName) {
+		String path = null;
+		PortletSession session = request.getPortletSession(true);
+
+		Map<String, Object> profile = (Map) session.getAttribute("userProfile", PortletSession.APPLICATION_SCOPE);
+		if (profile != null) {
+			path = "/" + profile.get("id").toString() + defaultWorkspaceName;
+		}
+
+		return path;
 	}
 }
