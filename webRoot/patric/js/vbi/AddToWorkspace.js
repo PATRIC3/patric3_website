@@ -8,6 +8,8 @@ function addSelectedItems(workspace_type){
 		success: function(response, opts) {
 			if(response.responseText == "false") {
 				// if user is not logged in
+				doLogin();
+				/* now we have to mandate login
 				Ext.Ajax.request({
 					method:'GET',
 					url: '/portal/portal/patric/BreadCrumb/WorkspaceWindow?action=b&cacheability=PAGE&action_type=PopupShowedStatus&action=getPopupStatus',
@@ -21,7 +23,7 @@ function addSelectedItems(workspace_type){
 							DecideToShowPopup(workspace_type);
 						}
 					}
-				});
+				});*/
 			} else {
 				// user logged in
 				setPopupStatus(workspace_type);
@@ -177,7 +179,7 @@ Ext.define('AddToWorkspace', {
 					form.child("#groupName").setReadOnly(false);
 					form.child("#groupDesc").setDisabled(false);
 					form.child("#groupDesc").setValue("");
-					form.child("#groupTag").setValue("");
+					// form.child("#groupTag").setValue("");
 				} 
 				else {
 					record = me.getStore().findRecord("name", newValue, undefined, undefined, undefined, true);
@@ -187,7 +189,7 @@ Ext.define('AddToWorkspace', {
 					form.child("#groupDesc").setDisabled(false);
 					form.child("#groupDesc").setValue(record.get("description"));
 					form.child("#groupDesc").setReadOnly(true);
-					form.child("#groupTag").setValue(record.get("tags"));
+					// form.child("#groupTag").setValue(record.get("tags"));
 				}
 			}
 		}
@@ -204,12 +206,12 @@ Ext.define('AddToWorkspace', {
 		emptyText: 'Description',
 		disabled: true
 	}, {
-		xtype: 'textfield',
+/*		xtype: 'textfield',
 		itemId: 'groupTag',
 		name: 'tags',
 		fieldLabel: 'Tags',
 		emptyText: '(comma separated)'
-	}, {
+	}, { */
 		xtype: 'displayfield',
 		itemId: 'noteToUser',
 		value:'<br/><u>Note:</u> As Guest, your Workspace items persist until you close your browser.' +
@@ -221,7 +223,7 @@ Ext.define('AddToWorkspace', {
 		var me = this;
 		me.child("#groupName").setValue("");
 		me.child("#groupDesc").setValue("");
-		me.child("#groupTag").setValue("");
+		// me.child("#groupTag").setValue("");
 		me.child('#atg').select("None");
 	}
 });

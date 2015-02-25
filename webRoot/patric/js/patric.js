@@ -175,3 +175,31 @@ Ext.override(Ext.selection.CellModel, {
 		}
 	}
 });
+
+/** new login modal */
+function doLogin() {
+	Ext.create("Ext.Window", {
+		title: 'login',
+		width: 500,
+		height: 280,
+		html: '<iframe src="/login" width=500 height=280/>',
+		listeners: {
+
+		}
+	}).show();
+};
+window.addEventListener("message", doLoginAfter, false);
+function doLoginAfter(evt) {
+	var msg = evt.data;
+	console.log("window.message: ", msg);
+	if (!msg || !msg.type) { return; }
+
+	switch(msg.type){
+		case "AuthenticationSuccess":
+			if (self.loginWindow){
+				self.loginWindow.close();
+			}		
+			window.location.reload();
+			break;
+	}					
+}
