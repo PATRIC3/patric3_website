@@ -19,7 +19,6 @@ import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.beans.Taxonomy;
 import edu.vt.vbi.patric.common.SolrCore;
 import edu.vt.vbi.patric.common.SolrInterface;
-import edu.vt.vbi.patric.dao.DBPathways;
 import edu.vt.vbi.patric.dao.ResultType;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.ResponseHandler;
@@ -30,10 +29,13 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.LBHttpSolrServer;
 import org.apache.solr.client.solrj.response.FacetField;
+import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.client.solrj.response.RangeFacet;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.params.FacetParams;
+import org.apache.solr.common.util.DateUtil;
 import org.apache.solr.common.util.SimpleOrderedMap;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -70,7 +72,7 @@ public class DataLandingGenerator {
 
 	final String URL_PROTEINFAMILY_TAB = "FIGfam?cType={cType}&cId={cId}&dm=result&bm=";
 
-	final String URL_PATHWAY_TAB = "CompPathwayTable?cType={cType}&cId={cId}&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=RAST&cwEC=false&cwP=true&pId={pId}&pClass=&ecN=";
+	final String URL_PATHWAY_TAB = "CompPathwayTable?cType={cType}&cId={cId}&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=0&alg=PATRIC&cwEC=false&cwP=true&pId={pId}&pClass=&ecN=";
 
 	final String URL_TRANSCRIPTOMICS_TAB = "ExperimentList?cType={cType}&cId={cId}&kw={kw}";
 
@@ -78,11 +80,11 @@ public class DataLandingGenerator {
 
 	final String URL_GENOMEBROWSER = "GenomeBrowser?cType={cType}&cId={cId}&loc=0..10000&tracks=";
 
-	final String URL_PATHWAY_EC_TAB = "CompPathwayTable?cType=genome&cId={cId}&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=RAST&cwEC=false&cwP=true&pId={pId}&pClass=&ecN=";
+	final String URL_PATHWAY_EC_TAB = "CompPathwayTable?cType=genome&cId={cId}&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=1&alg=PATRIC&cwEC=false&cwP=true&pId={pId}&pClass=&ecN=";
 
-	final String URL_PATHWAY_GENE_TAB = "CompPathwayTable?cType=genome&cId={cId}&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=RAST&cwEC=false&cwP=true&pId={pId}&pClass=&ecN=";
+	final String URL_PATHWAY_GENE_TAB = "CompPathwayTable?cType=genome&cId={cId}&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=PATRIC&cwEC=false&cwP=true&pId={pId}&pClass=&ecN=";
 
-	final String ULR_SPECIALTY_GENE_TAB = "SpecialtyGeneList?cType=genome&cId={cId}&kw=source:{source}";
+	final String URL_SPECIALTY_GENE_TAB = "SpecialtyGeneList?cType=genome&cId={cId}&kw=source:{source}";
 
 	public boolean createCacheFileGenomes(String filePath) {
 		boolean isSuccess = false;
@@ -620,44 +622,64 @@ public class DataLandingGenerator {
 
 	private JSONObject getGenomeCounts() {
 		SolrInterface solr = new SolrInterface();
-		String solrServer = solr.getServerUrl(SolrCore.GENOME);
-		// TODO: convert to solrJ call, since solrJ now support range.other param
-		String cUrl = solrServer
-				+ "/select?q=genome_status:Complete&facet=true&facet.range=completion_date&f.completion_date.facet.range.start=2010-01-01T00%3A00%3A00.000Z&f.completion_date.facet.range.end=2015-01-01T00%3A00%3A00.000Z&f.completion_date.facet.range.gap=%2B1YEAR&facet.sort=index&facet.range.other=before&rows=0&wt=json";
-		String wUrl = solrServer
-				+ "/select?q=genome_status:WGS&facet=true&facet.range=completion_date&f.completion_date.facet.range.start=2010-01-01T00%3A00%3A00.000Z&f.completion_date.facet.range.end=2015-01-01T00%3A00%3A00.000Z&f.completion_date.facet.range.gap=%2B1YEAR&facet.sort=index&facet.range.other=before&rows=0&wt=json";
-
-		JSONObject cRet = read(cUrl);
-		JSONObject cFacetCounts = (JSONObject) cRet.get("facet_counts");
-		JSONObject cFacetRanges = (JSONObject) cFacetCounts.get("facet_ranges");
-		JSONObject cCompletionDates = (JSONObject) cFacetRanges.get("completion_date");
-
-		JSONObject wRet = read(wUrl);
-		JSONObject wFacetCounts = (JSONObject) wRet.get("facet_counts");
-		JSONObject wFacetRanges = (JSONObject) wFacetCounts.get("facet_ranges");
-		JSONObject wCompletionDates = (JSONObject) wFacetRanges.get("completion_date");
-
-		long cBefore = (long) cCompletionDates.get("before");
-		long wBefore = (long) wCompletionDates.get("before");
-		JSONArray cCounts = (JSONArray) cCompletionDates.get("counts");
-		JSONArray wCounts = (JSONArray) wCompletionDates.get("counts");
-
 		JSONArray series = new JSONArray();
 
-		for (int i = 0; i < cCounts.size(); i = i + 2) {
-			String year = cCounts.get(i).toString().substring(0, 4);
+		SolrQuery queryComplete = new SolrQuery("genome_status:Complete");
+		SolrQuery queryWGS = new SolrQuery("genome_status:WGS");
 
-			long cCount = (long) cCounts.get(i + 1);
-			long wCount = (long) wCounts.get(i + 1);
+		queryComplete.setFacet(true).setRows(0).setFacetSort(FacetParams.FACET_SORT_INDEX);
+		//.set("json.facet", "{genome_count:{range:{field:completion_date,start:\"2010-01-01T00:00:00.000Z\",end:\"2016-01-01T00:00:00.000Z\",gap:\"%2B1YEAR\",other:\"before\"}}}");
+		queryWGS.setFacet(true).setRows(0).setFacetSort(FacetParams.FACET_SORT_INDEX);
+		//.set("json.facet", "{genome_count:{range:{field:completion_date,start:\"2010-01-01T00:00:00.000Z\",end:\"2016-01-01T00:00:00.000Z\",gap:\"%2B1YEAR\",other:\"before\"}}}");
 
-			JSONObject item = new JSONObject();
-			item.put("year", Integer.parseInt(year));
-			item.put("complete", cBefore + cCount);
-			item.put("wgs", wBefore + wCount);
-			series.add(item);
+		try {
+			Date rangeStartDate = DateUtil.parseDate("2010-01-01'T'00:00:00.000'Z'");
+			Date rangeEndDate = DateUtil.parseDate("2016-01-01'T'00:00:00.000'Z'");
 
-			cBefore += cCount;
-			wBefore += wCount;
+			queryComplete.addDateRangeFacet("completion_date", rangeStartDate, rangeEndDate, "+1YEAR").add(FacetParams.FACET_RANGE_OTHER, "before");
+			queryWGS.addDateRangeFacet("completion_date", rangeStartDate, rangeEndDate, "+1YEAR").add(FacetParams.FACET_RANGE_OTHER, "before");
+		}
+		catch (java.text.ParseException e) {
+			LOGGER.error(e.getMessage(), e);
+		}
+
+		try {
+			LOGGER.debug("getGenomeCount query: {}", queryComplete.toString());
+			QueryResponse qrComplete = solr.getSolrServer(SolrCore.GENOME).query(queryComplete);
+			QueryResponse qrWGS = solr.getSolrServer(SolrCore.GENOME).query(queryWGS);
+
+			//			List<SimpleOrderedMap> bucketsComplete = (List) ((SimpleOrderedMap) ((SimpleOrderedMap) qrComplete.getResponse().get("facets")).get("genome_count")).get("buckets");
+			//			List<SimpleOrderedMap> bucketsWGS = (List) ((SimpleOrderedMap) ((SimpleOrderedMap) qrWGS.getResponse().get("facets")).get("genome_count")).get("buckets");
+
+			RangeFacet rfComplete = qrComplete.getFacetRanges().get(0);
+			RangeFacet rfWGS = qrWGS.getFacetRanges().get(0);
+
+			int countComplete = (int) rfComplete.getBefore();
+			int countWGS = (int) rfWGS.getBefore();
+
+			Map<String, Integer> mapCountComplete = new HashMap<>();
+			Map<String, Integer> mapCountWGS = new HashMap<>();
+
+			List<RangeFacet.Count> listComplete = rfComplete.getCounts();
+			for (RangeFacet.Count facet : listComplete) {
+				countComplete = countComplete + facet.getCount();
+				mapCountComplete.put(facet.getValue().substring(0, 4), countComplete);
+			}
+			List<RangeFacet.Count> listWGS = rfWGS.getCounts();
+			for (RangeFacet.Count facet : listWGS) {
+				countWGS = countWGS + facet.getCount();
+				mapCountWGS.put(facet.getValue().substring(0, 4), countWGS);
+
+				String year = facet.getValue().substring(0, 4);
+				JSONObject item = new JSONObject();
+				item.put("year", Integer.parseInt(year));
+				item.put("complete", mapCountComplete.get(year));
+				item.put("wgs", mapCountWGS.get(year));
+				series.add(item);
+			}
+		}
+		catch (MalformedURLException | SolrServerException e) {
+			LOGGER.error(e.getMessage(), e);
 		}
 
 		JSONObject jsonData = new JSONObject();
@@ -1145,18 +1167,25 @@ public class DataLandingGenerator {
 				// Specialty Gene Queries
 				try {
 					SolrQuery query = new SolrQuery("genome_id:" + genomeId);
-					query.setFacet(true).setFacetMinCount(1).addFacetField("property_source").setFacetSort(FacetParams.FACET_SORT_INDEX);
+					query.setRows(0).setFacet(true).setFacetMinCount(1);
+					query.addFacetPivotField("property,source").setFacetSort(FacetParams.FACET_SORT_INDEX);
 
+					LOGGER.debug("getPopularGenomesForGenomicFeature: {}", query.toString());
 					QueryResponse qr = solr.getSolrServer(SolrCore.SPECIALTY_GENE_MAPPING).query(query);
-					FacetField ff = qr.getFacetField("property_source");
-					for (FacetField.Count fc : ff.getValues()) {
-						JSONObject sp = new JSONObject();
-						String source = fc.getName().split(":")[1].trim();
-						sp.put("description", fc.getName().replace(" : ", ": "));
-						sp.put("link", ULR_SPECIALTY_GENE_TAB.replace("{cId}", genomeId).replace("{source}", source));
-						sp.put("data", fc.getCount());
+					List<PivotField> pivotList = qr.getFacetPivot().get("property,source");
+					for (PivotField pivot : pivotList) {
+						String property = pivot.getValue().toString();
 
-						specialtyGenes.add(sp);
+						for (PivotField pv : pivot.getPivot()) {
+							String source = pv.getValue().toString();
+
+							JSONObject sp = new JSONObject();
+							sp.put("description", property + ": " + source);
+							sp.put("link", URL_SPECIALTY_GENE_TAB.replace("{cId}", genomeId).replace("{source}", source));
+							sp.put("data", pv.getCount());
+
+							specialtyGenes.add(sp);
+						}
 					}
 				}
 				catch (SolrServerException e) {
@@ -1242,18 +1271,25 @@ public class DataLandingGenerator {
 
 			try {
 				SolrQuery query = new SolrQuery("genome_id:" + genomeId);
-				query.setFacet(true).setFacetMinCount(1).addFacetField("property_source").setFacetSort(FacetParams.FACET_SORT_INDEX);
+				query.setRows(0).setFacet(true).setFacetMinCount(1);
+				query.addFacetPivotField("property,source").setFacetSort(FacetParams.FACET_SORT_INDEX);
 
+				LOGGER.debug("getPopularGenomesForSpecialtyGene: {}", query.toString());
 				QueryResponse qr = lbHttpSolrServer.query(query);
-				FacetField ff = qr.getFacetField("property_source");
-				for (FacetField.Count fc : ff.getValues()) {
-					JSONObject sp = new JSONObject();
-					String source = fc.getName().split(":")[1].trim();
-					sp.put("description", fc.getName());
-					sp.put("link", ULR_SPECIALTY_GENE_TAB.replace("{cId}", genomeId).replace("{source}", source));
-					sp.put("data", fc.getCount());
+				List<PivotField> pivotList = qr.getFacetPivot().get("property,source");
+				for (PivotField pivot : pivotList) {
+					String property = pivot.getValue().toString();
 
-					specialtyGenes.add(sp);
+					for (PivotField pv : pivot.getPivot()) {
+						String source = pv.getValue().toString();
+
+						JSONObject sp = new JSONObject();
+						sp.put("description", property + ": " + source);
+						sp.put("link", URL_SPECIALTY_GENE_TAB.replace("{cId}", genomeId).replace("{source}", source));
+						sp.put("data", pv.getCount());
+
+						specialtyGenes.add(sp);
+					}
 				}
 			}
 			catch (SolrServerException e) {
@@ -1335,16 +1371,15 @@ public class DataLandingGenerator {
 				SolrQuery query = new SolrQuery();
 				query.setQuery("property:\"Antibiotic Resistance\"");
 				query.setFilterQueries("genome_id:" + genomeId);
-				// TODO: avoid useing property_source
-				query.setFacet(true).setFacetMinCount(1).addFacetField("property_source").setFacetSort(FacetParams.FACET_SORT_INDEX);
+				query.setFacet(true).setFacetMinCount(1).addFacetField("source").setFacetSort(FacetParams.FACET_SORT_INDEX);
 
 				QueryResponse qr = lbHttpSolrServer.query(query);
-				FacetField ff = qr.getFacetField("property_source");
+				FacetField ff = qr.getFacetField("source");
 				for (FacetField.Count fc : ff.getValues()) {
 					JSONObject sp = new JSONObject();
-					String source = fc.getName().split(":")[1].trim();
+					String source = fc.getName().trim();
 					sp.put("description", source);
-					sp.put("link", ULR_SPECIALTY_GENE_TAB.replace("{cId}", genomeId).replace("{source}", source));
+					sp.put("link", URL_SPECIALTY_GENE_TAB.replace("{cId}", genomeId).replace("{source}", source));
 					sp.put("data", fc.getCount());
 
 					specialtyGenes.add(sp);
@@ -1404,18 +1439,9 @@ public class DataLandingGenerator {
 
 		JSONObject jsonData = null;
 		JSONArray list = new JSONArray();
-		DBPathways connPW = new DBPathways();
 		SolrInterface solr = new SolrInterface();
 
-		HashMap<String, String> sort = new HashMap<>();
-		sort.put("field", "ec_count");
-		sort.put("direction", "DESC");
-
 		for (String genomeId : REFERENCE_GENOME_IDS) {
-			Map<String, String> key = new HashMap<>();
-			key.put("genomeId", genomeId);
-			key.put("algorithm", "RAST");
-
 			Genome genome = solr.getGenome(genomeId);
 
 			// construct genome
@@ -1426,21 +1452,50 @@ public class DataLandingGenerator {
 
 			JSONArray data = new JSONArray();
 
-			// TODO: implement this with solr
-			List<ResultType> items = connPW.getCompPathwayPathwayList(key, sort, 0, 10);
-			for (ResultType item : items) {
-				JSONObject pathway = new JSONObject();
+			LinkedList<Map<String, String>> pathwayList = new LinkedList<>();
 
-				pathway.put("name", item.get("pathway_name"));
-				pathway.put("name_link",
-						URL_PATHWAY_TAB.replace("{cType}", "genome").replace("{cId}", genomeId).replace("{pId}", item.get("pathway_id")));
-				pathway.put("class", item.get("pathway_class"));
-				pathway.put("gene_count", item.get("gene_count"));
-				pathway.put("gene_link", URL_PATHWAY_GENE_TAB.replace("{cId}", genomeId).replace("{pId}", item.get("pathway_id")));
-				pathway.put("ec_count", item.get("ec_count"));
-				pathway.put("ec_link", URL_PATHWAY_EC_TAB.replace("{cId}", genomeId).replace("{pId}", item.get("pathway_id")));
+			try {
+				//{stat:{field:{field:pathway_id,sort:{ec_count:desc},facet:{ec_count:"unique(ec_number)",gene_count:"unique(feature_id)",field:{field:pathway_name}}}}}
+				SolrQuery query = new SolrQuery("genome_id:" + genomeId).addFilterQuery("annotation:PATRIC");
+				query.setRows(0).setFacet(true).set("json.facet",
+						"{stat:{field:{field:pathway_id,sort:{ec_count:desc},facet:{ec_count:\"unique(ec_number)\",gene_count:\"unique(feature_id)\",field:{field:pathway_name}}}}}");
 
-				data.add(pathway);
+				LOGGER.debug("getPopularGenomesForPathways: {}", query.toString());
+				QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query);
+				List<SimpleOrderedMap> buckets = (List) ((SimpleOrderedMap) ((SimpleOrderedMap) qr.getResponse().get("facets")).get("stat"))
+						.get("buckets");
+
+				for (SimpleOrderedMap bucket : buckets) {
+					Map<String, String> pathway = new HashMap<>();
+					pathway.put("id", bucket.get("val").toString());
+					pathway.put("ec_count", bucket.get("ec_count").toString());
+					pathway.put("gene_count", bucket.get("gene_count").toString());
+
+					// getting name
+					List<SimpleOrderedMap> subBuckets = (List) ((SimpleOrderedMap) bucket.get("field")).get("buckets");
+					pathway.put("name", subBuckets.get(0).get("val").toString());
+
+					pathwayList.add(pathway);
+				}
+			}
+			catch (MalformedURLException | SolrServerException e) {
+				LOGGER.error(e.getMessage(), e);
+			}
+
+			//			List<ResultType> items = connPW.getCompPathwayPathwayList(key, sort, 0, 10);
+			// for (ResultType item : items) {
+			for (Map<String, String> pathway : pathwayList) {
+				JSONObject pw = new JSONObject();
+
+				pw.put("name", pathway.get("name"));
+				pw.put("name_link", URL_PATHWAY_TAB.replace("{cType}", "genome").replace("{cId}", genomeId).replace("{pId}", pathway.get("id")));
+				// pw.put("class", item.get("pathway_class"));
+				pw.put("gene_count", pathway.get("gene_count"));
+				pw.put("gene_link", URL_PATHWAY_GENE_TAB.replace("{cId}", genomeId).replace("{pId}", pathway.get("id")));
+				pw.put("ec_count", pathway.get("ec_count"));
+				pw.put("ec_link", URL_PATHWAY_EC_TAB.replace("{cId}", genomeId).replace("{pId}", pathway.get("id")));
+
+				data.add(pw);
 			}
 			popGenome.put("popularData", data);
 			list.add(popGenome);
@@ -1569,28 +1624,65 @@ public class DataLandingGenerator {
 		JSONObject jsonData;
 		JSONArray series = new JSONArray();
 
-		DBPathways conn = new DBPathways();
 		SolrInterface solr = new SolrInterface();
 
 		for (Integer txId : GENUS_TAXON_IDS) {
+			int total = 0;
+			List<Integer> distribution = new LinkedList<>();
 
-			// TODO: implement this with solr
-			List<Integer> dist = conn.getDistECConservation("taxon", txId.toString());
+			// {stat:{field:{field:pathway_id,limit:-1,facet:{ec_count:"unique(ec_number)",genome_count:"unique(genome_id)",genome_ec_count:"unique(genome_ec)"}}}}
+			try {
+				SolrQuery query = new SolrQuery("annotation:PATRIC");
+				query.addFilterQuery(
+						SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "genome_status:(Complete OR WGS) AND taxon_lineage_ids:" + txId));
+				query.setRows(0).setFacet(true).set("json.facet",
+						"{stat:{field:{field:pathway_id,limit:-1,facet:{ec_count:\"unique(ec_number)\",genome_count:\"unique(genome_id)\",genome_ec_count:\"unique(genome_ec)\"}}}}");
+
+				LOGGER.debug("getPathwayECDist: {}", query.toString());
+				QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query);
+				List<SimpleOrderedMap> buckets = (List) ((SimpleOrderedMap) ((SimpleOrderedMap) qr.getResponse().get("facets")).get("stat"))
+						.get("buckets");
+
+				int bin1 = 0, bin2 = 0, bin3 = 0, bin4 = 0, bin5 = 0;
+
+				for (SimpleOrderedMap bucket : buckets) {
+
+					double ec_count = ((Integer) bucket.get("ec_count")).doubleValue();
+					double genome_count = ((Integer) bucket.get("genome_count")).doubleValue();
+					double genome_ec_count = ((Integer) bucket.get("genome_ec_count")).doubleValue();
+
+					long bin = Math.round(genome_ec_count / genome_count / ec_count * 100);
+
+					LOGGER.trace("calculating conservation, ec:{}, genome:{}, genome_ec:{}, bin:{}", ec_count, genome_count, genome_ec_count, bin);
+					if (bin < 20) {
+						bin5++;
+					}
+					else if (bin >= 20 && bin < 40) {
+						bin4++;
+					}
+					else if (bin >= 40 && bin < 60) {
+						bin3++;
+					}
+					else if (bin >= 60 && bin < 80) {
+						bin2++;
+					}
+					else if (bin >= 80) {
+						bin1++;
+					}
+					total++;
+				}
+				distribution.addAll(Arrays.asList(bin1, bin2, bin3, bin4, bin5));
+			}
+			catch (MalformedURLException | SolrServerException e) {
+				LOGGER.error(e.getMessage(), e);
+			}
 
 			Taxonomy taxonomy = solr.getTaxonomy(txId);
 
 			JSONObject item = new JSONObject();
 			item.put("pathogen", taxonomy.getTaxonName());
-
-			int total = 0;
-			for (Integer v : dist) {
-				total += v;
-			}
 			item.put("total", total);
-			//			JSONArray jDist = new JSONArray();
-			//			jDist.addAll(dist);
-			//			item.put("dist", jDist);
-			item.put("dist", dist);
+			item.put("dist", distribution);
 
 			series.add(item);
 		}
