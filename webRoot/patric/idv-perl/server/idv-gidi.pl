@@ -14,8 +14,12 @@ $vfin 	 = $ARGV[4] if (defined $ARGV[4]);
 	use lib "/opt/jboss/jboss-epp-4.3/jboss-as/server/jboss-patric/deploy/jboss-web.deployer/ROOT.war/patric/idv-perl/server/CPAN";
 
 #for Prod Env
-        use lib "/opt/jboss-patric/jboss_patric/deploy/jboss-web.deployer/ROOT.war/patric/idv-perl/server/CPAN";
-        use lib "/opt/jboss-patric/jboss_patric/deploy/jboss-web.deployer/ROOT.war/patric/idv-perl/server/";
+	use lib "/opt/jboss-patric/jboss_patric/deploy/jboss-web.deployer/ROOT.war/patric/idv-perl/server/CPAN";
+	use lib "/opt/jboss-patric/jboss_patric/deploy/jboss-web.deployer/ROOT.war/patric/idv-perl/server/";
+
+#for cluster Evn
+	use lib "/usr/share/jboss_deploy/jboss-as/server/patric/patric_website/webRoot/patric/idv-perl/server/CPAN";
+	use lib "/usr/share/jboss_deploy/jboss-as/server/patric/patric_website/webRoot/patric/idv-perl/server/";
 
 use HPI::Tools;
 use HPI::Graph::Graph;
