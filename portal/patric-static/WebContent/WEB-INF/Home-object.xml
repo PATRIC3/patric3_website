@@ -144,21 +144,6 @@
 				</property>
 			</properties>
 			<window>
-				<window-name>BreadCrumbWindow</window-name>
-				<content>
-					<content-type>portlet</content-type>
-					<content-uri>BreadCrumbInstance</content-uri>
-				</content>
-				<region>top</region>
-				<height>0</height>
-				<properties>
-					<property>
-						<name>theme.renderSetId</name>
-						<value>emptyRenderer</value>
-					</property>
-				</properties>
-			</window>
-			<window>
 				<window-name>RASTWindow</window-name>
 				<instance-ref>RASTInstance</instance-ref>
 				<region>center</region>
@@ -183,21 +168,6 @@
 					<value>patric-full</value>
 				</property>
 			</properties>
-			<window>
-				<window-name>BreadCrumbWindow</window-name>
-				<content>
-					<content-type>portlet</content-type>
-					<content-uri>BreadCrumbInstance</content-uri>
-				</content>
-				<region>top</region>
-				<height>0</height>
-				<properties>
-					<property>
-						<name>theme.renderSetId</name>
-						<value>emptyRenderer</value>
-					</property>
-				</properties>
-			</window>
 			<window>
 				<window-name>MGRASTWindow</window-name>
 				<instance-ref>MGRASTInstance</instance-ref>
