@@ -37,6 +37,11 @@
 		path = "/opt/jboss-patric/jboss_patric/deploy/jboss-web.deployer/ROOT.war/patric/idv-perl";
 		machine = "production";
 	}
+	else if ((new File("/usr/share/jboss_deploy/jboss-as/server/patric/patric_website/webRoot/patric/idv-perl/server/idv-gidi.pl")).exists())
+	{
+	    path = "/usr/share/jboss_deploy/jboss-as/server/patric/patric_website/webRoot/patric/idv-perl";
+	    machine = "cluster";
+	}
 
 	String cId = request.getParameter("cId");
 
@@ -175,6 +180,7 @@
 
 	String exec = "perl " + path + "/server/idv-gidi.pl " + machine+ " " + cId +" "+ fileDiseases + " " + fileGenes + " " + fileVFS; 
 
+    LOGGER.debug(exec);
 	CommandResults callperl = ExecUtilities.exec(exec);
 	
 	String[] output = callperl.getStdout();
