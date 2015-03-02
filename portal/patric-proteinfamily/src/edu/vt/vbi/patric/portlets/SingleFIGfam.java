@@ -34,14 +34,7 @@ import java.util.Random;
 
 public class SingleFIGfam extends GenericPortlet {
 
-	SolrInterface solr;
-
 	private static final Logger LOGGER = LoggerFactory.getLogger(SingleFIGfam.class);
-
-	public void init(PortletConfig portletConfig) throws PortletException {
-		solr = new SolrInterface();
-		super.init(portletConfig);
-	}
 
 	public void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 		new SiteHelper().setHtmlMetaElements(request, response, "Protein Family");
@@ -54,6 +47,8 @@ public class SingleFIGfam extends GenericPortlet {
 	@SuppressWarnings("unchecked")
 	public void serveResource(ResourceRequest req, ResourceResponse resp) throws PortletException, IOException {
 		String callType = req.getParameter("callType");
+		SolrInterface solr = new SolrInterface();
+
 		if (callType != null) {
 			ResultType key = new ResultType();
 			if (callType.equals("saveState")) {

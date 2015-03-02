@@ -27,6 +27,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.portlet.*;
 import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 public class FIGfam extends GenericPortlet {
@@ -95,13 +97,12 @@ public class FIGfam extends GenericPortlet {
 	private void getTaxonIds(ResourceRequest req, PrintWriter writer) {
 		String cId = req.getParameter("taxonId");
 		if ((cId != null) && (0 < cId.length())) {
-			// String keyword = req.getParameter("keyword");
 			FIGfamData access = new FIGfamData();
 			writer.write(access.getGenomeIdsForTaxon(cId));
 		}
 	}
 
-	private void setKeyValues(String name, ResourceRequest req, ResultType key) {
+	private void setKeyValues(String name, ResourceRequest req, Map key) {
 		String result = req.getParameter(name);
 		if (result == null) {
 			result = "";
@@ -109,9 +110,9 @@ public class FIGfam extends GenericPortlet {
 		key.put(name, result);
 	}
 
-	private String getKeyValue(String name, ResultType key) {
+	private String getKeyValue(String name, Map key) {
 		if (key != null && key.containsKey(name) && key.get(name) != null) {
-			return key.get(name);
+			return (String) key.get(name);
 		}
 		else {
 			return "";
@@ -124,7 +125,8 @@ public class FIGfam extends GenericPortlet {
 		String callType = req.getParameter("callType");
 
 		if (callType != null) {
-			if (callType.equals("toSorter")) {
+			switch (callType) {
+			case "toSorter": {
 				ResultType key = new ResultType();
 				// Added by OralDALAY
 
@@ -139,20 +141,23 @@ public class FIGfam extends GenericPortlet {
 				PrintWriter writer = resp.getWriter();
 				writer.write("" + random);
 				writer.close();
+				break;
 			}
-			else if (callType.equals("getGenomeDetails")) {
+			case "getGenomeDetails": {
 				resp.setContentType("application/json");
 				PrintWriter writer = resp.getWriter();
 				FIGfamData access = new FIGfamData();
 				access.getGenomeDetails(req, writer);
 				writer.close();
+				break;
 			}
-			else if (callType.equals("getTaxonIds")) {
+			case "getTaxonIds": {
 				PrintWriter writer = resp.getWriter();
 				getTaxonIds(req, writer);
 				writer.close();
+				break;
 			}
-			else if (callType.equals("toAligner")) {
+			case "toAligner": {
 				ResultType key = new ResultType();
 				setKeyValues("featureIds", req, key);
 				setKeyValues("figfamId", req, key);
@@ -164,8 +169,9 @@ public class FIGfam extends GenericPortlet {
 				PrintWriter writer = resp.getWriter();
 				writer.write("" + random);
 				writer.close();
+				break;
 			}
-			else if (callType.equals("toDetails")) {
+			case "toDetails": {
 				ResultType key = new ResultType();
 				setKeyValues("genomeIds", req, key);
 				setKeyValues("figfamIds", req, key);
@@ -176,43 +182,49 @@ public class FIGfam extends GenericPortlet {
 				PrintWriter writer = resp.getWriter();
 				writer.write("" + random);
 				writer.close();
+				break;
 			}
-			else if (callType.equals("getJsp")) {
+			case "getJsp":
 				String jspName = req.getParameter("JSP_NAME");
 				jspName = "/WEB-INF/jsp/" + jspName + ".jsp";
 				resp.setContentType("text/html");
 				PortletContext context = this.getPortletContext();
 				PortletRequestDispatcher reqDispatcher = context.getRequestDispatcher(jspName);
 				reqDispatcher.include(req, resp);
-			}
-			else if (callType.equals("getFeatureIds")) {
+				break;
+			case "getFeatureIds": {
 				PrintWriter writer = resp.getWriter();
 				FIGfamData access = new FIGfamData();
 				access.getFeatureIds(req, writer, req.getParameter("keyword"));
 				writer.close();
+				break;
 			}
-			else if (callType.equals("getGroupStats")) {
+			case "getGroupStats": {
 				resp.setContentType("application/json");
 				PrintWriter writer = resp.getWriter();
 				FIGfamData access = new FIGfamData();
 				access.getGroupStats(req, writer);
 				writer.close();
+				break;
 			}
-			else if (callType.equals("getLocusTags")) {
+			case "getLocusTags": {
 				PrintWriter writer = resp.getWriter();
 				FIGfamData access = new FIGfamData();
 				access.getLocusTags(req, writer);
 				writer.close();
+				break;
 			}
-			else if (callType.equals("getSessionId")) {
+			case "getSessionId": {
 				PrintWriter writer = resp.getWriter();
 				PortletSession sess = req.getPortletSession(true);
 				writer.write(sess.getId());
 				writer.close();
+				break;
 			}
-			else if (callType.equals("saveState")) {
+			case "saveState": {
 				String keyType = req.getParameter("keyType");
-				ResultType key = new ResultType();
+				// ResultType key = new ResultType();
+				Map<String, String> key = new HashMap<>();
 				setKeyValues("pageAt", req, key);
 				setKeyValues("syntonyId", req, key);
 				setKeyValues("regex", req, key);
@@ -238,14 +250,15 @@ public class FIGfam extends GenericPortlet {
 				PrintWriter writer = resp.getWriter();
 				writer.write("" + random);
 				writer.close();
+				break;
 			}
-			else if (callType.equals("getState")) {
+			case "getState": {
 				PrintWriter writer = resp.getWriter();
 				PortletSession sess = req.getPortletSession(true);
 				String keyType = req.getParameter("keyType");
 				String random = req.getParameter("random");
 				if ((random != null) && (keyType != null)) {
-					ResultType key = (ResultType) (sess.getAttribute(keyType + random));
+					Map<String, String> key = (Map) sess.getAttribute(keyType + random);
 					writer.write(getKeyValue("pageAt", key));
 					writer.write("\t" + getKeyValue("syntonyId", key));
 					writer.write("\t" + getKeyValue("regex", key));
@@ -263,8 +276,9 @@ public class FIGfam extends GenericPortlet {
 					writer.write("\t" + getKeyValue("heatmapState", key));
 					writer.close();
 				}
+				break;
 			}
-			else if (callType.equals("doClustering")) {
+			case "doClustering": {
 				PrintWriter writer = resp.getWriter();
 				String data = req.getParameter("data");
 				String g = req.getParameter("g");
@@ -290,18 +304,22 @@ public class FIGfam extends GenericPortlet {
 					writer.write(doCLustering(filename, output_filename, g, e, m, ge).toString());
 
 				writer.close();
+				break;
 			}
-			else if (callType.equals("getSyntonyOrder")) {
+			case "getSyntonyOrder": {
 				PrintWriter writer = resp.getWriter();
 				FIGfamData access = new FIGfamData();
 				JSONArray json = access.getSyntonyOrder(req);
 				json.writeJSONString(writer);
 				writer.close();
+				break;
 			}
-			else {
+			default: {
 				PrintWriter writer = resp.getWriter();
 				writer.write(callType);
 				writer.close();
+				break;
+			}
 			}
 		}
 	}
