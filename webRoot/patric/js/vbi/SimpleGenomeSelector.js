@@ -48,8 +48,8 @@ Ext.define('VBI.SimpleGenomeSelector', {
 			},
 			autoLoad: false
 		},
-		valueField: 'genome_info_id',
-		displayField: 'genome_name',
+		valueField: 'genome_id',
+		displayField: 'display_name',
 		value:[]
 	}]
 });
