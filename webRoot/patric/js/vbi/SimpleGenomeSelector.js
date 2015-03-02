@@ -33,7 +33,7 @@ Ext.define('VBI.SimpleGenomeSelector', {
 		minHeight: 250,
 		maxHeight: 400,
 		store: {
-			fields: [{name:'genome_info_id', type:'int'},'genome_name'],
+			fields: ['genome_id', 'display_name'],
 			proxy: {
 				type: 'ajax',
 				url: '/portal/portal/patric/TaxonomyTree/TaxonomyTreeWindow?action=b&cacheability=PAGE&mode=search&taxonId=131567',
