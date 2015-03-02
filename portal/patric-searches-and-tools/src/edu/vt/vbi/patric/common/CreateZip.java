@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2014 Virginia Polytechnic Institute and State University
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,93 +15,78 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.common;
 
-import java.util.*;
-import java.util.zip.*;
-import java.io.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import edu.vt.vbi.patric.dao.ResultType;
+import java.io.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 public class CreateZip {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(CreateZip.class);
+
+	private final String DOWNLOAD_ROOT = "/cid/brcdownloads/patric2/patric3/genomes/";
 
 	public static void main(String args[]) throws IOException {
 
 	}
 
-	public byte[] ZipIt(ArrayList<ResultType> items, String[] algorithm, String[] filetype) throws IOException {
+	public byte[] ZipIt(List<String> genomeIdList, List<String> annotations, List<String> fileTypes) throws IOException {
 
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		ZipOutputStream zos = new ZipOutputStream(baos);
-		BufferedInputStream bis;
+		Set<String> files = new HashSet<>();
 
-		String[] files = new String[10000];
+		for (String genomeId : genomeIdList) {
 
-		File file;
+			File genomeDir = new File(DOWNLOAD_ROOT + genomeId);
 
-		int bytesRead;
-
-		byte[] buffer = new byte[1024];
-
-		int j = 0;
-		boolean flag;
-
-		for (int i = 0; i < items.size(); i++) {
-
-			ResultType g = (ResultType) items.get(i);
-
-			String folder = g.get("genomeNames");
-
-			file = new File("/storage/brcdownloads/patric2/genomes/" + folder);
-
-			if (!file.exists()) {
-
-				System.err.println("Skipping Folder: " + "/storage/brcdownloads/patric2/genomes/" + folder);
+			if (!genomeDir.exists()) {
+				LOGGER.debug("Skipping Folder: {}", DOWNLOAD_ROOT + genomeId);
 				continue;
-
 			}
 			else {
-				for (int k = 0; k < algorithm.length; k++) {
-					for (int m = 0; m < filetype.length; m++) {
-
-						flag = false;
-
-						file = new File("/storage/brcdownloads/patric2/genomes/" + folder + "/" + folder
-								+ (filetype[m].equals(".fna") ? "" : algorithm[k]) + filetype[m]);
+				for (String annotation : annotations) {
+					for (String fileType : fileTypes) {
+						File file = new File(DOWNLOAD_ROOT + genomeId + "/" + genomeId + (fileType.equals(".fna") ? "" : annotation) + fileType);
 
 						if (!file.exists()) {
 							System.err.println("Skipping File: " + file.getAbsolutePath());
 						}
 						else {
-							for (int z = 0; z < files.length; z++) {
-								if (files[z] != null && files[z].equals(file.getAbsolutePath())) {
-									flag = true;
-									break;
-								}
-							}
-							if (!flag) {
-								files[j] = file.getAbsolutePath();
-								j++;
-							}
+							files.add(file.getAbsolutePath());
 						}
 					}
 				}
 			}
 		}
-		if (j > 0) {
-			for (int i = 0; i < j; i++) {
-				file = new File(files[i]);
-				bis = new BufferedInputStream(new FileInputStream(file));
-				ZipEntry entry = new ZipEntry(file.getName());
-				zos.putNextEntry(entry);
-				while ((bytesRead = bis.read(buffer)) != -1) {
-					zos.write(buffer, 0, bytesRead);
+
+		try (
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				ZipOutputStream zos = new ZipOutputStream(baos)
+		) {
+
+			if (!files.isEmpty()) {
+
+				int bytesRead;
+				byte[] buffer = new byte[1024];
+
+				for (String path : files) {
+					File file = new File(path);
+					BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
+					ZipEntry entry = new ZipEntry(file.getName());
+					zos.putNextEntry(entry);
+					while ((bytesRead = bis.read(buffer)) != -1) {
+						zos.write(buffer, 0, bytesRead);
+					}
+					bis.close();
+					zos.closeEntry();
 				}
-				bis.close();
-				zos.closeEntry();
+				zos.close();
 			}
-			zos.close();
+			return baos.toByteArray();
 		}
-
-		return baos.toByteArray();
 	}
-
 }

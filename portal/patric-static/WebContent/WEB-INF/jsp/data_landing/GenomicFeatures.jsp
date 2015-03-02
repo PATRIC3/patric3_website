@@ -319,7 +319,7 @@
 				<script src="/patric/js/vbi/SimpleGenomeSelector.js"></script>
 				<div class="left" id="GenomeSelector"></div>
 				<div class="right">
-					<form id="searchForm" name="searchForm" action="/patric-searches-and-tools/jsp/filedownload.jsp" target="" method="post" onsubmit="return false;">
+					<form id="searchForm" name="searchForm" action="/portal/portal/patric/Downloads/DownloadsWindow?action=b&cacheability=PAGE&mode=download" target="" method="post" onsubmit="return false;">
 					<input type="hidden" id="cType" name="cType" value="" />
 					<input type="hidden" id="cId" name="cId" value="" />
 					<input type="hidden" id="genomeId" name="genomeId" value="" />

@@ -37,20 +37,17 @@ int taxonId = (Integer) request.getAttribute("taxonId");
 			<h3><img src="/patric/images/number3.gif" alt="3" height="14" width="14" /> Choose File Type</h3>
 			<div class="far">
 				<div class="left queryblock">
-					<input type="checkbox" name="filetype" value=".fna" id="filetype_fna" checked="checked"/> <label for="filetype_fna">Genomic Sequences in FASTA (*.fna)</label>
-					<input type="checkbox" name="filetype" value=".faa" id="filetype_faa"/> <label for="filetype_faa">Protein Sequences in FASTA (*.faa)</label>
-					<input type="checkbox" name="filetype" value=".gbf" id="filetype_gbf"/> <label for="filetype_gbf">All annotations in GenBank file format (*.gbf)</label>
-					<input type="checkbox" name="filetype" value=".features.tab" id="filetype_features"/> <label for="filetype_features">All genomic features in tab-delimited format (*.features)</label>
-					<input type="checkbox" name="filetype" value=".cds.tab" id="filetype_cds"/> <label for="filetype_cds">Protein coding genes in tab-delimited format (*.cds)</label>
-					<input type="checkbox" name="filetype" value=".rna.tab" id="filetype_rna"/> <label for="filetype_rna">RNAs in tab-delimited format (*.rna)</label>
-					<input type="checkbox" name="filetype" value=".figfam" id="filetype_figfam"/> <label for="filetype_figfam">FIGfam assignments in tab-delimited format (*.figfam)</label>
+					<input type="radio" name="filetype" value=".fna" id="filetype_fna" checked="checked"/> <label for="filetype_fna">Genomic Sequences in FASTA (*.fna)</label>
+					<input type="radio" name="filetype" value=".faa" id="filetype_faa"/> <label for="filetype_faa">Protein Sequences in FASTA (*.faa)</label>
+					<input type="radio" name="filetype" value=".gbf" id="filetype_gbf"/> <label for="filetype_gbf">All annotations in GenBank file format (*.gbf)</label>
+					<input type="radio" name="filetype" value=".features.tab" id="filetype_features"/> <label for="filetype_features">All genomic features in tab-delimited format (*.features)</label>
+					<input type="radio" name="filetype" value=".cds.tab" id="filetype_cds"/> <label for="filetype_cds">Protein coding genes in tab-delimited format (*.cds.tab)</label>
+					<input type="radio" name="filetype" value=".rna.tab" id="filetype_rna"/> <label for="filetype_rna">RNAs in tab-delimited format (*.rna.tab)</label>
 				</div>
 				<div class="right queryblock">
-					<input type="checkbox" name="filetype" value=".ffn" id="filetype_ffn"/> <label for="filetype_ffn">DNA Sequences of Protein Coding Genes (*.ffn)</label>
-					<input type="checkbox" name="filetype" value=".frn" id="filetype_frn"/> <label for="filetype_frn">DNA Sequences of RNA Coding Genes (*.frn)</label>
-					<input type="checkbox" name="filetype" value=".go" id="filetype_go"/> <label for="filetype_go">GO function assignments in tab-delimited format (*.go)</label>
-					<input type="checkbox" name="filetype" value=".ec" id="filetype_ec"/> <label for="filetype_ec">EC assignments in tab-delimited format (*.ec)</label>
-					<input type="checkbox" name="filetype" value=".path" id="filetype_path"/> <label for="filetype_path">Pathway assignments in tab-delimited format (*.path)</label>
+					<input type="radio" name="filetype" value=".ffn" id="filetype_ffn"/> <label for="filetype_ffn">DNA Sequences of Protein Coding Genes (*.ffn)</label>
+					<input type="radio" name="filetype" value=".frn" id="filetype_frn"/> <label for="filetype_frn">DNA Sequences of RNA Coding Genes (*.frn)</label>
+					<input type="radio" name="filetype" value=".pathway.tab" id="filetype_path"/> <label for="filetype_path">Pathway assignments in tab-delimited format (*.path)</label>
 				</div>
 				<div class="clear"></div>
 			</div>
@@ -89,7 +86,7 @@ function download() {
 
 	var genomes, size;
 
-	Ext.getDom("searchForm").action = "/patric-searches-and-tools/jsp/filedownload.jsp";
+	Ext.getDom("searchForm").action = "/portal/portal/patric/Downloads/DownloadsWindow?action=b&cacheability=PAGE&mode=download";
 	Ext.getDom("finalfiletype").value = getSelected("filetype"); 
 	Ext.getDom("finalalgorithm").value = getSelected("algorithm");
 	Ext.getDom("searchForm").target = "";
@@ -131,7 +128,7 @@ function download() {
 						if(Ext.getDom("finalfiletype").value != "" && Ext.getDom("finalalgorithm").value != ""){
 							
 							Ext.Ajax.request({
-								url: "/patric-searches-and-tools/jsp/filedownload.jsp",
+								url: "/portal/portal/patric/Downloads/DownloadsWindow?action=b&cacheability=PAGE&mode=download",
 								method: 'POST',
 								params: {genomeId:Ext.getDom("genomeId").value, taxonId:Ext.getDom("taxonId").value, finalfiletype:Ext.getDom("finalfiletype").value, finalalgorithm:Ext.getDom("finalalgorithm").value},
 								success: function(response, opts) {

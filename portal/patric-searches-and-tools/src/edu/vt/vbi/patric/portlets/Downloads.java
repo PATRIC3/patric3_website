@@ -17,11 +17,13 @@ package edu.vt.vbi.patric.portlets;
 
 import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.beans.Taxonomy;
+import edu.vt.vbi.patric.common.CreateZip;
 import edu.vt.vbi.patric.common.SiteHelper;
 import edu.vt.vbi.patric.common.SolrCore;
 import edu.vt.vbi.patric.common.SolrInterface;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.slf4j.Logger;
@@ -31,6 +33,8 @@ import javax.portlet.*;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 public class Downloads extends GenericPortlet {
@@ -136,6 +140,55 @@ public class Downloads extends GenericPortlet {
 			}
 			catch (MalformedURLException | SolrServerException e) {
 				LOGGER.error(e.getMessage(), e);
+			}
+		}
+		else if (mode.equals("download")) {
+
+			String genomeId = request.getParameter("genomeId");
+			String taxonId = request.getParameter("taxonId");
+			String fileTypes = request.getParameter("finalfiletype");
+			String annotations = request.getParameter("finalalgorithm");
+
+			Logger LOGGER = LoggerFactory.getLogger(CreateZip.class);
+
+			List<String> genomeIdList = new LinkedList<>();
+
+			SolrInterface solr = new SolrInterface();
+			try {
+				SolrQuery query = new SolrQuery("*:*");
+
+				if (genomeId != null && !genomeId.equals("")) {
+					query.addFilterQuery("genome_id:(" + genomeId.replaceAll(",", " OR ") + ")");
+				}
+				if (taxonId != null) {
+					query.addFilterQuery("taxon_lineage_ids:" + taxonId);
+				}
+				query.setRows(10000).addField("genome_id");
+
+				LOGGER.debug("{}", query.toString());
+				QueryResponse qr = solr.getSolrServer(SolrCore.GENOME).query(query, SolrRequest.METHOD.POST);
+				List<Genome> genomeList = qr.getBeans(Genome.class);
+
+				for (Genome genome : genomeList) {
+					genomeIdList.add(genome.getId());
+				}
+			}
+			catch (MalformedURLException | SolrServerException e) {
+				LOGGER.error(e.getMessage(), e);
+			}
+
+			CreateZip zip = new CreateZip();
+			byte[] bytes = zip.ZipIt(genomeIdList, Arrays.asList(annotations.split(",")), Arrays.asList(fileTypes.split(",")));
+
+			if (bytes.length > 0) {
+				response.setContentType("application/octetstream");
+				response.setProperty("Cache-Control", "cache");
+				response.setProperty("Content-Disposition", "attachment; filename=\"patric_downloads.zip\"");
+				response.setContentLength(bytes.length);
+				response.getPortletOutputStream().write(bytes);
+			}
+			else {
+				response.getWriter().write("Sorry. The requested file(s) are not available.");
 			}
 		}
 	}
