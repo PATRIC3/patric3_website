@@ -160,7 +160,7 @@ public class Downloads extends GenericPortlet {
 				if (genomeId != null && !genomeId.equals("")) {
 					query.addFilterQuery("genome_id:(" + genomeId.replaceAll(",", " OR ") + ")");
 				}
-				if (taxonId != null) {
+				if (taxonId != null && !taxonId.equals("")) {
 					query.addFilterQuery("taxon_lineage_ids:" + taxonId);
 				}
 				query.setRows(10000).addField("genome_id");
