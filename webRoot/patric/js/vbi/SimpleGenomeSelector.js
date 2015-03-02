@@ -36,7 +36,7 @@ Ext.define('VBI.SimpleGenomeSelector', {
 			fields: [{name:'genome_info_id', type:'int'},'genome_name'],
 			proxy: {
 				type: 'ajax',
-				url: '/patric-common/jsp/genomeselector_support.json.jsp?mode=search&start=2',
+				url: '/portal/portal/patric/TaxonomyTree/TaxonomyTreeWindow?action=b&cacheability=PAGE&mode=search&taxonId=131567',
 				startParam: undefined,
 				limitParam: undefined,
 				pageParam: undefined,

@@ -124,7 +124,6 @@ Ext.define('VBI.GenomeSelector.Panel', {
 				model: 'VBI.GenomeSelector.searchNode',
 				proxy: {
 					type: 'ajax',
-					// url: '/patric-common/jsp/genomeselector_support.json.jsp?mode=search&start=' + parentTaxon,
 					url: '/portal/portal/patric/TaxonomyTree/TaxonomyTreeWindow?action=b&cacheability=PAGE&mode=search&taxonId=' + parentTaxon,
 					startParam: undefined,
 					limitParam: undefined,
@@ -190,10 +189,7 @@ Ext.define('VBI.GenomeSelector.Panel', {
 		
 		VBI.GenomeSelector.Panel.superclass.constructor.call(this, config);
 		
-		//var txUrl = '/patric-common/jsp/genomeselector_support.json.jsp?mode=txtree&start=' + parentTaxon;
-		//var azUrl = '/patric-common/jsp/genomeselector_support.json.jsp?mode=azlist&start=' + parentTaxon;
 		var myUrl = '/portal/portal/patric/BreadCrumb/WorkspaceWindow?action=b&cacheability=PAGE&action_type=WSSupport&action=getGenomeGroupList';
-		//var tgmUrl = '/patric-common/jsp/genomeselector_support.json.jsp?mode=tgm&start=' + parentTaxon;
 		var txUrl = '/portal/portal/patric/TaxonomyTree/TaxonomyTreeWindow?action=b&cacheability=PAGE&mode=txtree&taxonId=' + parentTaxon;
 		var azUrl = '/portal/portal/patric/TaxonomyTree/TaxonomyTreeWindow?action=b&cacheability=PAGE&mode=azlist&taxonId=' + parentTaxon;
 		var tgmUrl = '/portal/portal/patric/TaxonomyTree/TaxonomyTreeWindow?action=b&cacheability=PAGE&mode=tgm&taxonId=' + parentTaxon;
