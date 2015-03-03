@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2014 Virginia Polytechnic Institute and State University
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,47 +15,45 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.jbrowse;
 
-import org.json.simple.JSONArray;
+import java.io.Serializable;
+import java.util.List;
 
-public class CRFeature implements Comparable<CRFeature> {
+public class CRFeature implements Comparable<CRFeature>, Serializable {
 	// [ "fig|511145.12.peg.1", "Thr operon leader peptide","FIG164298","83333.1:NC_000913",190,255,"+",0,1]
-	private final String featureID, product, figfam, contig;
 
-	private String strand;
+	private String featureID, product, figfam, contig, strand;
 
 	private int startPosition, endPosition, rownum, grpnum, phase;
 
-	private String genome = null;
+	public CRFeature(List feature) {
 
-	public CRFeature(JSONArray jsonFeature) {
-
-		if (jsonFeature.get(0) != null) {
-			featureID = jsonFeature.get(0).toString();
+		if (feature.get(0) != null) {
+			featureID = feature.get(0).toString();
 		}
 		else {
 			featureID = "";
 		}
-		if (jsonFeature.get(1) != null) {
-			product = jsonFeature.get(1).toString();
+		if (feature.get(1) != null) {
+			product = feature.get(1).toString();
 		}
 		else {
 			product = "";
 		}
-		if (jsonFeature.get(2) != null) {
-			figfam = jsonFeature.get(2).toString();
+		if (feature.get(2) != null) {
+			figfam = feature.get(2).toString();
 		}
 		else {
 			figfam = "";
 		}
-		if (jsonFeature.get(3) != null) {
-			contig = jsonFeature.get(3).toString();
+		if (feature.get(3) != null) {
+			contig = feature.get(3).toString();
 		}
 		else {
 			contig = "";
 		}
-		if (jsonFeature.get(4) != null && jsonFeature.get(5) != null) {
-			int osp = Integer.parseInt(jsonFeature.get(4).toString());
-			int oep = Integer.parseInt(jsonFeature.get(5).toString());
+		if (feature.get(4) != null && feature.get(5) != null) {
+			int osp = Integer.parseInt(feature.get(4).toString());
+			int oep = Integer.parseInt(feature.get(5).toString());
 			if (osp < oep) {
 				startPosition = osp;
 				endPosition = oep;
@@ -69,20 +67,20 @@ public class CRFeature implements Comparable<CRFeature> {
 			startPosition = 0;
 			endPosition = 0;
 		}
-		if (jsonFeature.get(6) != null) {
-			strand = jsonFeature.get(6).toString();
+		if (feature.get(6) != null) {
+			strand = feature.get(6).toString();
 		}
 		else {
 			strand = "";
 		}
-		if (jsonFeature.get(7) != null) {
-			rownum = Integer.parseInt(jsonFeature.get(7).toString());
+		if (feature.get(7) != null) {
+			rownum = Integer.parseInt(feature.get(7).toString());
 		}
 		else {
 			rownum = 0;
 		}
-		if (jsonFeature.size() > 8 && jsonFeature.get(8) != null) {
-			grpnum = Integer.parseInt(jsonFeature.get(8).toString());
+		if (feature.size() > 8 && feature.get(8) != null) {
+			grpnum = Integer.parseInt(feature.get(8).toString());
 			if (grpnum > 0) {
 				this.phase = (grpnum - 1) % 7 + 1;
 			}
@@ -98,14 +96,6 @@ public class CRFeature implements Comparable<CRFeature> {
 
 	public Integer getCenterPosition() {
 		return startPosition + (endPosition - startPosition) / 2;
-	}
-
-	public void setGenomeName(String name) {
-		genome = name;
-	}
-
-	public String getGenomeName() {
-		return genome;
 	}
 
 	public int compareTo(CRFeature f) {
@@ -133,24 +123,24 @@ public class CRFeature implements Comparable<CRFeature> {
 		return contig;
 	}
 
-	public void setStartPosition(int p) {
-		this.startPosition = p;
-	}
-
 	public int getStartPosition() {
 		return startPosition - 1;
+	}
+
+	public void setStartPosition(int p) {
+		this.startPosition = p;
 	}
 
 	public int getStartString() {
 		return startPosition;
 	}
 
-	public void setEndPosition(int p) {
-		this.endPosition = p;
-	}
-
 	public int getEndPosition() {
 		return endPosition;
+	}
+
+	public void setEndPosition(int p) {
+		this.endPosition = p;
 	}
 
 	public String getStrand() {

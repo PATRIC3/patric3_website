@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2014 Virginia Polytechnic Institute and State University
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,26 +15,22 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.jbrowse;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.util.*;
-
+import edu.vt.vbi.patric.common.StringHelper;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
-import edu.vt.vbi.patric.common.StringHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CRResultSet extends HashMap<Integer, CRTrack> {
-	/**
-	 * 
-	 */
+import java.io.BufferedReader;
+import java.io.Serializable;
+import java.util.*;
+
+public class CRResultSet implements Serializable {
+
 	private static final long serialVersionUID = 4687109777629511114L;
 
-	JSONParser parser = new JSONParser();
+	private static final Logger LOGGER = LoggerFactory.getLogger(CRResultSet.class);
 
 	private String pinStrand;
 
@@ -46,25 +42,26 @@ public class CRResultSet extends HashMap<Integer, CRTrack> {
 
 	private List<String> defaultTracks;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(CRResultSet.class);
+	private Map<Integer, CRTrack> trackMap;
 
 	public CRResultSet(String pin, BufferedReader br) {
 		pinGenome = pin.replace("fig|", "").split(".peg.[0-9]*")[0];
 
 		try {
 			if (br != null) {
-				JSONObject res = (JSONObject) parser.parse(br);
+				JSONObject res = (JSONObject) (new JSONParser()).parse(br);
 
 				JSONArray tracks = (JSONArray) res.get(pin);
 				genomeNames = new HashSet<>();
 				genomeIds = new HashSet<>();
 				defaultTracks = new ArrayList<>();
+				trackMap = new HashMap<>();
 
 				for (Object track : tracks) {
 					JSONObject tr = (JSONObject) track;
 
 					CRTrack crTrk = new CRTrack(tr);
-					super.put(crTrk.getRowID(), crTrk);
+					trackMap.put(crTrk.getRowID(), crTrk);
 					genomeNames.add(crTrk.getGenomeName());
 					genomeIds.add(crTrk.getGenomeID());
 					if (pinGenome.equals(crTrk.getGenomeID())) {
@@ -89,7 +86,9 @@ public class CRResultSet extends HashMap<Integer, CRTrack> {
 		return genomeNames;
 	}
 
-	public Set<String> getGenomeIds() { return genomeIds; }
+	public Set<String> getGenomeIds() {
+		return genomeIds;
+	}
 
 	public void addToDefaultTracks(CRTrack crTrk) {
 		if (pinGenome.equals(crTrk.getGenomeID())) {
@@ -105,5 +104,13 @@ public class CRResultSet extends HashMap<Integer, CRTrack> {
 
 	public String getDefaultTracks() {
 		return StringHelper.implode(defaultTracks.toArray(), ",");
+	}
+
+	public Map<Integer, CRTrack> getTrackMap() {
+		return trackMap;
+	}
+
+	public void setTrackMap(Map<Integer, CRTrack> map) {
+		this.trackMap = map;
 	}
 }

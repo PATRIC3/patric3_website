@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2014 Virginia Polytechnic Institute and State University
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,15 +15,12 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.jbrowse;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.apache.commons.lang.StringUtils;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 
-public class CRTrack extends ArrayList<CRFeature> {
+import java.io.Serializable;
+import java.util.*;
+
+public class CRTrack implements Serializable {
 
 	private int rowID;
 
@@ -31,23 +28,27 @@ public class CRTrack extends ArrayList<CRFeature> {
 
 	private Set<String> SeedIds;
 
-	public CRTrack(JSONObject jsonTrack) {
-		rowID = Integer.parseInt(jsonTrack.get("row_id").toString());
-		pin = jsonTrack.get("pin").toString();
-		genomeID = jsonTrack.get("genome_id").toString();
-		genomeName = jsonTrack.get("genome_name").toString();
-		JSONArray jsonFeatures = (JSONArray) jsonTrack.get("features");
+	private List<CRFeature> featureList;
+
+	public CRTrack(Map track) {
+		rowID = Integer.parseInt(track.get("row_id").toString());
+		pin = (String) track.get("pin");
+		genomeID = (String) track.get("genome_id");
+		genomeName = (String) track.get("genome_name");
+
+		List jsonFeatures = (List) track.get("features");
 		SeedIds = new HashSet<>();
+		featureList = new LinkedList<>();
 		for (Object jsonFeature : jsonFeatures) {
-			CRFeature f = new CRFeature((JSONArray) jsonFeature);
-			super.add(f);
+			CRFeature f = new CRFeature((List) jsonFeature);
+			featureList.add(f);
 			SeedIds.add(f.getfeatureID());
 		}
 	}
 
 	public CRFeature findFeature(String featureID) {
 		CRFeature f = null;
-		for (CRFeature crFeature : this) {
+		for (CRFeature crFeature : featureList) {
 			if (crFeature.getfeatureID().equals(featureID)) {
 				f = crFeature;
 				break;
@@ -70,8 +71,8 @@ public class CRTrack extends ArrayList<CRFeature> {
 			isThisGenomeReversed = true;
 		}
 
-		for (int idx = 0; idx < super.size(); idx++) {
-			CRFeature f = super.get(idx);
+		for (int idx = 0; idx < featureList.size(); idx++) {
+			CRFeature f = featureList.get(idx);
 
 			int tS = (f.getStartPosition() - center) + window_size / 2;
 			int tE = (f.getEndPosition() - center) + window_size / 2;
@@ -95,7 +96,7 @@ public class CRTrack extends ArrayList<CRFeature> {
 			if (genome_pin.getfeatureID().equals(f.getfeatureID())) {
 				f.setPhase(0);
 			}
-			super.set(idx, f);
+			featureList.set(idx, f);
 		}
 
 	}
@@ -130,5 +131,13 @@ public class CRTrack extends ArrayList<CRFeature> {
 
 	public void setGenomeName(String genomeName) {
 		this.genomeName = genomeName;
+	}
+
+	public List<CRFeature> getFeatureList() {
+		return featureList;
+	}
+
+	public void setFeatureList(List<CRFeature> featureList) {
+		this.featureList = featureList;
 	}
 }

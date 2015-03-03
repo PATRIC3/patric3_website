@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2014 Virginia Polytechnic Institute and State University
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,6 +15,7 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.portlets;
 
+import com.google.gson.Gson;
 import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.beans.GenomeFeature;
 import edu.vt.vbi.patric.common.ExcelHelper;
@@ -126,7 +127,7 @@ public class CompareRegionViewer extends GenericPortlet {
 
 		int _numRegion = Integer.parseInt(request.getParameter("regions")); // number of genomes to compare
 		int _numRegion_buffer = 10; // number of genomes to use as a buffer in case that PATRIC has no genome data,
-									// which was retrieved from API
+		// which was retrieved from API
 		String _key = "";
 
 		// DBSummary conn_summary = new DBSummary();
@@ -145,12 +146,14 @@ public class CompareRegionViewer extends GenericPortlet {
 
 			try {
 				SAPserver sapling = new SAPserver("http://servers.nmpdr.org/pseed/sapling/server.cgi");
-				crRS = new CRResultSet(pinFeatureSeedId, sapling.compared_regions(pinFeatureSeedId, _numRegion + _numRegion_buffer, Integer.parseInt(windowSize) / 2));
+				crRS = new CRResultSet(pinFeatureSeedId,
+						sapling.compared_regions(pinFeatureSeedId, _numRegion + _numRegion_buffer, Integer.parseInt(windowSize) / 2));
 
 				Random g = new Random();
 				int random = g.nextInt();
 				_key = "key" + random;
-				session.setAttribute(_key, crRS);
+				Gson gson = new Gson();
+				session.setAttribute(_key, gson.toJson(crRS, CRResultSet.class));
 				session.setAttribute("window_size", windowSize);
 			}
 			catch (Exception ex) {
@@ -178,19 +181,20 @@ public class CompareRegionViewer extends GenericPortlet {
 				QueryResponse qr = solr.getSolrServer(SolrCore.GENOME).query(query);
 				patricGenomes = qr.getBeans(Genome.class);
 
-			} catch (MalformedURLException | SolrServerException e) {
+			}
+			catch (MalformedURLException | SolrServerException e) {
 				LOGGER.error(e.getMessage(), e);
 			}
 
 			int count_genomes = 1;
 			if (crRS.getGenomeNames().size() > 0) {
-				for (Integer idx : crRS.keySet()) {
+				for (Integer idx : crRS.getTrackMap().keySet()) {
 					if (count_genomes > _numRegion) {
 						break;
 					}
-					CRTrack crTrack = crRS.get(idx);
+					CRTrack crTrack = crRS.getTrackMap().get(idx);
 					Genome currentGenome = null;
-					for (Genome genome: patricGenomes) {
+					for (Genome genome : patricGenomes) {
 						if (genome.getId().equals(crTrack.getGenomeID())) {
 							currentGenome = genome;
 						}
@@ -258,18 +262,19 @@ public class CompareRegionViewer extends GenericPortlet {
 		String _key = request.getParameter("key");
 
 		PortletSession session = request.getPortletSession(true);
-		CRResultSet crRS = (CRResultSet) session.getAttribute(_key);
-		int _window_size = Integer.parseInt(session.getAttribute("window_size").toString());
+		Gson gson = new Gson();
+		CRResultSet crRS = gson.fromJson((String) session.getAttribute(_key), CRResultSet.class);
+		int _window_size = Integer.parseInt((String) session.getAttribute("window_size"));
 
 		String pin_strand = crRS.getPinStrand();
-		CRTrack crTrack = crRS.get(Integer.parseInt(_rowID));
+		CRTrack crTrack = crRS.getTrackMap().get(Integer.parseInt(_rowID));
 		String pseed_ids = crTrack.getSeedIds();
 
 		int features_count = 0;
 		try {
 			crTrack.relocateFeatures(_window_size, pin_strand);
-			Collections.sort(crTrack);
-			features_count = crTrack.size();
+			Collections.sort(crTrack.getFeatureList());
+			features_count = crTrack.getFeatureList().size();
 		}
 		catch (Exception ex) {
 			LOGGER.error(ex.getMessage(), ex);
@@ -284,7 +289,7 @@ public class CompareRegionViewer extends GenericPortlet {
 		ResultType feature_patric;
 		for (int i = 0; i < features_count; i++) {
 
-			feature = crTrack.get(i);
+			feature = crTrack.getFeatureList().get(i);
 			feature_patric = pseedMap.get(feature.getfeatureID());
 
 			if (feature_patric != null) {
@@ -325,8 +330,10 @@ public class CompareRegionViewer extends GenericPortlet {
 		JSONObject intervals = new JSONObject();
 		JSONArray _clses = new JSONArray();
 		JSONObject _cls = new JSONObject();
-		_cls.put("attributes", Arrays.asList("Start", "Start_str", "End", "Strand", "strand_str", "id", "seed_id", "refseq_locus_tag", "alt_locus_tag", "source", "type", "product",
-				"gene", "genome_name", "accession", "phase"));
+		_cls.put("attributes",
+				Arrays.asList("Start", "Start_str", "End", "Strand", "strand_str", "id", "seed_id", "refseq_locus_tag", "alt_locus_tag", "source",
+						"type", "product",
+						"gene", "genome_name", "accession", "phase"));
 		_cls.put("isArrayAttr", new JSONObject());
 		_clses.add(_cls);
 		intervals.put("classes", _clses);
@@ -345,7 +352,8 @@ public class CompareRegionViewer extends GenericPortlet {
 	private void exportInExcelFormat(ResourceRequest request, ResourceResponse response) throws IOException {
 		PortletSession session = request.getPortletSession(true);
 		String _key = request.getParameter("key");
-		CRResultSet crRS = (CRResultSet) session.getAttribute(_key);
+		Gson gson = new Gson();
+		CRResultSet crRS = gson.fromJson((String) session.getAttribute(_key), CRResultSet.class);
 
 		CRTrack crTrack;
 		CRFeature crFeature;
@@ -359,10 +367,10 @@ public class CompareRegionViewer extends GenericPortlet {
 		_tbl_field.addAll(Arrays.asList("genome_name", "feature_id", "start", "end", "strand", "figfam_id", "product", "group_id"));
 
 		if (crRS != null && crRS.getGenomeNames().size() > 0) {
-			for (Integer idx : crRS.keySet()) {
-				crTrack = crRS.get(idx);
+			for (Integer idx : crRS.getTrackMap().keySet()) {
+				crTrack = crRS.getTrackMap().get(idx);
 				genome_name = crTrack.getGenomeName();
-				for (Object aCrTrack : crTrack) {
+				for (Object aCrTrack : crTrack.getFeatureList()) {
 					crFeature = (CRFeature) aCrTrack;
 					ResultType f = new ResultType();
 					f.put("genome_name", genome_name);
