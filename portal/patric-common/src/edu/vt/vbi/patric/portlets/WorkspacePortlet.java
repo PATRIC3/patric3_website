@@ -20,7 +20,6 @@ import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.common.SolrCore;
 import edu.vt.vbi.patric.common.SolrInterface;
 import edu.vt.vbi.patric.common.UIPreference;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest;
@@ -181,7 +180,8 @@ public class WorkspacePortlet extends GenericPortlet {
 		if (!isLoggedIn(request)) {
 
 			PortletSession p_session = request.getPortletSession(true);
-			UIPreference uiPref_from_session = gson.fromJson((String) p_session.getAttribute("preference", PortletSession.APPLICATION_SCOPE), UIPreference.class);
+			UIPreference uiPref_from_session = gson
+					.fromJson((String) p_session.getAttribute("preference", PortletSession.APPLICATION_SCOPE), UIPreference.class);
 
 			if (uiPref_from_session != null) {
 				uiPref = uiPref_from_session;
