@@ -15,6 +15,7 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.portlets;
 
+import com.google.gson.Gson;
 import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.common.SolrCore;
 import edu.vt.vbi.patric.common.SolrInterface;
@@ -41,9 +42,17 @@ public class WorkspacePortlet extends GenericPortlet {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(WorkspacePortlet.class);
 
-	private final String WORKSPACE_API_URL = "http://p3.theseed.org/services/Workspace";
+	private String WORKSPACE_API_URL;
 
-	private final String DEFAULT_WORKSPACE_NAME = "/home";
+	private String DEFAULT_WORKSPACE_NAME;
+
+	@Override
+	public void init() throws PortletException {
+
+		WORKSPACE_API_URL = System.getProperty("workspaceServiceURL", "http://p3.theseed.org/services/Workspace");
+		DEFAULT_WORKSPACE_NAME = "/home"; // for Mar 2015 release
+		super.init();
+	}
 
 	@Override
 	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
@@ -166,24 +175,14 @@ public class WorkspacePortlet extends GenericPortlet {
 
 	private UIPreference getValidUIPreference(ResourceRequest request) {
 
-		JSONParser jsonParser = new JSONParser();
-
-		PortletSession p_session = request.getPortletSession(true);
-		String strUiPref = (String) p_session.getAttribute("preference", PortletSession.APPLICATION_SCOPE);
-		UIPreference uiPref_from_session = null;
-		if (strUiPref != null) {
-			try {
-				strUiPref = (String) jsonParser.parse(strUiPref);
-				LOGGER.debug("deserializing..{}", strUiPref);
-				uiPref_from_session = new UIPreference((JSONObject) jsonParser.parse(strUiPref));
-			}
-			catch (ParseException e) {
-				LOGGER.error(e.getMessage(), e);
-			}
-		}
 		UIPreference uiPref = null;
+		Gson gson = new Gson();
 
 		if (!isLoggedIn(request)) {
+
+			PortletSession p_session = request.getPortletSession(true);
+			UIPreference uiPref_from_session = gson.fromJson((String) p_session.getAttribute("preference", PortletSession.APPLICATION_SCOPE), UIPreference.class);
+
 			if (uiPref_from_session != null) {
 				uiPref = uiPref_from_session;
 			}
@@ -203,19 +202,12 @@ public class WorkspacePortlet extends GenericPortlet {
 				gp.metadata_only = 0;
 				gp.adminmode = 0;
 
-				LOGGER.debug("requesting {}", path);
 				List<Workspace_tuple_2> r = serviceWS.get(gp);
 
 				for (Workspace_tuple_2 item : r) {
 					if (item.e_2 != null) {
-						strUiPref = (String) jsonParser.parse(item.e_2);
-						JSONObject pref = (JSONObject) jsonParser.parse(strUiPref);
-
-						if (pref != null) {
-							uiPref = new UIPreference(pref);
-
-							p_session.setAttribute("preference", stringfyUIPreference(uiPref.getUIPreference()), PortletSession.APPLICATION_SCOPE);
-						}
+						LOGGER.trace("reading preference from Workspace: {}", item.e_2);
+						uiPref = gson.fromJson(item.e_2, UIPreference.class);
 					}
 				}
 			}
@@ -257,6 +249,10 @@ public class WorkspacePortlet extends GenericPortlet {
 	//	}
 
 	public void saveUIPreference(ResourceRequest request, UIPreference uiPref) {
+		Gson gson = new Gson();
+		String jsonUiPref = gson.toJson(uiPref, uiPref.getClass());
+		LOGGER.trace("saving UIPreference: {}", jsonUiPref);
+
 		if (isLoggedIn(request)) {
 			String token = getAuthorizationToken(request);
 			String path = getUserWorkspacePath(request, DEFAULT_WORKSPACE_NAME) + "/.preferences.json";
@@ -267,7 +263,7 @@ public class WorkspacePortlet extends GenericPortlet {
 				Workspace_tuple_1 tuple = new Workspace_tuple_1();
 				tuple.e_1 = path;
 				tuple.e_2 = "unspecified";
-				tuple.e_4 = stringfyUIPreference(uiPref.getUIPreference());
+				tuple.e_4 = jsonUiPref;
 				cp.objects = Arrays.asList(tuple);
 				cp.overwrite = 1;
 
@@ -280,20 +276,11 @@ public class WorkspacePortlet extends GenericPortlet {
 			catch (Exception e) {
 				LOGGER.error(e.getMessage(), e);
 			}
-
-			PortletSession p_session = request.getPortletSession(true);
-			p_session.setAttribute("preference", stringfyUIPreference(uiPref.getUIPreference()), PortletSession.APPLICATION_SCOPE);
 		}
 		else {
 			PortletSession p_session = request.getPortletSession(true);
-			p_session.setAttribute("preference", stringfyUIPreference(uiPref.getUIPreference()), PortletSession.APPLICATION_SCOPE);
+			p_session.setAttribute("preference", jsonUiPref, PortletSession.APPLICATION_SCOPE);
 		}
-	}
-
-	private String stringfyUIPreference(JSONObject uipref) {
-		StringBuffer sb = new StringBuffer();
-		sb.append("\"").append(StringEscapeUtils.escapeJava(uipref.toJSONString())).append("\"");
-		return sb.toString();
 	}
 
 	@SuppressWarnings("unchecked")
