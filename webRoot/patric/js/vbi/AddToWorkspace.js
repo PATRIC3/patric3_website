@@ -50,7 +50,7 @@ function DecideToShowPopup(workspace_type){
 		success: function(response, opts) {
 			if(response.responseText == "true"){
 				//ATGform.remove(note_to_user);
-				Ext.getCmp("ATGform").child('#noteToUser').setVisible(false);
+				//Ext.getCmp("ATGform").child('#noteToUser').setVisible(false);
 			}
 		}
 	});
@@ -62,6 +62,93 @@ function saveToGroup(fid, type) {
 	
 	popup.hide();
 	
+	var group_name = form.child('#groupName').getValue();
+	var group_desc = form.child('#groupDesc').getValue(); // TODO: how to update/add group description on the fly?
+	var group_type = type;
+	var group_element = form.child('#groupElement').getValue().groupElement;
+	var atg = form.child('#atg').getValue(); // None, Create New Group, or group name
+
+	var wsItemType, wsPath = WorkspaceManager.currentPath, wsIdType, wsIds = fid.split(',');
+
+	if (type == 'Feature' && group_element == 'Feature') {
+		wsItemType = 'feature_group';
+		wsPath += '/Feature Groups/';
+		wsIdType = 'feature_id';
+
+		return saveToWorkspace(wsItemType, wsPath, wsIdType, wsIds, atg, group_name);
+	}
+	else if (type == 'Feature' && group_element == 'Genome') {
+
+		wsItemType = 'genome_group';
+		wsPath += '/Genome Groups/';
+		wsIdType = 'genome_id';
+
+		Ext.Ajax.request({
+			method:'POST',
+			headers: {
+				'Content-Type': 'application/solrquery+x-www-form-urlencoded'
+			},
+			params:'q=feature_id:(' + wsIds.join("+OR+") + ')&facet=true&facet.field=genome_id&facet.mincount=1&rows=0',
+			url: '/api/genome_feature/',
+			success: function(response, opts) {
+				var res = JSON.parse(response.responseText);
+				var genomeIdsRaw = res.facet_counts.facet_fields.genome_id;
+				var genomeIds = [];
+				for (i=0; i<genomeIdsRaw.length; i=i+2) {
+					genomeIds.push(genomeIdsRaw[i]);
+				}
+				// console.log(genomeIds);
+
+				return saveToWorkspace(wsItemType, wsPath, wsIdType, genomeIds, atg, group_name);
+			}
+		});
+	}
+	else if (type == 'Genome') {
+		wsItemType = 'genome_group';
+		wsPath += '/Genome Groups/';
+		wsIdType = 'genome_id';
+
+		return saveToWorkspace(wsItemType, wsPath, wsIdType, wsIds, atg, group_name);
+	}
+	else if (type == 'ExpressionExperiment') {
+		wsItemType = 'experiment_group';
+		wsPath += '/Experiment Groups/';
+		wsIdType = 'eid'; // TBD
+
+		return saveToWorkspace(wsItemType, wsPath, wsIdType, wsIds, atg, group_name);
+	}
+	else {
+		return false;
+	}
+}
+
+function saveToWorkspace(wsItemType, wsPath, wsIdType, wsIds, action, groupName) {
+
+	if (action == 'None') {
+		// create a default group or add to a default group
+		groupName = ' default ';
+		WorkspaceManager.getObject(wsPath + groupName, true).then(function(results) { 
+			// add to default group
+			console.log('adding to default group');
+			// console.log(group_name, wsItemType, wsPath, wsIdType, wsIds);
+			WorkspaceManager.addToGroup(wsPath + groupName, wsItemType, wsIds);
+		}, function(err) {
+			// create a default group
+			console.log('creating a default group');
+			WorkspaceManager.createGroup(groupName, wsItemType, wsPath, wsIdType, wsIds);
+		});
+	}
+	else if (action == 'Create New Group') {
+		// create a new group
+		console.log('creating a new group: ' + groupName);
+		WorkspaceManager.createGroup(groupName, wsItemType, wsPath, wsIdType, wsIds);
+	}
+	else {
+		// adding to existing group
+		console.log('adding to existing group: ' + grouName);
+		WorkspaceManager.addToGroup(wsPath + groupName, wsItemType, wsIds);
+	}
+	/*
 	Ext.Ajax.request({
 		method:'POST',
 		params:{
@@ -76,7 +163,7 @@ function saveToGroup(fid, type) {
 		success: function(response, opts) {
 			updateCartInfo();
 		}
-	});
+	});*/
 	return true;
 }
 
@@ -206,20 +293,20 @@ Ext.define('AddToWorkspace', {
 		name: 'group_desc',
 		emptyText: 'Description',
 		disabled: true
-	}, {
-/*		xtype: 'textfield',
+	}/*, {
+		xtype: 'textfield',
 		itemId: 'groupTag',
 		name: 'tags',
 		fieldLabel: 'Tags',
 		emptyText: '(comma separated)'
-	}, { */
+	}, {
 		xtype: 'displayfield',
 		itemId: 'noteToUser',
 		value:'<br/><u>Note:</u> As Guest, your Workspace items persist until you close your browser.' +
 			'To save your Workspace items, ' + 
 			'<a target="_blank" href="https://www.patricbrc.org/portal/portal/patric/MyAccount/PATRICUserPortletWindow?_jsfBridgeViewId=%2Fjsf%2Findex.xhtml&amp;action=1">register</a>' + 
 			' or <a href="javascript:LoginonPopupClick();">login</a>.'
-	}],
+	}*/],
 	resetValues: function() {
 		var me = this;
 		me.child("#groupName").setValue("");
