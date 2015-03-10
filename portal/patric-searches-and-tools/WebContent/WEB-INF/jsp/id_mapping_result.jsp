@@ -1,33 +1,28 @@
-<%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
-<%@ page import="java.util.*" %>
-<%@ page import="edu.vt.vbi.patric.dao.ResultType" %>
-<%@ page import="edu.vt.vbi.patric.common.SiteHelper"%> 
-<portlet:defineObjects/>
-<%
-String cType = request.getParameter("context_type");
-String cId = request.getParameter("context_id");
-String pk = request.getParameter("param_key");
+<%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet"
+%><%@ page import="java.util.*"
+%><%@ page import="edu.vt.vbi.patric.dao.ResultType"
+%><%@ page import="edu.vt.vbi.patric.common.SiteHelper"
+%><portlet:defineObjects/><%
+String contextType = (String) request.getAttribute("contextType");
+String contextId = (String) request.getAttribute("contextId");
+String paramKey = (String) request.getAttribute("paramKey");
 
-ResultType key = (ResultType) portletSession.getAttribute("key"+pk);
-String to = "", toGroup = "", from = "", fromGroup = "", keyword = "";
+String to = (String) request.getAttribute("to");
+String toGroup = (String) request.getAttribute("toGroup");
+String from = (String) request.getAttribute("from");
+String fromGroup = (String) request.getAttribute("fromGroup");
+String keyword = (String) request.getAttribute("keyword");
 
-if(key != null){
-	to = key.get("to");
-	toGroup = key.get("toGroup");
-	from = key.get("from");
-	fromGroup = key.get("fromGroup");
-	keyword = key.get("keyword");
-}
 String renderURL = "";
-if(to.equals("alt_locus_tag"))
+if(to.equals("alt_locus_tag")) {
 	renderURL = SiteHelper.getExternalLinks(from);
-else
+}
+else {
 	renderURL = SiteHelper.getExternalLinks(to);
-	
+}
+
 String x = keyword; 
 int keyword_size = x.replaceAll("[,\\s]+",",").split(",").length;
-
-
 %>
 <form id="fTableForm" name="searchForm" action="#" method="post" onsubmit="return false;">
 	<input type="hidden" id="tablesource" name="tablesource" value="IDMapping" />
@@ -37,8 +32,8 @@ int keyword_size = x.replaceAll("[,\\s]+",",").split(",").length;
 	<input type="hidden" id="fastascope" name="fastascope" value="" />
 	<input type="hidden" id="fids" name="fids" value="" />
 	
-	<input type="hidden" id="cId" name="cId" value="<%=cId %>" />
-	<input type="hidden" id="cType" name="cType" value="<%=cType %>" />
+	<input type="hidden" id="cId" name="cId" value="<%=contextId %>" />
+	<input type="hidden" id="cType" name="cType" value="<%=contextType %>" />
 	<input type="hidden" id="keyword" name="keyword" value="<%=keyword %>" />
 	<input type="hidden" id="to" name="to" value="<%=to %>" />
 	<input type="hidden" id="toGroup" name="toGroup" value="<%=toGroup %>" />
@@ -130,7 +125,7 @@ Ext.onReady(function() {
 		}*/]],
 		hash:{
 			aP: [1],
-			key: '<%=pk%>',
+			key: '<%=paramKey%>',
 			to:'<%=to%>',
 			from:'<%=from%>'
 		},
@@ -156,7 +151,7 @@ Ext.onReady(function() {
 });
 
 function returntoSearchPage(){
-	document.location.href = "IDMapping?cType="+Ext.getDom("cType").value+"&cId="+Ext.getDom("cId").value+"&dm=X&pk=<%=pk%>";
+	document.location.href = "IDMapping?cType="+Ext.getDom("cType").value+"&cId="+Ext.getDom("cId").value+"&dm=&pk=<%=paramKey%>";
 }
 //]]>
 </script>

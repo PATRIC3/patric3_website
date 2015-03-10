@@ -1,30 +1,13 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" 
-%><%@ page import="edu.vt.vbi.patric.common.OrganismTreeBuilder" 
-%><%@ page import="edu.vt.vbi.patric.dao.ResultType"
+%><%@ page import="edu.vt.vbi.patric.common.OrganismTreeBuilder"
 %><portlet:defineObjects/><%
-String cType = request.getParameter("context_type");
-String cId = request.getParameter("context_id");
-String pk = request.getParameter("param_key");
-String to = request.getParameter("to") == null?"UniProtKB-ID":request.getParameter("to");
-String from = request.getParameter("from") == null?"seed_id":request.getParameter("from");
-String keyword = request.getParameter("id") == null?"":request.getParameter("id");
+String contextType = (String) request.getAttribute("contextType");
+String contextId = (String) request.getAttribute("contextId");
+String paramKey = (String) request.getAttribute("paramKey");
 
-
-ResultType key = null;
-
-if(pk != null){
-	key = (ResultType) portletSession.getAttribute("key"+pk);
-
-	if(key != null){
-		to = key.get("to");
-		from = key.get("from");
-		keyword = key.get("keyword");
-	}
-}
-
-if (request.getParameter("display_mode") != null && request.getParameter("display_mode").equals("")) {
-	keyword = "";
-}
+String to = (String) request.getAttribute("to");
+String from = (String) request.getAttribute("from");
+String keyword = (String) request.getAttribute("keyword");
 
 boolean isLoggedIn = (Boolean) request.getAttribute("isLoggedIn");
 %>
@@ -95,7 +78,7 @@ Ext.onReady(function(){
 	    renderTo: 'from',
 	    width: 230,
 	    triggerAction: 'all',
-	    blankText: "PATRIC Locus Tag",
+	    blankText: "PATRIC ID",
 	    editable:false,
 	    listeners: {
             'select' : function() {
@@ -107,7 +90,6 @@ Ext.onReady(function(){
  					combo_prev_value = combo.rawValue;
                 }
 	        	if (combo.rawValue != "PATRIC Locus Tag") {
-                    // combo2.setValue("PATRIC Locus Tag");
                     combo2.setValue("seed_id");
 	    		}
     		}
@@ -137,7 +119,6 @@ Ext.onReady(function(){
  				}
 
 	        	if (combo2.rawValue != "PATRIC Locus Tag") {
-                    // combo.setValue("PATRIC Locus Tag");
                     combo.setValue("seed_id");
 	    		}
     		}
@@ -179,7 +160,7 @@ function searchbykeyword() {
 				},
 				success: function(rs) {
 					//relocate to result page
-					document.location.href="IDMapping?cType=taxon&cId=<%=cId%>&dm=result&pk="+rs.responseText;
+					document.location.href="IDMapping?cType=taxon&cId=<%=contextId%>&dm=result&pk="+rs.responseText;
 				}
 			});
 		}
