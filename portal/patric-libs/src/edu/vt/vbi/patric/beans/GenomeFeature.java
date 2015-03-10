@@ -149,7 +149,8 @@ public class GenomeFeature {
 		json.put("gene", getGene());
 		json.put("product", getProduct());
 		json.put("figfam_id", getFigfamId());
-		// ec, pathway, go, uniprotkb_accession, ids
+		// ec, pathway, go, ids
+		json.put("uniprotkb_accession", getUniprotkbAccession());
 
 		return json;
 	}
