@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2014 Virginia Polytechnic Institute and State University
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,31 +15,29 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.portlets;
 
+import edu.vt.vbi.patric.beans.Genome;
+import edu.vt.vbi.patric.beans.Taxonomy;
+import edu.vt.vbi.patric.common.SolrInterface;
+import edu.vt.vbi.patric.dao.DBPRC;
+import edu.vt.vbi.patric.mashup.PSICQUICInterface;
+
+import javax.portlet.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import javax.portlet.GenericPortlet;
-import javax.portlet.PortletException;
-import javax.portlet.PortletRequestDispatcher;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
-import javax.portlet.ResourceRequest;
-import javax.portlet.ResourceResponse;
-import javax.portlet.UnavailableException;
-
 public class PPISummary extends GenericPortlet {
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.portlet.GenericPortlet#doView(javax.portlet.RenderRequest, javax.portlet.RenderResponse)
-	 */
 	@Override
-	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException, UnavailableException {
+	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 		response.setContentType("text/html");
-		String cType = request.getParameter("context_type");
+		String contextType = request.getParameter("context_type");
 
-		if (cType != null) {
+		if (contextType != null) {
+			String contextId = request.getParameter("context_id");
+
+			request.setAttribute("contextType", contextType);
+			request.setAttribute("contextId", contextId);
+
 			PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/summary_ppi_init.jsp");
 			prd.include(request, response);
 		}
@@ -52,9 +50,51 @@ public class PPISummary extends GenericPortlet {
 
 	public void serveResource(ResourceRequest request, ResourceResponse response) throws PortletException, IOException {
 		response.setContentType("text/html");
-		String cType = request.getParameter("context_type");
+		String contextType = request.getParameter("cType");
 
-		if (cType != null) {
+		if (contextType != null) {
+
+			String psicquicSpeciesName;
+			int taxonId = -1;
+			String speciesName = "";
+			String errorMsg = "Data is not available temporarily";
+			String contextId = request.getParameter("cId");
+
+			DBPRC conn_prc = new DBPRC();
+			SolrInterface solr = new SolrInterface();
+
+			switch (contextType) {
+			case "taxon":
+				Taxonomy taxonomy = solr.getTaxonomy(Integer.parseInt(contextId));
+				speciesName = taxonomy.getTaxonName();
+				taxonId = taxonomy.getId();
+				psicquicSpeciesName = "species:" + taxonId;
+				break;
+			case "genome":
+				Genome genome = solr.getGenome(contextId);
+				speciesName = genome.getGenomeName();
+				taxonId = genome.getTaxonId();
+				psicquicSpeciesName = "species:" + taxonId;
+				break;
+			default:
+				psicquicSpeciesName = "";
+				break;
+			}
+
+			if (!psicquicSpeciesName.equals("")) {
+				PSICQUICInterface api = new PSICQUICInterface();
+				String result = api.getCounts("intact", psicquicSpeciesName);
+				int result_pi = conn_prc.getPRCCount("" + taxonId, "PI");
+
+				// pass attributes through request
+				request.setAttribute("contextType", contextType);
+				request.setAttribute("contextId", contextId);
+				request.setAttribute("speciesName", speciesName);
+				request.setAttribute("result", result);
+				request.setAttribute("result_pi", result_pi); // int
+				request.setAttribute("errorMsg", errorMsg);
+			}
+
 			PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/summary_ppi.jsp");
 			prd.include(request, response);
 		}

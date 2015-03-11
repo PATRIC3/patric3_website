@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2014 Virginia Polytechnic Institute and State University
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,45 +15,47 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.portlets;
 
+import edu.vt.vbi.patric.beans.Genome;
+import edu.vt.vbi.patric.common.SolrInterface;
+import edu.vt.vbi.patric.dao.DBPRC;
+import edu.vt.vbi.patric.dao.DBShared;
+import edu.vt.vbi.patric.dao.DBSummary;
+import edu.vt.vbi.patric.dao.ResultType;
+import edu.vt.vbi.patric.mashup.ArrayExpressInterface;
+import edu.vt.vbi.patric.mashup.EutilInterface;
+import edu.vt.vbi.patric.mashup.PRIDEInterface;
+import edu.vt.vbi.patric.mashup.PSICQUICInterface;
+import org.json.simple.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.portlet.*;
 import java.io.IOException;
 import java.io.PrintWriter;
-
-import javax.portlet.GenericPortlet;
-import javax.portlet.PortletException;
-import javax.portlet.PortletRequestDispatcher;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
-import javax.portlet.ResourceRequest;
-import javax.portlet.ResourceResponse;
-import javax.portlet.UnavailableException;
+import java.util.List;
+import java.util.Map;
 
 public class ExperimentSummaryPortlet extends GenericPortlet {
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.portlet.GenericPortlet#doView(javax.portlet.RenderRequest, javax.portlet.RenderResponse)
-	 */
+	private static final Logger LOGGER = LoggerFactory.getLogger(ExperimentSummaryPortlet.class);
+
 	@Override
-	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException, UnavailableException {
+	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 		response.setContentType("text/html");
 
-		String cId = request.getParameter("context_id");
-		String cType = request.getParameter("context_type");
-		int validContextId = -1;
+		String contextId = request.getParameter("context_id");
+		String contextType = request.getParameter("context_type");
 
-		if (cId != null) {
-			try {
-				validContextId = Integer.parseInt(cId);
-			}
-			catch (NumberFormatException ex) {
-			}
-		}
-		if (validContextId > 0 && cType != null) {
+		if (contextType != null && contextId != null) {
+
+			request.setAttribute("contextType", contextType);
+			request.setAttribute("contextId", contextId);
+
 			PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/summary_experiment_tab_init.jsp");
 			prd.include(request, response);
 		}
 		else {
+			LOGGER.debug("Invalid Parameter - cType:{}, cId:{}", contextType, contextId);
 			PrintWriter writer = response.getWriter();
 			writer.write("<p>Invalid Parameter - missing context information</p>");
 			writer.close();
@@ -62,9 +64,90 @@ public class ExperimentSummaryPortlet extends GenericPortlet {
 
 	public void serveResource(ResourceRequest request, ResourceResponse response) throws PortletException, IOException {
 		response.setContentType("text/html");
-		String cType = request.getParameter("context_type");
+		String contextType = request.getParameter("cType");
+		String contextId = request.getParameter("cId");
 
-		if (cType != null) {
+		if (contextType != null) {
+
+			int taxonId = -1;
+			SolrInterface solr = new SolrInterface();
+
+			String species_name = "";
+			String psicquic_species_name = "";
+			String pride_species_name = "";
+
+			DBShared conn_shared = new DBShared();
+			DBSummary conn_summary = new DBSummary();
+			DBPRC conn_prc = new DBPRC();
+
+			if (contextType.equals("taxon")) {
+				// tId = cId;
+				taxonId = solr.getTaxonomy(Integer.parseInt(contextId)).getId();
+
+				// TODO: re-implement?
+				List<ResultType> parents = conn_shared.getTaxonParentTree("" + taxonId);
+				if (parents.size() > 0) {
+					species_name = parents.get(0).get("name");
+				}
+				psicquic_species_name = "species:" + taxonId;
+				pride_species_name = conn_summary.getPRIDESpecies("" + taxonId);
+
+			}
+			else if (contextType.equals("genome")) {
+
+				Genome genome = solr.getGenome(contextId);
+
+				species_name = genome.getGenomeName();
+				psicquic_species_name = "species:" + genome.getTaxonId();
+				pride_species_name = conn_summary.getPRIDESpecies("" + taxonId);
+			}
+			// Transcriptomics
+			// GEO
+			String strQueryTerm = "txid" + taxonId + "[Organism:exp]+NOT+gsm[ETYP]";
+			EutilInterface eutil_api = new EutilInterface();
+			Map<String, String> gds_taxon = null;
+			try {
+				gds_taxon = eutil_api.getCounts("gds", strQueryTerm, "");
+			}
+			catch (Exception ex) {
+				LOGGER.error(ex.getMessage(), ex);
+			}
+
+			// ArrayExpress
+			ArrayExpressInterface api = new ArrayExpressInterface();
+			JSONObject arex_keyword = api.getResults(species_name, "");
+
+			// Proteomics
+			PRIDEInterface pride_api = new PRIDEInterface();
+			JSONObject proteomics_result = pride_api.getResults(pride_species_name);
+
+			// Structure
+			strQueryTerm = "txid" + taxonId + "[Organism:exp]";
+			Map<String, String> st = null;
+			try {
+				st = eutil_api.getCounts("structure", strQueryTerm, "");
+			}
+			catch (Exception ex) {
+				LOGGER.error(ex.getMessage(), ex);
+			}
+
+			// Protein Protein Interaction
+			PSICQUICInterface psicquic_api = new PSICQUICInterface();
+			String result = psicquic_api.getCounts("intact", psicquic_species_name);
+			int result_pi = conn_prc.getPRCCount("" + taxonId, "PI");
+
+			// passing attributes
+			request.setAttribute("cType", contextType);
+			request.setAttribute("cId", contextId);
+			request.setAttribute("errorMsg", "Data is not available temporarily");
+			request.setAttribute("gds_taxon", gds_taxon); // Map<String, String>
+			request.setAttribute("arex_keyword", arex_keyword); // JSONObject
+			request.setAttribute("proteomics_result", proteomics_result); // JSONObject
+			request.setAttribute("st", st); // Map<String, String>
+			request.setAttribute("result", result); // String
+			request.setAttribute("result_pi", result_pi); // result_pi
+			request.setAttribute("species_name", species_name);
+
 			PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/summary_experiment_tab.jsp");
 			prd.include(request, response);
 		}

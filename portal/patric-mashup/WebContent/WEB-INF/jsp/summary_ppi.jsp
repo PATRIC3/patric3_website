@@ -1,49 +1,13 @@
-<%@ page import="java.util.List" %>
-<%@ page import="edu.vt.vbi.patric.dao.DBShared" %>
-<%@ page import="edu.vt.vbi.patric.dao.DBPRC" %>
-<%@ page import="edu.vt.vbi.patric.dao.ResultType" %>
-<%@ page import="edu.vt.vbi.patric.mashup.PSICQUICInterface" %>
-<%@ page import="org.json.simple.JSONObject" %>
 <%
-String psicquic_species_name = "";
-String taxonid = "";
-String species_name = "";
-String errorMsg = "Data is not available temporarily";
+String contextType = (String) request.getAttribute("contextType");
+String contextId = (String) request.getAttribute("contextId");
+String speciesName = (String) request.getAttribute("speciesName");
+String result = (String) request.getAttribute("result");
+int result_pi = (Integer) request.getAttribute("result_pi");
+String errorMsg = (String) request.getAttribute("errorMsg");
 
-String cType = request.getParameter("context_type");
-String cId = request.getParameter("context_id");
-
-DBShared conn_shared = new DBShared();
-DBPRC conn_prc = new DBPRC();
-
-if (cType != null && cType.equals("taxon") && cId != null && !cId.equals("")) {
-	psicquic_species_name = "species:"+cId;
-	taxonid = cId;
-	List<ResultType> parents = conn_shared.getTaxonParentTree(cId);
-	if (parents.size() > 0) {
-		species_name = parents.get(0).get("name");
-	}
-}
-else if (cType != null && cType.equals("genome") && cId != null && !cId.equals("")) {
-	
-	ResultType names = conn_shared.getNamesFromGenomeInfoId(cId);
-	psicquic_species_name = "species:"+names.get("ncbi_tax_id");
-	taxonid = names.get("ncbi_taxon_id");	
-	species_name = names.get("genome_name");
-}
-else {
-	psicquic_species_name = "";
-}
-
-if (psicquic_species_name.equals("")) {
-	%><p>Internal Error due to wrong paramter: cType=<%=cType %>,cId=<%=cId %></p><%
-}
-else {
-	PSICQUICInterface api = new PSICQUICInterface();
-	String result = api.getCounts("intact", psicquic_species_name);
-	int result_pi = conn_prc.getPRCCount(taxonid, "PI");
 %>
-	<p>Interaction data of <%=species_name %> are retrieved from some prominent databases, e.g.,  InAct and PRC and displayed below.
+	<p>Interaction data of <%=speciesName %> are retrieved from some prominent databases, e.g.,  InAct and PRC and displayed below.
 		 Interaction experiment data covers protein-protein, protein-DNA, protein-carbohydrate and antibody-antigen. 
 	</p>
 	
@@ -67,7 +31,7 @@ else {
 				else if (result.equalsIgnoreCase("0")) { 
 					%>0<% 
 				} else {
-					%><a href="IntAct?cType=<%=cType%>&amp;cId=<%=cId%>"><%=result %></a><%
+					%><a href="IntAct?cType=<%=contextType%>&amp;cId=<%=contextId%>"><%=result %></a><%
 				}%>
 			</td>
 			<td class="right-align-text"><%
@@ -77,10 +41,9 @@ else {
 				else if (result_pi == 0) { 
 					%>0<% 
 				} else {
-					%><a href="PRC?cType=<%=cType%>&amp;cId=<%=cId%>&amp;filter=PI"><%=result_pi %></a><%
+					%><a href="PRC?cType=<%=contextType%>&amp;cId=<%=contextId%>&amp;filter=PI"><%=result_pi %></a><%
 				}%>
 			</td>
 		</tr>
 	</tbody>
 	</table>
-<% } %>

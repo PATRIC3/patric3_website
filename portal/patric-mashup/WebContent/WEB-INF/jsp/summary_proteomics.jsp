@@ -1,38 +1,10 @@
-<%@ page import="edu.vt.vbi.patric.dao.DBShared" %>
-<%@ page import="edu.vt.vbi.patric.dao.DBSummary" %>
-<%@ page import="edu.vt.vbi.patric.dao.DBPRC" %>
-<%@ page import="edu.vt.vbi.patric.dao.ResultType" %>
-<%@ page import="edu.vt.vbi.patric.mashup.EutilInterface" %>
-<%@ page import="edu.vt.vbi.patric.mashup.PRIDEInterface" %>
-<%@ page import="org.json.simple.JSONObject" %>
-<%
-String tId = null;
-String cType = request.getParameter("context_type");
-String cId = request.getParameter("context_id");
-String species_name = "";
-String errorMsg = "Data is not available temporarily";
-
-DBSummary conn_summary = new DBSummary();
-DBShared conn_shared = new DBShared();
-DBPRC conn_prc = new DBPRC();
-
-if (cType.equals("taxon")) {
-	tId = cId;
-	species_name = conn_summary.getPRIDESpecies(cId);
-	
-}
-else if (cType.equals("genome")) {
-	ResultType names = conn_shared.getNamesFromGenomeInfoId(cId);
-	tId = names.get("ncbi_taxon_id");
-	species_name = conn_summary.getPRIDESpecies(tId);
-}
-
-	//PRIDE
-	PRIDEInterface api = new PRIDEInterface();
-	JSONObject result = api.getResults(species_name);
-	
-	//PRC
-	int result_ms = conn_prc.getPRCCount(tId, "MS");
+<%@ page import="org.json.simple.JSONObject"
+%><%
+String contextType = (String) request.getAttribute("contextType");
+String contextId = (String) request.getAttribute("contextId");
+JSONObject result = (JSONObject) request.getAttribute("result");
+int result_ms = (Integer) request.getAttribute("result_ms");
+String errorMsg = (String) request.getAttribute("errorMsg");
 %>
 	<p>Experiment datasets of large-scale studies of proteins are retrieved from PRIDE and PRC post-genomic databases as listed below.</p>
 	
@@ -58,7 +30,7 @@ else if (cType.equals("genome")) {
 				else if (result_ms == 0) { 
 					%>0<% 
 				} else {
-					%><a href="PRC?cType=<%=cType%>&amp;cId=<%=cId%>&amp;filter=MS"><%=result_ms %></a><%
+					%><a href="PRC?cType=<%=contextType%>&amp;cId=<%=contextId%>&amp;filter=MS"><%=result_ms %></a><%
 				} %>
 			</td>
 		</tr>
@@ -72,7 +44,7 @@ else if (cType.equals("genome")) {
 				else if (result.get("total").equals(0)) {
 					%>0<%
 				} else {
-					%><a href="PRIDE?cType=<%=cType%>&amp;cId=<%=cId%>"><%=result.get("total") %></a><%
+					%><a href="PRIDE?cType=<%=contextType%>&amp;cId=<%=contextId%>"><%=result.get("total") %></a><%
 				}
 			%>
 			</td>

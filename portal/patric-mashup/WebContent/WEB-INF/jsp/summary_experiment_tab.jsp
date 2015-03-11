@@ -1,79 +1,18 @@
-<%@ page import="java.util.List" 
-%><%@ page import="java.util.Map" 
-%><%@ page import="edu.vt.vbi.patric.dao.DBSummary" 
-%><%@ page import="edu.vt.vbi.patric.dao.DBShared" 
-%><%@ page import="edu.vt.vbi.patric.dao.DBPRC" 
-%><%@ page import="edu.vt.vbi.patric.dao.ResultType" 
-%><%@ page import="edu.vt.vbi.patric.mashup.EutilInterface" 
-%><%@ page import="edu.vt.vbi.patric.mashup.ArrayExpressInterface" 
-%><%@ page import="edu.vt.vbi.patric.mashup.PRIDEInterface" 
-%><%@ page import="edu.vt.vbi.patric.mashup.PSICQUICInterface" 
-%><%@ page import="org.json.simple.JSONObject" 
+<%@ page import="java.util.Map"
+%><%@ page import="org.json.simple.JSONObject"
 %><%
 
-String tId = null;
-String cType = request.getParameter("context_type");
-String cId = request.getParameter("context_id");
-String species_name = "";
-String errorMsg = "Data is not available temporarily";
-String psicquic_species_name = "";
-String pride_species_name = "";
+String cType = (String) request.getAttribute("cType");
+String cId = (String) request.getAttribute("cId");
+String errorMsg = (String) request.getAttribute("errorMsg");
+Map<String, String> gds_taxon = (Map) request.getAttribute("gds_taxon");
+JSONObject arex_keyword = (JSONObject) request.getAttribute("arex_keyword");
+JSONObject proteomics_result = (JSONObject) request.getAttribute("proteomics_result");
+Map<String, String> st = (Map) request.getAttribute("st");
+String result = (String) request.getAttribute("result");
+int result_pi = (Integer) request.getAttribute("result_pi");
+String species_name = (String) request.getAttribute("species_name");
 
-
-DBShared conn_shared = new DBShared();
-DBSummary conn_summary = new DBSummary();
-DBPRC conn_prc = new DBPRC();
-
-if (cType.equals("taxon")) {
-	tId = cId;
-	List<ResultType> parents = conn_shared.getTaxonParentTree(cId);
-	if (parents.size() > 0) {
-		species_name = parents.get(0).get("name");
-	}
-	psicquic_species_name = "species:"+cId;
-	pride_species_name = conn_summary.getPRIDESpecies(cId);
-		
-} else if (cType.equals("genome")) {
-	
-	ResultType names = conn_shared.getNamesFromGenomeInfoId(cId);
-	tId = names.get("ncbi_taxon_id");
-	species_name = names.get("genome_name");
-	psicquic_species_name = "species:"+names.get("ncbi_tax_id");
-	pride_species_name = conn_summary.getPRIDESpecies(tId);
-}
-// Transcriptomics
-	// GEO
-		String strQueryTerm = "txid"+tId+"[Organism:exp]+NOT+gsm[ETYP]";
-		EutilInterface eutil_api = new EutilInterface();
-		Map<String,String> gds_taxon = null;
-		try {
-			gds_taxon = eutil_api.getCounts("gds", strQueryTerm, "");
-		} catch (Exception ex) {
-			
-		}
-		
-	// ArrayExpress
-		ArrayExpressInterface api = new ArrayExpressInterface();
-		JSONObject arex_keyword = api.getResults(species_name,"");
-
-// Proteomics
-	PRIDEInterface pride_api = new PRIDEInterface();
-	JSONObject proteomics_result = pride_api.getResults(pride_species_name);
-
-// Structure
-	strQueryTerm = "txid"+tId+"[Organism:exp]";
-	Map<String,String> st = null;
-	try {
-		st = eutil_api.getCounts("structure", strQueryTerm, "");
-	} catch (Exception ex) {
-		
-	}
-
-// Protein Protein Interaction
-	PSICQUICInterface psicquic_api = new PSICQUICInterface();
-	String result = psicquic_api.getCounts("intact", psicquic_species_name);
-	int result_pi = conn_prc.getPRCCount(tId, "PI");
-	
 %>
 	<table class="basic far2x">
 	<tbody>

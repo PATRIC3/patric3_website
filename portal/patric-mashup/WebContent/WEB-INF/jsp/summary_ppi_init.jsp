@@ -1,8 +1,8 @@
 <%@ page import="javax.portlet.ResourceURL" %>
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <%
-String cType = request.getParameter("context_type");
-String cId = request.getParameter("context_id");
+String contextType = (String) request.getAttribute("contextType");
+String contextId = (String) request.getAttribute("contextId");
 
 %>
 <div id="tbl_ppi" class="table-container">
@@ -18,7 +18,7 @@ Ext.onReady(function () {
 	Ext.Ajax.request({
 		url: '<portlet:resourceURL />',
 		method: 'GET',
-		params: {cType:'<%=cType%>',cId:'<%=cId%>'},
+		params: {cType:'<%=contextType%>',cId:'<%=contextId%>'},
 		success: function(rs) {
 			Ext.getDom("tbl_ppi").innerHTML = rs.responseText;
 		}

@@ -1,46 +1,14 @@
-<%@ page import="java.util.Map" %>
-<%@ page import="java.util.List" %>
-<%@ page import="edu.vt.vbi.patric.dao.DBShared" %>
-<%@ page import="edu.vt.vbi.patric.dao.ResultType" %>
-<%@ page import="edu.vt.vbi.patric.mashup.EutilInterface" %>
-<%
-String tId = null;
-String cType = request.getParameter("context_type");
-String cId = request.getParameter("context_id");
-String species_name = "";
-String errorMsg = "Data is not available temporarily";
-DBShared conn_shared = new DBShared();
-
-if (cType.equals("taxon")) {
-	
-	tId = cId;
-	List<ResultType> parents = conn_shared.getTaxonParentTree(cId);
-	if (parents.size() > 0) {
-		species_name = parents.get(0).get("name");
-	}
-	
-} else if (cType.equals("genome")) {
-	
-	ResultType names = conn_shared.getNamesFromGenomeInfoId(cId);
-	tId = names.get("ncbi_taxon_id");	
-	species_name = names.get("genome_name");
-}
-
-	String strQueryTerm = "txid"+tId+"[Organism:exp]";
-	EutilInterface eutil_api = new EutilInterface();
-	
-	Map<String,String> st = null;
-	Map<String,String> st_ssgcid = null;
-	Map<String,String> st_csgid = null;
-	try {
-		st = eutil_api.getCounts("structure", strQueryTerm, "");
-		st_ssgcid = eutil_api.getCounts("structure", strQueryTerm+"%20AND%20\"ssgcid\"", "");
-		st_csgid = eutil_api.getCounts("structure", strQueryTerm+"%20AND%20\"csgid\"", "");
-	} catch (Exception ex) {
-		
-	}
+<%@ page import="java.util.Map"
+%><%
+String contextType = (String) request.getAttribute("contextType");
+String contextId = (String) request.getAttribute("contextId");
+String speciesName = (String) request.getAttribute("speciesName");
+Map<String, String> st = (Map) request.getAttribute("st");
+Map<String, String> st_ssgcid = (Map) request.getAttribute("st_ssgcid");
+Map<String, String> st_csgid = (Map) request.getAttribute("st_csgid");
+String errorMsg = (String) request.getAttribute("errorMsg");
 %>
-		<p>Protein structure data of <%=species_name %> are retrieved from Protein Data Bank.</p>
+		<p>Protein structure data of <%=speciesName %> are retrieved from Protein Data Bank.</p>
 		
 		<table class="basic far2x">
 		<thead>
@@ -60,7 +28,7 @@ if (cType.equals("taxon")) {
 				else if (st.get("Count").equalsIgnoreCase("0")) { 
 					%>0<% 
 				} else {
-					%><a href="Structure?cType=<%=cType%>&amp;cId=<%=cId%>&amp;filter="><%=st.get("Count") %></a><%
+					%><a href="Structure?cType=<%=contextType%>&amp;cId=<%=contextId%>&amp;filter="><%=st.get("Count") %></a><%
 				} %>
 				</td>
 			</tr>
@@ -73,7 +41,7 @@ if (cType.equals("taxon")) {
 				else if (st_ssgcid.get("Count").equalsIgnoreCase("0")) { 
 					%>0<% 
 				} else {
-					%><a href="Structure?cType=<%=cType%>&amp;cId=<%=cId%>&amp;filter=ssgcid"><%=st_ssgcid.get("Count") %></a><%
+					%><a href="Structure?cType=<%=contextType%>&amp;cId=<%=contextId%>&amp;filter=ssgcid"><%=st_ssgcid.get("Count") %></a><%
 				} %>
 				</td>
 			</tr>
@@ -86,7 +54,7 @@ if (cType.equals("taxon")) {
 				else if (st_csgid.get("Count").equalsIgnoreCase("0")) { 
 					%>0<% 
 				} else {
-					%><a href="Structure?cType=<%=cType%>&amp;cId=<%=cId%>&amp;filter=csgid"><%=st_csgid.get("Count") %></a><%
+					%><a href="Structure?cType=<%=contextType%>&amp;cId=<%=contextId%>&amp;filter=csgid"><%=st_csgid.get("Count") %></a><%
 				} %>
 				</td>
 			</tr>

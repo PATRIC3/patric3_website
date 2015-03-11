@@ -1,55 +1,15 @@
-<%@ page import="java.util.Map" %>
-<%@ page import="java.util.List" %>
-<%@ page import="edu.vt.vbi.patric.dao.DBShared" %>
-<%@ page import="edu.vt.vbi.patric.dao.DBPRC" %>
-<%@ page import="edu.vt.vbi.patric.dao.ResultType" %>
-<%@ page import="edu.vt.vbi.patric.mashup.EutilInterface" %>
-<%@ page import="edu.vt.vbi.patric.mashup.ArrayExpressInterface" %>
-<%@ page import="org.json.simple.JSONObject" %>
-<%
-String tId = null;
-String cType = request.getParameter("context_type");
-String cId = request.getParameter("context_id");
-String species_name = "";
-String errorMsg = "Data is not available temporarily";
-
-DBShared conn_shared = new DBShared();
-DBPRC conn_prc = new DBPRC();
-
-if (cType.equals("taxon")) {
-	tId = cId;
-	List<ResultType> parents = conn_shared.getTaxonParentTree(cId);
-	if (parents.size() > 0) {
-		species_name = parents.get(0).get("name");
-	}
-}
-else if (cType.equals("genome")) {
-	ResultType names = conn_shared.getNamesFromGenomeInfoId(cId);
-	tId = names.get("ncbi_taxon_id");
-	species_name = names.get("genome_name");
-}
-
-// GEO
-	String strQueryTerm = "txid"+tId+"[Organism:exp]+NOT+gsm[ETYP]";
-	EutilInterface eutil_api = new EutilInterface();
-
-	Map<String,String> gds_taxon = null;
-	Map<String,String> gds_keyword = null;
-	try {
-		gds_taxon = eutil_api.getCounts("gds", strQueryTerm, "");
-		gds_keyword = eutil_api.getCounts("gds", species_name.replaceAll(" ","+")+"+NOT+gsm[ETYP]", "");
-	} catch (Exception ex) {
-		
-	}
-
-// ArrayExpress
-	ArrayExpressInterface api = new ArrayExpressInterface();
-	JSONObject arex_species = api.getResults("", species_name);
-	JSONObject arex_keyword = api.getResults(species_name,"");
-	
-// PRC
-	int prc_ma = conn_prc.getPRCCount(tId, "MA");
-	
+<%@ page import="java.util.Map"
+%><%@ page import="org.json.simple.JSONObject"
+%><%
+String contextType = (String) request.getAttribute("contextType");
+String contextId = (String) request.getAttribute("contextId");
+String speciesName = (String) request.getAttribute("speciesName");
+Map<String, String> gds_taxon = (Map) request.getAttribute("gds_taxon");
+int prc_ma = (Integer) request.getAttribute("prc_ma");
+Map<String, String> gds_keyword = (Map) request.getAttribute("gds_keyword");
+JSONObject arex_keyword = (JSONObject) request.getAttribute("arex_keyword");
+JSONObject arex_species = (JSONObject) request.getAttribute("arex_species");
+String errorMsg = (String) request.getAttribute("errorMsg");
 %>
 	<p>Genome-wide gene expression profiling datasets are retrieved from ArrayExpress, GEO and  PRC post-genomic databases as listed below. 
 	They include cDNA microarrays and oligo-microarrays, cDNA-AFLP , SAGE and RNA-Seq.</p>
@@ -77,7 +37,7 @@ else if (cType.equals("genome")) {
 				} else if (gds_taxon.get("Count").equalsIgnoreCase("0")) { 
 					%>0<% 
 				} else {
-					%><a href="GEO?cType=<%=cType %>&amp;cId=<%=cId%>&amp;filter=&amp;keyword="><%=gds_taxon.get("Count") %></a><%
+					%><a href="GEO?cType=<%=contextType %>&amp;cId=<%=contextId%>&amp;filter=&amp;keyword="><%=gds_taxon.get("Count") %></a><%
 				} %>
 			</td>
 			<td class="right-align-text"><!-- ArrayExpress/Taxonomy -->N/A</td>
@@ -89,7 +49,7 @@ else if (cType.equals("genome")) {
 				else if (prc_ma == 0) { 
 					%>0<% 
 				} else {
-					%><a href="PRC?cType=<%=cType%>&amp;cId=<%=cId%>&amp;filter=MA"><%=prc_ma %></a><%
+					%><a href="PRC?cType=<%=contextType%>&amp;cId=<%=contextId%>&amp;filter=MA"><%=prc_ma %></a><%
 				}%>
 			</td>
 		</tr>
@@ -103,7 +63,7 @@ else if (cType.equals("genome")) {
 				else if (gds_keyword.get("Count").equalsIgnoreCase("0")) { 
 					%>0<% 
 				} else {
-					%><a href="GEO?cType=<%=cType%>&amp;cId=<%=cId%>&amp;filter=&amp;keyword=<%=species_name %>"><%=gds_keyword.get("Count") %></a><%
+					%><a href="GEO?cType=<%=contextType%>&amp;cId=<%=contextId%>&amp;filter=&amp;keyword=<%=speciesName %>"><%=gds_keyword.get("Count") %></a><%
 				} %>
 			</td>
 			<td class="right-align-text"><!-- ArrayExpress/Keyword -->
@@ -114,7 +74,7 @@ else if (cType.equals("genome")) {
 				else if (arex_keyword.get("total").equals(0)) { 
 					%>0<% 
 				} else {
-					%><a href="ArrayExpress?cType=<%=cType%>&amp;cId=<%=cId%>&amp;kw=<%=species_name%>"><%=arex_keyword.get("total") %></a><%
+					%><a href="ArrayExpress?cType=<%=contextType%>&amp;cId=<%=contextId%>&amp;kw=<%=speciesName%>"><%=arex_keyword.get("total") %></a><%
 				}%>
 			</td>
 			<td class="right-align-text last"><!-- PRC/Keyword -->N/A</td>
@@ -129,7 +89,7 @@ else if (cType.equals("genome")) {
 				} else if (arex_species.get("total").equals(0)) { 
 					%>0<% 
 				} else {
-					%><a href="ArrayExpress?cType=<%=cType%>&amp;cId=<%=cId%>&amp;kw="><%=arex_species.get("total") %></a><%
+					%><a href="ArrayExpress?cType=<%=contextType%>&amp;cId=<%=contextId%>&amp;kw="><%=arex_species.get("total") %></a><%
 				} %>
 			</td>
 			<td class="right-align-text last"><!-- PRC/Species -->N/A</td>

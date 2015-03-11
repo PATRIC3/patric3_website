@@ -1,32 +1,18 @@
-<%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
-<%@ page import="java.util.List" %>
-<%@ page import="edu.vt.vbi.patric.dao.DBShared" %>
-<%@ page import="edu.vt.vbi.patric.dao.ResultType" %>
-<%
-String cType = request.getParameter("context_type");
-String cId = request.getParameter("context_id");
-
-DBShared conn_shared = new DBShared();
-String organism_name = "";
-if (cType.equals("taxon")) {
-	List<ResultType> parents = conn_shared.getTaxonParentTree(cId);
-	if (parents.size() > 0) {
-		organism_name = parents.get(0).get("name");
-	}
-} else if (cType.equals("genome")) {
-	ResultType names = conn_shared.getNamesFromGenomeInfoId(cId);
-	organism_name = names.get("genome_name");
-}
+<%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet"
+%><%
+String contextType = (String) request.getAttribute("contextType");
+String contextId = (String) request.getAttribute("contextId");
+String organismName = (String) request.getAttribute("organismName");
 %>
 
 <div id="grid_result_summary"></div>
 <p>
-	<a href="ExperimentData?cType=<%=cType %>&amp;cId=<%=cId %>&amp;kw=Experiment%20Data">View all Experiment Data for <%=organism_name %>.</a>
+	<a href="ExperimentData?cType=<%=contextType %>&amp;cId=<%=contextId %>&amp;kw=Experiment%20Data">View all Experiment Data for <%=organismName %>.</a>
 </p>
 
 <form action="#" id="fTableForm">
-<input type="hidden" id="context_type" name="context_type" value="<%=cType %>" />
-<input type="hidden" id="context_id" name="context_id" value="<%=cId %>" />
+<input type="hidden" id="context_type" name="context_type" value="<%=contextType %>" />
+<input type="hidden" id="context_id" name="context_id" value="<%=contextId %>" />
 <input type="hidden" id="fileformat" name="fileformat" value="" />
 <input type="hidden" id="tablesource" name="tablesource" value="IntAct" />
 </form>

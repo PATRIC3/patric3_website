@@ -1,63 +1,19 @@
-<%@ page import="edu.vt.vbi.patric.dao.DBSummary" 
-%><%@ page import="edu.vt.vbi.patric.dao.ResultType" 
-%><%@ page import="edu.vt.vbi.patric.common.SiteHelper" 
-%><%@ page import="edu.vt.vbi.patric.common.SolrInterface" 
-%><%@ page import="edu.vt.vbi.patric.common.SolrCore" 
-%><%@ page import="java.util.List" 
-%><%@ page import="java.util.Map" 
-%><%@ page import="java.util.ArrayList" 
-%><%@ page import="edu.vt.vbi.patric.mashup.PDBInterface" 
-%><%@ page import="edu.vt.vbi.patric.mashup.xmlHandler.*"
-%><%@ page import="org.json.simple.JSONObject"
-%><%@ page import="org.json.simple.JSONArray"
+<%@ page import="edu.vt.vbi.patric.beans.GenomeFeature"
+%><%@ page import="java.util.*"
 %><%
-
-String pdbID = request.getParameter("pdb_id");
-String chainID = request.getParameter("chain_id");
-
-String _context_path = request.getContextPath();
-String _codebase = _context_path+"/jmol";
-String _datafile = "http://"+request.getServerName()+_context_path+"/jsp/readPDB.jsp?pdbID="+pdbID;
-
-String urlNCBIStructure = "http://www.ncbi.nlm.nih.gov/sites/entrez?db=structure&cmd=DetailsSearch&term=";
-String urlPDB = "http://www.pdb.org/pdb/explore/explore.do?structureId=";
-String urlSSGCID = "http://www.ssgcid.org/";
-String urlCSGID = "http://www.csgid.org/";
-
-String nameSSGCID = "Seattle Structural Genomics Center for Infectious Disease";
-String nameCSGID = "Center for Structural Genomics of Infectious Diseases";
-
-PDBInterface api = new PDBInterface();
-Map<String,String> description = api.getDescription(pdbID);
-
-String target = null;
-JSONObject feature = null;
-
-if (pdbID != null && description != null) {
-	
-	ResultType key = new ResultType();
-	
-	// read associated features for given PDB ID
-	SolrInterface solr = new SolrInterface();
-	solr.setCurrentInstance(SolrCore.FEATURE);
-	key.put("keyword", "ids:PDB|"+ pdbID);
-	JSONObject res = solr.getData(key, null, null, 0, -1, false, false, false);
-	JSONArray features = (JSONArray)((JSONObject)res.get("response")).get("docs");
-	
-	// retrieve structural meta data.
-	solr.setCurrentInstance(SolrCore.STRUCTURE);
-	List<String> targetIDs = new ArrayList<String>();
-	
-	for (Object f : features) {
-		feature = (JSONObject) f;
-		key.put("keyword", "\"PATRIC_ID:"+ feature.get("na_feature_id") + "\"");
-		JSONObject rest = solr.getData(key, null, null, 0, -1, false, false, false);
-		JSONArray strctArr = (JSONArray)((JSONObject)rest.get("response")).get("docs");
-		if (strctArr.isEmpty() == false) {
-			JSONObject strct = (JSONObject) strctArr.get(0);
-			targetIDs.add((String)strct.get("target_id"));
-		}
-	}
+String pdbID = (String) request.getAttribute("pdbID");
+String chainID = (String) request.getAttribute("chainID");
+String _codebase = (String) request.getAttribute("_codebase");
+String _datafile = (String) request.getAttribute("_datafile");
+String urlNCBIStructure = (String) request.getAttribute("urlNCBIStructure");
+String urlPDB = (String) request.getAttribute("urlPDB");
+String urlSSGCID = (String) request.getAttribute("urlSSGCID");
+String urlCSGID = (String) request.getAttribute("urlCSGID");
+String nameSSGCID = (String) request.getAttribute("nameSSGCID");
+String nameCSGID = (String) request.getAttribute("nameCSGID");
+Map<String, String> description = (Map) request.getAttribute("description");
+List<GenomeFeature> features = (List) request.getAttribute("features");
+List<String> targetIDs = (List) request.getAttribute("targetIDs");
 %>
 
 <script type="text/javascript" src="<%=_codebase %>/Jmol.js" ></script>
@@ -150,10 +106,8 @@ Ext.onReady(function() {
 		<tr>
 			<th scope="row">PATRIC Features</th>
 			<td colspan=3>
-				<% for (int u=0; u<features.size(); u++) { 
-					feature = (JSONObject) features.get(u);
-				%>
-				<a href="Feature?cType=feature&cId=<%=feature.get("na_feature_id") %>" target="_blank"><%=feature.get("locus_tag") %></a>
+				<% for (GenomeFeature feature : features) { %>
+				<a href="Feature?cType=feature&cId=<%=feature.getId() %>" target="_blank"><%=feature.getSeedId() %></a>
 				<% } %>
 			</td>
 	<% } %>
@@ -163,7 +117,7 @@ Ext.onReady(function() {
 			<th scope="row">Structure</th>
 			<td colspan=3>
 				<% for (int u=0; u<targetIDs.size(); u++) { 
-					target = targetIDs.get(u);
+					String target = targetIDs.get(u);
 				%>
 				<a href="https://apps.sbri.org/SSGCIDTargetStatus/Target/<%=target %>" target="_blank"><%=target %></a>
 				<% } %>
@@ -377,11 +331,7 @@ Ext.onReady(function() {
 			<input type="button" class="right" value="Reset" onclick="updateJmol('resetNavigation')">
 		</div>
 	</div>
-<%
-} else {
-	%>No data available.<%
-}
-%>
+
 <script type="text/javascript">
 Ext.onReady(function () {
 	if (Ext.get("tabs_structureviewer")!=null) {

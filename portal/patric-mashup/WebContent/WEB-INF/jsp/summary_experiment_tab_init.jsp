@@ -1,9 +1,8 @@
 <%@ page import="javax.portlet.ResourceURL" %>
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <%
-String cType = request.getParameter("context_type");
-String cId = request.getParameter("context_id");
-
+String cType = (String) request.getAttribute("contextType");
+String cId = (String) request.getAttribute("contextId");
 %>
 <div id="tbl_transcriptomics">
 	<span class="right far2x">Retrieving data...&nbsp;

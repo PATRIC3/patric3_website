@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2014 Virginia Polytechnic Institute and State University
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,29 +15,20 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.portlets;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.List;
-
-import javax.portlet.GenericPortlet;
-import javax.portlet.PortletException;
-import javax.portlet.PortletRequestDispatcher;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
-import javax.portlet.ResourceRequest;
-import javax.portlet.ResourceResponse;
-import javax.portlet.UnavailableException;
-
+import edu.vt.vbi.patric.common.SolrInterface;
+import edu.vt.vbi.patric.dao.DBPRC;
+import edu.vt.vbi.patric.dao.ResultType;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-
-import edu.vt.vbi.patric.dao.DBPRC;
-import edu.vt.vbi.patric.dao.DBShared;
-import edu.vt.vbi.patric.dao.ResultType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.portlet.*;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.List;
 
 @SuppressWarnings("unchecked")
 public class PRCPortlet extends GenericPortlet {
@@ -45,8 +36,19 @@ public class PRCPortlet extends GenericPortlet {
 	private static final Logger LOGGER = LoggerFactory.getLogger(PRCPortlet.class);
 
 	@Override
-	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException, UnavailableException {
+	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 		response.setContentType("text/html");
+
+		String contextType = request.getParameter("context_type");
+		String contextId = request.getParameter("context_id");
+		String filter = request.getParameter("filter");
+		String organismName = ExperimentDataPortlet.getSpeciesName(contextType, contextId);
+
+		request.setAttribute("contextType", contextType);
+		request.setAttribute("contextId", contextId);
+		request.setAttribute("filter", filter);
+		request.setAttribute("organismName", organismName);
+
 		PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/prc_list.jsp");
 		prd.include(request, response);
 	}
@@ -55,8 +57,8 @@ public class PRCPortlet extends GenericPortlet {
 
 		response.setContentType("application/json");
 
-		String cType = request.getParameter("context_type");
-		String cId = request.getParameter("context_id");
+		String contextType = request.getParameter("cType");
+		String contextId = request.getParameter("cId");
 		String filter = request.getParameter("filter");
 		String start_id = request.getParameter("start");
 		String limit = request.getParameter("limit");
@@ -64,15 +66,14 @@ public class PRCPortlet extends GenericPortlet {
 		int start = Integer.parseInt(start_id);
 		int end = start + Integer.parseInt(limit);
 
-		DBShared conn_shared = new DBShared();
-		String taxonid = "";
+		SolrInterface solr = new SolrInterface();
+		int taxonId = -1;
 
-		if (cType.equals("taxon")) {
-			taxonid = cId;
+		if (contextType.equals("taxon")) {
+			taxonId = Integer.parseInt(contextId);
 		}
-		else if (cType.equals("genome")) {
-			ResultType names = conn_shared.getNamesFromGenomeInfoId(cId);
-			taxonid = names.get("ncbi_tax_id");
+		else if (contextType.equals("genome")) {
+			taxonId = solr.getGenome(contextId).getTaxonId();
 		}
 
 		if (filter == null) {
@@ -105,20 +106,17 @@ public class PRCPortlet extends GenericPortlet {
 		JSONObject jsonResult = new JSONObject();
 		JSONArray results = new JSONArray();
 
-		int count_total = conn_prc.getPRCCount(taxonid, filter);
+		int count_total = conn_prc.getPRCCount("" + taxonId, filter);
 
 		if (count_total > 0) {
-			items = conn_prc.getPRCData(taxonid, filter, start, end, sort_field, sort_dir);
+			items = conn_prc.getPRCData("" + taxonId, filter, start, end, sort_field, sort_dir);
 		}
 
 		jsonResult.put("total", count_total);
 
-		for (int i = 0; i < items.size(); i++) {
-
-			ResultType g = (ResultType) items.get(i);
-
+		for (ResultType item : items) {
 			JSONObject obj = new JSONObject();
-			obj.putAll(g);
+			obj.putAll(item);
 
 			results.add(obj);
 		}
