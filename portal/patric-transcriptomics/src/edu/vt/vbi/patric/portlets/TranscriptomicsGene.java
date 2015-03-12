@@ -15,11 +15,11 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.portlets;
 
+import com.google.gson.Gson;
 import edu.vt.vbi.ci.util.CommandResults;
 import edu.vt.vbi.ci.util.ExecUtilities;
 import edu.vt.vbi.patric.beans.GenomeFeature;
 import edu.vt.vbi.patric.common.*;
-import edu.vt.vbi.patric.dao.ResultType;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest;
@@ -40,7 +40,7 @@ public class TranscriptomicsGene extends GenericPortlet {
 	private static final Logger LOGGER = LoggerFactory.getLogger(TranscriptomicsGene.class);
 
 	@Override
-	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException, UnavailableException {
+	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 
 		new SiteHelper().setHtmlMetaElements(request, response, "Transcriptomics Gene");
 
@@ -50,6 +50,46 @@ public class TranscriptomicsGene extends GenericPortlet {
 		PortletRequestDispatcher prd;
 
 		if (mode != null && mode.equals("result")) {
+
+			String contextType = (request.getParameter("context_type") == null) ? "" : request.getParameter("context_type");
+			String contextId = (request.getParameter("context_id") == null) ? "" : request.getParameter("context_id");
+			String expId = (request.getParameter("expId") == null) ? "" : request.getParameter("expId");
+			String sampleId = (request.getParameter("sampleId") == null) ? "" : request.getParameter("sampleId");
+			String colId = (request.getParameter("colId") == null) ? "" : request.getParameter("colId");
+
+			String log_ratio = request.getParameter("log_ratio");
+			if (log_ratio == null || log_ratio.equals("")) {
+				log_ratio = "-";
+			}
+
+			String zscore = request.getParameter("zscore");
+			if (zscore == null || zscore.equals("")) {
+				zscore = "-";
+			}
+
+			String keyword = "";
+			String pk = request.getParameter("param_key");
+
+			if (pk != null && !pk.equals("")) {
+				pk = pk.split("/")[0];
+				Gson gson = new Gson();
+				PortletSession session = request.getPortletSession(true);
+				Map<String, String> key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), Map.class);
+				if (key != null && key.get("keyword") != null) {
+					keyword = key.get("keyword");
+					sampleId = key.get("sampleId");
+				}
+			}
+
+			request.setAttribute("contextType", contextType);
+			request.setAttribute("contextId", contextId);
+			request.setAttribute("expId", expId);
+			request.setAttribute("sampleId", sampleId);
+			request.setAttribute("colId", colId);
+			request.setAttribute("log_ratio", log_ratio);
+			request.setAttribute("zscore", zscore);
+			request.setAttribute("keyword", keyword);
+
 			prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/TranscriptomicsGene.jsp");
 		}
 		else {
@@ -90,7 +130,7 @@ public class TranscriptomicsGene extends GenericPortlet {
 		if (callType != null) {
 			if (callType.equals("saveParams")) {
 
-				ResultType key = new ResultType();
+				Map<String, String> key = new HashMap<>();
 				String keyword = req.getParameter("keyword");
 				SolrInterface solr = new SolrInterface();
 				String sId = solr.getTranscriptomicsSamplePIds(keyword);
@@ -103,9 +143,10 @@ public class TranscriptomicsGene extends GenericPortlet {
 					key.put("sampleId", sId);
 					Random g = new Random();
 					int random = g.nextInt();
+					Gson gson = new Gson();
 
-					PortletSession sess = req.getPortletSession(true);
-					sess.setAttribute("key" + random, key, PortletSession.APPLICATION_SCOPE);
+					PortletSession session = req.getPortletSession(true);
+					session.setAttribute("key" + random, gson.toJson(key, key.getClass()), PortletSession.APPLICATION_SCOPE);
 
 					writer.write("" + random);
 				}
@@ -229,30 +270,31 @@ public class TranscriptomicsGene extends GenericPortlet {
 				String colorScheme = req.getParameter("colorScheme");
 				String filterOffset = req.getParameter("filterOffset");
 
-				ResultType key = new ResultType();
-				key.put("sampleFilter", sampleFilter);
-				key.put("pageAt", pageAt);
-				key.put("regex", regex);
-				key.put("regexGN", regexGN);
-				key.put("upFold", upFold);
-				key.put("downFold", downFold);
-				key.put("upZscore", upZscore);
-				key.put("downZscore", downZscore);
-				key.put("significantGenes", significantGenes);
-				key.put("ClusterRowOrder", ClusterRowOrder);
-				key.put("ClusterColumnOrder", ClusterColumnOrder);
-				key.put("heatmapState", heatmapState);
-				key.put("heatmapAxis", heatmapAxis);
-				key.put("colorScheme", colorScheme);
-				key.put("filterOffset", filterOffset);
+				Map<String, String> key = new HashMap<>();
+				key.put("sampleFilter", (sampleFilter == null) ? "" : sampleFilter);
+				key.put("pageAt", (pageAt == null) ? "" : pageAt);
+				key.put("regex", (regex == null) ? "" : regex);
+				key.put("regexGN", (regexGN == null) ? "" : regexGN);
+				key.put("upFold", (upFold == null) ? "" : upFold);
+				key.put("downFold", (downFold == null) ? "" : downFold);
+				key.put("upZscore", (upZscore == null) ? "" : upZscore);
+				key.put("downZscore", (downZscore == null) ? "" : downZscore);
+				key.put("significantGenes", (significantGenes == null) ? "" : significantGenes);
+				key.put("ClusterRowOrder", (ClusterRowOrder == null) ? "" : ClusterRowOrder);
+				key.put("ClusterColumnOrder", (ClusterColumnOrder == null) ? "" : ClusterColumnOrder);
+				key.put("heatmapState", (heatmapState == null) ? "" : heatmapState);
+				key.put("heatmapAxis", (heatmapAxis == null) ? "" : heatmapAxis);
+				key.put("colorScheme", (colorScheme == null) ? "" : colorScheme);
+				key.put("filterOffset", (filterOffset == null) ? "" : filterOffset);
 
 				Random g = new Random();
 				int random = 0;
 				while (random == 0) {
 					random = g.nextInt();
 				}
-				PortletSession sess = req.getPortletSession(true);
-				sess.setAttribute(keyType + random, key);
+				Gson gson = new Gson();
+				PortletSession session = req.getPortletSession(true);
+				session.setAttribute(keyType + random, gson.toJson(key, Map.class), PortletSession.APPLICATION_SCOPE);
 
 				writer.write("" + random);
 				writer.close();
@@ -260,14 +302,16 @@ public class TranscriptomicsGene extends GenericPortlet {
 			}
 			else if (callType.equals("getState")) {
 
-				PortletSession sess = req.getPortletSession(true);
+				PortletSession session = req.getPortletSession(true);
+				Gson gson = new Gson();
 				String keyType = req.getParameter("keyType");
 				String random = req.getParameter("random");
 
 				if ((random != null) && (keyType != null)) {
 					JSONArray results = new JSONArray();
 					JSONObject a = new JSONObject();
-					ResultType key = (ResultType) (sess.getAttribute(keyType + random));
+					Map<String, String> key = gson.fromJson((String) session.getAttribute(keyType + random, PortletSession.APPLICATION_SCOPE),
+							Map.class);
 					if (key != null) {
 						a.put("sampleFilter", key.get("sampleFilter"));
 						a.put("pageAt", key.get("pageAt"));
@@ -334,6 +378,7 @@ public class TranscriptomicsGene extends GenericPortlet {
 			exec = "rm " + filename + " " + outputfilename;
 
 			callClustering = ExecUtilities.exec(exec);
+			LOGGER.debug("{}", callClustering);
 		}
 
 		return output;
@@ -415,7 +460,7 @@ public class TranscriptomicsGene extends GenericPortlet {
 		query.setFields("feature_id,p2_feature_id,strand,product,accession,start,end,seed_id,alt_locus_tag,genome_name,gene");
 		query.setRows(idList.size());
 
-		LOGGER.debug("getExperimentStats:{}", query.toString());
+		LOGGER.trace("getExperimentStats:{}", query.toString());
 
 		try {
 			QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query, SolrRequest.METHOD.POST);
@@ -427,7 +472,7 @@ public class TranscriptomicsGene extends GenericPortlet {
 					json = (JSONObject) temp.get(feature.getId());
 				}
 				else {
-					json = (JSONObject) temp.get(""+feature.getP2FeatureId());
+					json = (JSONObject) temp.get("" + feature.getP2FeatureId());
 				}
 				json.put("strand", feature.getStrand());
 				json.put("patric_product", feature.getProduct());
