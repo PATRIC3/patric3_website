@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2014 Virginia Polytechnic Institute and State University
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,36 +15,22 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.portlets;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-
-import javax.portlet.GenericPortlet;
-import javax.portlet.PortletException;
-import javax.portlet.PortletRequestDispatcher;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
-import javax.portlet.ResourceRequest;
-import javax.portlet.ResourceResponse;
-import javax.portlet.UnavailableException;
-
-import org.json.simple.JSONObject;
-
 import edu.vt.vbi.patric.mashup.KLEIOInterface;
+import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.portlet.*;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 public class KLEIOPortlet extends GenericPortlet {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(KLEIOInterface.class);
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.portlet.GenericPortlet#doView(javax.portlet.RenderRequest, javax.portlet.RenderResponse)
-	 */
-	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException, UnavailableException {
+	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 		response.setContentType("text/html");
-		PortletRequestDispatcher prd = null;
+		PortletRequestDispatcher prd;
 
 		String cType = request.getParameter("display_mode");
 
@@ -61,19 +47,17 @@ public class KLEIOPortlet extends GenericPortlet {
 	public void serveResource(ResourceRequest request, ResourceResponse response) throws PortletException, IOException {
 
 		response.setContentType("application/json");
-		String qKeyword = "";
+		String qKeyword;
 		String type = request.getParameter("type");
 
 		KLEIOInterface api = new KLEIOInterface();
-		JSONObject temp = null;
+		JSONObject temp;
 		String jsonResult = "";
 
 		try {
-
 			if (type != null && type.equals("grid")) {
 
 				qKeyword = request.getParameter("keyword");
-
 				String start = request.getParameter("start");
 				String end = request.getParameter("limit");
 
@@ -97,5 +81,4 @@ public class KLEIOPortlet extends GenericPortlet {
 		writer.write(jsonResult);
 		writer.close();
 	}
-
 }

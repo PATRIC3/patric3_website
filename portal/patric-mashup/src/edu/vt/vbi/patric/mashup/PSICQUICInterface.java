@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2014 Virginia Polytechnic Institute and State University
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,27 +15,26 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.mashup;
 
-import java.io.StringWriter;
-import java.net.URL;
-
+import edu.vt.vbi.patric.mashup.xmlHandler.IntActHandler;
 import org.apache.commons.io.IOUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-
-import edu.vt.vbi.patric.mashup.xmlHandler.IntActHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.StringWriter;
+import java.net.URL;
+
 public class PSICQUICInterface {
 
-	private String baseURL = "http://www.ebi.ac.uk/Tools/webservices/psicquic/";
+	private static final Logger LOGGER = LoggerFactory.getLogger(PSICQUICInterface.class);
 
-	private String baseURLQuery = "/webservices/current/search/query/";
+	protected String baseURL = "http://www.ebi.ac.uk/Tools/webservices/psicquic/";
 
 	// http://www.ebi.ac.uk/Tools/webservices/psicquic/intact/webservices/current/search/query/species:356?format=count
 	// http://www.ebi.ac.uk/Tools/webservices/psicquic/intact/webservices/current/search/query/species:356?format=xml25
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(PSICQUICInterface.class);
+	protected String baseURLQuery = "/webservices/current/search/query/";
 
 	public PSICQUICInterface() {
 	}

@@ -67,7 +67,7 @@ public class JmolPortlet extends GenericPortlet {
 			PDBInterface api = new PDBInterface();
 			Map<String, String> description = api.getDescription(pdbID);
 
-			if (pdbID != null && description != null) {
+			if (description != null) {
 
 				SolrInterface solr = new SolrInterface();
 				List<GenomeFeature> features = new ArrayList<>();

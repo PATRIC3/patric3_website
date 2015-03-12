@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2014 Virginia Polytechnic Institute and State University
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,12 +14,6 @@
  * limitations under the License.
  ******************************************************************************/
 package edu.vt.vbi.patric.mashup;
-
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
-import javax.xml.namespace.QName;
 
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMElement;
@@ -31,15 +25,23 @@ import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.omg.PortableInterceptor.LOCATION_FORWARD;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.namespace.QName;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 @SuppressWarnings("unchecked")
 public class KLEIOInterface {
-	private final String kleioKey = "578e2b24fcf9c04e5464384a1ee7836e5e2327596c586189f76e2da0";
+	private static final Logger LOGGER = LoggerFactory.getLogger(KLEIOInterface.class);
 
-	private final String endpointUrl = "http://nactem4.mc.man.ac.uk:18080/Kleio/services/KleioPort";
+	protected String kleioKey = "578e2b24fcf9c04e5464384a1ee7836e5e2327596c586189f76e2da0";
+
+	protected String endpointUrl = "http://nactem4.mc.man.ac.uk:18080/Kleio/services/KleioPort";
+
+	protected String facets = "GENE,PROTEIN,MESHHEADING,METABOLITE,DRUG,BACTERIA,SYMPTOM,DISEASE,ORGAN,DIAG_PROC,THERAPEUTIC_PROC,INDICATOR";
 
 	ServiceClient client = null;
 
@@ -49,11 +51,7 @@ public class KLEIOInterface {
 
 	private OMNamespace nsXsi = null;
 
-	private final String facets = "GENE,PROTEIN,MESHHEADING,METABOLITE,DRUG,BACTERIA,SYMPTOM,DISEASE,ORGAN,DIAG_PROC,THERAPEUTIC_PROC,INDICATOR";
-
 	private Map<String, String> hash = new HashMap<String, String>();
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(KLEIOInterface.class);
 
 	public KLEIOInterface() {
 		try {
@@ -235,7 +233,8 @@ public class KLEIOInterface {
 									"<span style=\"color: #CC6600; margin: 0; padding: 0 0 2px; font-weight: bold;\">"
 											+ e.getFirstChildWithName(qnFacetName).getText().substring(0, 1).toUpperCase()
 											+ e.getFirstChildWithName(qnFacetName).getText().substring(1).toLowerCase()
-											+ "</span><span style=\"color: #888;\"> (" + e.getFirstChildWithName(qnFacetFreq).getText() + "+)</span>");
+											+ "</span><span style=\"color: #888;\"> (" + e.getFirstChildWithName(qnFacetFreq).getText()
+											+ "+)</span>");
 						}
 						facet.put("id", e.getFirstChildWithName(qnFacetName).getText());
 						facet.put("leaf", false);

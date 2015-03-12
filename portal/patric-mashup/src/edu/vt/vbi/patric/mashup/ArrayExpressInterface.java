@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2014 Virginia Polytechnic Institute and State University
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,12 +15,7 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.mashup;
 
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLEncoder;
-
-import javax.xml.parsers.SAXParserFactory;
-
+import edu.vt.vbi.patric.mashup.xmlHandler.ArrayExpressHandler;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
@@ -28,17 +23,20 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
-import edu.vt.vbi.patric.mashup.xmlHandler.ArrayExpressHandler;
+import javax.xml.parsers.SAXParserFactory;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLEncoder;
 
 public class ArrayExpressInterface {
 
-	private String baseURL = "http://www.ebi.ac.uk/microarray-as/ae/xml/experiments";
+	private static final Logger LOGGER = LoggerFactory.getLogger(ArrayExpressInterface.class);
+
+	protected String baseURL = "http://www.ebi.ac.uk/microarray-as/ae/xml/experiments";
 
 	private XMLReader xmlReader = null;
 
 	private ArrayExpressHandler handler = null;
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(ArrayExpressInterface.class);
 
 	public ArrayExpressInterface() {
 		try {

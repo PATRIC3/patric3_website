@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2014 Virginia Polytechnic Institute and State University
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,45 +15,35 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.mashup;
 
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.parsers.SAXParserFactory;
-
+import edu.vt.vbi.patric.mashup.xmlHandler.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
-import edu.vt.vbi.patric.mashup.xmlHandler.PDBAnnotationsHandler;
-import edu.vt.vbi.patric.mashup.xmlHandler.PDBAnnotationsResolver;
-import edu.vt.vbi.patric.mashup.xmlHandler.PDBDescriptionHandler;
-import edu.vt.vbi.patric.mashup.xmlHandler.PDBGOTermsHandler;
-import edu.vt.vbi.patric.mashup.xmlHandler.PDBLigandHandler;
-import edu.vt.vbi.patric.mashup.xmlHandler.PDBPolymersHandler;
-import edu.vt.vbi.patric.mashup.xmlHandler.PDBSequenceClusterHandler;
+import javax.xml.parsers.SAXParserFactory;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.List;
+import java.util.Map;
 
 public class PDBInterface {
 
-	private String baseUrlDescription = "http://www.pdb.org/pdb/rest/describePDB";
+	private static final Logger LOGGER = LoggerFactory.getLogger(PDBInterface.class);
 
-	private String baseUrlLigand = "http://www.pdb.org/pdb/rest/ligandInfo";
+	protected String baseUrlDescription = "http://www.pdb.org/pdb/rest/describePDB";
 
-	private String baseUrlGOTerm = "http://www.pdb.org/pdb/rest/goTerms";
+	protected String baseUrlLigand = "http://www.pdb.org/pdb/rest/ligandInfo";
 
-	private String baseUrlCluster = "http://www.pdb.org/pdb/rest/sequenceCluster";
+	protected String baseUrlGOTerm = "http://www.pdb.org/pdb/rest/goTerms";
 
-	private String baseUrlAnnotations = "http://www.pdb.org/pdb/rest/das/pdbchainfeatures/features";
+	protected String baseUrlCluster = "http://www.pdb.org/pdb/rest/sequenceCluster";
 
-	private String baseUrlPolymers = "http://www.pdb.org/pdb/rest/describeMol";
+	protected String baseUrlAnnotations = "http://www.pdb.org/pdb/rest/das/pdbchainfeatures/features";
+
+	protected String baseUrlPolymers = "http://www.pdb.org/pdb/rest/describeMol";
 
 	private XMLReader xmlReader = null;
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(PDBInterface.class);
 
 	public PDBInterface() {
 		try {

@@ -190,7 +190,7 @@ public class PubMedHelper {
 
 	public static Map<String, List<String>> getKeywordHash() {
 
-		HashMap<String, List<String>> hash = new HashMap<>();
+		Map<String, List<String>> hash = new HashMap<>();
 
 		List<String> keyword1 = Arrays.asList("drug", "vaccine", "theraputics", "diagnostics", "target");
 		hash.put("Countermeasures", keyword1);
@@ -212,26 +212,14 @@ public class PubMedHelper {
 		List<String> keyword6 = Arrays.asList("symptom", "syndrome", "prognosis");
 		hash.put("Disease", keyword6);
 
-		List<String> keyword7 = new ArrayList<>();
-		hash.put("Pathogenesis", keyword7);
-
-		List<String> keyword8 = new ArrayList<>();
-		hash.put("Prevention", keyword8);
-
-		List<String> keyword9 = new ArrayList<>();
-		hash.put("Host", keyword9);
-
-		List<String> keyword10 = new ArrayList<>();
-		hash.put("Reservoir", keyword10);
-
-		List<String> keyword11 = new ArrayList<>();
-		hash.put("Transmission", keyword11);
-
-		List<String> keyword12 = new ArrayList<>();
-		hash.put("Genome", keyword12);
-
-		List<String> keyword13 = new ArrayList<>();
-		hash.put("Taxonomy", keyword13);
+		List<String> emptyList = new ArrayList<>();
+		hash.put("Pathogenesis", emptyList);
+		hash.put("Prevention", emptyList);
+		hash.put("Host", emptyList);
+		hash.put("Reservoir", emptyList);
+		hash.put("Transmission", emptyList);
+		hash.put("Genome", emptyList);
+		hash.put("Taxonomy", emptyList);
 
 		List<String> keyword14 = Arrays.asList("outbreak", "epidemic");
 		hash.put("Epidemiology", keyword14);

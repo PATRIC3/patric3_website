@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import javax.portlet.*;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 
 @SuppressWarnings("unchecked")
@@ -89,7 +90,7 @@ public class PRCPortlet extends GenericPortlet {
 			JSONArray sorter;
 
 			try {
-				sorter = (JSONArray) a.parse(request.getParameter("sort").toString());
+				sorter = (JSONArray) a.parse(request.getParameter("sort"));
 				sort_field += ((JSONObject) sorter.get(0)).get("property").toString();
 				sort_dir += ((JSONObject) sorter.get(0)).get("direction").toString();
 				for (int i = 1; i < sorter.size(); i++) {
@@ -102,7 +103,7 @@ public class PRCPortlet extends GenericPortlet {
 		}
 
 		DBPRC conn_prc = new DBPRC();
-		List<ResultType> items = null;
+		List<ResultType> items = new ArrayList<>();
 		JSONObject jsonResult = new JSONObject();
 		JSONArray results = new JSONArray();
 

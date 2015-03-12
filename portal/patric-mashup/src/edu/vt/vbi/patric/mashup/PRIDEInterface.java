@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2014 Virginia Polytechnic Institute and State University
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,24 +15,24 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.mashup;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.net.URLConnection;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class PRIDEInterface {
 
-	private String baseURL = "http://www.ebi.ac.uk/pride/biomart/martservice";
+	private static final Logger LOGGER = LoggerFactory.getLogger(PRIDEInterface.class);
+
+	protected String baseURL = "http://www.ebi.ac.uk/pride/biomart/martservice";
 
 	private StringBuffer xmlQueryString = null;
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(PRIDEInterface.class);
 
 	public PRIDEInterface() {
 		xmlQueryString = new StringBuffer();
@@ -44,7 +44,7 @@ public class PRIDEInterface {
 		xmlQueryString
 				.append("<Query  virtualSchemaName = \"default\" formatter = \"TSV\" header=\"0\" uniqueRows=\"0\" count=\"\" datasetConfigVersion=\"0.6\" >");
 		xmlQueryString.append("<Dataset name=\"pride\" interface=\"default\" >");
-		xmlQueryString.append("<Filter name=\"species_filter\" value=\"" + species + "\" />");
+		xmlQueryString.append("<Filter name=\"species_filter\" value=\"").append(species).append("\" />");
 		xmlQueryString.append("	<Attribute name = \"project_id\" /><Attribute name = \"project_name\" /><Attribute name = \"experiment_ac\" />");
 		xmlQueryString.append("	<Attribute name = \"experiment_title\" /><Attribute name = \"experiment_short_title\" />");
 		xmlQueryString.append("	<Attribute name = \"pubmed_id\" /><Attribute name = \"newt_name\" /><Attribute name = \"newt_ac\" />");
@@ -59,9 +59,8 @@ public class PRIDEInterface {
 		if (species.equals("")) {
 			LOGGER.debug("PRIDE-query: No species name was given");
 
-			JSONArray subList = new JSONArray();
-			result.put("results", subList);
-			result.put("total", subList.size());
+			result.put("results", new JSONArray());
+			result.put("total", 0);
 			result.put("hasData", true);
 		}
 		else {

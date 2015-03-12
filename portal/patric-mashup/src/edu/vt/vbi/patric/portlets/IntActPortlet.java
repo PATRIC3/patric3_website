@@ -17,8 +17,6 @@ package edu.vt.vbi.patric.portlets;
 
 import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.common.SolrInterface;
-import edu.vt.vbi.patric.dao.DBShared;
-import edu.vt.vbi.patric.dao.ResultType;
 import edu.vt.vbi.patric.mashup.PSICQUICInterface;
 import org.json.simple.JSONObject;
 

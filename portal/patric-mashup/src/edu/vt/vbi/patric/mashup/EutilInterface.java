@@ -34,17 +34,17 @@ import java.util.Map;
 
 public class EutilInterface {
 
-	private String baseURLESearch = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi";
-
-	private String baseURLESummary = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi";
-
 	public static final int TIMEOUT_CONN = 3000;
 
 	public static final int TIMEOUT_READ = 5000;
 
-	private XMLReader xmlReader = null;
-
 	private static final Logger LOGGER = LoggerFactory.getLogger(EutilInterface.class);
+
+	protected String baseURLESearch = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi";
+
+	protected String baseURLESummary = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi";
+
+	private XMLReader xmlReader = null;
 
 	public EutilInterface() {
 		try {
@@ -96,29 +96,36 @@ public class EutilInterface {
 			LOGGER.debug(url.toString());
 
 			JSONArray subList = null;
-			if (db.equals("pubmed") || db.equals("pmc")) {
-				PubMedHandler eutilHandler = new PubMedHandler();
-				xmlReader.setContentHandler(eutilHandler);
+			switch (db) {
+			case "pubmed":
+			case "pmc": {
+				PubMedHandler handler = new PubMedHandler();
+				xmlReader.setContentHandler(handler);
 				xmlReader.parse(new InputSource(c.getInputStream()));
-				subList = eutilHandler.getParsedJSON();
+				subList = handler.getParsedJSON();
+				break;
 			}
-			else if (db.equals("gds")) {
-				GEOHandler eutilHandler = new GEOHandler();
-				xmlReader.setContentHandler(eutilHandler);
+			case "gds": {
+				GEOHandler handler = new GEOHandler();
+				xmlReader.setContentHandler(handler);
 				xmlReader.parse(new InputSource(c.getInputStream()));
-				subList = eutilHandler.getParsedJSON();
+				subList = handler.getParsedJSON();
+				break;
 			}
-			else if (db.equals("pepdome")) {
-				PeptidomeHandler eutilHandler = new PeptidomeHandler();
-				xmlReader.setContentHandler(eutilHandler);
+			case "pepdome": {
+				PeptidomeHandler handler = new PeptidomeHandler();
+				xmlReader.setContentHandler(handler);
 				xmlReader.parse(new InputSource(c.getInputStream()));
-				subList = eutilHandler.getParsedJSON();
+				subList = handler.getParsedJSON();
+				break;
 			}
-			else if (db.equals("structure")) {
-				StructureHandler eutilHandler = new StructureHandler();
-				xmlReader.setContentHandler(eutilHandler);
+			case "structure": {
+				StructureHandler handler = new StructureHandler();
+				xmlReader.setContentHandler(handler);
 				xmlReader.parse(new InputSource(c.getInputStream()));
-				subList = eutilHandler.getParsedJSON();
+				subList = handler.getParsedJSON();
+				break;
+			}
 			}
 			result.put("results", subList);
 			result.put("total", esearch_result.get("Count"));
