@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2014 Virginia Polytechnic Institute and State University
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,38 +15,24 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.common;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
-
-import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-
-import edu.vt.vbi.patric.common.PolyomicHandler;
+import org.patricbrc.Workspace.ObjectMeta;
+import org.patricbrc.Workspace.Workspace_tuple_2;
+import org.patricbrc.Workspace.get_params;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 @SuppressWarnings("unchecked")
 public class ExpressionDataCollection {
-
-	private List<String> expressionFileName;
-
-	private List<String> sampleFileName;
-
-	private List<String> mappingFileName;
-
-	private JSONArray sample, expression;
-
-	private InputStream inp;
 
 	public final static String CONTENT_EXPRESSION = "expression";
 
@@ -56,40 +42,82 @@ public class ExpressionDataCollection {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ExpressionDataCollection.class);
 
-	public ExpressionDataCollection(String id, String token) {
+	private List<String> expressionFileName;
 
-		PolyomicHandler polyomic = new PolyomicHandler();
-		polyomic.setAuthenticationToken(token);
-		String[] collectionIds = id.split(",");
+	private List<String> sampleFileName;
+
+	private List<String> mappingFileName;
+
+	private JSONArray sample, expression;
+
+	private String WORKSPACE_API_URL;
+
+	private String WORKSPACE_TOKEN;
+
+	public ExpressionDataCollection(String path, String token) {
 
 		sample = new JSONArray();
 		expression = new JSONArray();
-
-		JSONObject collection;
 		expressionFileName = new ArrayList<>();
 		sampleFileName = new ArrayList<>();
 		mappingFileName = new ArrayList<>();
 
-		for (String collectionId : collectionIds) {
-			collection = polyomic.getCollection(collectionId, null);
+		WORKSPACE_API_URL = System.getProperty("workspaceServiceURL", "http://p3.theseed.org/services/Workspace");
+		WORKSPACE_TOKEN = token;
 
-			expressionFileName.add(polyomic.findJSONUrl(collection, CONTENT_EXPRESSION));
-			sampleFileName.add(polyomic.findJSONUrl(collection, CONTENT_SAMPLE));
-			mappingFileName.add(polyomic.findJSONUrl(collection, CONTENT_MAPPING));
+		try {
+			org.patricbrc.Workspace.Workspace serviceWS = new org.patricbrc.Workspace.Workspace(WORKSPACE_API_URL, WORKSPACE_TOKEN);
+			get_params gp = new get_params();
+			gp.objects = Arrays.asList(path.split(","));
+			gp.metadata_only = 1;
+			gp.adminmode = 0;
+
+			LOGGER.debug("{}", gp.objects);
+			List<Workspace_tuple_2> r = serviceWS.get(gp);
+
+			for (Workspace_tuple_2 item : r) {
+				ObjectMeta meta = item.e_1;
+				Map<String, Object> autoMeta = meta.e_9;
+				List<String> outputFiles = (List) autoMeta.get("output_files");
+
+				for (String filename : outputFiles) {
+					if (filename.contains("expression.json")) {
+						expressionFileName.add(filename);
+					}
+					else if (filename.contains("sample.json")) {
+						sampleFileName.add(filename);
+					}
+					else if (filename.contains("mapping.json")) {
+						mappingFileName.add(filename);
+					}
+				}
+			}
+		}
+		catch (Exception e) {
+			LOGGER.error(e.getMessage(), e);
 		}
 	}
 
-	public InputStream getInputStreamReader(String path) {
+	public String readFileContent(String path) {
 
+		String content = null;
 		try {
-			URL url = new URL(path);
-			URLConnection connection = url.openConnection();
-			inp = connection.getInputStream();
+			org.patricbrc.Workspace.Workspace serviceWS = new org.patricbrc.Workspace.Workspace(WORKSPACE_API_URL, WORKSPACE_TOKEN);
+			get_params gp = new get_params();
+			gp.objects = Arrays.asList(path);
+			gp.metadata_only = 0;
+			gp.adminmode = 0;
+
+			List<Workspace_tuple_2> r = serviceWS.get(gp);
+
+			for (Workspace_tuple_2 item : r) {
+				content = item.e_2;
+			}
 		}
-		catch (IOException e) {
+		catch (Exception e) {
 			LOGGER.error(e.getMessage(), e);
 		}
-		return inp;
+		return content;
 	}
 
 	public void read(String input) throws FileNotFoundException {
@@ -103,30 +131,15 @@ public class ExpressionDataCollection {
 			temp = expressionFileName;
 		}
 
-		InputStreamReader stream;
-		BufferedReader reader;
-		String strLine;
-
 		assert temp != null;
 		for (String aTemp : temp) {
 
-			inp = getInputStreamReader(aTemp);
-			stream = new InputStreamReader(inp);
-			reader = new BufferedReader(stream);
-
 			try {
-				while ((strLine = reader.readLine()) != null) {
-					try {
-						JSONObject tmp = (JSONObject) new JSONParser().parse(strLine);
-						AddToCurrentSet((JSONArray) tmp.get(input), input);
-					}
-					catch (ParseException e) {
-						LOGGER.error(e.getMessage(), e);
-					}
-				}
-				inp.close();
+				String strLine = readFileContent(aTemp);
+				JSONObject tmp = (JSONObject) new JSONParser().parse(strLine);
+				AddToCurrentSet((JSONArray) tmp.get(input), input);
 			}
-			catch (IOException e) {
+			catch (ParseException e) {
 				LOGGER.error(e.getMessage(), e);
 			}
 		}
@@ -135,12 +148,12 @@ public class ExpressionDataCollection {
 	public void filter(String item, String input) throws FileNotFoundException {
 
 		JSONArray temp = null;
-		String[] items = item.split(",");
+		List items = Arrays.asList(item.split(","));
 
-		if (input.equals(CONTENT_SAMPLE)) {
+		if (CONTENT_SAMPLE.equals(input)) {
 			temp = sample;
 		}
-		else if (input.equals(CONTENT_EXPRESSION)) {
+		else if (CONTENT_EXPRESSION.equals(input)) {
 			temp = expression;
 		}
 
@@ -150,18 +163,15 @@ public class ExpressionDataCollection {
 		for (Object aTemp : temp) {
 			JSONObject a = (JSONObject) aTemp;
 
-			for (String item1 : items) {
-				if (a.get("pid").toString().equals(item1)) {
-					ret.add(a);
-					break;
-				}
+			if (items.contains(a.get("pid").toString())) {
+				ret.add(a);
 			}
 		}
 
-		if (input.equals(CONTENT_SAMPLE)) {
+		if (CONTENT_SAMPLE.equals(input)) {
 			sample = ret;
 		}
-		else if (input.equals(CONTENT_EXPRESSION)) {
+		else if (CONTENT_EXPRESSION.equals(input)) {
 			expression = ret;
 		}
 	}

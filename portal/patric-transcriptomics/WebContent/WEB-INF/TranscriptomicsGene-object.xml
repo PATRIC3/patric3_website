@@ -114,9 +114,13 @@
 						<qname>{http://patricbrc.org/params}sampleId</qname>
 					</alias-binding>
 					<alias-binding>
-						<id>colId</id>
-						<qname>{http://patricbrc.org/params}colId</qname>
+						<id>wsExperimentId</id>
+						<qname>{http://patricbrc.org/params}wsExperimentId</qname>
 					</alias-binding>
+                    <alias-binding>
+                        <id>wsSampleId</id>
+                        <qname>{http://patricbrc.org/params}wsSampleId</qname>
+                    </alias-binding>
 					<alias-binding>
 						<id>log_ratio</id>
 						<qname>{http://patricbrc.org/params}log_ratio</qname>

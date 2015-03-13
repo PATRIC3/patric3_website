@@ -12,7 +12,8 @@ String contextType = (String) request.getAttribute("contextType");
 String contextId = (String) request.getAttribute("contextId");
 String expId = (String) request.getAttribute("expId");
 String sampleId = (String) request.getAttribute("sampleId");
-String colId = (String) request.getAttribute("colId");
+String wsExperimentId = (String) request.getAttribute("wsExperimentId");
+String wsSampleId = (String) request.getAttribute("wsSampleId");
 String log_ratio = (String) request.getAttribute("log_ratio");
 String zscore = (String) request.getAttribute("zscore");
 String keyword = (String) request.getAttribute("keyword");
@@ -99,7 +100,7 @@ Ext.onReady(function() {
 	Ext.QuickTips.init();
 	SetPageProperties(pageProperties);
 	TranscriptomicsGeneOnReady('<%=name%>', '<%=resourceURL%>',
-		'<%=contextPath%>', '<%=contextType%>', '<%=contextId%>', '<%=sampleId%>', '<%=expId%>', '<%=colId%>', '<%=log_ratio%>', '<%=zscore%>', '<%=keyword%>');
+		'<%=contextPath%>', '<%=contextType%>', '<%=contextId%>', '<%=sampleId%>', '<%=expId%>', '<%=wsExperimentId%>', '<%=wsSampleId%>', '<%=log_ratio%>', '<%=zscore%>', '<%=keyword%>');
 	
 	if (Ext.get("tabs_explist")!=null) {
 		Ext.get("tabs_explist").addCls("sel");

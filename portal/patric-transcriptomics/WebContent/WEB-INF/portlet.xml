@@ -75,7 +75,8 @@
 		<supported-public-render-parameter>param_key</supported-public-render-parameter>
 		<supported-public-render-parameter>expId</supported-public-render-parameter>
 		<supported-public-render-parameter>sampleId</supported-public-render-parameter>
-		<supported-public-render-parameter>colId</supported-public-render-parameter>
+		<supported-public-render-parameter>wsExperimentId</supported-public-render-parameter>
+        <supported-public-render-parameter>wsSampleId</supported-public-render-parameter>
 		<supported-public-render-parameter>log_ratio</supported-public-render-parameter>
 		<supported-public-render-parameter>zscore</supported-public-render-parameter>
 	</portlet>
@@ -186,4 +187,12 @@
 		<identifier>eid</identifier>
 		<qname xmlns:x="http://patricbrc.org/params">x:eid</qname>
 	</public-render-parameter>
+    <public-render-parameter>
+        <identifier>wsExperimentId</identifier>
+        <qname xmlns:x="http://patricbrc.org/params">x:wsExperimentId</qname>
+    </public-render-parameter>
+    <public-render-parameter>
+        <identifier>wsSampleId</identifier>
+        <qname xmlns:x="http://patricbrc.org/params">x:wsSampleId</qname>
+    </public-render-parameter>
 </portlet-app>

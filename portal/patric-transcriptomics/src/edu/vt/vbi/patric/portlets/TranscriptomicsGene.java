@@ -55,7 +55,8 @@ public class TranscriptomicsGene extends GenericPortlet {
 			String contextId = (request.getParameter("context_id") == null) ? "" : request.getParameter("context_id");
 			String expId = (request.getParameter("expId") == null) ? "" : request.getParameter("expId");
 			String sampleId = (request.getParameter("sampleId") == null) ? "" : request.getParameter("sampleId");
-			String colId = (request.getParameter("colId") == null) ? "" : request.getParameter("colId");
+			String wsExperimentId = (request.getParameter("wsExperimentId") == null) ? "" : request.getParameter("wsExperimentId");
+			String wsSampleId = (request.getParameter("wsSampleId") == null) ? "" : request.getParameter("wsSampleId");
 
 			String log_ratio = request.getParameter("log_ratio");
 			if (log_ratio == null || log_ratio.equals("")) {
@@ -85,7 +86,8 @@ public class TranscriptomicsGene extends GenericPortlet {
 			request.setAttribute("contextId", contextId);
 			request.setAttribute("expId", expId);
 			request.setAttribute("sampleId", sampleId);
-			request.setAttribute("colId", colId);
+			request.setAttribute("wsExperimentId", wsExperimentId);
+			request.setAttribute("wsSampleId", wsSampleId);
 			request.setAttribute("log_ratio", log_ratio);
 			request.setAttribute("zscore", zscore);
 			request.setAttribute("keyword", keyword);
@@ -106,26 +108,7 @@ public class TranscriptomicsGene extends GenericPortlet {
 		PrintWriter writer = resp.getWriter();
 		JSONObject jsonResult = new JSONObject();
 
-		// need to handle polyomic token
-		String token = null;
-		if (req.getUserPrincipal() != null) {
-			String userName = req.getUserPrincipal().getName();
-			PolyomicHandler polyomic = new PolyomicHandler();
-			PortletSession p_session = req.getPortletSession(true);
-			token = (String) p_session.getAttribute("PolyomicAuthToken", PortletSession.APPLICATION_SCOPE);
-
-			if (token == null) {
-				polyomic.authenticate(userName);
-				token = polyomic.getAuthenticationToken();
-				p_session.setAttribute("PolyomicAuthToken", token, PortletSession.APPLICATION_SCOPE);
-			}
-		}
-
-		if (token == null) {
-			token = "";
-		}
-
-		// end of polyomic token handling. Added by Harry
+		String token = getAuthorizationToken(req);
 
 		if (callType != null) {
 			if (callType.equals("saveParams")) {
@@ -160,8 +143,8 @@ public class TranscriptomicsGene extends GenericPortlet {
 
 				String expId = req.getParameter("expId");
 				String sampleId = req.getParameter("sampleId");
-				String colId = req.getParameter("colId");
-				String colsampleId = req.getParameter("colsampleId");
+				String wsExperimentId = req.getParameter("wsExperimentId");
+				String wsSampleId = req.getParameter("wsSampleId");
 				String keyword = req.getParameter("keyword");
 				SolrInterface solr = new SolrInterface();
 
@@ -176,12 +159,12 @@ public class TranscriptomicsGene extends GenericPortlet {
 
 				// Read from JSON if collection parameter is there
 				ExpressionDataCollection parser = null;
-				if (colId != null && !colId.equals("")) {
+				if (wsExperimentId != null && !wsExperimentId.equals("")) {
 
-					parser = new ExpressionDataCollection(colId, token);
+					parser = new ExpressionDataCollection(wsExperimentId, token);
 					parser.read(ExpressionDataCollection.CONTENT_SAMPLE);
-					if (colsampleId != null && !colsampleId.equals("")) {
-						parser.filter(colsampleId, ExpressionDataCollection.CONTENT_SAMPLE);
+					if (wsSampleId != null && !wsSampleId.equals("")) {
+						parser.filter(wsSampleId, ExpressionDataCollection.CONTENT_SAMPLE);
 					}
 					// Append samples from collection to samples from DB
 					sample = parser.append(sample, ExpressionDataCollection.CONTENT_SAMPLE);
@@ -202,11 +185,11 @@ public class TranscriptomicsGene extends GenericPortlet {
 					expression = solr.getTranscriptomicsGenes(sampleId, expId, keyword);
 				}
 
-				if (colId != null && !colId.equals("")) {
+				if (wsExperimentId != null && !wsExperimentId.equals("")) {
 
 					parser.read(ExpressionDataCollection.CONTENT_EXPRESSION);
-					if (colsampleId != null && !colsampleId.equals(""))
-						parser.filter(colsampleId, ExpressionDataCollection.CONTENT_EXPRESSION);
+					if (wsSampleId != null && !wsSampleId.equals(""))
+						parser.filter(wsSampleId, ExpressionDataCollection.CONTENT_EXPRESSION);
 
 					// Append expression from collection to expression from DB
 					expression = parser.append(expression, ExpressionDataCollection.CONTENT_EXPRESSION);
@@ -492,5 +475,17 @@ public class TranscriptomicsGene extends GenericPortlet {
 		}
 
 		return results;
+	}
+
+	public String getAuthorizationToken(PortletRequest request) {
+		String token = null;
+
+		PortletSession session = request.getPortletSession(true);
+
+		if (session.getAttribute("authorizationToken", PortletSession.APPLICATION_SCOPE) != null) {
+			token = (String) session.getAttribute("authorizationToken", PortletSession.APPLICATION_SCOPE);
+		}
+
+		return token;
 	}
 }

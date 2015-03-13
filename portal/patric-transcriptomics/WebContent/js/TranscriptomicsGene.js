@@ -2,15 +2,15 @@ var rows = [], cols = [], giMax;
 
 function TranscriptomicsGeneStateObject(windowID, serveResource, getContextPath, cType, cId, keyword) {
 	// save initial values
-	this.windowID = windowID, this.serveURL = serveResource, this.contextPath = getContextPath, this.cType = cType, this.cId = cId, this.keyword = keyword, this.duration = defaultDuration, this.expId = '', this.sampleId = '', this.colId = '', this.colsampleId = '', this.sampleFilter = '', this.samplePIds = [], this.filterOffset = 0, this.regex = '', this.regexGN = '', this.significantGenes = 'Y', this.upFold = 0, this.downFold = 0, this.upZscore = 0, this.downZscore = 0, this.ClusterRowOrder = [], this.ClusterColumnOrder = [], this.heatmapState = null, this.heatmapAxis = 'Transpose', this.colorScheme = 'rgb', this.messageWindow = null, this.clusterWindow = null;
+	this.windowID = windowID, this.serveURL = serveResource, this.contextPath = getContextPath, this.cType = cType, this.cId = cId, this.keyword = keyword, this.duration = defaultDuration, this.expId = '', this.sampleId = '', this.wsExperimentId = '', this.wsSampleId = '', this.sampleFilter = '', this.samplePIds = [], this.filterOffset = 0, this.regex = '', this.regexGN = '', this.significantGenes = 'Y', this.upFold = 0, this.downFold = 0, this.upZscore = 0, this.downZscore = 0, this.ClusterRowOrder = [], this.ClusterColumnOrder = [], this.heatmapState = null, this.heatmapAxis = 'Transpose', this.colorScheme = 'rgb', this.messageWindow = null, this.clusterWindow = null;
 }
 
-function TranscriptomicsGeneOnReady(windowID, resourceURL, contextPath, cType, cId, sampleId, expId, colId, log_ratio, zscore, keyword) {
+function TranscriptomicsGeneOnReady(windowID, resourceURL, contextPath, cType, cId, sampleId, expId, wsExperimentId, wsSampleId, log_ratio, zscore, keyword) {
 	addWindowID(windowID);
 	var stateObject = new TranscriptomicsGeneStateObject(windowID, resourceURL, contextPath, cType, cId, keyword);
 	loadStateObject(windowID, stateObject);
 	idForHeatmap = windowID;
-	scanURL(stateObject, sampleId, expId, colId, log_ratio, zscore);
+	scanURL(stateObject, sampleId, expId, wsExperimentId, wsSampleId, log_ratio, zscore);
 	createMainPanel(windowID, stateObject);
 	createLeftBottomItems(windowID);
 	createSampleGrid(windowID);
@@ -109,10 +109,11 @@ function createMainPanel(windowID, stateObject) {"use strict";
 	});
 }
 
-function scanURL(stateObject, sampleId, expId, colId, log_ratio, zscore) {"use strict";
+function scanURL(stateObject, sampleId, expId, wsExperimentId, wsSampleId, log_ratio, zscore) {"use strict";
 
-	var colIds = colId.split(","), colsampleIds, subIds, i, j, collectionId = [], collectionSampleId = [], l = log_ratio, z = zscore;
-
+//	var colIds = colId.split(","), colsampleIds, subIds, i, j, collectionId = [], collectionSampleId = [],
+    var l = log_ratio, z = zscore;
+/*
 	for ( i = 0; i < colIds.length; i++) {
 		subIds = colIds[i].split(":");
 		collectionId.push(subIds[0]);
@@ -123,9 +124,11 @@ function scanURL(stateObject, sampleId, expId, colId, log_ratio, zscore) {"use s
 			}
 		}
 	}
-
-	stateObject.colId = collectionId.join(",");
-	stateObject.colsampleId = collectionSampleId.join(",");
+*/
+//	stateObject.colId = collectionId.join(",");
+//	stateObject.colsampleId = collectionSampleId.join(",");
+    stateObject.wsExperimentId = wsExperimentId;
+    stateObject.wsSampleId = wsSampleId;
 	stateObject.upZscore = z || 0;
 	stateObject.downZscore = 0 - stateObject.upZscore;
 	stateObject.upFold = l || 0;
@@ -451,8 +454,8 @@ function loadTables(windowID) {"use strict";
 			callType : "getTables",
 			sampleId : stateObject.sampleId,
 			expId : stateObject.expId,
-			colId : stateObject.colId,
-			colsampleId : stateObject.colsampleId,
+			wsExperimentId : stateObject.wsExperimentId,
+			wsSampleId : stateObject.wsSampleId,
 			windowID : windowID,
 			keyword: stateObject.keyword?stateObject.keyword:""
 		},
