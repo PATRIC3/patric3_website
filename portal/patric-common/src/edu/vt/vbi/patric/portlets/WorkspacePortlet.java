@@ -210,6 +210,10 @@ public class WorkspacePortlet extends GenericPortlet {
 						uiPref = gson.fromJson(item.e_2, UIPreference.class);
 					}
 				}
+
+				if (uiPref == null) {
+					uiPref = new UIPreference();
+				}
 			}
 			catch (Exception e) {
 				LOGGER.error(e.getMessage(), e);
