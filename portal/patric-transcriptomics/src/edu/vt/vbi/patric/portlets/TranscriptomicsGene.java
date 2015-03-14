@@ -402,9 +402,10 @@ public class TranscriptomicsGene extends GenericPortlet {
 			genes.put(id, b);
 		}
 
-		List<String> idList = new ArrayList<>();
+		List<String> featureIdList = new ArrayList<>();
+		List<String> p2FeatureIdList = new ArrayList<>();
+
 		JSONObject temp = new JSONObject();
-		boolean hasFeatureId = false;
 
 		for (Map.Entry<String, ExpressionDataGene> entry : genes.entrySet()) {
 
@@ -420,13 +421,11 @@ public class TranscriptomicsGene extends GenericPortlet {
 			a.put("samples", value.getSamples());
 
 			if (value.hasFeatureId()) {
-				hasFeatureId = true;
-				idList.add(value.getFeatureID());
+				featureIdList.add(value.getFeatureID());
 				temp.put(value.getFeatureID(), a);
 			}
 			else {
-				hasFeatureId = false;
-				idList.add(value.getP2FeatureId());
+				p2FeatureIdList.add(value.getP2FeatureId());
 				temp.put(value.getP2FeatureId(), a);
 			}
 		}
@@ -434,16 +433,23 @@ public class TranscriptomicsGene extends GenericPortlet {
 		SolrInterface solr = new SolrInterface();
 
 		SolrQuery query = new SolrQuery("*:*");
-		if (hasFeatureId) {
-			query.addFilterQuery("feature_id:(" + StringUtils.join(idList, " OR ") + ")");
+		if (!featureIdList.isEmpty() && !p2FeatureIdList.isEmpty()) {
+			query.addFilterQuery("feature_id:(" + StringUtils.join(featureIdList, " OR ") + ") OR p2_feature_id:(" + StringUtils.join(p2FeatureIdList, " OR ") + ")");
+		}
+		else if (featureIdList.isEmpty() && !p2FeatureIdList.isEmpty()) {
+			query.addFilterQuery("p2_feature_id:(" + StringUtils.join(p2FeatureIdList, " OR ") + ")");
+		}
+		else if (!featureIdList.isEmpty() && p2FeatureIdList.isEmpty()) {
+			query.addFilterQuery("feature_id:(" + StringUtils.join(featureIdList, " OR ") + ")");
 		}
 		else {
-			query.addFilterQuery("p2_feature_id:(" + StringUtils.join(idList, " OR ") + ")");
+			// this should not occur
+			query.addFilterQuery("feature_id:1");
 		}
 		query.setFields("feature_id,p2_feature_id,strand,product,accession,start,end,seed_id,alt_locus_tag,genome_name,gene");
-		query.setRows(idList.size());
+		query.setRows(featureIdList.size() + p2FeatureIdList.size());
 
-		LOGGER.trace("getExperimentStats:{}", query.toString());
+		LOGGER.debug("getExperimentStats:{}", query.toString());
 
 		try {
 			QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query, SolrRequest.METHOD.POST);
@@ -451,12 +457,13 @@ public class TranscriptomicsGene extends GenericPortlet {
 
 			for (GenomeFeature feature : features) {
 				JSONObject json;
-				if (hasFeatureId) {
-					json = (JSONObject) temp.get(feature.getId());
-				}
-				else {
+
+				json = (JSONObject) temp.get(feature.getId());
+				if (json == null) {
 					json = (JSONObject) temp.get("" + feature.getP2FeatureId());
 				}
+
+				json.put("feature_id", feature.getId());
 				json.put("strand", feature.getStrand());
 				json.put("patric_product", feature.getProduct());
 				json.put("patric_accession", feature.getAccession());
