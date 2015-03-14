@@ -449,7 +449,7 @@ public class TranscriptomicsGene extends GenericPortlet {
 		query.setFields("feature_id,p2_feature_id,strand,product,accession,start,end,seed_id,alt_locus_tag,genome_name,gene");
 		query.setRows(featureIdList.size() + p2FeatureIdList.size());
 
-		LOGGER.debug("getExperimentStats:{}", query.toString());
+		LOGGER.trace("getExperimentStats:{}", query.toString());
 
 		try {
 			QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query, SolrRequest.METHOD.POST);
