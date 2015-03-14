@@ -7,7 +7,7 @@
         "accessory": 16284,
         "core": 914,
         "functional": 9947,
-        "genomes": 419,
+        "genomes": 474,
         "hypothetical": 7251,
         "pathogen": "Bacillus",
         "total": 17198
@@ -16,7 +16,7 @@
         "accessory": 1134,
         "core": 728,
         "functional": 1733,
-        "genomes": 51,
+        "genomes": 68,
         "hypothetical": 129,
         "pathogen": "Bartonella",
         "total": 1862
@@ -25,7 +25,7 @@
         "accessory": 1255,
         "core": 131,
         "functional": 916,
-        "genomes": 110,
+        "genomes": 111,
         "hypothetical": 470,
         "pathogen": "Borrelia",
         "total": 1386
@@ -34,7 +34,7 @@
         "accessory": 1949,
         "core": 1961,
         "functional": 2738,
-        "genomes": 433,
+        "genomes": 464,
         "hypothetical": 1172,
         "pathogen": "Brucella",
         "total": 3910
@@ -43,7 +43,7 @@
         "accessory": 13131,
         "core": 512,
         "functional": 7786,
-        "genomes": 173,
+        "genomes": 222,
         "hypothetical": 5857,
         "pathogen": "Burkholderia",
         "total": 13643
@@ -52,7 +52,7 @@
         "accessory": 2988,
         "core": 719,
         "functional": 2844,
-        "genomes": 177,
+        "genomes": 202,
         "hypothetical": 863,
         "pathogen": "Campylobacter",
         "total": 3707
@@ -70,7 +70,7 @@
         "accessory": 15924,
         "core": 405,
         "functional": 9561,
-        "genomes": 173,
+        "genomes": 209,
         "hypothetical": 6768,
         "pathogen": "Clostridium",
         "total": 16329
@@ -88,7 +88,7 @@
         "accessory": 392,
         "core": 529,
         "functional": 766,
-        "genomes": 7,
+        "genomes": 15,
         "hypothetical": 155,
         "pathogen": "Ehrlichia",
         "total": 921
@@ -97,7 +97,7 @@
         "accessory": 9258,
         "core": 2547,
         "functional": 7702,
-        "genomes": 1660,
+        "genomes": 2208,
         "hypothetical": 4103,
         "pathogen": "Escherichia",
         "total": 11805
@@ -106,7 +106,7 @@
         "accessory": 1300,
         "core": 1006,
         "functional": 1768,
-        "genomes": 42,
+        "genomes": 51,
         "hypothetical": 538,
         "pathogen": "Francisella",
         "total": 2306
@@ -115,7 +115,7 @@
         "accessory": 2651,
         "core": 830,
         "functional": 2396,
-        "genomes": 407,
+        "genomes": 425,
         "hypothetical": 1085,
         "pathogen": "Helicobacter",
         "total": 3481
@@ -124,7 +124,7 @@
         "accessory": 3011,
         "core": 1061,
         "functional": 2983,
-        "genomes": 82,
+        "genomes": 90,
         "hypothetical": 1089,
         "pathogen": "Listeria",
         "total": 4072
@@ -133,7 +133,7 @@
         "accessory": 15931,
         "core": 1544,
         "functional": 10558,
-        "genomes": 2181,
+        "genomes": 2390,
         "hypothetical": 6917,
         "pathogen": "Mycobacterium",
         "total": 17475
@@ -142,7 +142,7 @@
         "accessory": 1394,
         "core": 569,
         "functional": 1133,
-        "genomes": 56,
+        "genomes": 60,
         "hypothetical": 830,
         "pathogen": "Rickettsia",
         "total": 1963
@@ -151,7 +151,7 @@
         "accessory": 7504,
         "core": 2705,
         "functional": 7635,
-        "genomes": 632,
+        "genomes": 964,
         "hypothetical": 2574,
         "pathogen": "Salmonella",
         "total": 10209
@@ -160,7 +160,7 @@
         "accessory": 4631,
         "core": 2409,
         "functional": 5212,
-        "genomes": 109,
+        "genomes": 111,
         "hypothetical": 1828,
         "pathogen": "Shigella",
         "total": 7040
@@ -169,7 +169,7 @@
         "accessory": 5589,
         "core": 1696,
         "functional": 4828,
-        "genomes": 3115,
+        "genomes": 4276,
         "hypothetical": 2457,
         "pathogen": "Staphylococcus",
         "total": 7285
@@ -178,7 +178,7 @@
         "accessory": 10993,
         "core": 635,
         "functional": 6901,
-        "genomes": 1185,
+        "genomes": 1384,
         "hypothetical": 4727,
         "pathogen": "Streptococcus",
         "total": 11628
@@ -187,7 +187,7 @@
         "accessory": 10206,
         "core": 1658,
         "functional": 7819,
-        "genomes": 537,
+        "genomes": 579,
         "hypothetical": 4045,
         "pathogen": "Vibrio",
         "total": 11864
@@ -196,7 +196,7 @@
         "accessory": 4513,
         "core": 2109,
         "functional": 5070,
-        "genomes": 147,
+        "genomes": 150,
         "hypothetical": 1552,
         "pathogen": "Yersinia",
         "total": 6622
@@ -1321,7 +1321,7 @@
       {
         "bottom_left_headline": null,
         "bottom_right_headline": null,
-        "content": "<p>Data in PATRIC is organized in a similar fashion at various taxonomic levels throughout the website.  Follow along in this <i>Mycobacterium</i> example and see what data is available and where to find it for your favorite organisms/genomes/genes.</p>\n",
+        "content": "<p>Data in PATRIC is organized in a similar fashion at various taxonomic levels throughout the website.\u00c2  Follow along in this <i>Mycobacterium</i> example and see what data is available and where to find it for your favorite organisms/genomes/genes.</p>\n",
         "headline": null,
         "image": "http://enews.patricbrc.org/wp-content/uploads/2013/07/data-orgnaization-overview-thumbnail.png",
         "subtitle": "",
