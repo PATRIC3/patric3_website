@@ -97,6 +97,8 @@ function FigFamSorterOnReady(windowID, resourceURL, contextPath, cType, cId, key
 	if ((idText != null) && (0 < idText.length)) {
 		stateObject.genomeIds = idText.split(",");
 		getGenomeNames(windowID, stateObject);
+		stateObject.cType = cType;
+		stateObject.cId = cId;
 	} else if (cType == "genome") {
 		stateObject.cType = cType;
 		stateObject.cId = cId;

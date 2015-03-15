@@ -97,7 +97,7 @@ Ext.onReady(function(){
 		id:'tb',
 		renderTo: 'keyword',
 		width: 285,
-		height: 50
+		height: 200
 	});
 });
 
@@ -160,7 +160,7 @@ function submitToFigFamSorter(idList) {
 		timeout: 600000,
 		params: {callType: "toSorter", genomeIds: idList, keyword:EncodeKeyword(value.join(" OR "))},
 		success: function(rs) {
-			document.location.href = "FIGfam?dm=result&pk=" + rs.responseText + "#gs_0=0";
+			document.location.href = "FIGfam?cType=taxon&cId=131567&dm=result&pk=" + rs.responseText + "#gs_0=0";
 		}
 	});
 }
