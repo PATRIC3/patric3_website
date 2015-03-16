@@ -15,10 +15,10 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.portlets;
 
+import com.google.gson.Gson;
 import edu.vt.vbi.ci.util.CommandResults;
 import edu.vt.vbi.ci.util.ExecUtilities;
 import edu.vt.vbi.patric.common.SiteHelper;
-import edu.vt.vbi.patric.dao.ResultType;
 import edu.vt.vbi.patric.proteinfamily.FIGfamData;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -74,7 +74,7 @@ public class FIGfam extends GenericPortlet {
 		prd.include(request, response);
 	}
 
-	private void getGenomeIds(ResourceRequest req, ResultType key) {
+	private void getGenomeIds(ResourceRequest req, Map<String, String> key) {
 		String result = req.getParameter("genomeIds");
 		FIGfamData access = new FIGfamData();
 		if (result != null && !result.equals("")) {
@@ -127,7 +127,7 @@ public class FIGfam extends GenericPortlet {
 		if (callType != null) {
 			switch (callType) {
 			case "toSorter": {
-				ResultType key = new ResultType();
+				Map<String, String> key = new HashMap<>();
 				// Added by OralDALAY
 
 				if (req.getParameter("keyword") != null && !req.getParameter("keyword").equals(""))
@@ -136,8 +136,9 @@ public class FIGfam extends GenericPortlet {
 				getGenomeIds(req, key);
 				Random g = new Random();
 				int random = g.nextInt();
+				Gson gson = new Gson();
 				PortletSession session = req.getPortletSession(true);
-				session.setAttribute("key" + random, key);
+				session.setAttribute("key" + random, gson.toJson(key, Map.class), PortletSession.APPLICATION_SCOPE);
 				PrintWriter writer = resp.getWriter();
 				writer.write("" + random);
 				writer.close();
@@ -158,27 +159,29 @@ public class FIGfam extends GenericPortlet {
 				break;
 			}
 			case "toAligner": {
-				ResultType key = new ResultType();
+				Map<String, String> key = new HashMap<>();
 				setKeyValues("featureIds", req, key);
 				setKeyValues("figfamId", req, key);
 				setKeyValues("product", req, key);
 				Random g = new Random();
 				int random = g.nextInt();
-				PortletSession sess = req.getPortletSession(true);
-				sess.setAttribute("key" + random, key, PortletSession.APPLICATION_SCOPE);
+				Gson gson = new Gson();
+				PortletSession session = req.getPortletSession(true);
+				session.setAttribute("key" + random, gson.toJson(key, Map.class), PortletSession.APPLICATION_SCOPE);
 				PrintWriter writer = resp.getWriter();
 				writer.write("" + random);
 				writer.close();
 				break;
 			}
 			case "toDetails": {
-				ResultType key = new ResultType();
+				Map<String, String> key = new HashMap<>();
 				setKeyValues("genomeIds", req, key);
 				setKeyValues("figfamIds", req, key);
 				Random g = new Random();
 				int random = g.nextInt();
-				PortletSession sess = req.getPortletSession(true);
-				sess.setAttribute("key" + random, key, PortletSession.APPLICATION_SCOPE);
+				Gson gson = new Gson();
+				PortletSession session = req.getPortletSession(true);
+				session.setAttribute("key" + random, gson.toJson(key, Map.class), PortletSession.APPLICATION_SCOPE);
 				PrintWriter writer = resp.getWriter();
 				writer.write("" + random);
 				writer.close();
@@ -245,8 +248,9 @@ public class FIGfam extends GenericPortlet {
 				while (random == 0) {
 					random = g.nextInt();
 				}
-				PortletSession sess = req.getPortletSession(true);
-				sess.setAttribute(keyType + random, key);
+				Gson gson = new Gson();
+				PortletSession session = req.getPortletSession(true);
+				session.setAttribute(keyType + random, gson.toJson(key, Map.class), PortletSession.APPLICATION_SCOPE);
 				PrintWriter writer = resp.getWriter();
 				writer.write("" + random);
 				writer.close();
@@ -254,11 +258,12 @@ public class FIGfam extends GenericPortlet {
 			}
 			case "getState": {
 				PrintWriter writer = resp.getWriter();
-				PortletSession sess = req.getPortletSession(true);
+				PortletSession session = req.getPortletSession(true);
+				Gson gson = new Gson();
 				String keyType = req.getParameter("keyType");
 				String random = req.getParameter("random");
 				if ((random != null) && (keyType != null)) {
-					Map<String, String> key = (Map) sess.getAttribute(keyType + random);
+					Map<String, String> key = gson.fromJson((String) session.getAttribute(keyType + random, PortletSession.APPLICATION_SCOPE), Map.class);
 					writer.write(getKeyValue("pageAt", key));
 					writer.write("\t" + getKeyValue("syntonyId", key));
 					writer.write("\t" + getKeyValue("regex", key));

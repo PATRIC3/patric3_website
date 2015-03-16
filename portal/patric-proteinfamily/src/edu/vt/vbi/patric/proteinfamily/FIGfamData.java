@@ -15,12 +15,12 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.proteinfamily;
 
+import com.google.gson.Gson;
 import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.beans.GenomeFeature;
 import edu.vt.vbi.patric.beans.Taxonomy;
 import edu.vt.vbi.patric.common.SolrCore;
 import edu.vt.vbi.patric.common.SolrInterface;
-import edu.vt.vbi.patric.dao.ResultType;
 import edu.vt.vbi.patric.msa.Aligner;
 import edu.vt.vbi.patric.msa.SequenceData;
 import org.apache.commons.lang.StringUtils;
@@ -94,7 +94,7 @@ public class FIGfamData {
 				solr_query.setRows((int) sdl.getNumFound());
 				solr_query.addSort("accession", SolrQuery.ORDER.asc);
 				solr_query.addSort("start", SolrQuery.ORDER.asc);
-//				solr_query.addSort("seed_id", SolrQuery.ORDER.asc);
+				//				solr_query.addSort("seed_id", SolrQuery.ORDER.asc);
 			}
 			catch (SolrServerException e) {
 				LOGGER.error(e.getMessage(), e);
@@ -363,8 +363,9 @@ public class FIGfamData {
 		query.setRows(500000).addSort("genome_name", SolrQuery.ORDER.asc);
 
 		String pk = req.getParameter("param_key");
+		Gson gson = new Gson();
 		PortletSession session = req.getPortletSession(true);
-		ResultType key = (ResultType) session.getAttribute("key" + pk);
+		Map<String, String> key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), Map.class);
 
 		if (key != null && key.containsKey("genomeIds") && !key.get("genomeIds").equals("")) {
 			query.addFilterQuery("genome_id:(" + key.get("genomeIds").replaceAll(",", " OR ") + ")");
@@ -407,7 +408,7 @@ public class FIGfamData {
 			QueryResponse qr = solr.getSolrServer(SolrCore.GENOME).query(solr_query, SolrRequest.METHOD.POST);
 
 			genomeIdList = new ArrayList<>();
-			for (SolrDocument doc: qr.getResults()) {
+			for (SolrDocument doc : qr.getResults()) {
 				genomeIdList.add(doc.get("genome_id").toString());
 			}
 		}
@@ -449,7 +450,7 @@ public class FIGfamData {
 							index = genomeIdList.indexOf(pivotGenome.getValue().toString());
 							hex = Integer.toHexString(pivotGenome.getCount());
 							genomeIdsStr[index] = hex.length() < 2 ? "0" + hex : hex;
-//							LOGGER.debug("{},{},{},{}", pivotGenome.getValue(), index, hex, genomeIdsStr);
+							//							LOGGER.debug("{},{},{},{}", pivotGenome.getValue(), index, hex, genomeIdsStr);
 							count += pivotGenome.getCount();
 						}
 
@@ -536,6 +537,44 @@ public class FIGfamData {
 		}
 	}
 
+	public String getSolrQuery(ResourceRequest req) {
+		String keyword = "";
+
+		if (req.getParameter("keyword") != null && !req.getParameter("keyword").equals("")) {
+			keyword += "(" + solr.KeywordReplace(req.getParameter("keyword")) + ")";
+		}
+
+		String cType = req.getParameter("context_type");
+		String cId = req.getParameter("context_id");
+		if (cType != null && cType.equals("taxon") && cId != null && !cId.equals("")) {
+			keyword += SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + cId);
+		}
+		else {
+			String listText = req.getParameter("genomeIds");
+
+			if (listText != null) {
+				if (req.getParameter("keyword") != null && !req.getParameter("keyword").equals("")) {
+					keyword += " AND ";
+				}
+				keyword += "(genome_id:(" + listText.replaceAll(",", " OR ") + "))";
+			}
+		}
+
+		String pk = req.getParameter("param_key");
+		Gson gson = new Gson();
+		PortletSession session = req.getPortletSession(true);
+		Map<String, String> key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), Map.class);
+
+		if (key != null && key.containsKey("genomeIds") && !key.get("genomeIds").equals("")) {
+			if (!keyword.equals("")) {
+				keyword += " AND ";
+			}
+			keyword += "genome_id:(" + key.get("genomeIds").replaceAll(",", " OR ") + ")";
+		}
+
+		return keyword;
+	}
+
 	private class SyntonyOrder implements Comparable<SyntonyOrder> {
 		String groupId;
 
@@ -579,42 +618,5 @@ public class FIGfamData {
 			}
 			return result;
 		}
-	}
-
-	public String getSolrQuery(ResourceRequest req) {
-		String keyword = "";
-
-		if (req.getParameter("keyword") != null && !req.getParameter("keyword").equals("")) {
-			keyword += "(" + solr.KeywordReplace(req.getParameter("keyword")) + ")";
-		}
-
-		String cType = req.getParameter("context_type");
-		String cId = req.getParameter("context_id");
-		if (cType != null && cType.equals("taxon") && cId != null && !cId.equals("")) {
-			keyword += SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + cId);
-		}
-		else {
-			String listText = req.getParameter("genomeIds");
-
-			if (listText != null) {
-				if (req.getParameter("keyword") != null && !req.getParameter("keyword").equals("")) {
-					keyword += " AND ";
-				}
-				keyword += "(genome_id:(" + listText.replaceAll(",", " OR ") + "))";
-			}
-		}
-
-		String pk = req.getParameter("param_key");
-		PortletSession session = req.getPortletSession(true);
-		ResultType key = (ResultType) session.getAttribute("key" + pk);
-
-		if (key != null && key.containsKey("genomeIds") && !key.get("genomeIds").equals("")) {
-			if (!keyword.equals("")) {
-				keyword += " AND ";
-			}
-			keyword += "genome_id:(" + key.get("genomeIds").replaceAll(",", " OR ") + ")";
-		}
-
-		return keyword;
 	}
 }
