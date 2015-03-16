@@ -21,6 +21,8 @@ String genomeId = (String) request.getAttribute("genomeId");
 <form id="fTableForm" action="<portlet:resourceURL />&need=download" method="post">
 <input type="hidden" id="tablesource" name="tablesource" value="CompPathwayFinder" />
 <input type="hidden" id="pk" name="pk" value="<%=(pk!=null)?pk:"" %>" />
+<input type="hidden" id="cType" name="cType" value="<%=contextType %>" />
+<input type="hidden" id="cId" name="cId" value="<%=contextId %>"/>
 <input type="hidden" id="search_on" name="search_on" value="<%=(searchOn!=null)?searchOn:"" %>" />
 <input type="hidden" id="keyword" name="keyword" value="<%=(keyword!=null)?keyword:"" %>"/>	
 <input type="hidden" id="genomeId" name="genomeId" value="<%=(genomeId!=null)?genomeId:"" %>" />

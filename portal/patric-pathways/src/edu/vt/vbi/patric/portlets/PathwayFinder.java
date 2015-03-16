@@ -15,12 +15,12 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.portlets;
 
+import com.google.gson.Gson;
 import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.common.ExcelHelper;
 import edu.vt.vbi.patric.common.SiteHelper;
 import edu.vt.vbi.patric.common.SolrCore;
 import edu.vt.vbi.patric.common.SolrInterface;
-import edu.vt.vbi.patric.dao.ResultType;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest;
@@ -65,6 +65,7 @@ public class PathwayFinder extends GenericPortlet {
 		new SiteHelper().setHtmlMetaElements(request, response, "Comparative Pathway Tool");
 
 		String mode = request.getParameter("display_mode");
+		Gson gson = new Gson();
 
 		if (mode != null && mode.equals("result")) {
 
@@ -77,7 +78,7 @@ public class PathwayFinder extends GenericPortlet {
 			String pathwayId = request.getParameter("map");
 
 			PortletSession session = request.getPortletSession(true);
-			ResultType key = (ResultType) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
+			Map<String, String> key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), Map.class);
 
 			String searchOn = "";
 			String keyword = "";
@@ -158,6 +159,7 @@ public class PathwayFinder extends GenericPortlet {
 	public void serveResource(ResourceRequest request, ResourceResponse response) throws PortletException, IOException {
 
 		String sraction = request.getParameter("sraction");
+		Gson gson = new Gson();
 
 		if (sraction != null && sraction.equals("save_params")) {
 
@@ -168,7 +170,7 @@ public class PathwayFinder extends GenericPortlet {
 			String genomeId = request.getParameter("genomeId");
 			String feature_id = request.getParameter("feature_id");
 
-			ResultType key = new ResultType();
+			Map<String, String> key = new HashMap<>();
 
 			if (search_on != null) {
 				key.put("search_on", search_on.trim());
@@ -203,7 +205,7 @@ public class PathwayFinder extends GenericPortlet {
 
 			LOGGER.debug("PathwayFinder params:{}", key.toString());
 			PortletSession session = request.getPortletSession(true);
-			session.setAttribute("key" + random, key, PortletSession.APPLICATION_SCOPE);
+			session.setAttribute("key" + random, gson.toJson(key, Map.class), PortletSession.APPLICATION_SCOPE);
 
 			PrintWriter writer = response.getWriter();
 			writer.write("" + random);
@@ -215,7 +217,7 @@ public class PathwayFinder extends GenericPortlet {
 
 			String pk = request.getParameter("pk");
 			PortletSession session = request.getPortletSession();
-			ResultType key = (ResultType) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
+			Map<String, String> key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), Map.class);
 
 			switch (need) {
 			case "0":

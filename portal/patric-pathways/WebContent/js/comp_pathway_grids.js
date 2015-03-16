@@ -415,31 +415,17 @@ function renderAvgECCount(value, metadata, record, rowIndex, colIndex, store) {
 
 function renderPathwayName(value, metadata, record, rowIndex, colIndex, store){
 	metadata.tdAttr = 'data-qtip="'+record.data.pathway_name+'" data-qclass="x-tip"';
-	if(!Ext.getDom("pk"))
-		return Ext.String.format('<a href=CompPathwayMap?cType={0}&amp;cId={1}&amp;dm=&amp;feature_id=&amp;ec_number=&amp;map={2}&amp;pk={3}&amp;algorithm={4}>{5}</a>', Ext.getDom("cType").value, Ext.getDom("cId").value, record.data.pathway_id, '', record.data.algorithm, record.data.pathway_name);
-	else
-		return Ext.String.format('<a href=CompPathwayMap?cType=&amp;cId=&amp;dm=&amp;feature_id=&amp;ec_number=&amp;map={0}&amp;pk={1}&amp;algorithm={2}>{3}</a>', record.data.pathway_id, Ext.getDom("pk").value, record.data.algorithm, record.data.pathway_name);
-	
+	return Ext.String.format('<a href=CompPathwayMap?cType={0}&amp;cId={1}&amp;dm=&amp;feature_id=&amp;ec_number=&amp;map={2}&amp;pk={3}&amp;algorithm={4}>{5}</a>', Ext.getDom("cType").value, Ext.getDom("cId").value, record.data.pathway_id, '', record.data.algorithm, record.data.pathway_name);
 }
 
 function renderPathwayFeature(value, metadata, record, rowIndex, colIndex, store){
 	metadata.tdAttr = 'data-qtip="'+record.data.pathway_name+'" data-qclass="x-tip"';
-	if(!Ext.getDom("pk"))
-		return Ext.String.format('<a href=CompPathwayMap?cType={0}&amp;cId={1}&amp;dm=feature&amp;feature_id={2}&amp;ec_number=&amp;map={3}&amp;algorithm={4}>{5}</a>', Ext.getDom("cType").value, Ext.getDom("cId").value, record.data.feature_id,  record.data.pathway_id, record.data.algorithm, record.data.pathway_name);
-
-	else
-		return Ext.String.format('<a href=CompPathwayMap?cType=&amp;cId=&amp;dm=feature&amp;feature_id={0}&amp;ec_number=&amp;map={1}&amp;pk={2}&amp;algorithm={3}>{4}</a>', record.data.feature_id, record.data.pathway_id,  Ext.getDom("pk").value, record.data.algorithm, record.data.pathway_name);
-	
+	return Ext.String.format('<a href=CompPathwayMap?cType={0}&amp;cId={1}&amp;dm=feature&amp;feature_id={2}&amp;ec_number=&amp;map={3}&amp;algorithm={4}>{5}</a>', Ext.getDom("cType").value, Ext.getDom("cId").value, record.data.feature_id,  record.data.pathway_id, record.data.algorithm, record.data.pathway_name);
 }
 
 function renderPathwayEc(value, metadata, record, rowIndex, colIndex, store){
 	metadata.tdAttr = 'data-qtip="'+record.data.pathway_name+'" data-qclass="x-tip"';
-	if(!Ext.getDom("pk"))
-		return Ext.String.format('<a href=CompPathwayMap?cType={0}&amp;cId={1}&amp;dm=ec&amp;ec_number={2}&amp;feature_id=&amp;map={3}&amp;pk=&amp;algorithm={4}>{5}</a>', Ext.getDom("cType").value, Ext.getDom("cId").value, record.data.ec_number, record.data.pathway_id, record.data.algorithm, record.data.pathway_name);
-		
-	else
-		return Ext.String.format('<a href=CompPathwayMap?cType=&amp;cId=&amp;dm=ec&amp;ec_number={0}&amp;feature_id=&amp;map={1}&amp;pk={2}&amp;algorithm={3}>{4}</a>', record.data.ec_number, record.data.pathway_id,  Ext.getDom("pk").value, record.data.algorithm, record.data.pathway_name);
-	
+	return Ext.String.format('<a href=CompPathwayMap?cType={0}&amp;cId={1}&amp;dm=ec&amp;ec_number={2}&amp;feature_id=&amp;map={3}&amp;pk=&amp;algorithm={4}>{5}</a>', Ext.getDom("cType").value, Ext.getDom("cId").value, record.data.ec_number, record.data.pathway_id, record.data.algorithm, record.data.pathway_name);
 }
 
 function renderGeneCountEc(value, metadata, record, rowIndex, colIndex, store){

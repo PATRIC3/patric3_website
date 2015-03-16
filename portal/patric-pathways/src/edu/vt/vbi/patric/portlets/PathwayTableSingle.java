@@ -15,10 +15,10 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.portlets;
 
+import com.google.gson.Gson;
 import edu.vt.vbi.patric.beans.GenomeFeature;
 import edu.vt.vbi.patric.common.SolrCore;
 import edu.vt.vbi.patric.common.SolrInterface;
-import edu.vt.vbi.patric.dao.ResultType;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest;
@@ -33,9 +33,7 @@ import javax.portlet.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class PathwayTableSingle extends GenericPortlet {
 
@@ -45,6 +43,38 @@ public class PathwayTableSingle extends GenericPortlet {
 	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 		response.setContentType("text/html");
 		response.setTitle("Pathway Table");
+
+		// String contextType = request.getParameter("context_type");
+		// String contextId = request.getParameter("context_id");
+
+		String pk = request.getParameter("param_key");
+
+		String ec_number = "", algorithm = "", map = "", genomeId = "";
+		Gson gson = new Gson();
+
+		PortletSession session = request.getPortletSession(true);
+		Map<String, String> key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), Map.class);
+
+		if (key != null && key.containsKey("algorithm")) {
+			algorithm = key.get("algorithm");
+		}
+
+		if (key != null && key.containsKey("ec_number")) {
+			ec_number = key.get("ec_number");
+		}
+
+		if (key != null && key.containsKey("map")) {
+			map = key.get("map");
+		}
+
+		if (key != null && key.containsKey("genomeId")) {
+			genomeId = key.get("genomeId");
+		}
+
+		request.setAttribute("algorithm", algorithm);
+		request.setAttribute("ec_number", ec_number);
+		request.setAttribute("map", map);
+		request.setAttribute("genomeId", genomeId);
 
 		PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/single_pathway_table.jsp");
 		prd.include(request, response);
@@ -56,6 +86,7 @@ public class PathwayTableSingle extends GenericPortlet {
 		response.setContentType("application/json");
 
 		String callType = request.getParameter("callType");
+		Gson gson = new Gson();
 
 		if (callType != null && callType.equals("savetopk")) {
 
@@ -65,7 +96,7 @@ public class PathwayTableSingle extends GenericPortlet {
 			String algorithm = request.getParameter("algorithm");
 			String ec_number = request.getParameter("ec_number");
 
-			ResultType key = new ResultType();
+			Map<String, String> key = new HashMap<>();
 
 			if (cId != null && !cId.equals("")) {
 				key.put("genomeId", cId);
@@ -92,20 +123,20 @@ public class PathwayTableSingle extends GenericPortlet {
 			int random = g.nextInt();
 
 			PortletSession session = request.getPortletSession(true);
-			session.setAttribute("key" + random, key, PortletSession.APPLICATION_SCOPE);
+			session.setAttribute("key" + random, gson.toJson(key, Map.class), PortletSession.APPLICATION_SCOPE);
 
 			PrintWriter writer = response.getWriter();
 			writer.write("" + random);
 			writer.close();
 
 		}
-		else if (callType.equals("show")) {
+		else if (callType != null && callType.equals("show")) {
 
 			JSONObject jsonResult = new JSONObject();
 			JSONArray results = new JSONArray();
 			String pk = request.getParameter("pk");
 			PortletSession session = request.getPortletSession();
-			ResultType key = (ResultType) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
+			Map<String, String> key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), Map.class);
 
 			SolrInterface solr = new SolrInterface();
 			try {
@@ -146,58 +177,6 @@ public class PathwayTableSingle extends GenericPortlet {
 				LOGGER.error(e.getMessage(), e);
 			}
 
-			/*
-			HashMap<String, String> sort = null;
-			if (request.getParameter("sort") != null) {
-				// sorting
-				JSONParser a = new JSONParser();
-				JSONArray sorter;
-				String sort_field = "";
-				String sort_dir = "";
-				try {
-					sorter = (JSONArray) a.parse(request.getParameter("sort"));
-					sort_field += ((JSONObject) sorter.get(0)).get("property").toString();
-					sort_dir += ((JSONObject) sorter.get(0)).get("direction").toString();
-					for (int i = 1; i < sorter.size(); i++) {
-						sort_field += "," + ((JSONObject) sorter.get(i)).get("property").toString();
-					}
-				}
-				catch (ParseException e) {
-					LOGGER.error(e.getMessage(), e);
-				}
-
-				sort = new HashMap<>();
-
-				if (!sort_field.equals("") && !sort_dir.equals("")) {
-					sort.put("field", sort_field);
-					sort.put("direction", sort_dir);
-				}
-
-			}
-
-			DBPathways conn_pathways = new DBPathways();
-			int start = Integer.parseInt(request.getParameter("start"));
-			int end = start + Integer.parseInt(request.getParameter("limit"));
-			int count_total = conn_pathways.getCompPathwayFeatureCount(key.toHashMap());
-
-			List<ResultType> items = new ArrayList<>();
-
-			if (count_total > 0)
-				items = conn_pathways.getCompPathwayFeatureList(key_clone.toHashMap(), sort, start, end);
-
-			try {
-				jsonResult.put("total", count_total);
-				for (ResultType item : items) {
-					JSONObject obj = new JSONObject();
-					obj.putAll(item);
-					results.add(obj);
-				}
-				jsonResult.put("results", results);
-			}
-			catch (Exception ex) {
-				LOGGER.error(ex.getMessage(), ex);
-			}
-			*/
 			PrintWriter writer = response.getWriter();
 			jsonResult.writeJSONString(writer);
 			writer.close();

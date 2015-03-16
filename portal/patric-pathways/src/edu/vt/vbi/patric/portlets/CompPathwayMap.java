@@ -15,6 +15,7 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.portlets;
 
+import com.google.gson.Gson;
 import edu.vt.vbi.patric.common.SiteHelper;
 import edu.vt.vbi.patric.common.SolrCore;
 import edu.vt.vbi.patric.common.SolrInterface;
@@ -48,42 +49,27 @@ public class CompPathwayMap extends GenericPortlet {
 
 		new SiteHelper().setHtmlMetaElements(request, response, "Comparative Pathway Map");
 
-		//////
 		SolrInterface solr = new SolrInterface();
 
-		ResultType item;
-		ArrayList<ResultType> ecAssignments;
-		//		ArrayList<ResultType> taxongenomecounts = null;
+		String pk = request.getParameter("param_key") != null ? request.getParameter("param_key") : "";
+		String dm = request.getParameter("display_mode") != null ? request.getParameter("display_mode") : "";
+		String cType = request.getParameter("context_type") != null ? request.getParameter("context_type") : "";
+		String map = request.getParameter("map") != null ? request.getParameter("map") : "";
+		String algorithm = request.getParameter("algorithm") != null ? request.getParameter("algorithm") : "";
+		String cId = request.getParameter("context_id") != null ? request.getParameter("context_id") : "";
+		String ec_number = request.getParameter("ec_number") != null ? request.getParameter("ec_number") : "";
+		String feature_id = request.getParameter("feature_id") != null ? request.getParameter("feature_id") : "";
+		String ec_names = "";
+		String occurrences = "";
+		String genomeId = "";
+		String taxonId = "";
+		String pathway_name = "";
+		String pathway_class = "";
+		String definition = "";
 
-		String pk = request.getParameter("param_key") != null || request.getParameter("param_key") != "" ? request.getParameter("param_key") : "",
-				dm = request.getParameter("display_mode") != null || request.getParameter("display_mode") != "" ?
-						request.getParameter("display_mode") :
-						"",
-				cType = request.getParameter("context_type") != null || request.getParameter("context_type") != "" ?
-						request.getParameter("context_type") :
-						"",
-				map = request.getParameter("map") != null || request.getParameter("map") != "" ? request.getParameter("map") : "",
-				algorithm =
-						request.getParameter("algorithm") != null || request.getParameter("algorithm") != "" ? request.getParameter("algorithm") : "",
-				cId = request.getParameter("context_id") != null || request.getParameter("context_id") != "" ?
-						request.getParameter("context_id") :
-						"",
-				ec_number =
-						request.getParameter("ec_number") != null || request.getParameter("ec_number") != "" ? request.getParameter("ec_number") : "",
-				feature_id = request.getParameter("feature_id") != null || request.getParameter("feature_id") != "" ?
-						request.getParameter("feature_id") :
-						"",
-				ec_names = "",
-				occurrences = "",
-				genomeId = "",
-				taxonId = "",
-				pathway_name = "",
-				pathway_class = "",
-				definition = "";
-		//				attributes = conn_pathways.getPathwayAttributes(map);
-		int taxongenomecount_patric = 0;
-		int taxongenomecount_brc1 = 0;
-		int taxongenomecount_refseq = 0;
+		int patricGenomeCount = 0;
+		int brc1GenomeCount = 0;
+		int refseqGenomeCount = 0;
 
 		// get attributes
 		try {
@@ -104,53 +90,6 @@ public class CompPathwayMap extends GenericPortlet {
 			LOGGER.error(e.getMessage(), e);
 		}
 
-		//		if(algorithm != null && !algorithm.equals("")){
-		//			if(algorithm.equals("BRC") || algorithm.equals("Legacy BRC") || algorithm.equals("Legacy"))
-		//				algorithm = "Curation";
-		//			else if(algorithm.equals("PATRIC"))
-		//				algorithm = "RAST";
-		//		}
-
-		//		if (cType == null || cType.equals("")) {
-		//			PortletSession session = request.getPortletSession(true);
-		//			ResultType key = (ResultType) session.getAttribute("key"+pk, PortletSession.APPLICATION_SCOPE);
-		//
-		//			if (key != null && key.containsKey("genomeId") && !key.get("genomeId").equals("")){
-		//				taxonId = "";
-		//				genomeId = key.get("genomeId");
-		//				taxongenomecounts = new DBPathways().getTaxonGenomeCount(genomeId, "genomelist");
-		//			}
-		//			else {
-		//				if(key != null && key.containsKey("taxonId") && !key.get("taxonId").equals("")){
-		//					taxonId = key.get("taxonId");
-		//				}
-		//				else {
-		//					taxonId = "2";
-		//				}
-		//				taxongenomecounts = new DBPathways().getTaxonGenomeCount(taxonId, "taxon");
-		//				genomeId = "";
-		//			}
-		//
-		//			if(key != null && key.containsKey("feature_info_id")){
-		//				feature_id = key.get("feature_info_id");
-		//			}
-		//
-		//		}
-		//		else if(cType.equals("taxon")){
-		//			genomeId = "";
-		//			if (cId == null || cId == "") {
-		//				taxonId = "2";
-		//			} else {
-		//				taxonId = cId;
-		//			}
-		//			taxongenomecounts = new DBPathways().getTaxonGenomeCount(taxonId, "taxon");
-		//		}
-		//		else if(cType.equals("genome")){
-		//			taxonId = "";
-		//			genomeId = cId;
-		//			taxongenomecounts = new DBPathways().getTaxonGenomeCount(genomeId, "genome");
-		//		}
-
 		try {
 			if (cType != null && cType.equals("taxon")) {
 				taxonId = cId;
@@ -159,8 +98,9 @@ public class CompPathwayMap extends GenericPortlet {
 				genomeId = cId;
 			}
 			else {
+				Gson gson = new Gson();
 				PortletSession session = request.getPortletSession(true);
-				ResultType key = (ResultType) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
+				Map<String, String> key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), Map.class);
 
 				if (key != null && key.containsKey("genomeId") && !key.get("genomeId").equals("")) {
 					genomeId = key.get("genomeId");
@@ -189,13 +129,13 @@ public class CompPathwayMap extends GenericPortlet {
 
 			for (SolrDocument doc : sdl) {
 				if (doc.get("patric_cds") != null && !doc.get("patric_cds").toString().equals("0")) {
-					taxongenomecount_patric++;
+					patricGenomeCount++;
 				}
 				if (doc.get("brc1_cds") != null && !doc.get("brc1_cds").toString().equals("0")) {
-					taxongenomecount_brc1++;
+					brc1GenomeCount++;
 				}
 				if (doc.get("refseq_cds") != null && !doc.get("refseq_cds").toString().equals("0")) {
-					taxongenomecount_refseq++;
+					refseqGenomeCount++;
 				}
 			}
 
@@ -204,34 +144,24 @@ public class CompPathwayMap extends GenericPortlet {
 			LOGGER.error(e.getMessage(), e);
 		}
 
+		// TODO: implement with solr
 		if (dm != null && dm.equals("ec")) {
-			ecAssignments = new DBPathways().EC2ECProperties(ec_number, map);
-			for (Iterator<ResultType> iter = ecAssignments.iterator(); iter.hasNext(); ) {
-				item = iter.next();
+
+			List<ResultType> ecAssignments = (new DBPathways()).EC2ECProperties(ec_number, map);
+			for (ResultType item : ecAssignments) {
 				ec_names = item.get("description");
 				occurrences = item.get("occurrence");
 			}
 		}
 		else if (dm != null && dm.equals("feature")) {
-			ecAssignments = new DBPathways().aaSequence2ECAssignments(feature_id, map);
-			for (Iterator<ResultType> iter = ecAssignments.iterator(); iter.hasNext(); ) {
-				item = iter.next();
+
+			List<ResultType> ecAssignments = (new DBPathways()).aaSequence2ECAssignments(feature_id, map);
+			for (ResultType item : ecAssignments) {
 				ec_number = item.get("ec_number");
 				ec_names = item.get("description");
 				occurrences = item.get("occurrence");
 			}
 		}
-
-		//		for(int i =0; i < taxongenomecounts.size(); i++){
-		//			ResultType g = taxongenomecounts.get(i);
-		//			if(g.get("algorithm").equals("RAST")){
-		//				taxongenomecount_patric = g.get("count");
-		//			}else if(g.get("algorithm").equals("Curation")){
-		//				taxongenomecount_brc = g.get("count");
-		//			}else if(g.get("algorithm").equals("RefSeq")){
-		//				taxongenomecount_refseq = g.get("count");
-		//			}
-		//		}
 
 		/////
 		request.setAttribute("cType", cType);
@@ -248,9 +178,9 @@ public class CompPathwayMap extends GenericPortlet {
 		request.setAttribute("ec_names", ec_names);
 		request.setAttribute("occurrences", occurrences);
 
-		request.setAttribute("taxongenomecount_patric", taxongenomecount_patric);
-		request.setAttribute("taxongenomecount_brc1", taxongenomecount_brc1);
-		request.setAttribute("taxongenomecount_refseq", taxongenomecount_refseq);
+		request.setAttribute("taxongenomecount_patric", patricGenomeCount);
+		request.setAttribute("taxongenomecount_brc1", brc1GenomeCount);
+		request.setAttribute("taxongenomecount_refseq", refseqGenomeCount);
 
 		request.setAttribute("definition", definition);
 		request.setAttribute("pathway_name", pathway_name);
@@ -265,52 +195,11 @@ public class CompPathwayMap extends GenericPortlet {
 
 		response.setContentType("application/json");
 
-		//		String sort_field = request.getParameter("sort");
-		//		String sort_dir = request.getParameter("dir");
-		//
-		//		HashMap<String, String> sort = null;
-		//
-		//		if (sort_field != null && sort_dir != null) {
-		//			sort = new HashMap<>();
-		//			sort.put("field", sort_field);
-		//			sort.put("direction", sort_dir);
-		//		}
-
 		String genomeId = request.getParameter("genomeId");
 		String taxonId = request.getParameter("taxonId");
 		String cType = request.getParameter("cType");
 		String map = request.getParameter("map");
 		String algorithm = request.getParameter("algorithm");
-
-		//		Map<String, String> key = null;
-		//
-		//		if (cType.equals("taxon") && taxonId != null && !taxonId.equals("")) {
-		//			key = new HashMap<>();
-		//
-		//			key.put("taxonId", taxonId);
-		//			key.put("map", map);
-		//			key.put("algorithm", algorithm);
-		//		}
-		//		else if (cType.equals("genome") && genomeId != null && !genomeId.equals("")) {
-		//
-		//			key = new HashMap<>();
-		//
-		//			key.put("genomeId", genomeId);
-		//			key.put("map", map);
-		//			key.put("algorithm", algorithm);
-		//		}
-		//		else {
-		//
-		//			String pk = request.getParameter("pk");
-		//			PortletSession sess = request.getPortletSession();
-		//
-		//			ResultType keytemp = (ResultType) sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
-		//			if (keytemp != null) {
-		//				key = (HashMap<String, String>) keytemp.clone();
-		//				key.put("map", map);
-		//				key.put("algorithm", algorithm);
-		//			}
-		//		}
 
 		int count_total = 0;
 		JSONArray results = new JSONArray();
@@ -325,7 +214,8 @@ public class CompPathwayMap extends GenericPortlet {
 			}
 			if (genomeId != null && !genomeId.equals("")) {
 				query.addFilterQuery(
-						SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "genome_id:(" + genomeId.replaceAll(",", " OR ") + ") AND genome_status:(complete OR wgs)"));
+						SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id",
+								"genome_id:(" + genomeId.replaceAll(",", " OR ") + ") AND genome_status:(complete OR wgs)"));
 			}
 			query.setRows(0).setFacet(true);
 			query.add("json.facet",

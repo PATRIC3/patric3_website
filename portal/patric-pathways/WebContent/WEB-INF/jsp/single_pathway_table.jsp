@@ -1,43 +1,17 @@
-<%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
-<%@ page import="java.util.*" %>
-<%@ page import="edu.vt.vbi.patric.dao.ResultType" %>
-<%@ page import="edu.vt.vbi.patric.dao.DBPathways" %>
-<%@ page import="javax.portlet.PortletSession" %>
-<portlet:defineObjects/>
-<%
-
-DBPathways conn_pathways = new DBPathways();
-
-String cType = request.getParameter("context_type");
-String cId = request.getParameter("context_id");
-String pk = request.getParameter("param_key");
-
-String ec_number = "", algorithm = "", map  = "", genomeId  = "";
-
-ResultType key = (ResultType) portletSession.getAttribute("key"+pk, PortletSession.APPLICATION_SCOPE);
-
-if(key != null && key.containsKey("algorithm"))
-	algorithm = key.get("algorithm");
-
-
-if(key != null && key.containsKey("ec_number")) 
-	ec_number = key.get("ec_number");
-
-
-if(key != null && key.containsKey("map"))
-	map = key.get("map");
-
-if(key != null && key.containsKey("genomeId"))
-	genomeId = key.get("genomeId");
-
+<%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet"
+%><portlet:defineObjects/><%
+String algorithm = (String) request.getAttribute("algorithm");
+String ec_number = (String) request.getAttribute("ec_number");
+String map = (String) request.getAttribute("map");
+String genomeId = (String) request.getAttribute("genomeId");
 %>
 <form id="fTableForm" action="#" method="post">
 <input type="hidden" id="tablesource" name="tablesource" value="MapFeatureTable" />
-<input type="hidden" id="pk" name="pk" value="<%=(pk!=null)?pk:"" %>" />
-<input type="hidden" id="genomeId" name="genomeId" value="<%=(genomeId!=null)?genomeId:"" %>" />
+<input type="hidden" id="pk" name="pk" value="<%=pk %>" />
+<input type="hidden" id="genomeId" name="genomeId" value="<%=genomeId %>" />
 <input type="hidden" id="ec_number" name="ec_number" value="<%=ec_number %>" /> 
 <input type="hidden" id="algorithm" name="algorithm" value="<%=algorithm %>" /> 
-<input type="hidden" id="map" name="map" value="<%= map%>" />
+<input type="hidden" id="map" name="map" value="<%=map %>" />
 
 <!-- fasta download specific param -->
 <input type="hidden" id="fastaaction" name="fastaaction" value="" />
