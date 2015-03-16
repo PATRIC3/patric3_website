@@ -52,6 +52,43 @@ public class AntibioticResistanceGeneSearch extends GenericPortlet {
 
 		PortletRequestDispatcher prd;
 		if (mode != null && mode.equals("result")) {
+
+			String contextType = request.getParameter("context_type");
+			String contextId = request.getParameter("context_id");
+			String pk = request.getParameter("param_key");
+
+			PortletSession session = request.getPortletSession(true);
+			ResultType key = (ResultType) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
+
+			String taxonId = "";
+			String genomeId = "";
+			String keyword = "";
+			String exact_search_term = "";
+
+			if (key != null && key.containsKey("taxonId")) {
+				taxonId = key.get("taxonId");
+			}
+
+			if (key != null && key.containsKey("genomeId")) {
+				genomeId = key.get("genomeId");
+			}
+
+			if (key != null && key.containsKey("keyword")) {
+				keyword = key.get("keyword");
+			}
+
+			if (key != null && key.containsKey("exact_search_term")) {
+				exact_search_term = key.get("exact_search_term");
+			}
+
+			request.setAttribute("contextType", contextType);
+			request.setAttribute("contextId", contextId);
+			request.setAttribute("pk", pk);
+			request.setAttribute("taxonId", taxonId);
+			request.setAttribute("genomeId", genomeId);
+			request.setAttribute("keyword", keyword);
+			request.setAttribute("exact_search_term", exact_search_term);
+
 			prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/antibiotic_resistance_gene_search_result.jsp");
 		}
 		else {
@@ -147,10 +184,10 @@ public class AntibioticResistanceGeneSearch extends GenericPortlet {
 		else if (sraction != null && sraction.equals("get_params")) {
 			String ret = "";
 			String pk = request.getParameter("pk");
-			PortletSession sess = request.getPortletSession();
+			PortletSession session = request.getPortletSession();
 
-			if (sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE) != null) {
-				ResultType key = (ResultType) sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
+			if (session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE) != null) {
+				ResultType key = (ResultType) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
 				ret = key.get("keyword");
 			}
 
@@ -162,7 +199,7 @@ public class AntibioticResistanceGeneSearch extends GenericPortlet {
 			String need = request.getParameter("need");
 			String facet, keyword, pk, state, taxonId;
 			boolean hl;
-			PortletSession sess = request.getPortletSession();
+			PortletSession session = request.getPortletSession();
 			ResultType key = new ResultType();
 			JSONObject jsonResult = new JSONObject();
 			taxonId = request.getParameter("taxonId");
@@ -178,14 +215,14 @@ public class AntibioticResistanceGeneSearch extends GenericPortlet {
 				String highlight = request.getParameter("highlight");
 				hl = Boolean.parseBoolean(highlight);
 
-				if (sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE) == null) {
+				if (session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE) == null) {
 					key.put("facet", facet);
 					key.put("keyword", keyword);
 
-					sess.setAttribute("key" + pk, key, PortletSession.APPLICATION_SCOPE);
+					session.setAttribute("key" + pk, key, PortletSession.APPLICATION_SCOPE);
 				}
 				else {
-					key = (ResultType) sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
+					key = (ResultType) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
 					key.put("facet", facet);
 				}
 
@@ -255,7 +292,7 @@ public class AntibioticResistanceGeneSearch extends GenericPortlet {
 				solr.setCurrentInstance(SolrCore.SPECIALTY_GENE_MAPPING);
 
 				pk = request.getParameter("pk");
-				key = (ResultType) sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
+				key = (ResultType) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
 
 				if (key.containsKey("state")) {
 					state = key.get("state");
@@ -265,7 +302,7 @@ public class AntibioticResistanceGeneSearch extends GenericPortlet {
 				}
 
 				key.put("state", state);
-				sess.setAttribute("key" + pk, key, PortletSession.APPLICATION_SCOPE);
+				session.setAttribute("key" + pk, key, PortletSession.APPLICATION_SCOPE);
 
 				try {
 					if (!key.containsKey("tree")) {

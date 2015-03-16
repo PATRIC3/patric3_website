@@ -1,35 +1,12 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" 
-%><%@ page import="java.util.*" 
-%><%@ page import="edu.vt.vbi.patric.dao.ResultType" 
-%><%@ page import="javax.portlet.PortletSession" %>
-<portlet:defineObjects/>
-<%
-String cType = request.getParameter("context_type");
-String cId = request.getParameter("context_id");
-String pk = request.getParameter("param_key");
-
-ResultType key = (ResultType) portletSession.getAttribute("key"+pk, PortletSession.APPLICATION_SCOPE);
-
-String taxonId = "";
-String genomeId = "";
-String keyword = "";
-String exact_search_term = "";
-
-if(key != null && key.containsKey("taxonId")){
-	taxonId = key.get("taxonId");
-}
-
-if(key != null && key.containsKey("genomeId")){
-	genomeId = key.get("genomeId");
-}
-
-if(key != null && key.containsKey("keyword")){
-	keyword = key.get("keyword");
-}
-
-if(key != null && key.containsKey("exact_search_term")){
-	exact_search_term = key.get("exact_search_term");
-}
+%><portlet:defineObjects/><%
+String contextType = (String) request.getAttribute("contextType");
+String contextId = (String) request.getAttribute("contextId");
+String pk = (String) request.getAttribute("pk");
+String taxonId = (String) request.getAttribute("taxonId");
+String genomeId = (String) request.getAttribute("genomeId");
+String keyword = (String) request.getAttribute("keyword");
+String exact_search_term = (String) request.getAttribute("exact_search_term");
 %>
 <form id="fTableForm" action="#" method="post">
 	<input type="hidden" id="tablesource" name="tablesource" value="SpecialtyGeneMapping" />
@@ -123,7 +100,7 @@ Ext.onReady(function() {
 		scm:[[checkbox, 
 			{header:'Evidence',				dataIndex:'evidence',			flex:1, align:'center'},
 			{header:'Source',				dataIndex:'source', 			flex:1, align:'center', renderer:renderSource},
-			{header:'Genome Name',			dataIndex:'genome_name',		flex:2, renderer:renderGenomeName <%=cType.equals("genome")?", hidden:true":""%>},
+			{header:'Genome Name',			dataIndex:'genome_name',		flex:2, renderer:renderGenomeName <%=contextType.equals("genome")?", hidden:true":""%>},
 			{header:'Locus Tag',			dataIndex:'alt_locus_tag', 		flex:2, renderer:renderLocusTag, align:'center'},
 			{header:'RefSeq Locus Tag',		dataIndex:'refseq_locus_tag',	flex:1, align:'center', renderer:renderLocusTag},
 			{header:'Source ID',			dataIndex:'source_id', 			flex:1, align:'center', renderer:renderSourceId},
@@ -208,7 +185,7 @@ function getOriginalKeyword(hash){
 
 function returntoSearchPage(){
 	var key = DecodeKeyword('<%=java.net.URLEncoder.encode(exact_search_term, "UTF-8") %>');
-	document.location.href = "AntibioticResistanceGeneSearch?cType=<%=cType%>&cId=<%=cId%>&dm=#&keyword="+key;
+	document.location.href = "AntibioticResistanceGeneSearch?cType=<%=contextType%>&cId=<%=contextId%>&dm=#&keyword="+key;
 }
 //]]>
 </script>
