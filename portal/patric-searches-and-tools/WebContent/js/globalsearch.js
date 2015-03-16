@@ -206,7 +206,7 @@ function loadSearchResultsNoSpellCheck(keyword) {
 			keyword : EncodeKeyword(keyword)
 		},
 		success : function(rs) {
-			document.location.href = "GlobalSearch?cType=taxon&cId=&dm=&pk=" + rs.responseText + "#aP0=1&aP1=1&aP2=1&aP3=1&pS0=10&pS1=10&pS2=10&pS3=10&cat=summary&key=" + rs.responseText + "&spellcheck=false";
+			document.location.href = "GlobalSearch?cType=taxon&cId=131567&dm=&pk=" + rs.responseText + "#aP0=1&aP1=1&aP2=1&aP3=1&pS0=10&pS1=10&pS2=10&pS3=10&cat=summary&key=" + rs.responseText + "&spellcheck=false";
 		}
 	});
 }
