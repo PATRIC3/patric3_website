@@ -143,8 +143,8 @@ public class PubMedPortlet extends GenericPortlet {
 		String gId = null;
 		String fId = null;
 
-		String cType = request.getParameter("context_type");
-		String cId = request.getParameter("context_id");
+		String cType = request.getParameter("cType");
+		String cId = request.getParameter("cId");
 		JSONObject jsonResult;
 
 		if (cType != null) {
