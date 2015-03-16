@@ -53,14 +53,13 @@ public class TranscriptomicsGeneFeature extends GenericPortlet {
 
 		if (callType.equals("saveFeatureParams")) {
 
-			HashMap<String, String> key = new HashMap<>();
-			key.put("feature_id", req.getParameter("feature_id"));
+			String featureId = req.getParameter("feature_id");
 
 			Random g = new Random();
 			int random = g.nextInt();
 
 			PortletSession session = req.getPortletSession(true);
-			session.setAttribute("key" + random, key, PortletSession.APPLICATION_SCOPE);
+			session.setAttribute("key" + random, featureId, PortletSession.APPLICATION_SCOPE);
 
 			PrintWriter writer = resp.getWriter();
 			writer.write("" + random);
@@ -76,11 +75,11 @@ public class TranscriptomicsGeneFeature extends GenericPortlet {
 			int start = Integer.parseInt(start_id);
 			int end = Integer.parseInt(limit);
 
-			HashMap<String, String> key = (HashMap<String, String>) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
+			String featureId = (String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
 
 			Map<String, Object> condition = new HashMap<>();
-			condition.put("feature_ids", key.get("feature_id"));
-			condition.put("sortParam", req.getParameter("sort").toString());
+			condition.put("feature_ids", featureId);
+			condition.put("sortParam", req.getParameter("sort"));
 			condition.put("startParam", Integer.toString(start));
 			condition.put("limitParam", Integer.toString(end));
 			SolrInterface solr = new SolrInterface();
@@ -93,7 +92,7 @@ public class TranscriptomicsGeneFeature extends GenericPortlet {
 			jsonResult.put("total", object.get("total").toString());
 
 			PrintWriter writer = resp.getWriter();
-			writer.write(jsonResult.toString());
+			jsonResult.writeJSONString(writer);
 			writer.close();
 		}
 	}

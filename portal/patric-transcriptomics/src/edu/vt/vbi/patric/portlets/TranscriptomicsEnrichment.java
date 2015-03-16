@@ -15,6 +15,7 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.portlets;
 
+import com.google.gson.Gson;
 import edu.vt.vbi.patric.common.SiteHelper;
 import edu.vt.vbi.patric.common.SolrCore;
 import edu.vt.vbi.patric.common.SolrInterface;
@@ -50,9 +51,10 @@ public class TranscriptomicsEnrichment extends GenericPortlet {
 		response.setTitle("Pathway Summary");
 
 		String pk = request.getParameter("param_key");
+		Gson gson = new Gson();
 
 		PortletSession session = request.getPortletSession(true);
-		Map<String, String> key = (Map<String, String>) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
+		Map<String, String> key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), Map.class);
 		String contextType = request.getParameter("context_type");
 		String contextId = request.getParameter("context_id");
 		String featureList = key.get("feature_id");
@@ -71,6 +73,7 @@ public class TranscriptomicsEnrichment extends GenericPortlet {
 
 		resp.setContentType("text/html");
 		String callType = req.getParameter("callType");
+		Gson gson = new Gson();
 
 		if (callType.equals("saveParams")) {
 
@@ -81,7 +84,7 @@ public class TranscriptomicsEnrichment extends GenericPortlet {
 			int random = g.nextInt();
 
 			PortletSession session = req.getPortletSession(true);
-			session.setAttribute("key" + random, key, PortletSession.APPLICATION_SCOPE);
+			session.setAttribute("key" + random, gson.toJson(key, key.getClass()), PortletSession.APPLICATION_SCOPE);
 
 			PrintWriter writer = resp.getWriter();
 			writer.write("" + random);
@@ -93,18 +96,13 @@ public class TranscriptomicsEnrichment extends GenericPortlet {
 			String featureIds = req.getParameter("feature_info_id");
 			String pathwayId = req.getParameter("map");
 			SolrInterface solr = new SolrInterface();
-//			HashMap<String, String> key = new HashMap<>();
-//
-//			key.put("feature_id", req.getParameter("feature_info_id"));
-//			key.put("map", req.getParameter("map"));
-//			DBTranscriptomics conn_transcriptomics = new DBTranscriptomics();
-//			String genomeId = conn_transcriptomics.getGenomeListFromFeatureIds(key, 0, -1);
 
 			String genomeId = "";
 			if (featureIds != null && !featureIds.equals("") && pathwayId != null && !pathwayId.equals("")) {
 				String[] listFeatureId = featureIds.split(",");
 				try {
-					SolrQuery query = new SolrQuery("pathway_id:(" + pathwayId + ") AND feature_id:(" + StringUtils.join(listFeatureId, " OR ") + ")");
+					SolrQuery query = new SolrQuery(
+							"pathway_id:(" + pathwayId + ") AND feature_id:(" + StringUtils.join(listFeatureId, " OR ") + ")");
 					query.addField("genome_id").setRows(listFeatureId.length);
 
 					QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query, SolrRequest.METHOD.POST);
@@ -130,41 +128,12 @@ public class TranscriptomicsEnrichment extends GenericPortlet {
 
 			String pk = req.getParameter("pk");
 
-			// TODO: implement sort and paging with solr query
-			//			String start_id = req.getParameter("start");
-			//			String limit = req.getParameter("limit");
-			//			int start = Integer.parseInt(start_id);
-			//			int end = start + Integer.parseInt(limit);
-			//
-			Map<String, String> key = (Map<String, String>) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
-			//			// sorting
-			//			JSONParser a = new JSONParser();
-			//			JSONArray sorter;
-			//			String sort_field = "";
-			//			String sort_dir = "";
-			//			try {
-			//				sorter = (JSONArray) a.parse(req.getParameter("sort"));
-			//				sort_field += ((JSONObject) sorter.get(0)).get("property").toString();
-			//				sort_dir += ((JSONObject) sorter.get(0)).get("direction").toString();
-			//				for (int i = 1; i < sorter.size(); i++) {
-			//					sort_field += "," + ((JSONObject) sorter.get(i)).get("property").toString();
-			//				}
-			//			}
-			//			catch (ParseException e) {
-			//				LOGGER.error(e.getMessage(), e);
-			//			}
-			//
-			//			HashMap<String, String> sort = new HashMap<>();
-			//
-			//			if (!sort_field.equals("") && !sort_dir.equals("")) {
-			//				sort.put("field", sort_field);
-			//				sort.put("direction", sort_dir);
-			//			}
+			Map<String, String> key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), Map.class);
 
 			SolrInterface solr = new SolrInterface();
 			List<String> featureIDs = Arrays.asList(key.get("feature_id").split(","));
 
-			// LOGGER.debug("# features passed:{}", featureIDs.size());
+			LOGGER.trace("# features passed:{}", featureIDs.size());
 
 			// 1. get Pathway ID, Pathway Name & genomeID
 			//solr/pathway/select?q=feature_id:(PATRIC.83332.12.NC_000962.CDS.34.1524.fwd)&fl=pathway_name,pathway_id,gid
@@ -175,9 +144,9 @@ public class TranscriptomicsEnrichment extends GenericPortlet {
 			Set<String> listPathwayID = new HashSet<>();
 			try {
 				SolrQuery query = new SolrQuery("feature_id:(" + StringUtils.join(featureIDs, " OR ") + ")");
-				int queryRows = Math.max(300000, (featureIDs.size()*2));
+				int queryRows = Math.max(300000, (featureIDs.size() * 2));
 				query.addField("pathway_name,pathway_id,genome_id,feature_id").setRows(queryRows);
-				LOGGER.debug("Enrichment 1/3: {}", query.toString());
+				LOGGER.trace("Enrichment 1/3: {}", query.toString());
 
 				QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query, SolrRequest.METHOD.POST);
 				SolrDocumentList pathwayList = qr.getResults();
@@ -205,7 +174,7 @@ public class TranscriptomicsEnrichment extends GenericPortlet {
 				SolrQuery query = new SolrQuery("feature_id:(" + StringUtils.join(featureIDs, " OR ") + ")");
 				query.setRows(0).setFacet(true);
 				query.add("json.facet", "{stat:{field:{field:pathway_id,limit:-1,facet:{gene_count:\"unique(feature_id)\"}}}}");
-				LOGGER.debug("Enrichment 2/3: {}", query.toString());
+				LOGGER.trace("Enrichment 2/3: {}", query.toString());
 
 				QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query, SolrRequest.METHOD.POST);
 				List<SimpleOrderedMap> buckets = (List) ((SimpleOrderedMap) ((SimpleOrderedMap) qr.getResponse().get("facets")).get("stat"))
@@ -233,7 +202,7 @@ public class TranscriptomicsEnrichment extends GenericPortlet {
 									+ ")");
 					query.setRows(0).setFacet(true).addFilterQuery("annotation:PATRIC");
 					query.add("json.facet", "{stat:{field:{field:pathway_id,limit:-1,facet:{gene_count:\"unique(feature_id)\"}}}}");
-					LOGGER.debug("Enrichment 3/3: {}", query.toString());
+					LOGGER.trace("Enrichment 3/3: {}", query.toString());
 
 					QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query, SolrRequest.METHOD.POST);
 					List<SimpleOrderedMap> buckets = (List) ((SimpleOrderedMap) ((SimpleOrderedMap) qr.getResponse().get("facets")).get("stat"))
