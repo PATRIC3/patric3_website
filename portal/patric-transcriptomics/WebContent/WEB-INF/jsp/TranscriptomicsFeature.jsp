@@ -3,20 +3,14 @@
 <%@ page import="javax.portlet.PortletSession" %>
 <portlet:defineObjects/>
 <%
-String cType = request.getParameter("context_type");
-String cId = request.getParameter("context_id");
-String pk = request.getParameter("param_key");
-String featureIds = "";
-HashMap<String, String> key = (HashMap<String, String>) portletSession.getAttribute("key"+pk, PortletSession.APPLICATION_SCOPE);
-
-if(key != null && key.containsKey("feature_id")){
-	featureIds = key.get("feature_id");
-}
-
+String contextType = (String) request.getAttribute("contextType");
+String contextId = (String) request.getAttribute("contextId");
+String pk = (String) request.getAttribute("pk");
+String featureIds = (String) request.getAttribute("featureIds");
 %>
 <form id="fTableForm" action="#" method="post">
-<input type="hidden" id="cType" name="cType" value="<%=cType %>" />
-<input type="hidden" id="cId" name="cId" value="<%=cId %>" />
+<input type="hidden" id="cType" name="cType" value="<%=contextType %>" />
+<input type="hidden" id="cId" name="cId" value="<%=contextId %>" />
 <input type="hidden" id="_tablesource" name="_tablesource" value="TranscriptomicsGeneFeature" />
 <input type="hidden" id="_fileformat" name="_fileformat" value="" />
 

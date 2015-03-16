@@ -41,6 +41,22 @@ public class TranscriptomicsGeneFeature extends GenericPortlet {
 
 		new SiteHelper().setHtmlMetaElements(request, response, "Transcriptomics Feature");
 
+		String contextType = request.getParameter("context_type");
+		String contextId = request.getParameter("context_id");
+		String pk = request.getParameter("param_key");
+
+		PortletSession session = request.getPortletSession(true);
+		String featureIds = (String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
+
+		if (featureIds == null) {
+			featureIds = "";
+		}
+
+		request.setAttribute("contextType", contextType);
+		request.setAttribute("contextId", contextId);
+		request.setAttribute("pk", pk);
+		request.setAttribute("featureIds", featureIds);
+
 		PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/TranscriptomicsFeature.jsp");
 		prd.include(request, response);
 	}
