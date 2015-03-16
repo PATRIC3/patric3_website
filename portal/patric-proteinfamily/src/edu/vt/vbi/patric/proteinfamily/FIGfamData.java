@@ -512,6 +512,7 @@ public class FIGfamData {
 		// getting distinct figfam_product
 		if (!figfamIdList.isEmpty()) {
 
+			figfamIdList.remove("");
 			solr_query = new SolrQuery("figfam_id:(" + StringUtils.join(figfamIdList, " OR ") + ")");
 			solr_query.addField("figfam_id,figfam_product");
 			solr_query.setRows(figfams.size());
