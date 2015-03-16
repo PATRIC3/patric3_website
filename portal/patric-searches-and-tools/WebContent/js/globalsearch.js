@@ -150,6 +150,10 @@ function getSummaryandCreateLayout() {
 		Ext.getDom("keyword").value = "(" + Ext.getDom("keyword").value + ")";
 	}
 
+    if (Ext.getDom("keyword").value == "") {
+        alert("keyword is empty");
+        return false;
+    }
 	Ext.Ajax.request({
 		url : "/patric-searches-and-tools/jsp/getGlobalSearchCounts.jsp",
 		method : 'GET',
