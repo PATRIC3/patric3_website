@@ -29,6 +29,7 @@ import javax.portlet.RenderResponse;
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
 
+import com.google.gson.Gson;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -54,6 +55,7 @@ public class GlobalTaxonomy extends GenericPortlet {
 	public void serveResource(ResourceRequest request, ResourceResponse response) throws PortletException, IOException {
 
 		String sraction = request.getParameter("sraction");
+		Gson gson = new Gson();
 
 		if (sraction != null && sraction.equals("save_params")) {
 
@@ -91,8 +93,8 @@ public class GlobalTaxonomy extends GenericPortlet {
 			Random g = new Random();
 			int random = g.nextInt();
 
-			PortletSession sess = request.getPortletSession(true);
-			sess.setAttribute("key" + random, key, PortletSession.APPLICATION_SCOPE);
+			PortletSession session = request.getPortletSession(true);
+			session.setAttribute("key" + random, gson.toJson(key, ResultType.class), PortletSession.APPLICATION_SCOPE);
 
 			PrintWriter writer = response.getWriter();
 			writer.write("" + random);
@@ -103,7 +105,7 @@ public class GlobalTaxonomy extends GenericPortlet {
 			String need = request.getParameter("need");
 			String facet, keyword, pk, state;
 			boolean hl;
-			PortletSession sess = request.getPortletSession();
+			PortletSession session = request.getPortletSession(true);
 			ResultType key = new ResultType();
 			JSONObject jsonResult = new JSONObject();
 
@@ -117,14 +119,14 @@ public class GlobalTaxonomy extends GenericPortlet {
 				String highlight = request.getParameter("highlight");
 				hl = Boolean.parseBoolean(highlight);
 
-				if (sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE) == null) {
+				if (session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE) == null) {
 					key.put("facet", facet);
 					key.put("keyword", keyword);
 
-					sess.setAttribute("key" + pk, key, PortletSession.APPLICATION_SCOPE);
+					session.setAttribute("key" + pk, gson.toJson(key, ResultType.class), PortletSession.APPLICATION_SCOPE);
 				}
 				else {
-					key = (ResultType) sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
+					key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), ResultType.class);
 					key.put("facet", facet);
 				}
 
@@ -166,10 +168,10 @@ public class GlobalTaxonomy extends GenericPortlet {
 			else if (need.equals("tree")) {
 
 				pk = request.getParameter("pk");
-				key = (ResultType) sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
+				key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), ResultType.class);
 				state = request.getParameter("state");
 				key.put("state", state);
-				sess.setAttribute("key" + pk, key, PortletSession.APPLICATION_SCOPE);
+				session.setAttribute("key" + pk, gson.toJson(key, ResultType.class), PortletSession.APPLICATION_SCOPE);
 
 				try {
 					if (!key.containsKey("tree")) {

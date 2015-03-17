@@ -151,7 +151,7 @@ function getSummaryandCreateLayout() {
 	}
 
     if (Ext.getDom("keyword").value == "") {
-        alert("keyword is empty");
+        Ext.Msg.alert('Warning', 'Please enter keyword.');
         return false;
     }
 	Ext.Ajax.request({

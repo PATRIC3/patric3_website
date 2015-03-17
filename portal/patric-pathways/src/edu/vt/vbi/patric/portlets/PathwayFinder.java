@@ -216,7 +216,7 @@ public class PathwayFinder extends GenericPortlet {
 			String need = request.getParameter("need");
 
 			String pk = request.getParameter("pk");
-			PortletSession session = request.getPortletSession();
+			PortletSession session = request.getPortletSession(true);
 			Map<String, String> key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), Map.class);
 
 			switch (need) {

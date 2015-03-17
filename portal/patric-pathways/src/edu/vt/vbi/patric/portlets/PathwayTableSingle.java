@@ -135,7 +135,7 @@ public class PathwayTableSingle extends GenericPortlet {
 			JSONObject jsonResult = new JSONObject();
 			JSONArray results = new JSONArray();
 			String pk = request.getParameter("pk");
-			PortletSession session = request.getPortletSession();
+			PortletSession session = request.getPortletSession(true);
 			Map<String, String> key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), Map.class);
 
 			SolrInterface solr = new SolrInterface();

@@ -169,7 +169,7 @@ public class IDMapping extends GenericPortlet {
 		else {
 			String pk = request.getParameter("pk");
 
-			PortletSession session = request.getPortletSession();
+			PortletSession session = request.getPortletSession(true);
 			Map<String, String> key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), Map.class);
 
 			LOGGER.debug("id mapping param: {}", key);

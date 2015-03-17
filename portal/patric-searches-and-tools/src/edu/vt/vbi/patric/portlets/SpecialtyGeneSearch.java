@@ -15,6 +15,7 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.portlets;
 
+import com.google.gson.Gson;
 import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.beans.Taxonomy;
 import edu.vt.vbi.patric.common.SiteHelper;
@@ -96,6 +97,7 @@ public class SpecialtyGeneSearch extends GenericPortlet {
 	public void serveResource(ResourceRequest request, ResourceResponse response) throws PortletException, IOException {
 
 		String sraction = request.getParameter("sraction");
+		Gson gson = new Gson();
 
 		if (sraction != null && sraction.equals("save_params")) {
 			ResultType key = new ResultType();
@@ -137,8 +139,8 @@ public class SpecialtyGeneSearch extends GenericPortlet {
 			Random g = new Random();
 			int random = g.nextInt();
 
-			PortletSession sess = request.getPortletSession(true);
-			sess.setAttribute("key" + random, key, PortletSession.APPLICATION_SCOPE);
+			PortletSession session = request.getPortletSession(true);
+			session.setAttribute("key" + random, gson.toJson(key, ResultType.class), PortletSession.APPLICATION_SCOPE);
 
 			PrintWriter writer = response.getWriter();
 			writer.write("" + random);
@@ -147,10 +149,10 @@ public class SpecialtyGeneSearch extends GenericPortlet {
 		else if (sraction != null && sraction.equals("get_params")) {
 			String ret = "";
 			String pk = request.getParameter("pk");
-			PortletSession sess = request.getPortletSession();
+			PortletSession session = request.getPortletSession(true);
 
-			if (sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE) != null) {
-				ResultType key = (ResultType) sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
+			if (session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE) != null) {
+				ResultType key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), ResultType.class);
 				ret = key.get("keyword");
 			}
 
@@ -162,7 +164,7 @@ public class SpecialtyGeneSearch extends GenericPortlet {
 			String need = request.getParameter("need");
 			String facet, keyword, pk, state, taxonId;
 			boolean hl;
-			PortletSession sess = request.getPortletSession();
+			PortletSession session = request.getPortletSession(true);
 			ResultType key = new ResultType();
 			JSONObject jsonResult = new JSONObject();
 			taxonId = request.getParameter("taxonId");
@@ -178,14 +180,14 @@ public class SpecialtyGeneSearch extends GenericPortlet {
 				String highlight = request.getParameter("highlight");
 				hl = Boolean.parseBoolean(highlight);
 
-				if (sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE) == null) {
+				if (session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE) == null) {
 					key.put("facet", facet);
 					key.put("keyword", keyword);
 
-					sess.setAttribute("key" + pk, key, PortletSession.APPLICATION_SCOPE);
+					session.setAttribute("key" + pk, gson.toJson(key, ResultType.class), PortletSession.APPLICATION_SCOPE);
 				}
 				else {
-					key = (ResultType) sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
+					key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), ResultType.class);
 					key.put("facet", facet);
 				}
 
@@ -254,7 +256,7 @@ public class SpecialtyGeneSearch extends GenericPortlet {
 				solr.setCurrentInstance(SolrCore.SPECIALTY_GENE_MAPPING);
 
 				pk = request.getParameter("pk");
-				key = (ResultType) sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
+				key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), ResultType.class);
 
 				if (key.containsKey("state")) {
 					state = key.get("state");
@@ -265,7 +267,7 @@ public class SpecialtyGeneSearch extends GenericPortlet {
 
 				key.put("state", state);
 
-				sess.setAttribute("key" + pk, key, PortletSession.APPLICATION_SCOPE);
+				session.setAttribute("key" + pk, gson.toJson(key, ResultType.class), PortletSession.APPLICATION_SCOPE);
 
 				try {
 					if (!key.containsKey("tree")) {

@@ -219,8 +219,8 @@ public class FIGfam extends GenericPortlet {
 			}
 			case "getSessionId": {
 				PrintWriter writer = resp.getWriter();
-				PortletSession sess = req.getPortletSession(true);
-				writer.write(sess.getId());
+				PortletSession session = req.getPortletSession(true);
+				writer.write(session.getId());
 				writer.close();
 				break;
 			}

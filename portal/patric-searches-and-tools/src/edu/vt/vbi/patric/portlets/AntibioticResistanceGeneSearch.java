@@ -15,6 +15,7 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.portlets;
 
+import com.google.gson.Gson;
 import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.beans.Taxonomy;
 import edu.vt.vbi.patric.common.SiteHelper;
@@ -56,9 +57,10 @@ public class AntibioticResistanceGeneSearch extends GenericPortlet {
 			String contextType = request.getParameter("context_type");
 			String contextId = request.getParameter("context_id");
 			String pk = request.getParameter("param_key");
+			Gson gson = new Gson();
 
 			PortletSession session = request.getPortletSession(true);
-			ResultType key = (ResultType) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
+			ResultType key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), ResultType.class);
 
 			String taxonId = "";
 			String genomeId = "";
@@ -133,6 +135,7 @@ public class AntibioticResistanceGeneSearch extends GenericPortlet {
 	public void serveResource(ResourceRequest request, ResourceResponse response) throws PortletException, IOException {
 
 		String sraction = request.getParameter("sraction");
+		Gson gson = new Gson();
 
 		if (sraction != null && sraction.equals("save_params")) {
 			ResultType key = new ResultType();
@@ -175,7 +178,7 @@ public class AntibioticResistanceGeneSearch extends GenericPortlet {
 			int random = g.nextInt();
 
 			PortletSession session = request.getPortletSession(true);
-			session.setAttribute("key" + random, key, PortletSession.APPLICATION_SCOPE);
+			session.setAttribute("key" + random, gson.toJson(key, ResultType.class), PortletSession.APPLICATION_SCOPE);
 
 			PrintWriter writer = response.getWriter();
 			writer.write("" + random);
@@ -184,10 +187,10 @@ public class AntibioticResistanceGeneSearch extends GenericPortlet {
 		else if (sraction != null && sraction.equals("get_params")) {
 			String ret = "";
 			String pk = request.getParameter("pk");
-			PortletSession session = request.getPortletSession();
+			PortletSession session = request.getPortletSession(true);
 
 			if (session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE) != null) {
-				ResultType key = (ResultType) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
+				ResultType key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), ResultType.class);
 				ret = key.get("keyword");
 			}
 
@@ -199,7 +202,7 @@ public class AntibioticResistanceGeneSearch extends GenericPortlet {
 			String need = request.getParameter("need");
 			String facet, keyword, pk, state, taxonId;
 			boolean hl;
-			PortletSession session = request.getPortletSession();
+			PortletSession session = request.getPortletSession(true);
 			ResultType key = new ResultType();
 			JSONObject jsonResult = new JSONObject();
 			taxonId = request.getParameter("taxonId");
@@ -219,10 +222,10 @@ public class AntibioticResistanceGeneSearch extends GenericPortlet {
 					key.put("facet", facet);
 					key.put("keyword", keyword);
 
-					session.setAttribute("key" + pk, key, PortletSession.APPLICATION_SCOPE);
+					session.setAttribute("key" + pk, gson.toJson(key, ResultType.class), PortletSession.APPLICATION_SCOPE);
 				}
 				else {
-					key = (ResultType) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
+					key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), ResultType.class);
 					key.put("facet", facet);
 				}
 
@@ -292,7 +295,7 @@ public class AntibioticResistanceGeneSearch extends GenericPortlet {
 				solr.setCurrentInstance(SolrCore.SPECIALTY_GENE_MAPPING);
 
 				pk = request.getParameter("pk");
-				key = (ResultType) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
+				key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), ResultType.class);
 
 				if (key.containsKey("state")) {
 					state = key.get("state");
@@ -302,7 +305,7 @@ public class AntibioticResistanceGeneSearch extends GenericPortlet {
 				}
 
 				key.put("state", state);
-				session.setAttribute("key" + pk, key, PortletSession.APPLICATION_SCOPE);
+				session.setAttribute("key" + pk, gson.toJson(key, ResultType.class), PortletSession.APPLICATION_SCOPE);
 
 				try {
 					if (!key.containsKey("tree")) {

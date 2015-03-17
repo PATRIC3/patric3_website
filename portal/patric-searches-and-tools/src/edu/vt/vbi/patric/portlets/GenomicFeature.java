@@ -15,6 +15,7 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.portlets;
 
+import com.google.gson.Gson;
 import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.beans.GenomeFeature;
 import edu.vt.vbi.patric.beans.Taxonomy;
@@ -131,6 +132,7 @@ public class GenomicFeature extends GenericPortlet {
 	public void serveResource(ResourceRequest request, ResourceResponse response) throws PortletException, IOException {
 
 		String sraction = request.getParameter("sraction");
+		Gson gson = new Gson();
 
 		if (sraction != null && sraction.equals("save_params")) {
 
@@ -182,7 +184,7 @@ public class GenomicFeature extends GenericPortlet {
 			int random = g.nextInt();
 
 			PortletSession session = request.getPortletSession(true);
-			session.setAttribute("key" + random, key, PortletSession.APPLICATION_SCOPE);
+			session.setAttribute("key" + random, gson.toJson(key, ResultType.class), PortletSession.APPLICATION_SCOPE);
 
 			PrintWriter writer = response.getWriter();
 			writer.write("" + random);
@@ -197,7 +199,7 @@ public class GenomicFeature extends GenericPortlet {
 			boolean grouping = false;
 			boolean hl;
 
-			PortletSession sess = request.getPortletSession();
+			PortletSession session = request.getPortletSession(true);
 
 			ResultType key = new ResultType();
 
@@ -218,14 +220,14 @@ public class GenomicFeature extends GenericPortlet {
 					grouping = Boolean.parseBoolean(request.getParameter("grouping"));
 				}
 
-				if (sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE) == null) {
+				if (session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE) == null) {
 					key.put("facet", facet);
 					key.put("keyword", keyword);
 
-					sess.setAttribute("key" + pk, key, PortletSession.APPLICATION_SCOPE);
+					session.setAttribute("key" + pk, gson.toJson(key, ResultType.class), PortletSession.APPLICATION_SCOPE);
 				}
 				else {
-					key = (ResultType) sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
+					key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), ResultType.class);
 					key.put("facet", facet);
 				}
 
@@ -463,8 +465,8 @@ public class GenomicFeature extends GenericPortlet {
 
 				pk = request.getParameter("pk");
 
-				if (sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE) != null) {
-					key = (ResultType) sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
+				if (session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE) != null) {
+					key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), ResultType.class);
 				}
 
 				if (key != null && key.containsKey("state")) {
@@ -474,7 +476,7 @@ public class GenomicFeature extends GenericPortlet {
 					state = request.getParameter("state");
 				}
 
-				sess.setAttribute("key" + pk, key, PortletSession.APPLICATION_SCOPE);
+				session.setAttribute("key" + pk, gson.toJson(key, ResultType.class), PortletSession.APPLICATION_SCOPE);
 
 				try {
 					if (!key.containsKey("tree")) {
@@ -505,7 +507,7 @@ public class GenomicFeature extends GenericPortlet {
 				int rows = Integer.parseInt(request.getParameter("limit"));
 				String field = request.getParameter("field");
 
-				key = (ResultType) sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
+				key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), ResultType.class);
 
 				JSONObject object = solr.getIdsForCart(key, field, rows);
 

@@ -15,6 +15,7 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.portlets;
 
+import com.google.gson.Gson;
 import edu.vt.vbi.patric.common.SiteHelper;
 import edu.vt.vbi.patric.common.SolrCore;
 import edu.vt.vbi.patric.common.SolrInterface;
@@ -48,6 +49,7 @@ public class SingleFIGfam extends GenericPortlet {
 	public void serveResource(ResourceRequest req, ResourceResponse resp) throws PortletException, IOException {
 		String callType = req.getParameter("callType");
 		SolrInterface solr = new SolrInterface();
+		Gson gson = new Gson();
 
 		if (callType != null) {
 			ResultType key = new ResultType();
@@ -61,8 +63,8 @@ public class SingleFIGfam extends GenericPortlet {
 				Random g = new Random();
 				int random = g.nextInt();
 
-				PortletSession sess = req.getPortletSession(true);
-				sess.setAttribute("key" + random, key, PortletSession.APPLICATION_SCOPE);
+				PortletSession session = req.getPortletSession(true);
+				session.setAttribute("key" + random, gson.toJson(key, ResultType.class), PortletSession.APPLICATION_SCOPE);
 
 				PrintWriter writer = resp.getWriter();
 				writer.write("" + random);

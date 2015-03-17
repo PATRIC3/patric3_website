@@ -31,6 +31,7 @@ import javax.portlet.RenderResponse;
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
 
+import com.google.gson.Gson;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -74,6 +75,7 @@ public class ProteomicsListPortlet extends GenericPortlet {
 	public void serveResource(ResourceRequest request, ResourceResponse response) throws PortletException, IOException {
 
 		String sraction = request.getParameter("sraction");
+		Gson gson = new Gson();
 
 		if (sraction != null && sraction.equals("save_params")) {
 
@@ -101,8 +103,8 @@ public class ProteomicsListPortlet extends GenericPortlet {
 			Random g = new Random();
 			int random = g.nextInt();
 
-			PortletSession sess = request.getPortletSession(true);
-			sess.setAttribute("key" + random, key, PortletSession.APPLICATION_SCOPE);
+			PortletSession session = request.getPortletSession(true);
+			session.setAttribute("key" + random, gson.toJson(key, ResultType.class), PortletSession.APPLICATION_SCOPE);
 
 			PrintWriter writer = response.getWriter();
 			writer.write("" + random);
@@ -114,7 +116,7 @@ public class ProteomicsListPortlet extends GenericPortlet {
 			String facet = "", keyword, pk, state, experiment_id;
 			boolean hl;
 
-			PortletSession sess = request.getPortletSession();
+			PortletSession session = request.getPortletSession(true);
 			ResultType key = new ResultType();
 			JSONObject jsonResult = new JSONObject();
 
@@ -126,13 +128,13 @@ public class ProteomicsListPortlet extends GenericPortlet {
 				experiment_id = request.getParameter("experiment_id");
 				facet = request.getParameter("facet");
 
-				if (sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE) == null) {
+				if (session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE) == null) {
 					key.put("facet", facet);
 					key.put("keyword", keyword);
-					sess.setAttribute("key" + pk, key, PortletSession.APPLICATION_SCOPE);
+					session.setAttribute("key" + pk, gson.toJson(key, ResultType.class), PortletSession.APPLICATION_SCOPE);
 				}
 				else {
-					key = (ResultType) sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
+					key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), ResultType.class);
 					key.put("facet", facet);
 				}
 
@@ -231,13 +233,13 @@ public class ProteomicsListPortlet extends GenericPortlet {
 
 				hl = Boolean.parseBoolean(highlight);
 
-				if (pk != null && sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE) == null) {
+				if (pk != null && session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE) == null) {
 					key.put("facet", facet);
 					key.put("keyword", keyword);
-					sess.setAttribute("key" + pk, key, PortletSession.APPLICATION_SCOPE);
+					session.setAttribute("key" + pk, gson.toJson(key, ResultType.class), PortletSession.APPLICATION_SCOPE);
 				}
 				else if (pk != null) {
-					key = (ResultType) sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
+					key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), ResultType.class);
 					key.put("facet", facet);
 				}
 				else {
@@ -302,7 +304,7 @@ public class ProteomicsListPortlet extends GenericPortlet {
 				solr.setCurrentInstance(SolrCore.PROTEOMICS_EXPERIMENT);
 
 				pk = request.getParameter("pk");
-				key = (ResultType) sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
+				key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), ResultType.class);
 
 				if (key.containsKey("state"))
 					state = key.get("state");
@@ -310,7 +312,7 @@ public class ProteomicsListPortlet extends GenericPortlet {
 					state = request.getParameter("state");
 
 				key.put("state", state);
-				sess.setAttribute("key" + pk, key, PortletSession.APPLICATION_SCOPE);
+				session.setAttribute("key" + pk, gson.toJson(key, ResultType.class), PortletSession.APPLICATION_SCOPE);
 
 				try {
 					if (!key.containsKey("tree")) {
