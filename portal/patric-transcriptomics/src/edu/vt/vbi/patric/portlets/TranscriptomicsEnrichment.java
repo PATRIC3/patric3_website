@@ -57,7 +57,10 @@ public class TranscriptomicsEnrichment extends GenericPortlet {
 		Map<String, String> key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), Map.class);
 		String contextType = request.getParameter("context_type");
 		String contextId = request.getParameter("context_id");
-		String featureList = key.get("feature_id");
+		String featureList = null;
+		if (key != null && key.containsKey("feature_id")) {
+			featureList = key.get("feature_id");
+		}
 
 		request.setAttribute("contextType", contextType);
 		request.setAttribute("contextId", contextId);
@@ -130,113 +133,122 @@ public class TranscriptomicsEnrichment extends GenericPortlet {
 
 			Map<String, String> key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), Map.class);
 
-			SolrInterface solr = new SolrInterface();
-			List<String> featureIDs = Arrays.asList(key.get("feature_id").split(","));
+			if (key != null && key.containsKey("feature_id")) {
 
-			LOGGER.trace("# features passed:{}", featureIDs.size());
+				SolrInterface solr = new SolrInterface();
+				List<String> featureIDs = Arrays.asList(key.get("feature_id").split(","));
 
-			// 1. get Pathway ID, Pathway Name & genomeID
-			//solr/pathway/select?q=feature_id:(PATRIC.83332.12.NC_000962.CDS.34.1524.fwd)&fl=pathway_name,pathway_id,gid
+				LOGGER.trace("# features passed:{}", featureIDs.size());
 
-			Map<String, JSONObject> pathwayMap = new LinkedHashMap<>();
-			Set<String> listFeatureID = new HashSet<>();
-			Set<String> listGenomeID = new HashSet<>();
-			Set<String> listPathwayID = new HashSet<>();
-			try {
-				SolrQuery query = new SolrQuery("feature_id:(" + StringUtils.join(featureIDs, " OR ") + ")");
-				int queryRows = Math.max(300000, (featureIDs.size() * 2));
-				query.addField("pathway_name,pathway_id,genome_id,feature_id").setRows(queryRows);
-				LOGGER.trace("Enrichment 1/3: {}", query.toString());
+				// 1. get Pathway ID, Pathway Name & genomeID
+				//solr/pathway/select?q=feature_id:(PATRIC.83332.12.NC_000962.CDS.34.1524.fwd)&fl=pathway_name,pathway_id,gid
 
-				QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query, SolrRequest.METHOD.POST);
-				SolrDocumentList pathwayList = qr.getResults();
+				Map<String, JSONObject> pathwayMap = new LinkedHashMap<>();
+				Set<String> listFeatureID = new HashSet<>();
+				Set<String> listGenomeID = new HashSet<>();
+				Set<String> listPathwayID = new HashSet<>();
+				try {
+					SolrQuery query = new SolrQuery("feature_id:(" + StringUtils.join(featureIDs, " OR ") + ")");
+					int queryRows = Math.max(300000, (featureIDs.size() * 2));
+					query.addField("pathway_name,pathway_id,genome_id,feature_id").setRows(queryRows);
+					LOGGER.trace("Enrichment 1/3: {}", query.toString());
 
-				for (SolrDocument doc : pathwayList) {
-					JSONObject pw = new JSONObject();
-					pw.put("pathway_id", doc.get("pathway_id"));
-					pw.put("pathway_name", doc.get("pathway_name"));
-					pathwayMap.put(doc.get("pathway_id").toString(), pw);
+					QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query, SolrRequest.METHOD.POST);
+					SolrDocumentList pathwayList = qr.getResults();
 
-					// LOGGER.debug("{}", pw.toJSONString());
-					listFeatureID.add(doc.get("feature_id").toString());
-					listGenomeID.add(doc.get("genome_id").toString());
-					listPathwayID.add(doc.get("pathway_id").toString());
-				}
-			}
-			catch (MalformedURLException | SolrServerException e) {
-				LOGGER.error(e.getMessage(), e);
-			}
+					for (SolrDocument doc : pathwayList) {
+						JSONObject pw = new JSONObject();
+						pw.put("pathway_id", doc.get("pathway_id"));
+						pw.put("pathway_name", doc.get("pathway_name"));
+						pathwayMap.put(doc.get("pathway_id").toString(), pw);
 
-			// 2. get pathway ID & Ocnt
-			//solr/pathway/select?q=feature_id:(PATRIC.83332.12.NC_000962.CDS.34.1524.fwd)&rows=0&facet=true
-			// &json.facet={stat:{field:{field:pathway_id,limit:-1,facet:{gene_count:"unique(feature_id)"}}}}
-			try {
-				SolrQuery query = new SolrQuery("feature_id:(" + StringUtils.join(featureIDs, " OR ") + ")");
-				query.setRows(0).setFacet(true);
-				query.add("json.facet", "{stat:{field:{field:pathway_id,limit:-1,facet:{gene_count:\"unique(feature_id)\"}}}}");
-				LOGGER.trace("Enrichment 2/3: {}", query.toString());
-
-				QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query, SolrRequest.METHOD.POST);
-				List<SimpleOrderedMap> buckets = (List) ((SimpleOrderedMap) ((SimpleOrderedMap) qr.getResponse().get("facets")).get("stat"))
-						.get("buckets");
-
-				for (SimpleOrderedMap value : buckets) {
-					String aPathwayId = value.get("val").toString();
-
-					if (pathwayMap.containsKey(aPathwayId)) {
-						pathwayMap.get(aPathwayId).put("ocnt", value.get("gene_count"));
+						// LOGGER.debug("{}", pw.toJSONString());
+						listFeatureID.add(doc.get("feature_id").toString());
+						listGenomeID.add(doc.get("genome_id").toString());
+						listPathwayID.add(doc.get("pathway_id").toString());
 					}
 				}
-			}
-			catch (MalformedURLException | SolrServerException e) {
-				LOGGER.error(e.getMessage(), e);
-			}
+				catch (MalformedURLException | SolrServerException e) {
+					LOGGER.error(e.getMessage(), e);
+				}
 
-			// 3. with genomeID, get pathway ID & Ecnt
-			//solr/pathway/select?q=genome_id:83332.12 AND pathway_id:(00230 OR 00240)&fq=annotation:PATRIC&rows=0&facet=true //&facet.mincount=1&facet.limit=-1
-			// &json.facet={stat:{field:{field:pathway_id,limit:-1,facet:{gene_count:"unique(feature_id)"}}}}
-			if (!listGenomeID.isEmpty() && !listPathwayID.isEmpty()) {
+				// 2. get pathway ID & Ocnt
+				//solr/pathway/select?q=feature_id:(PATRIC.83332.12.NC_000962.CDS.34.1524.fwd)&rows=0&facet=true
+				// &json.facet={stat:{field:{field:pathway_id,limit:-1,facet:{gene_count:"unique(feature_id)"}}}}
 				try {
-					SolrQuery query = new SolrQuery(
-							"genome_id:(" + StringUtils.join(listGenomeID, " OR ") + ") AND pathway_id:(" + StringUtils.join(listPathwayID, " OR ")
-									+ ")");
-					query.setRows(0).setFacet(true).addFilterQuery("annotation:PATRIC");
+					SolrQuery query = new SolrQuery("feature_id:(" + StringUtils.join(featureIDs, " OR ") + ")");
+					query.setRows(0).setFacet(true);
 					query.add("json.facet", "{stat:{field:{field:pathway_id,limit:-1,facet:{gene_count:\"unique(feature_id)\"}}}}");
-					LOGGER.trace("Enrichment 3/3: {}", query.toString());
+					LOGGER.trace("Enrichment 2/3: {}", query.toString());
 
 					QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query, SolrRequest.METHOD.POST);
 					List<SimpleOrderedMap> buckets = (List) ((SimpleOrderedMap) ((SimpleOrderedMap) qr.getResponse().get("facets")).get("stat"))
 							.get("buckets");
 
 					for (SimpleOrderedMap value : buckets) {
-						pathwayMap.get(value.get("val").toString()).put("ecnt", value.get("gene_count"));
+						String aPathwayId = value.get("val").toString();
+
+						if (pathwayMap.containsKey(aPathwayId)) {
+							pathwayMap.get(aPathwayId).put("ocnt", value.get("gene_count"));
+						}
 					}
 				}
 				catch (MalformedURLException | SolrServerException e) {
 					LOGGER.error(e.getMessage(), e);
 				}
-			}
 
-			// 4. Merge hash and calculate percentage on the fly
-			JSONObject jsonResult = new JSONObject();
-			JSONArray results = new JSONArray();
-			for (JSONObject item : pathwayMap.values()) {
-				if (item.get("ecnt") != null && item.get("ocnt") != null) {
-					float ecnt = Float.parseFloat(item.get("ecnt").toString());
-					float ocnt = Float.parseFloat(item.get("ocnt").toString());
-					float percentage = ocnt / ecnt * 100;
-					item.put("percentage", (int) percentage);
-					results.add(item);
+				// 3. with genomeID, get pathway ID & Ecnt
+				//solr/pathway/select?q=genome_id:83332.12 AND pathway_id:(00230 OR 00240)&fq=annotation:PATRIC&rows=0&facet=true //&facet.mincount=1&facet.limit=-1
+				// &json.facet={stat:{field:{field:pathway_id,limit:-1,facet:{gene_count:"unique(feature_id)"}}}}
+				if (!listGenomeID.isEmpty() && !listPathwayID.isEmpty()) {
+					try {
+						SolrQuery query = new SolrQuery(
+								"genome_id:(" + StringUtils.join(listGenomeID, " OR ") + ") AND pathway_id:(" + StringUtils
+										.join(listPathwayID, " OR ")
+										+ ")");
+						query.setRows(0).setFacet(true).addFilterQuery("annotation:PATRIC");
+						query.add("json.facet", "{stat:{field:{field:pathway_id,limit:-1,facet:{gene_count:\"unique(feature_id)\"}}}}");
+						LOGGER.trace("Enrichment 3/3: {}", query.toString());
+
+						QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query, SolrRequest.METHOD.POST);
+						List<SimpleOrderedMap> buckets = (List) ((SimpleOrderedMap) ((SimpleOrderedMap) qr.getResponse().get("facets")).get("stat"))
+								.get("buckets");
+
+						for (SimpleOrderedMap value : buckets) {
+							pathwayMap.get(value.get("val").toString()).put("ecnt", value.get("gene_count"));
+						}
+					}
+					catch (MalformedURLException | SolrServerException e) {
+						LOGGER.error(e.getMessage(), e);
+					}
 				}
-			}
-			jsonResult.put("results", results);
-			jsonResult.put("total", results.size());
-			jsonResult.put("featureRequested", featureIDs.size());
-			jsonResult.put("featureFound", listFeatureID.size());
 
-			PrintWriter writer = resp.getWriter();
-			jsonResult.writeJSONString(writer);
-			writer.close();
+				// 4. Merge hash and calculate percentage on the fly
+				JSONObject jsonResult = new JSONObject();
+				JSONArray results = new JSONArray();
+				for (JSONObject item : pathwayMap.values()) {
+					if (item.get("ecnt") != null && item.get("ocnt") != null) {
+						float ecnt = Float.parseFloat(item.get("ecnt").toString());
+						float ocnt = Float.parseFloat(item.get("ocnt").toString());
+						float percentage = ocnt / ecnt * 100;
+						item.put("percentage", (int) percentage);
+						results.add(item);
+					}
+				}
+				jsonResult.put("results", results);
+				jsonResult.put("total", results.size());
+				jsonResult.put("featureRequested", featureIDs.size());
+				jsonResult.put("featureFound", listFeatureID.size());
+
+				PrintWriter writer = resp.getWriter();
+				jsonResult.writeJSONString(writer);
+				writer.close();
+			}
+			else {
+				PrintWriter writer = resp.getWriter();
+				writer.write("{}");
+				writer.close();
+			}
 		}
 	}
 }
