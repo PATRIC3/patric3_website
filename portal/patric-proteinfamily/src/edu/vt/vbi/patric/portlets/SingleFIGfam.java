@@ -40,8 +40,36 @@ public class SingleFIGfam extends GenericPortlet {
 	public void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 		new SiteHelper().setHtmlMetaElements(request, response, "Protein Family");
 		response.setContentType("text/html");
-		PortletContext context = this.getPortletContext();
-		PortletRequestDispatcher reqDispatcher = context.getRequestDispatcher("/WEB-INF/jsp/single.jsp");
+
+		String pk = request.getParameter("param_key");
+		String contextType = request.getParameter("context_type");
+		String contextId = request.getParameter("context_id");
+
+		String gid = "";
+		String figfam = "";
+
+		int length = 1;
+		Gson gson = new Gson();
+
+		PortletSession session = request.getPortletSession(true);
+		ResultType key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), ResultType.class);
+
+		if(key != null && key.containsKey("gid")){
+			gid = key.get("gid");
+		}
+
+		if(key != null && key.containsKey("figfam")){
+			figfam = key.get("figfam");
+			length = figfam.split("##").length;
+		}
+
+		request.setAttribute("contextType", contextType);
+		request.setAttribute("contextId", contextId);
+		request.setAttribute("gid", gid);
+		request.setAttribute("figfam", figfam);
+		request.setAttribute("length", length);
+
+		PortletRequestDispatcher reqDispatcher = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/single.jsp");
 		reqDispatcher.include(request, response);
 	}
 

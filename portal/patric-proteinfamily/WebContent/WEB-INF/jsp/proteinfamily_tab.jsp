@@ -1,9 +1,6 @@
-<%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet"%>
-<portlet:defineObjects />
-<%@ page import="edu.vt.vbi.patric.dao.ResultType" %>
-<%@ page import="edu.vt.vbi.patric.dao.DBShared" %>
-<%@ page import="java.util.*" %>
-<%
+<%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet"
+%><%@ page import="edu.vt.vbi.patric.dao.ResultType"
+%><portlet:defineObjects /><%
 
 String name = "FIGfamSorter";
 String defaultpath = renderResponse.encodeURL(renderRequest.getContextPath());
@@ -26,31 +23,11 @@ String windowID = renderRequest.getWindowID();
 String resourceURL = (renderResponse.createResourceURL()).toString();
 String contextPath = renderResponse.encodeURL(renderRequest.getContextPath());
 
-String cType = request.getParameter("context_type");
-if (cType == null) {
-	cType = "";
-}
-String cId = request.getParameter("context_id");
-if (cId == null) {
-	cId = "";
-}
-
-ResultType key = null;
-String pk = request.getParameter("param_key");
-String keyword= "";
-
-if (pk != null) {
-	key = (ResultType) portletSession.getAttribute("key" + pk);
-}
-
-if (key == null) {
-	key = new ResultType();
-	key.put("keyword", "");
-	key.put("genera", "");
-	key.put("genomeIds", "");
-}else{
-	keyword = key.get("keyword");
-}
+String contextType = (String) request.getAttribute("contextType");
+String contextId = (String) request.getAttribute("contextId");
+String pk = (String) request.getAttribute("pk");
+String keyword = (String) request.getAttribute("keyword");
+ResultType key = (ResultType) request.getAttribute("key");
 %>
 
 <script type="text/javascript" src="<%=nameSpaceAids%>"></script>
@@ -167,7 +144,7 @@ Ext.onReady(function() {
 	Ext.QuickTips.init();
 	SetPageProperties(pageProperties);
 	FigFamSorterOnReady('<%=name%>', '<%=resourceURL%>',
-						'<%=contextPath%>', '<%=cType%>', '<%=cId%>', '<%=keyword%>', genomeIds);
+						'<%=contextPath%>', '<%=contextType%>', '<%=contextId%>', '<%=keyword%>', genomeIds);
 	if (Ext.get("tabs_proteinfamilysorter")!=null) {
 	 	Ext.get("tabs_proteinfamilysorter").addCls("sel");
 	}

@@ -60,6 +60,55 @@ public class GenomicFeature extends GenericPortlet {
 
 		PortletRequestDispatcher prd;
 		if (mode != null && mode.equals("result")) {
+
+			String contextType = request.getParameter("context_type");
+			String contextId = request.getParameter("context_id");
+			String pk = request.getParameter("param_key");
+			Gson gson = new Gson();
+
+			PortletSession session = request.getPortletSession(true);
+			ResultType key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), ResultType.class);
+
+			String taxonId = "";
+			String genomeId = "";
+			String keyword = "";
+			String exactSearchTerm = "";
+
+			if(key != null && key.containsKey("taxonId")){
+				taxonId = key.get("taxonId");
+			}
+
+			if(key != null && key.containsKey("genomeId")){
+				genomeId = key.get("genomeId");
+			}
+
+			if(key != null && key.containsKey("keyword")){
+				keyword = key.get("keyword");
+			}
+
+			if(key != null && key.containsKey("exact_search_term")){
+				exactSearchTerm = key.get("exact_search_term");
+			}
+			String algorithm = "";
+			if(keyword.contains("annotation:)")){
+				algorithm = keyword.split("annotation:\\(")[1].split("\\)")[0];
+			}
+
+			String featureType = "";
+			if(keyword.contains("feature_type:")){
+				featureType = keyword.split("feature_type:\\(")[1].split("\\)")[0];
+			}
+
+			request.setAttribute("contextType", contextType);
+			request.setAttribute("contextId", contextId);
+			request.setAttribute("pk", pk);
+			request.setAttribute("taxonId", taxonId);
+			request.setAttribute("genomeId", genomeId);
+			request.setAttribute("keyword", keyword);
+			request.setAttribute("exactSearchTerm", exactSearchTerm);
+			request.setAttribute("algorithm", algorithm);
+			request.setAttribute("featureType", featureType);
+
 			prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/feature_finder_result.jsp");
 		}
 		else {

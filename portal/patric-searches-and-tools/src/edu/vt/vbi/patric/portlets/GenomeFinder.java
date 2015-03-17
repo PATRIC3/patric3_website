@@ -60,6 +60,49 @@ public class GenomeFinder extends GenericPortlet {
 
 		PortletRequestDispatcher prd;
 		if (mode != null && mode.equals("result")) {
+
+			String contextType = request.getParameter("context_type");
+			String contextId = request.getParameter("context_id");
+			String pk = request.getParameter("param_key");
+			Gson gson = new Gson();
+
+			PortletSession session = request.getPortletSession(true);
+			ResultType key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), ResultType.class);
+
+			String taxonId = "";
+			String genomeId = "";
+			String keyword = "";
+			String searchOn = "", exactSearchTerm = "";
+
+			if (key != null && key.containsKey("taxonId")) {
+				taxonId = key.get("taxonId");
+			}
+
+			if (key != null && key.containsKey("genomeId")) {
+				genomeId = key.get("genomeId");
+			}
+
+			if (key != null && key.containsKey("keyword")) {
+				keyword = key.get("keyword");
+			}
+
+			if (key != null && key.containsKey("search_on")) {
+				searchOn = key.get("search_on");
+			}
+
+			if (key != null && key.containsKey("exact_search_term")) {
+				exactSearchTerm = key.get("exact_search_term");
+			}
+
+			request.setAttribute("contextType", contextType);
+			request.setAttribute("contextId", contextId);
+			request.setAttribute("pk", pk);
+			request.setAttribute("taxonId", taxonId);
+			request.setAttribute("genomeId", genomeId);
+			request.setAttribute("keyword", keyword);
+			request.setAttribute("searchOn", searchOn);
+			request.setAttribute("exactSearchTerm", exactSearchTerm);
+
 			prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/genome_finder_result.jsp");
 		}
 		else {

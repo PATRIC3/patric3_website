@@ -19,6 +19,7 @@ import com.google.gson.Gson;
 import edu.vt.vbi.ci.util.CommandResults;
 import edu.vt.vbi.ci.util.ExecUtilities;
 import edu.vt.vbi.patric.common.SiteHelper;
+import edu.vt.vbi.patric.dao.ResultType;
 import edu.vt.vbi.patric.proteinfamily.FIGfamData;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -58,6 +59,43 @@ public class FIGfam extends GenericPortlet {
 
 		PortletRequestDispatcher prd;
 		if ((mode != null) && (mode.equals("result"))) {
+
+			String contextType = request.getParameter("context_type");
+			if (contextType == null) {
+				contextType = "";
+			}
+			String contextId = request.getParameter("context_id");
+			if (contextId == null) {
+				contextId = "";
+			}
+
+			ResultType key = null;
+			String pk = request.getParameter("param_key");
+			String keyword = "";
+
+			if (pk != null) {
+				Gson gson = new Gson();
+
+				PortletSession session = request.getPortletSession(true);
+				key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), ResultType.class);
+			}
+
+			if (key == null) {
+				key = new ResultType();
+				key.put("keyword", "");
+				key.put("genera", "");
+				key.put("genomeIds", "");
+			}
+			else {
+				keyword = key.get("keyword");
+			}
+
+			request.setAttribute("contextType", contextType);
+			request.setAttribute("contextId", contextId);
+			request.setAttribute("pk", pk);
+			request.setAttribute("keyword", keyword);
+			request.setAttribute("key", key);
+
 			prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/proteinfamily_tab.jsp");
 		}
 		else if ((mode != null) && (mode.equals("treeSee"))) {
@@ -263,7 +301,8 @@ public class FIGfam extends GenericPortlet {
 				String keyType = req.getParameter("keyType");
 				String random = req.getParameter("random");
 				if ((random != null) && (keyType != null)) {
-					Map<String, String> key = gson.fromJson((String) session.getAttribute(keyType + random, PortletSession.APPLICATION_SCOPE), Map.class);
+					Map<String, String> key = gson
+							.fromJson((String) session.getAttribute(keyType + random, PortletSession.APPLICATION_SCOPE), Map.class);
 					writer.write(getKeyValue("pageAt", key));
 					writer.write("\t" + getKeyValue("syntonyId", key));
 					writer.write("\t" + getKeyValue("regex", key));

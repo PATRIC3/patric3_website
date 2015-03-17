@@ -1,15 +1,8 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet"%>
-<%@ page import="java.util.*" %>
-<%@ page import="javax.portlet.PortletSession" %>
-<%@ page import="edu.vt.vbi.patric.dao.ResultType" %>
 <portlet:defineObjects/>
 <%
-String pk = request.getParameter("param_key");
-
-ResultType key = (ResultType) portletSession.getAttribute("key"+pk, PortletSession.APPLICATION_SCOPE);
-String keyword = "";
-if(key != null && key.get("keyword") != null)
-	keyword = key.get("keyword");
+String pk = (String) request.getAttribute("pk");
+String keyword = (String) request.getAttribute("keyword");
 %>
 <div style="display:none">
 <form id="fTableForm" action="#" method="post">

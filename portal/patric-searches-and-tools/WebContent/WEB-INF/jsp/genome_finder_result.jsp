@@ -1,48 +1,22 @@
-<%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" 
-%><%@ page import="java.util.*" 
-%><%@ page import="edu.vt.vbi.patric.dao.ResultType" 
-%><%@ page import="javax.portlet.PortletSession" %>
-<portlet:defineObjects/>
-<%
-String cType = request.getParameter("context_type");
-String cId = request.getParameter("context_id");
-String pk = request.getParameter("param_key");
+<%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet"
+%><portlet:defineObjects/><%
 
-//HashMap<String,String> key = (HashMap<String,String>) portletSession.getAttribute("key"+pk);
-ResultType key = (ResultType) portletSession.getAttribute("key"+pk, PortletSession.APPLICATION_SCOPE);
-
-String taxonId = "";
-String genomeId = "";
-String keyword = "";
-String search_on = "", exact_search_term = "";
-
-if(key != null && key.containsKey("taxonId")){
-	taxonId = key.get("taxonId");
-}
-
-if(key != null && key.containsKey("genomeId")){
-	genomeId = key.get("genomeId");
-}
-
-if(key != null && key.containsKey("keyword")){
-	keyword = key.get("keyword");
-}
-
-if(key != null && key.containsKey("search_on")){
-	search_on = key.get("search_on");
-}
-
-if(key != null && key.containsKey("exact_search_term")){
-	exact_search_term = key.get("exact_search_term");
-}
+String contextType = (String) request.getAttribute("contextType");
+String contextId = (String) request.getAttribute("contextId");
+String pk = (String) request.getAttribute("pk");
+String taxonId = (String) request.getAttribute("taxonId");
+String genomeId = (String) request.getAttribute("genomeId");
+String keyword = (String) request.getAttribute("keyword");
+String searchOn = (String) request.getAttribute("searchOn");
+String exactSearchTerm = (String) request.getAttribute("exactSearchTerm");
 
 %>
 <form id="fTableForm" action="#" method="post">
 	<input type="hidden" id="tablesource" name="tablesource" value="Genome" />
 	<input type="hidden" name="keyword" id="keyword" value="<%=keyword%>" />
-	<input type="hidden" name="search_on" value="<%=search_on %>" />
-	<input type="hidden" name="cType" id="cType" value="<%=cType %>" />
-	<input type="hidden" name="cId" id="cId" value="<%=cId %>" />
+	<input type="hidden" name="search_on" value="<%=searchOn %>" />
+	<input type="hidden" name="cType" id="cType" value="<%=contextType %>" />
+	<input type="hidden" name="cId" id="cId" value="<%=contextId %>" />
 	<input type="hidden" name="gId" id="gId" value="" />
 	<input type="hidden" id="aT" name="aT" value="" />
 	<input type="hidden" id="sort" name="sort" value="" />
@@ -56,7 +30,7 @@ if(key != null && key.containsKey("exact_search_term")){
 <div id="copy-button"style="display:none;"></div>
 <div style="padding:3px;">
 	<input type="button" class="button leftarrow" id="search_modify" value="Modify Search Criteria" onclick="returntoSearchPage();"/> 
-	<span class="showing_result_for">Showing results for: <b><%=exact_search_term %></b></span>
+	<span class="showing_result_for">Showing results for: <b><%=exactSearchTerm %></b></span>
 </div>
 
 <div>
@@ -230,8 +204,8 @@ function getOriginalKeyword(hash) {
 	return constructKeyword(genome_list_object, "Genome");
 }
 function returntoSearchPage(){
-	var key = DecodeKeyword('<%=java.net.URLEncoder.encode(exact_search_term, "UTF-8") %>');
-	document.location.href = "GenomeFinder?cType=<%=cType%>&cId=<%=cId%>&dm=#search_on=<%=search_on%>&keyword="+key;
+	var key = DecodeKeyword('<%=java.net.URLEncoder.encode(exactSearchTerm, "UTF-8") %>');
+	document.location.href = "GenomeFinder?cType=<%=contextType%>&cId=<%=contextId%>&dm=#search_on=<%=searchOn%>&keyword="+key;
 }
 
 //]]>

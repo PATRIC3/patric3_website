@@ -1,35 +1,13 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" 
-%><%@ page import="java.util.*" 
-%><%@ page import="edu.vt.vbi.patric.dao.ResultType" 
-%><%@ page import="javax.portlet.PortletSession" %>
-<portlet:defineObjects/>
-<%
-String cType = request.getParameter("context_type");
-String cId = request.getParameter("context_id");
-String pk = request.getParameter("param_key");
+%><portlet:defineObjects/><%
 
-ResultType key = (ResultType) portletSession.getAttribute("key"+pk, PortletSession.APPLICATION_SCOPE);
-
-String taxonId = "";
-String genomeId = "";
-String keyword = "";
-String exact_search_term = "";
-
-if(key != null && key.containsKey("taxonId")){
-	taxonId = key.get("taxonId");
-}
-
-if(key != null && key.containsKey("genomeId")){
-	genomeId = key.get("genomeId");
-}
-
-if(key != null && key.containsKey("keyword")){
-	keyword = key.get("keyword");
-}
-
-if(key != null && key.containsKey("exact_search_term")){
-	exact_search_term = key.get("exact_search_term");
-}
+String contextType = (String) request.getAttribute("contextType");
+String contextId = (String) request.getAttribute("contextId");
+String pk = (String) request.getAttribute("pk");
+String taxonId = (String) request.getAttribute("taxonId");
+String genomeId = (String) request.getAttribute("genomeId");
+String keyword = (String) request.getAttribute("keyword");
+String exactSearchTerm = (String) request.getAttribute("exactSearchTerm");
 %>
 <form id="fTableForm" action="#" method="post">
 	<input type="hidden" id="tablesource" name="tablesource" value="SpecialtyGeneMapping" />
@@ -45,14 +23,14 @@ if(key != null && key.containsKey("exact_search_term")){
 	<input type="hidden" id="download_keyword" name="download_keyword" value="" />
 	<input type="hidden" id="fileformat" name="fileformat" value=""/>
 
-    <input type="hidden" id="cId" name="cId" value="<%=cId %>" />
-    <input type="hidden" id="cType" name="cType" value="<%=cType %>" />
+    <input type="hidden" id="cId" name="cId" value="<%=contextId %>" />
+    <input type="hidden" id="cType" name="cType" value="<%=contextType %>" />
 </form>
 
 <div id="copy-button" style="display:none;"></div>
 <div style="padding:3px;">
 	<input type="button" class="button leftarrow" id="search_modify" value="Modify Search Criteria" onclick="returntoSearchPage();"/>
-	<span class="showing_result_for">Showing results for: <b><%=exact_search_term %></b></span>
+	<span class="showing_result_for">Showing results for: <b><%=exactSearchTerm %></b></span>
 </div>
 <div id="SearchSummary">
 The list below provides Specialty Genes, i.e. genes that are of particular interest to the infectious disease researches, 
@@ -127,7 +105,7 @@ Ext.onReady(function() {
 			{header:'Evidence',				dataIndex:'evidence',			flex:1, align:'center'},
 			{header:'Property',				dataIndex:'property', 			flex:2, align:'center', renderer:BasicRenderer},
 			{header:'Source',				dataIndex:'source', 			flex:1, align:'center', renderer:renderSource},
-			{header:'Genome Name',			dataIndex:'genome_name',		flex:2, renderer:renderGenomeName <%=cType.equals("genome")?", hidden:true":""%>},
+			{header:'Genome Name',			dataIndex:'genome_name',		flex:2, renderer:renderGenomeName <%=contextType.equals("genome")?", hidden:true":""%>},
 			{header:'PATRIC ID',	    	dataIndex:'seed_id', 	    	flex:2, renderer:renderSeedId, align:'center'},
 			{header:'RefSeq Locus Tag',		dataIndex:'refseq_locus_tag',	flex:1, align:'center', renderer:renderLocusTag},
 			{header:'Alt Locus Tag',		dataIndex:'alt_locus_tag', 		flex:2, renderer:renderLocusTag, align:'center'},
@@ -212,8 +190,8 @@ function getOriginalKeyword(hash){
 }
 
 function returntoSearchPage(){
-	var key = DecodeKeyword('<%=java.net.URLEncoder.encode(exact_search_term, "UTF-8") %>');
-	document.location.href = "SpecialtyGeneSearch?cType=<%=cType%>&cId=<%=cId%>&dm=#&keyword="+key;
+	var key = DecodeKeyword('<%=java.net.URLEncoder.encode(exactSearchTerm, "UTF-8") %>');
+	document.location.href = "SpecialtyGeneSearch?cType=<%=contextType%>&cId=<%=contextId%>&dm=#&keyword="+key;
 }
 //]]>
 </script>

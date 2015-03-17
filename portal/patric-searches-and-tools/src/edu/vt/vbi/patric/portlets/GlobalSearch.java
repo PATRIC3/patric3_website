@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2014 Virginia Polytechnic Institute and State University
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,6 +14,9 @@
  * limitations under the License.
  ******************************************************************************/
 package edu.vt.vbi.patric.portlets;
+
+import com.google.gson.Gson;
+import edu.vt.vbi.patric.dao.ResultType;
 
 import javax.portlet.*;
 import java.io.IOException;
@@ -27,10 +30,20 @@ public class GlobalSearch extends GenericPortlet {
 
 		response.setTitle("PATRIC Search");
 
-		PortletRequestDispatcher prd = null;
+		String pk = request.getParameter("param_key");
+		Gson gson = new Gson();
 
-		prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/globalsearch.jsp");
+		PortletSession session = request.getPortletSession(true);
+		ResultType key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), ResultType.class);
+		String keyword = "";
+		if (key != null && key.get("keyword") != null) {
+			keyword = key.get("keyword");
+		}
 
+		request.setAttribute("pk", pk);
+		request.setAttribute("keyword", keyword);
+
+		PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/globalsearch.jsp");
 		prd.include(request, response);
 
 	}

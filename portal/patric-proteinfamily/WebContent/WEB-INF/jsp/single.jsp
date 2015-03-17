@@ -1,35 +1,18 @@
-<%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet"%><%@ 
-page import="edu.vt.vbi.patric.dao.ResultType" %><%@ 
-page import="javax.portlet.PortletSession" %>
-<portlet:defineObjects />
-<%@page import="java.util.*" %><%
-	String pk = request.getParameter("param_key");
-	String cType = request.getParameter("context_type");
-	String cId = request.getParameter("context_id");
-	
-	String gid = "";
-	String figfam = "";
-	
-	int length = 1;
-	ResultType key = (ResultType) portletSession.getAttribute("key"+pk, PortletSession.APPLICATION_SCOPE);
-	
-	if(key != null && key.containsKey("gid")){
-		gid = key.get("gid");
-	}
-	
-	if(key != null && key.containsKey("figfam")){
-		figfam = key.get("figfam");
-		length = figfam.split("##").length;
-	}
-
+<%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet"
+%><portlet:defineObjects /><%
+String contextType = (String) request.getAttribute("contextType");
+String contextId = (String) request.getAttribute("contextId");
+String gid = (String) request.getAttribute("gid");
+String figfam = (String) request.getAttribute("figfam");
+int length = (Integer) request.getAttribute("length");
 %>
 
 <form id="fTableForm" action="#" method="post">
 <input type="hidden" id="tablesource" name="tablesource" value="Feature" />
 <input type="hidden" id="subtablesource" name="subtablesource" value="FigFam" />
 <input type="hidden" id="fileformat" name="fileformat" value="" />
-<input type="hidden" id="cType" name="cType" value="<%=cType%>" />
-<input type="hidden" id="cId" name="cId" value="<%=cId%>" />
+<input type="hidden" id="cType" name="cType" value="<%=contextType%>" />
+<input type="hidden" id="cId" name="cId" value="<%=contextId%>" />
 <!-- fasta download specific param -->
 <input type="hidden" id="fastaaction" name="fastaaction" value="" />
 <input type="hidden" id="fastatype" name="fastatype" value="" />

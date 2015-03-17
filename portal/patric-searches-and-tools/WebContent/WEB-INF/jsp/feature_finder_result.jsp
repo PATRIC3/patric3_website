@@ -1,46 +1,15 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" 
-%><%@ page import="java.util.*" 
-%><%@ page import="edu.vt.vbi.patric.dao.ResultType" 
-%><%@ page import="javax.portlet.PortletSession" %>
-<portlet:defineObjects/>
-<%
-String cType = request.getParameter("context_type");
-String cId = request.getParameter("context_id");
-String pk = request.getParameter("param_key");
+%><portlet:defineObjects/><%
 
-//HashMap<String,String> key = (HashMap<String,String>) portletSession.getAttribute("key"+pk);
-ResultType key = (ResultType) portletSession.getAttribute("key"+pk, PortletSession.APPLICATION_SCOPE);
-
-String taxonId = "";
-String genomeId = "";
-String keyword = "";
-String exact_search_term = "";
-
-if(key != null && key.containsKey("taxonId")){
-	taxonId = key.get("taxonId");
-}
-
-if(key != null && key.containsKey("genomeId")){
-	genomeId = key.get("genomeId");
-}
-
-if(key != null && key.containsKey("keyword")){
-	keyword = key.get("keyword");
-}
-
-if(key != null && key.containsKey("exact_search_term")){
-	exact_search_term = key.get("exact_search_term");
-}
-String algorithm = "";
-if(keyword.contains("annotation:)")){
-	algorithm = keyword.split("annotation:\\(")[1].split("\\)")[0];	
-}
-
-String feature_type = "";
-if(keyword.contains("feature_type:")){
-	feature_type = keyword.split("feature_type:\\(")[1].split("\\)")[0];
-}
-
+String contextType = (String) request.getAttribute("contextType");
+String contextId = (String) request.getAttribute("contextId");
+String pk = (String) request.getAttribute("pk");
+String taxonId = (String) request.getAttribute("taxonId");
+String genomeId = (String) request.getAttribute("genomeId");
+String keyword = (String) request.getAttribute("keyword");
+String exactSearchTerm = (String) request.getAttribute("exactSearchTerm");
+String algorithm = (String) request.getAttribute("algorithm");
+String featureType = (String) request.getAttribute("featureType");
 %>
 <form id="fTableForm" name="searchForm" action="#" method="post" onsubmit="return false;">
 	<input type="hidden" id="tablesource" name="tablesource" value="Feature" />
@@ -57,8 +26,8 @@ if(keyword.contains("feature_type:")){
 	<input type="hidden" id="fids" name="fids" value="" />
 	<input type="hidden" id="download_keyword" name="download_keyword" value="" />
 	
-	<input type="hidden" id="cId" name="cId" value="<%=cId %>" />
-	<input type="hidden" id="cType" name="cType" value="<%=cType %>" />	
+	<input type="hidden" id="cId" name="cId" value="<%=contextId %>" />
+	<input type="hidden" id="cType" name="cType" value="<%=contextType %>" />
 	<input type="hidden" id="sort" name="sort" value="" />
 	<input type="hidden" id="dir" name="dir" value="" />
 </form>
@@ -66,7 +35,7 @@ if(keyword.contains("feature_type:")){
 <div id="copy-button" style="display:none;"></div>
 <div style="padding:3px;">
 	<input type="button" class="button leftarrow" id="search_modify" value="Modify Search Criteria" onclick="returntoSearchPage();"/>
-	<span class="showing_result_for">Showing results for: <b><%=exact_search_term %></b></span>
+	<span class="showing_result_for">Showing results for: <b><%=exactSearchTerm %></b></span>
 </div>
 <div id="SearchSummary">
 	<div id="grid_result_summary"></div>
@@ -172,8 +141,8 @@ function getOriginalKeyword(){
 }
 
 function returntoSearchPage(){
-	var key = DecodeKeyword('<%=java.net.URLEncoder.encode(exact_search_term, "UTF-8") %>');
-	document.location.href = "GenomicFeature?cType=<%=cType%>&cId=<%=cId%>&dm=#feature_type=<%=feature_type%>&keyword="+key+"&annotation=<%=algorithm%>&feature_type=<%=feature_type%>";
+	var key = DecodeKeyword('<%=java.net.URLEncoder.encode(exactSearchTerm, "UTF-8") %>');
+	document.location.href = "GenomicFeature?cType=<%=contextType%>&cId=<%=contextId%>&dm=#feature_type=<%=featureType%>&keyword="+key+"&annotation=<%=algorithm%>&feature_type=<%=featureType%>";
 }
 //]]>
 </script>
