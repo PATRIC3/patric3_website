@@ -71,6 +71,7 @@ public class PathwayTableSingle extends GenericPortlet {
 			genomeId = key.get("genomeId");
 		}
 
+		request.setAttribute("pk", pk);
 		request.setAttribute("algorithm", algorithm);
 		request.setAttribute("ec_number", ec_number);
 		request.setAttribute("map", map);

@@ -1,5 +1,6 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet"
 %><portlet:defineObjects/><%
+String pk = (String) request.getAttribute("pk");
 String algorithm = (String) request.getAttribute("algorithm");
 String ec_number = (String) request.getAttribute("ec_number");
 String map = (String) request.getAttribute("map");
