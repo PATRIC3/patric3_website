@@ -83,7 +83,7 @@ public class TranscriptomicsGeneFeature extends GenericPortlet {
 		}
 		else if (callType.equals("getFeatureTable")) {
 
-			PortletSession session = req.getPortletSession();
+			PortletSession session = req.getPortletSession(true);
 
 			String pk = req.getParameter("pk");
 			String start_id = req.getParameter("start");

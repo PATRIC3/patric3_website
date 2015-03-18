@@ -643,16 +643,21 @@ function renderMapTableGene(value, metadata, record, rowIndex, colIndex, store){
 		gc = parseInt(Ext.getDom("taxongenomecount_"+getAlgorithm(algo).toLowerCase()).value),
 		cType = Ext.getDom("cType").value || null;
 
-	if(rgc == gc){
-		if(cType && (cType == "taxon" || cType == "genome"))
+	if (rgc == gc) {
+		if(cType && (cType == "taxon" || cType == "genome")) {
 			return Ext.String.format('<a href=\"CompPathwayTable?cType={0}&amp;cId={1}&amp;algorithm={2}&amp;ec_number={3}&amp;map=\" target=\"_blank\"><b>{4}</b></a>',Ext.getDom("cType").value, Ext.getDom("cId").value, algo, record.data.ec_number, value);
-		else
-			return Ext.String.format('<a href=\"PathwayFinder?cType=&amp;cId=&amp;dm=result&amp;pk={0}&amp;algorithm={1}&amp;ec_number={2}&amp;map=\" target=\"_blank\"><b>{3}</b></a>',Ext.getDom("pk").value, algo, record.data.ec_number, value);		
-	}else{ 
-		if(cType && (cType == "taxon" || cType == "genome"))
+		}
+		else {
+			return Ext.String.format('<a href=\"PathwayFinder?cType=taxon&amp;cId=131567&amp;dm=featurelist&amp;pk={0}&amp;algorithm={1}&amp;ec_number={2}&amp;map=<%=map%>\" target=\"_blank\"><b>{3}</b></a>',Ext.getDom("pk").value, algo, record.data.ec_number, value);
+		}
+	}
+	else {
+		if(cType && (cType == "taxon" || cType == "genome")) {
 			return Ext.String.format('<a href=\"CompPathwayTable?cType={0}&amp;cId={1}&amp;algorithm={2}&amp;ec_number={3}&amp;map=\" target=\"_blank\">{4}</a>',Ext.getDom("cType").value, Ext.getDom("cId").value, algo, record.data.ec_number, value);
-		else
-			return Ext.String.format('<a href=\"PathwayFinder?cType=&amp;cId=&amp;dm=result&amp;pk={0}&amp;algorithm={1}&amp;ec_number={2}&amp;map=\" target=\"_blank\">{3}</a>',Ext.getDom("pk").value, algo, record.data.ec_number, value);
+		}
+		else {
+			return Ext.String.format('<a href=\"PathwayFinder?cType=taxon&amp;cId=131567&amp;dm=featurelist&amp;pk={0}&amp;algorithm={1}&amp;ec_number={2}&amp;map=<%=map%>\" target=\"_blank\">{3}</a>',Ext.getDom("pk").value, algo, record.data.ec_number, value);
+		}
 	}
 			
 }

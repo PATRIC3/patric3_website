@@ -60,7 +60,7 @@ function gotoPathwayMap(map) {
 		timeout : 600000,
 		params : {
 			callType : "getGenomeIds",
-			feature_info_id : Ext.getDom("featureList").value,
+			feature_id : Ext.getDom("featureList").value,
 			map : map
 		},
 		success : function(rs) {
@@ -70,13 +70,13 @@ function gotoPathwayMap(map) {
 				method : 'POST',
 				timeout : 600000,
 				params : {
-					feature_info_id : Ext.getDom("featureList").value,
+					feature_id : Ext.getDom("featureList").value,
 					sraction : "save_params",
 					genomeId : rs.responseText,
 					algorithm : "ALL"
 				},
 				success : function(rs2) {
-					document.location.href = "CompPathwayMap?cType=&cId=131567&dm=featurelist&map=" + map + "&pk=" + rs2.responseText + "&algorithm=PATRIC&feature_info_id=&ec_number=";
+					document.location.href = "CompPathwayMap?cType=&cId=131567&dm=featurelist&map=" + map + "&pk=" + rs2.responseText + "&algorithm=PATRIC&feature_id=&ec_number=";
 				}
 			});
 

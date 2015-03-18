@@ -96,7 +96,7 @@ public class TranscriptomicsEnrichment extends GenericPortlet {
 
 		if (callType.equals("getGenomeIds")) {
 
-			String featureIds = req.getParameter("feature_info_id");
+			String featureIds = req.getParameter("feature_id");
 			String pathwayId = req.getParameter("map");
 			SolrInterface solr = new SolrInterface();
 
@@ -127,7 +127,7 @@ public class TranscriptomicsEnrichment extends GenericPortlet {
 		}
 		else if (callType.equals("getFeatureTable")) {
 
-			PortletSession session = req.getPortletSession();
+			PortletSession session = req.getPortletSession(true);
 
 			String pk = req.getParameter("pk");
 

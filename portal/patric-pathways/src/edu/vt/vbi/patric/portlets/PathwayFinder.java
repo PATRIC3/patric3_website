@@ -112,6 +112,33 @@ public class PathwayFinder extends GenericPortlet {
 			request.setAttribute("taxonId", taxonId);
 			prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/comp_pathway_finder_result.jsp");
 		}
+		else if (mode != null && mode.equals("featurelist")) {
+
+			String pk = request.getParameter("param_key");
+			PortletSession session = request.getPortletSession(true);
+			Map<String, String> key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), Map.class);
+
+			String ecNumber = request.getParameter("ec_number");
+			String annotation = request.getParameter("algorithm");
+			String pathwayId = request.getParameter("map");
+
+			if (ecNumber != null && !ecNumber.equals("")) {
+				key.put("ec_number", ecNumber);
+			}
+			if (annotation != null && !annotation.equals("")) {
+				key.put("algorithm", annotation);
+			}
+			if (pathwayId != null && !pathwayId.equals("")) {
+				key.put("map", pathwayId);
+			}
+
+			LOGGER.debug("saving params:{}", key.toString());
+			session.setAttribute("key" + pk, gson.toJson(key, Map.class), PortletSession.APPLICATION_SCOPE);
+
+			request.setAttribute("pk", pk);
+
+			prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/comp_pathway_finder_result.jsp");
+		}
 		else {
 
 			SolrInterface solr = new SolrInterface();
@@ -184,11 +211,11 @@ public class PathwayFinder extends GenericPortlet {
 					key.put("keyword", keyword.trim());
 				}
 			}
-			if (taxonId != null && !taxonId.equalsIgnoreCase("")) {
+			if (taxonId != null && !taxonId.equals("")) {
 				key.put("taxonId", taxonId);
 			}
 
-			if (genomeId != null && !genomeId.equalsIgnoreCase("")) {
+			if (genomeId != null && !genomeId.equals("")) {
 				key.put("genomeId", genomeId);
 			}
 
@@ -221,30 +248,28 @@ public class PathwayFinder extends GenericPortlet {
 
 			switch (need) {
 			case "0":
-				JSONObject jsonResult = this
-						.processPathwayTab(key.get("map"), key.get("ec_number"), key.get("algorithm"), key.get("taxonId"), key.get("genomeId"),
-								key.get("keyword"));
+				JSONObject jsonResult = processPathwayTab(key.get("map"), key.get("ec_number"), key.get("algorithm"), key.get("taxonId"),
+						key.get("genomeId"), key.get("keyword"));
 				response.setContentType("application/json");
 				jsonResult.writeJSONString(response.getWriter());
 				break;
 			case "1":
-				jsonResult = this
-						.processEcNumberTab(key.get("map"), key.get("ec_number"), key.get("algorithm"), key.get("taxonId"), key.get("genomeId"),
-								key.get("keyword"));
+				jsonResult = processEcNumberTab(key.get("map"), key.get("ec_number"), key.get("algorithm"), key.get("taxonId"), key.get("genomeId"),
+						key.get("keyword"));
 				response.setContentType("application/json");
 				jsonResult.writeJSONString(response.getWriter());
 				break;
 			case "2":
-				jsonResult = this.processGeneTab(key.get("map"), key.get("ec_number"), key.get("algorithm"), key.get("taxonId"), key.get("genomeId"),
+				jsonResult = processGeneTab(key.get("map"), key.get("ec_number"), key.get("algorithm"), key.get("taxonId"), key.get("genomeId"),
 						key.get("keyword"));
 				response.setContentType("application/json");
 				jsonResult.writeJSONString(response.getWriter());
 				break;
 			case "download":
-				this.processDownload(request, response);
+				processDownload(request, response);
 				break;
 			case "downloadMapFeatureTable":
-				this.processDownloadMapFeatureTable(request, response);
+				processDownloadMapFeatureTable(request, response);
 				break;
 			}
 		}
@@ -265,7 +290,7 @@ public class PathwayFinder extends GenericPortlet {
 			query.addFilterQuery("ec_number:" + ecNumber);
 		}
 
-		if (annotation != null && !annotation.equals("")) {
+		if (annotation != null && !annotation.equals("") && !annotation.equalsIgnoreCase("ALL")) {
 			query.addFilterQuery("annotation:" + annotation);
 		}
 
