@@ -1,8 +1,10 @@
-<%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet"%>
-<portlet:defineObjects />
-<%@ page import="edu.vt.vbi.patric.dao.ResultType" %>
-<%@ page import="java.util.*" %>
-<%
+<%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet"
+%><%@ page import="edu.vt.vbi.patric.dao.ResultType"
+%><%@ page import="java.util.*"
+%><%@ page import="com.google.gson.Gson"
+%><%@ page import="edu.vt.vbi.patric.common.SessionHandler"
+%>
+<portlet:defineObjects /><%
 String nameSpaceAids = renderResponse.encodeURL(renderRequest.getContextPath() + "/js/namespace.js");
 
 String runBrowser = renderResponse.encodeURL(renderRequest.getContextPath() + "/js/TreeAligner.js");
@@ -19,7 +21,8 @@ String pk = request.getParameter("param_key");
 String featureIds = "";
 String figfamId = "";
 String product = "";
-Map<String, String> key = (Map<String, String>) (renderRequest.getPortletSession(true)).getAttribute("key" + pk, 1);
+Gson gson = new Gson();
+Map<String, String> key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), Map.class);
 if (key != null) {
 	featureIds = key.get("featureIds");
 	figfamId = key.get("figfamId");
