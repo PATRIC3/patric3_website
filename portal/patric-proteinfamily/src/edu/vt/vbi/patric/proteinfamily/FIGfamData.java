@@ -19,6 +19,7 @@ import com.google.gson.Gson;
 import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.beans.GenomeFeature;
 import edu.vt.vbi.patric.beans.Taxonomy;
+import edu.vt.vbi.patric.common.SessionHandler;
 import edu.vt.vbi.patric.common.SolrCore;
 import edu.vt.vbi.patric.common.SolrInterface;
 import edu.vt.vbi.patric.msa.Aligner;
@@ -364,8 +365,7 @@ public class FIGfamData {
 
 		String pk = req.getParameter("param_key");
 		Gson gson = new Gson();
-		PortletSession session = req.getPortletSession(true);
-		Map<String, String> key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), Map.class);
+		Map<String, String> key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), Map.class);
 
 		if (key != null && key.containsKey("genomeIds") && !key.get("genomeIds").equals("")) {
 			query.addFilterQuery("genome_id:(" + key.get("genomeIds").replaceAll(",", " OR ") + ")");
@@ -562,8 +562,7 @@ public class FIGfamData {
 
 		String pk = req.getParameter("param_key");
 		Gson gson = new Gson();
-		PortletSession session = req.getPortletSession(true);
-		Map<String, String> key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), Map.class);
+		Map<String, String> key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), Map.class);
 
 		if (key != null && key.containsKey("genomeIds") && !key.get("genomeIds").equals("")) {
 			if (!keyword.equals("")) {

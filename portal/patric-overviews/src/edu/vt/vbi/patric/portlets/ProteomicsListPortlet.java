@@ -32,16 +32,13 @@ import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
 
 import com.google.gson.Gson;
+import edu.vt.vbi.patric.common.*;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import edu.vt.vbi.patric.common.SiteHelper;
-import edu.vt.vbi.patric.common.SolrCore;
-import edu.vt.vbi.patric.common.SolrInterface;
 import edu.vt.vbi.patric.dao.ResultType;
-import edu.vt.vbi.patric.common.FASTAHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,15 +96,12 @@ public class ProteomicsListPortlet extends GenericPortlet {
 			if (state != null) {
 				key.put("state", state);
 			}
-			// random
-			Random g = new Random();
-			int random = g.nextInt();
+			long pk = (new Random()).nextLong();
 
-			PortletSession session = request.getPortletSession(true);
-			session.setAttribute("key" + random, gson.toJson(key, ResultType.class), PortletSession.APPLICATION_SCOPE);
+			SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
 
 			PrintWriter writer = response.getWriter();
-			writer.write("" + random);
+			writer.write("" + pk);
 			writer.close();
 		}
 		else {
@@ -116,7 +110,6 @@ public class ProteomicsListPortlet extends GenericPortlet {
 			String facet = "", keyword, pk, state, experiment_id;
 			boolean hl;
 
-			PortletSession session = request.getPortletSession(true);
 			ResultType key = new ResultType();
 			JSONObject jsonResult = new JSONObject();
 
@@ -128,13 +121,14 @@ public class ProteomicsListPortlet extends GenericPortlet {
 				experiment_id = request.getParameter("experiment_id");
 				facet = request.getParameter("facet");
 
-				if (session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE) == null) {
+				String json = SessionHandler.getInstance().get(SessionHandler.PREFIX + pk);
+				if (json == null) {
 					key.put("facet", facet);
 					key.put("keyword", keyword);
-					session.setAttribute("key" + pk, gson.toJson(key, ResultType.class), PortletSession.APPLICATION_SCOPE);
+					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
 				}
 				else {
-					key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), ResultType.class);
+					key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), ResultType.class);
 					key.put("facet", facet);
 				}
 
@@ -233,14 +227,17 @@ public class ProteomicsListPortlet extends GenericPortlet {
 
 				hl = Boolean.parseBoolean(highlight);
 
-				if (pk != null && session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE) == null) {
-					key.put("facet", facet);
-					key.put("keyword", keyword);
-					session.setAttribute("key" + pk, gson.toJson(key, ResultType.class), PortletSession.APPLICATION_SCOPE);
-				}
-				else if (pk != null) {
-					key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), ResultType.class);
-					key.put("facet", facet);
+				if (pk != null) {
+					String json = SessionHandler.getInstance().get(SessionHandler.PREFIX + pk);
+					if (json == null) {
+						key.put("facet", facet);
+						key.put("keyword", keyword);
+						SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
+					}
+					else {
+						key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), ResultType.class);
+						key.put("facet", facet);
+					}
 				}
 				else {
 					key.put("keyword", keyword);
@@ -304,7 +301,7 @@ public class ProteomicsListPortlet extends GenericPortlet {
 				solr.setCurrentInstance(SolrCore.PROTEOMICS_EXPERIMENT);
 
 				pk = request.getParameter("pk");
-				key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), ResultType.class);
+				key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), ResultType.class);
 
 				if (key.containsKey("state"))
 					state = key.get("state");
@@ -312,7 +309,7 @@ public class ProteomicsListPortlet extends GenericPortlet {
 					state = request.getParameter("state");
 
 				key.put("state", state);
-				session.setAttribute("key" + pk, gson.toJson(key, ResultType.class), PortletSession.APPLICATION_SCOPE);
+				SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
 
 				try {
 					if (!key.containsKey("tree")) {

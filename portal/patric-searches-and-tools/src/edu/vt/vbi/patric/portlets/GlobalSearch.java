@@ -16,6 +16,7 @@
 package edu.vt.vbi.patric.portlets;
 
 import com.google.gson.Gson;
+import edu.vt.vbi.patric.common.SessionHandler;
 import edu.vt.vbi.patric.dao.ResultType;
 
 import javax.portlet.*;
@@ -33,8 +34,7 @@ public class GlobalSearch extends GenericPortlet {
 		String pk = request.getParameter("param_key");
 		Gson gson = new Gson();
 
-		PortletSession session = request.getPortletSession(true);
-		ResultType key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), ResultType.class);
+		ResultType key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), ResultType.class);
 		String keyword = "";
 		if (key != null && key.get("keyword") != null) {
 			keyword = key.get("keyword");

@@ -15,6 +15,7 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.portlets;
 
+import edu.vt.vbi.patric.common.SessionHandler;
 import edu.vt.vbi.patric.common.SiteHelper;
 import edu.vt.vbi.patric.common.SolrInterface;
 import org.json.simple.JSONArray;
@@ -45,8 +46,7 @@ public class TranscriptomicsGeneFeature extends GenericPortlet {
 		String contextId = request.getParameter("context_id");
 		String pk = request.getParameter("param_key");
 
-		PortletSession session = request.getPortletSession(true);
-		String featureIds = (String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
+		String featureIds = SessionHandler.getInstance().get(SessionHandler.PREFIX + pk);
 
 		if (featureIds == null) {
 			featureIds = "";
@@ -71,19 +71,15 @@ public class TranscriptomicsGeneFeature extends GenericPortlet {
 
 			String featureId = req.getParameter("feature_id");
 
-			Random g = new Random();
-			int random = g.nextInt();
+			long pk = (new Random()).nextLong();
 
-			PortletSession session = req.getPortletSession(true);
-			session.setAttribute("key" + random, featureId, PortletSession.APPLICATION_SCOPE);
+			SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, featureId);
 
 			PrintWriter writer = resp.getWriter();
-			writer.write("" + random);
+			writer.write("" + pk);
 			writer.close();
 		}
 		else if (callType.equals("getFeatureTable")) {
-
-			PortletSession session = req.getPortletSession(true);
 
 			String pk = req.getParameter("pk");
 			String start_id = req.getParameter("start");
@@ -91,7 +87,7 @@ public class TranscriptomicsGeneFeature extends GenericPortlet {
 			int start = Integer.parseInt(start_id);
 			int end = Integer.parseInt(limit);
 
-			String featureId = (String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
+			String featureId = SessionHandler.getInstance().get(SessionHandler.PREFIX + pk);
 
 			Map<String, Object> condition = new HashMap<>();
 			condition.put("feature_ids", featureId);

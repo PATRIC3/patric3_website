@@ -1,5 +1,4 @@
-<%@ page session="true" 
-%><%@ page import="edu.vt.vbi.patric.common.ImageBuilder" 
+<%@ page import="edu.vt.vbi.patric.common.ImageBuilder"
 %><%@ page import="java.awt.Color"
 %><%@ page import="java.io.OutputStream"
 %><%@ page import="javax.servlet.ServletOutputStream"

@@ -17,10 +17,7 @@ package edu.vt.vbi.patric.portlets;
 
 import com.google.gson.Gson;
 import edu.vt.vbi.patric.beans.Genome;
-import edu.vt.vbi.patric.common.ExcelHelper;
-import edu.vt.vbi.patric.common.SiteHelper;
-import edu.vt.vbi.patric.common.SolrCore;
-import edu.vt.vbi.patric.common.SolrInterface;
+import edu.vt.vbi.patric.common.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest;
@@ -77,8 +74,7 @@ public class PathwayFinder extends GenericPortlet {
 			String annotation = request.getParameter("algorithm");
 			String pathwayId = request.getParameter("map");
 
-			PortletSession session = request.getPortletSession(true);
-			Map<String, String> key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), Map.class);
+			Map<String, String> key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), Map.class);
 
 			String searchOn = "";
 			String keyword = "";
@@ -115,8 +111,7 @@ public class PathwayFinder extends GenericPortlet {
 		else if (mode != null && mode.equals("featurelist")) {
 
 			String pk = request.getParameter("param_key");
-			PortletSession session = request.getPortletSession(true);
-			Map<String, String> key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), Map.class);
+			Map<String, String> key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), Map.class);
 
 			String ecNumber = request.getParameter("ec_number");
 			String annotation = request.getParameter("algorithm");
@@ -132,8 +127,7 @@ public class PathwayFinder extends GenericPortlet {
 				key.put("map", pathwayId);
 			}
 
-			LOGGER.debug("saving params:{}", key.toString());
-			session.setAttribute("key" + pk, gson.toJson(key, Map.class), PortletSession.APPLICATION_SCOPE);
+			SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, Map.class));
 
 			request.setAttribute("pk", pk);
 
@@ -227,24 +221,19 @@ public class PathwayFinder extends GenericPortlet {
 				key.put("feature_id", feature_id);
 			}
 
-			Random g = new Random();
-			int random = g.nextInt();
+			long pk = (new Random()).nextLong();
 
-			LOGGER.debug("PathwayFinder params:{}", key.toString());
-			PortletSession session = request.getPortletSession(true);
-			session.setAttribute("key" + random, gson.toJson(key, Map.class), PortletSession.APPLICATION_SCOPE);
+			SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, Map.class));
 
 			PrintWriter writer = response.getWriter();
-			writer.write("" + random);
+			writer.write("" + pk);
 			writer.close();
 		}
 		else {
 
 			String need = request.getParameter("need");
-
 			String pk = request.getParameter("pk");
-			PortletSession session = request.getPortletSession(true);
-			Map<String, String> key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), Map.class);
+			Map<String, String> key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), Map.class);
 
 			switch (need) {
 			case "0":

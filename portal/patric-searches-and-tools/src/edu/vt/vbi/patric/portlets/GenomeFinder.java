@@ -19,6 +19,7 @@ import com.google.gson.Gson;
 import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.beans.GenomeSequence;
 import edu.vt.vbi.patric.beans.Taxonomy;
+import edu.vt.vbi.patric.common.SessionHandler;
 import edu.vt.vbi.patric.common.SiteHelper;
 import edu.vt.vbi.patric.common.SolrCore;
 import edu.vt.vbi.patric.common.SolrInterface;
@@ -66,8 +67,7 @@ public class GenomeFinder extends GenericPortlet {
 			String pk = request.getParameter("param_key");
 			Gson gson = new Gson();
 
-			PortletSession session = request.getPortletSession(true);
-			ResultType key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), ResultType.class);
+			ResultType key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), ResultType.class);
 
 			String taxonId = "";
 			String genomeId = "";
@@ -194,25 +194,22 @@ public class GenomeFinder extends GenericPortlet {
 			}
 			LOGGER.debug("param:{}", request.getParameterMap());
 			LOGGER.debug("key:{}", key.toString());
-			// random
-			Random g = new Random();
-			int random = g.nextInt();
 
-			PortletSession session = request.getPortletSession(true);
-			session.setAttribute("key" + random, gson.toJson(key, ResultType.class), PortletSession.APPLICATION_SCOPE);
+			long pk = (new Random()).nextLong();
+
+			SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
 
 			PrintWriter writer = response.getWriter();
-			writer.write("" + random);
+			writer.write("" + pk);
 			writer.close();
 		}
 		else if (sraction != null && sraction.equals("get_params")) {
 
 			String ret = "";
 			String pk = request.getParameter("pk");
-			PortletSession session = request.getPortletSession(true);
-
-			if (session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE) != null) {
-				ResultType key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), ResultType.class);
+			String json = SessionHandler.getInstance().get(SessionHandler.PREFIX + pk);
+			if (json != null) {
+				ResultType key = gson.fromJson(json, ResultType.class);
 				ret = key.get("keyword");
 			}
 
@@ -224,9 +221,9 @@ public class GenomeFinder extends GenericPortlet {
 		else {
 
 			String need = request.getParameter("need");
-			String facet, keyword, pk, state, taxonId = null, genomeId = null;
+			String facet, keyword, pk, state, taxonId, genomeId;
 			boolean hl;
-			PortletSession session = request.getPortletSession(true);
+
 			ResultType key = new ResultType();
 			JSONObject jsonResult = new JSONObject();
 			taxonId = request.getParameter("taxonId");
@@ -237,14 +234,15 @@ public class GenomeFinder extends GenericPortlet {
 				keyword = request.getParameter("keyword");
 				facet = request.getParameter("facet");
 
-				if (session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE) == null) {
+				String json = SessionHandler.getInstance().get(SessionHandler.PREFIX + pk);
+				if (json == null) {
 					key.put("facet", facet);
 					key.put("keyword", keyword);
 
-					session.setAttribute("key" + pk, gson.toJson(key, ResultType.class), PortletSession.APPLICATION_SCOPE);
+					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
 				}
 				else {
-					key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), ResultType.class);
+					key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), ResultType.class);
 					key.put("facet", facet);
 				}
 
@@ -291,7 +289,8 @@ public class GenomeFinder extends GenericPortlet {
 					JSONObject facets;
 					if (facet != null) {
 						facets = solr.facetFieldstoJSONObject(qr);
-						key.put("facets", facets.toString());
+						key.put("facets", facets.toJSONString());
+						SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
 					}
 
 					for (Genome item : records) {
@@ -379,14 +378,15 @@ public class GenomeFinder extends GenericPortlet {
 
 				hl = Boolean.parseBoolean(highlight);
 
-				if (session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE) == null) {
+				String json = SessionHandler.getInstance().get(SessionHandler.PREFIX + pk);
+				if (json == null) {
 					key.put("facet", facet);
 					key.put("keyword", keyword);
 
-					session.setAttribute("key" + pk, gson.toJson(key, ResultType.class), PortletSession.APPLICATION_SCOPE);
+					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
 				}
 				else {
-					key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), ResultType.class);
+					key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), ResultType.class);
 					key.put("facet", facet);
 				}
 
@@ -482,7 +482,8 @@ public class GenomeFinder extends GenericPortlet {
 
 					if (facet != null) {
 						JSONObject facets = solr.facetFieldstoJSONObject(qr);
-						key.put("facets", facets.toString());
+						key.put("facets", facets.toJSONString());
+						SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
 					}
 
 					for (Genome item : records) {
@@ -496,16 +497,7 @@ public class GenomeFinder extends GenericPortlet {
 				jsonResult.put("results", docs);
 				jsonResult.put("total", numFound);
 
-/*
 
-				// add join condition
-				if (taxonId != null && !taxonId.equals("")) {
-					key.put("taxonId", taxonId);
-				}
-				if (key.containsKey("taxonId") && key.get("taxonId") != null) {
-					key.put("join", "taxon_lineage_ids:" + key.get("taxonId"));
-				}
-*/
 				response.setContentType("application/json");
 				PrintWriter writer = response.getWriter();
 				jsonResult.writeJSONString(writer);
@@ -516,7 +508,7 @@ public class GenomeFinder extends GenericPortlet {
 				solr.setCurrentInstance(SolrCore.GENOME);
 
 				pk = request.getParameter("pk");
-				key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), ResultType.class);
+				key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), ResultType.class);
 
 				if (key.containsKey("state")) {
 					state = key.get("state");
@@ -527,10 +519,10 @@ public class GenomeFinder extends GenericPortlet {
 
 				key.put("state", state);
 
-				session.setAttribute("key" + pk, gson.toJson(key, ResultType.class), PortletSession.APPLICATION_SCOPE);
+				SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
 
 				try {
-					if (!key.containsKey("tree")) {
+					if (!key.containsKey("tree") && !key.get("facets").isEmpty()) {
 
 						JSONObject facet_fields = (JSONObject) new JSONParser().parse(key.get("facets"));
 						JSONArray arr1 = solr.processStateAndTree(key, need, facet_fields, key.get("facet"), state, key.get("join"), 4, false);
@@ -558,15 +550,16 @@ public class GenomeFinder extends GenericPortlet {
 				keyword = request.getParameter("keyword");
 				state = request.getParameter("state");
 
-				if (session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE) == null) {
+				String json = SessionHandler.getInstance().get(SessionHandler.PREFIX + pk);
+				if (json == null) {
 					key.put("facet", facet);
 					key.put("keyword", keyword);
 					key.put("state", state);
 
-					session.setAttribute("key" + pk, gson.toJson(key, ResultType.class), PortletSession.APPLICATION_SCOPE);
+					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
 				}
 				else {
-					key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), ResultType.class);
+					key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), ResultType.class);
 					key.put("facet", facet);
 				}
 
@@ -610,7 +603,7 @@ public class GenomeFinder extends GenericPortlet {
 				int rows = Integer.parseInt(request.getParameter("limit"));
 				String field = request.getParameter("field");
 
-				key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), ResultType.class);
+				key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), ResultType.class);
 
 				JSONObject object = solr.getIdsForCart(key, field, rows);
 

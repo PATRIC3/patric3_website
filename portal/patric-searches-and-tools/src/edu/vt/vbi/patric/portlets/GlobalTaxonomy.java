@@ -15,31 +15,24 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.portlets;
 
+import com.google.gson.Gson;
+import edu.vt.vbi.patric.common.SessionHandler;
+import edu.vt.vbi.patric.common.SolrCore;
+import edu.vt.vbi.patric.common.SolrInterface;
+import edu.vt.vbi.patric.dao.ResultType;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.portlet.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-
-import javax.portlet.GenericPortlet;
-import javax.portlet.PortletException;
-import javax.portlet.PortletSession;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
-import javax.portlet.ResourceRequest;
-import javax.portlet.ResourceResponse;
-
-import com.google.gson.Gson;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
-import edu.vt.vbi.patric.common.SolrCore;
-import edu.vt.vbi.patric.common.SolrInterface;
-import edu.vt.vbi.patric.dao.ResultType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class GlobalTaxonomy extends GenericPortlet {
 
@@ -90,14 +83,12 @@ public class GlobalTaxonomy extends GenericPortlet {
 				key.put("exact_search_term", exact_search_term);
 			}
 
-			Random g = new Random();
-			int random = g.nextInt();
+			long pk = (new Random()).nextLong();
 
-			PortletSession session = request.getPortletSession(true);
-			session.setAttribute("key" + random, gson.toJson(key, ResultType.class), PortletSession.APPLICATION_SCOPE);
+			SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
 
 			PrintWriter writer = response.getWriter();
-			writer.write("" + random);
+			writer.write("" + pk);
 			writer.close();
 		}
 		else {
@@ -105,7 +96,7 @@ public class GlobalTaxonomy extends GenericPortlet {
 			String need = request.getParameter("need");
 			String facet, keyword, pk, state;
 			boolean hl;
-			PortletSession session = request.getPortletSession(true);
+
 			ResultType key = new ResultType();
 			JSONObject jsonResult = new JSONObject();
 
@@ -119,14 +110,15 @@ public class GlobalTaxonomy extends GenericPortlet {
 				String highlight = request.getParameter("highlight");
 				hl = Boolean.parseBoolean(highlight);
 
-				if (session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE) == null) {
+				String json = SessionHandler.getInstance().get(SessionHandler.PREFIX + pk);
+				if (json == null) {
 					key.put("facet", facet);
 					key.put("keyword", keyword);
 
-					session.setAttribute("key" + pk, gson.toJson(key, ResultType.class), PortletSession.APPLICATION_SCOPE);
+					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
 				}
 				else {
-					key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), ResultType.class);
+					key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), ResultType.class);
 					key.put("facet", facet);
 				}
 
@@ -154,7 +146,8 @@ public class GlobalTaxonomy extends GenericPortlet {
 
 				if (!key.containsKey("facets")) {
 					JSONObject facets = (JSONObject) object.get("facets");
-					key.put("facets", facets.toString());
+					key.put("facets", facets.toJSONString());
+					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
 				}
 
 				jsonResult.put("results", obj1);
@@ -168,10 +161,10 @@ public class GlobalTaxonomy extends GenericPortlet {
 			else if (need.equals("tree")) {
 
 				pk = request.getParameter("pk");
-				key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), ResultType.class);
+				key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), ResultType.class);
 				state = request.getParameter("state");
 				key.put("state", state);
-				session.setAttribute("key" + pk, gson.toJson(key, ResultType.class), PortletSession.APPLICATION_SCOPE);
+				SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
 
 				try {
 					if (!key.containsKey("tree")) {

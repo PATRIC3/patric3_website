@@ -17,10 +17,7 @@ package edu.vt.vbi.patric.portlets;
 
 import com.google.gson.Gson;
 import edu.vt.vbi.patric.beans.GenomeFeature;
-import edu.vt.vbi.patric.common.ExcelHelper;
-import edu.vt.vbi.patric.common.SiteHelper;
-import edu.vt.vbi.patric.common.SolrCore;
-import edu.vt.vbi.patric.common.SolrInterface;
+import edu.vt.vbi.patric.common.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest;
@@ -54,17 +51,16 @@ public class IDMapping extends GenericPortlet {
 
 		String contextType = request.getParameter("context_type");
 		String contextId = request.getParameter("context_id");
-		String paramKey = request.getParameter("param_key");
+		String pk = request.getParameter("param_key");
+		Gson gson = new Gson();
 
-		LOGGER.trace("mode:{}, contextType:{}, contextId:{}, paramKey:{}", mode, contextType, contextId, paramKey);
+		LOGGER.trace("mode:{}, contextType:{}, contextId:{}, paramKey:{}", mode, contextType, contextId, pk);
 		PortletRequestDispatcher prd;
 		if (mode != null && mode.equals("result")) {
 
-			Gson gson = new Gson();
-			PortletSession session = request.getPortletSession(true);
 			String to = "", toGroup = "", from = "", fromGroup = "", keyword = "";
 
-			Map<String, String> key = gson.fromJson((String) session.getAttribute("key" + paramKey, PortletSession.APPLICATION_SCOPE), Map.class);
+			Map<String, String> key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), Map.class);
 
 			if (key != null) {
 				to = key.get("to");
@@ -76,7 +72,7 @@ public class IDMapping extends GenericPortlet {
 
 			request.setAttribute("contextType", contextType);
 			request.setAttribute("contextId", contextId);
-			request.setAttribute("paramKey", paramKey);
+			request.setAttribute("paramKey", pk);
 
 			request.setAttribute("to", to);
 			request.setAttribute("toGroup", toGroup);
@@ -92,11 +88,8 @@ public class IDMapping extends GenericPortlet {
 			String from = request.getParameter("from") == null?"seed_id":request.getParameter("from");
 			String keyword = request.getParameter("id") == null?"":request.getParameter("id");
 
-			Gson gson = new Gson();
-			PortletSession session = request.getPortletSession(true);
-
-			if(paramKey != null){
-				Map<String, String> key = gson.fromJson((String) session.getAttribute("key" + paramKey, PortletSession.APPLICATION_SCOPE), Map.class);
+			if(pk != null){
+				Map<String, String> key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), Map.class);
 
 				if(key != null){
 					to = key.get("to");
@@ -105,15 +98,11 @@ public class IDMapping extends GenericPortlet {
 				}
 			}
 
-//			if (mode != null && mode.equals("")) {
-//				keyword = "";
-//			}
-
 			boolean isLoggedInd = Downloads.isLoggedIn(request);
 			request.setAttribute("isLoggedIn", isLoggedInd);
 			request.setAttribute("contextType", contextType);
 			request.setAttribute("contextId", contextId);
-			request.setAttribute("paramKey", paramKey);
+			request.setAttribute("paramKey", pk);
 
 			request.setAttribute("to", to);
 			request.setAttribute("from", from);
@@ -149,14 +138,12 @@ public class IDMapping extends GenericPortlet {
 			key.put("toGroup", toGroup);
 
 			// random
-			Random g = new Random();
-			int random = g.nextInt();
+			long pk = (new Random()).nextLong();
 
-			PortletSession session = request.getPortletSession(true);
-			session.setAttribute("key" + random, gson.toJson(key, Map.class), PortletSession.APPLICATION_SCOPE);
+			SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, Map.class));
 
 			PrintWriter writer = response.getWriter();
-			writer.write("" + random);
+			writer.write("" + pk);
 			writer.close();
 		}
 		else if (sraction != null && sraction.equals("filters")) {
@@ -169,8 +156,7 @@ public class IDMapping extends GenericPortlet {
 		else {
 			String pk = request.getParameter("pk");
 
-			PortletSession session = request.getPortletSession(true);
-			Map<String, String> key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), Map.class);
+			Map<String, String> key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), Map.class);
 
 			LOGGER.debug("id mapping param: {}", key);
 

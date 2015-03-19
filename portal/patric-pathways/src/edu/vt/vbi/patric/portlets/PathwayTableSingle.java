@@ -17,6 +17,7 @@ package edu.vt.vbi.patric.portlets;
 
 import com.google.gson.Gson;
 import edu.vt.vbi.patric.beans.GenomeFeature;
+import edu.vt.vbi.patric.common.SessionHandler;
 import edu.vt.vbi.patric.common.SolrCore;
 import edu.vt.vbi.patric.common.SolrInterface;
 import org.apache.commons.lang.StringUtils;
@@ -52,8 +53,7 @@ public class PathwayTableSingle extends GenericPortlet {
 		String ec_number = "", algorithm = "", map = "", genomeId = "";
 		Gson gson = new Gson();
 
-		PortletSession session = request.getPortletSession(true);
-		Map<String, String> key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), Map.class);
+		Map<String, String> key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), Map.class);
 
 		if (key != null && key.containsKey("algorithm")) {
 			algorithm = key.get("algorithm");
@@ -120,14 +120,12 @@ public class PathwayTableSingle extends GenericPortlet {
 
 			key.put("which", "download_from_heatmap_feature");
 
-			Random g = new Random();
-			int random = g.nextInt();
+			long pk = (new Random()).nextLong();
 
-			PortletSession session = request.getPortletSession(true);
-			session.setAttribute("key" + random, gson.toJson(key, Map.class), PortletSession.APPLICATION_SCOPE);
+			SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, Map.class));
 
 			PrintWriter writer = response.getWriter();
-			writer.write("" + random);
+			writer.write("" + pk);
 			writer.close();
 
 		}
@@ -136,8 +134,7 @@ public class PathwayTableSingle extends GenericPortlet {
 			JSONObject jsonResult = new JSONObject();
 			JSONArray results = new JSONArray();
 			String pk = request.getParameter("pk");
-			PortletSession session = request.getPortletSession(true);
-			Map<String, String> key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), Map.class);
+			Map<String, String> key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), Map.class);
 
 			SolrInterface solr = new SolrInterface();
 			try {

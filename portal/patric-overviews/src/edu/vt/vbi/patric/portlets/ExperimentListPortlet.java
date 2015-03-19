@@ -30,6 +30,7 @@ import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
 
 import com.google.gson.Gson;
+import edu.vt.vbi.patric.common.SessionHandler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -176,15 +177,12 @@ public class ExperimentListPortlet extends GenericPortlet {
 			if (state != null) {
 				key.put("state", state);
 			}
-			// random
-			Random g = new Random();
-			int random = g.nextInt();
+			long pk = (new Random()).nextLong();
 
-			PortletSession session = request.getPortletSession(true);
-			session.setAttribute("key" + random, gson.toJson(key, ResultType.class), PortletSession.APPLICATION_SCOPE);
+			SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
 
 			PrintWriter writer = response.getWriter();
-			writer.write("" + random);
+			writer.write("" + pk);
 			writer.close();
 
 		}
@@ -193,7 +191,7 @@ public class ExperimentListPortlet extends GenericPortlet {
 			String need = request.getParameter("need");
 			String facet, keyword, pk, state, eId;
 			boolean hl;
-			PortletSession session = request.getPortletSession(true);
+
 			ResultType key = new ResultType();
 			JSONObject jsonResult = new JSONObject();
 
@@ -205,13 +203,14 @@ public class ExperimentListPortlet extends GenericPortlet {
 				eId = request.getParameter("eId");
 				facet = request.getParameter("facet");
 
-				if (session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE) == null) {
+				String json = SessionHandler.getInstance().get(SessionHandler.PREFIX + pk);
+				if (json == null) {
 					key.put("facet", facet);
 					key.put("keyword", keyword);
-					session.setAttribute("key" + pk, gson.toJson(key, ResultType.class), PortletSession.APPLICATION_SCOPE);
+					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
 				}
 				else {
-					key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), ResultType.class);
+					key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), ResultType.class);
 					key.put("facet", facet);
 				}
 
@@ -311,14 +310,15 @@ public class ExperimentListPortlet extends GenericPortlet {
 
 				hl = Boolean.parseBoolean(highlight);
 
-				if (session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE) == null) {
+				String json = SessionHandler.getInstance().get(SessionHandler.PREFIX + pk);
+				if (json == null) {
 					key.put("facet", facet);
 					key.put("keyword", keyword);
 
-					session.setAttribute("key" + pk, gson.toJson(key, ResultType.class), PortletSession.APPLICATION_SCOPE);
+					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
 				}
 				else {
-					key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), ResultType.class);
+					key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), ResultType.class);
 					key.put("facet", facet);
 				}
 
@@ -384,7 +384,7 @@ public class ExperimentListPortlet extends GenericPortlet {
 				solr.setCurrentInstance(SolrCore.TRANSCRIPTOMICS_EXPERIMENT);
 
 				pk = request.getParameter("pk");
-				key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), ResultType.class);
+				key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), ResultType.class);
 
 				if (key.containsKey("state"))
 					state = key.get("state");
@@ -392,7 +392,7 @@ public class ExperimentListPortlet extends GenericPortlet {
 					state = request.getParameter("state");
 
 				key.put("state", state);
-				session.setAttribute("key" + pk, gson.toJson(key, ResultType.class), PortletSession.APPLICATION_SCOPE);
+				SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
 
 				try {
 					if (!key.containsKey("tree")) {

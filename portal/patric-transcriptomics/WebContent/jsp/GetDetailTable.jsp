@@ -1,4 +1,4 @@
-<%@ page session="true" %><%@ page
+<%@ page
 	import="edu.vt.vbi.patric.common.DownloadHelper" %><%@ page
 	import="edu.vt.vbi.patric.common.ExcelHelper" %><%@ page
 	import="java.util.ArrayList" %><%@ page 

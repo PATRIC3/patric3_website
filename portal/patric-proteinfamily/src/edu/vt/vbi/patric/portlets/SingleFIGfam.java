@@ -16,6 +16,7 @@
 package edu.vt.vbi.patric.portlets;
 
 import com.google.gson.Gson;
+import edu.vt.vbi.patric.common.SessionHandler;
 import edu.vt.vbi.patric.common.SiteHelper;
 import edu.vt.vbi.patric.common.SolrCore;
 import edu.vt.vbi.patric.common.SolrInterface;
@@ -51,8 +52,7 @@ public class SingleFIGfam extends GenericPortlet {
 		int length = 1;
 		Gson gson = new Gson();
 
-		PortletSession session = request.getPortletSession(true);
-		ResultType key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), ResultType.class);
+		ResultType key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), ResultType.class);
 
 		if(key != null && key.containsKey("gid")){
 			gid = key.get("gid");
@@ -89,13 +89,12 @@ public class SingleFIGfam extends GenericPortlet {
 				key.put("figfam", figfam);
 
 				Random g = new Random();
-				int random = g.nextInt();
+				long pk = g.nextLong();
 
-				PortletSession session = req.getPortletSession(true);
-				session.setAttribute("key" + random, gson.toJson(key, ResultType.class), PortletSession.APPLICATION_SCOPE);
+				SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
 
 				PrintWriter writer = resp.getWriter();
-				writer.write("" + random);
+				writer.write("" + pk);
 				writer.close();
 
 			}

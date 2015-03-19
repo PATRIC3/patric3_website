@@ -18,10 +18,7 @@ package edu.vt.vbi.patric.portlets;
 import com.google.gson.Gson;
 import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.beans.GenomeFeature;
-import edu.vt.vbi.patric.common.ExcelHelper;
-import edu.vt.vbi.patric.common.SiteHelper;
-import edu.vt.vbi.patric.common.SolrCore;
-import edu.vt.vbi.patric.common.SolrInterface;
+import edu.vt.vbi.patric.common.*;
 import edu.vt.vbi.patric.dao.DBSummary;
 import edu.vt.vbi.patric.dao.ResultType;
 import edu.vt.vbi.patric.jbrowse.CRFeature;
@@ -132,7 +129,6 @@ public class CompareRegionViewer extends GenericPortlet {
 
 		// DBSummary conn_summary = new DBSummary();
 		SolrInterface solr = new SolrInterface();
-		PortletSession session = request.getPortletSession(true);
 
 		// if pin feature is not given, retrieve from the database based on na_feature_id
 		if (pinFeatureSeedId == null && (contextType != null && contextType.equals("feature") && contextId != null)) {
@@ -149,12 +145,13 @@ public class CompareRegionViewer extends GenericPortlet {
 				crRS = new CRResultSet(pinFeatureSeedId,
 						sapling.compared_regions(pinFeatureSeedId, _numRegion + _numRegion_buffer, Integer.parseInt(windowSize) / 2));
 
-				Random g = new Random();
-				int random = g.nextInt();
-				_key = "key" + random;
+				long pk = (new Random()).nextLong();
+				_key = "" + pk;
+
 				Gson gson = new Gson();
-				session.setAttribute(_key, gson.toJson(crRS, CRResultSet.class));
-				session.setAttribute("window_size", windowSize);
+				SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(crRS, CRResultSet.class));
+				SessionHandler.getInstance().set(SessionHandler.PREFIX + pk + "_windowsize", windowSize);
+
 			}
 			catch (Exception ex) {
 				LOGGER.error(ex.getMessage(), ex);
@@ -259,12 +256,13 @@ public class CompareRegionViewer extends GenericPortlet {
 	@SuppressWarnings("unchecked")
 	private void printTrackInfo(ResourceRequest request, ResourceResponse response) throws IOException {
 		String _rowID = request.getParameter("rowId");
-		String _key = request.getParameter("key");
+		String pk = request.getParameter("key");
 
-		PortletSession session = request.getPortletSession(true);
 		Gson gson = new Gson();
-		CRResultSet crRS = gson.fromJson((String) session.getAttribute(_key), CRResultSet.class);
-		int _window_size = Integer.parseInt((String) session.getAttribute("window_size"));
+		CRResultSet crRS = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), CRResultSet.class);
+
+		LOGGER.trace("pk:{}, windowsize:{}", pk, SessionHandler.getInstance().get(SessionHandler.PREFIX + pk + "_windowsize"));
+		int _window_size = Integer.parseInt(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk + "_windowsize"));
 
 		String pin_strand = crRS.getPinStrand();
 		CRTrack crTrack = crRS.getTrackMap().get(Integer.parseInt(_rowID));
@@ -350,10 +348,10 @@ public class CompareRegionViewer extends GenericPortlet {
 	}
 
 	private void exportInExcelFormat(ResourceRequest request, ResourceResponse response) throws IOException {
-		PortletSession session = request.getPortletSession(true);
-		String _key = request.getParameter("key");
+
+		String pk = request.getParameter("key");
 		Gson gson = new Gson();
-		CRResultSet crRS = gson.fromJson((String) session.getAttribute(_key), CRResultSet.class);
+		CRResultSet crRS = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), CRResultSet.class);
 
 		CRTrack crTrack;
 		CRFeature crFeature;

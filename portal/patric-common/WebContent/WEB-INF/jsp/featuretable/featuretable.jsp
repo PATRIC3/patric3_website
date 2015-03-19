@@ -1,5 +1,6 @@
-<%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
-<%
+<%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet"
+%><%@ page import="java.util.*"
+%><%
 String taxonId = "";
 String genomeId = "";
 
@@ -20,6 +21,7 @@ if (featuretype == null || featuretype.equals("")) { featuretype = "CDS"; }
 if (annotation == null || annotation.equals("")) { annotation = "PATRIC"; }
 if (filtertype == null || filtertype.equals("")) { filtertype = ""; }
 
+long pk = (new Random()).nextLong();
 %>
 <form id="fTableForm" action="#" method="post">
 	<input type="hidden" id="cType" name="cType" value="<%=cType %>" />
@@ -78,7 +80,7 @@ Ext.onReady(function()
 {
 	var checkbox = createCheckBox("Feature");
 	var all_hidden = ["refseq_protein_id", "aa_length", "gene", "anticodon", "bound_moeity", "product"];
-	var random = Math.floor(Math.random()*1000001);
+	var random = '<%=pk %>';
 	var pageProperties = {
 		name: "Feature",
 		model: ["Feature"],

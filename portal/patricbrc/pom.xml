@@ -125,6 +125,14 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 							<includeInApplicationXml>true</includeInApplicationXml>
 						</jarModule>
 						<!-- end of polyomic -->
+
+                        <!-- redis session -->
+                        <jarModule>
+                            <groupId>redis.clients</groupId>
+                            <artifactId>jedis</artifactId>
+                            <includeInApplicationXml>true</includeInApplicationXml>
+                        </jarModule>
+                        <!-- end of redis -->
 					</modules>
 				</configuration>
 			</plugin>

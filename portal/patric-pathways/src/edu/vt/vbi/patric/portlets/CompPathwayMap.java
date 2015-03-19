@@ -16,6 +16,7 @@
 package edu.vt.vbi.patric.portlets;
 
 import com.google.gson.Gson;
+import edu.vt.vbi.patric.common.SessionHandler;
 import edu.vt.vbi.patric.common.SiteHelper;
 import edu.vt.vbi.patric.common.SolrCore;
 import edu.vt.vbi.patric.common.SolrInterface;
@@ -99,8 +100,7 @@ public class CompPathwayMap extends GenericPortlet {
 			}
 			else {
 				Gson gson = new Gson();
-				PortletSession session = request.getPortletSession(true);
-				Map<String, String> key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), Map.class);
+				Map<String, String> key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), Map.class);
 
 				if (key != null && key.containsKey("genomeId") && !key.get("genomeId").equals("")) {
 					genomeId = key.get("genomeId");

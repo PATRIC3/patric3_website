@@ -18,6 +18,7 @@ package edu.vt.vbi.patric.portlets;
 import com.google.gson.Gson;
 import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.beans.Taxonomy;
+import edu.vt.vbi.patric.common.SessionHandler;
 import edu.vt.vbi.patric.common.SiteHelper;
 import edu.vt.vbi.patric.common.SolrCore;
 import edu.vt.vbi.patric.common.SolrInterface;
@@ -59,8 +60,7 @@ public class SpecialtyGeneSearch extends GenericPortlet {
 			String pk = request.getParameter("param_key");
 			Gson gson = new Gson();
 
-			PortletSession session = request.getPortletSession(true);
-			ResultType key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), ResultType.class);
+			ResultType key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), ResultType.class);
 
 			String taxonId = "";
 			String genomeId = "";
@@ -174,23 +174,21 @@ public class SpecialtyGeneSearch extends GenericPortlet {
 				key.put("search_on", search_on);
 			}
 			// random
-			Random g = new Random();
-			int random = g.nextInt();
+			long pk = (new Random()).nextLong();
 
-			PortletSession session = request.getPortletSession(true);
-			session.setAttribute("key" + random, gson.toJson(key, ResultType.class), PortletSession.APPLICATION_SCOPE);
+			SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
 
 			PrintWriter writer = response.getWriter();
-			writer.write("" + random);
+			writer.write("" + pk);
 			writer.close();
 		}
 		else if (sraction != null && sraction.equals("get_params")) {
 			String ret = "";
 			String pk = request.getParameter("pk");
-			PortletSession session = request.getPortletSession(true);
 
-			if (session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE) != null) {
-				ResultType key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), ResultType.class);
+			String json = SessionHandler.getInstance().get(SessionHandler.PREFIX + pk);
+			if (json != null) {
+				ResultType key = gson.fromJson(json, ResultType.class);
 				ret = key.get("keyword");
 			}
 
@@ -202,7 +200,7 @@ public class SpecialtyGeneSearch extends GenericPortlet {
 			String need = request.getParameter("need");
 			String facet, keyword, pk, state, taxonId;
 			boolean hl;
-			PortletSession session = request.getPortletSession(true);
+
 			ResultType key = new ResultType();
 			JSONObject jsonResult = new JSONObject();
 			taxonId = request.getParameter("taxonId");
@@ -218,15 +216,17 @@ public class SpecialtyGeneSearch extends GenericPortlet {
 				String highlight = request.getParameter("highlight");
 				hl = Boolean.parseBoolean(highlight);
 
-				if (session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE) == null) {
+				String json = SessionHandler.getInstance().get(SessionHandler.PREFIX + pk);
+				if (json == null) {
 					key.put("facet", facet);
 					key.put("keyword", keyword);
 
-					session.setAttribute("key" + pk, gson.toJson(key, ResultType.class), PortletSession.APPLICATION_SCOPE);
+					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
 				}
 				else {
-					key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), ResultType.class);
+					key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), ResultType.class);
 					key.put("facet", facet);
+					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
 				}
 
 				String start_id = request.getParameter("start");
@@ -276,7 +276,8 @@ public class SpecialtyGeneSearch extends GenericPortlet {
 				if (!key.containsKey("facets")) {
 					if (object.containsKey("facets")) {
 						JSONObject facets = (JSONObject) object.get("facets");
-						key.put("facets", facets.toString());
+						key.put("facets", facets.toJSONString());
+						SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
 					}
 				}
 
@@ -294,7 +295,7 @@ public class SpecialtyGeneSearch extends GenericPortlet {
 				solr.setCurrentInstance(SolrCore.SPECIALTY_GENE_MAPPING);
 
 				pk = request.getParameter("pk");
-				key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), ResultType.class);
+				key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), ResultType.class);
 
 				if (key.containsKey("state")) {
 					state = key.get("state");
@@ -305,7 +306,7 @@ public class SpecialtyGeneSearch extends GenericPortlet {
 
 				key.put("state", state);
 
-				session.setAttribute("key" + pk, gson.toJson(key, ResultType.class), PortletSession.APPLICATION_SCOPE);
+				SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
 
 				try {
 					if (!key.containsKey("tree")) {

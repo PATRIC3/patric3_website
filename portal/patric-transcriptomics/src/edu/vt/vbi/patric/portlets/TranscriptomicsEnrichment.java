@@ -16,6 +16,7 @@
 package edu.vt.vbi.patric.portlets;
 
 import com.google.gson.Gson;
+import edu.vt.vbi.patric.common.SessionHandler;
 import edu.vt.vbi.patric.common.SiteHelper;
 import edu.vt.vbi.patric.common.SolrCore;
 import edu.vt.vbi.patric.common.SolrInterface;
@@ -53,8 +54,8 @@ public class TranscriptomicsEnrichment extends GenericPortlet {
 		String pk = request.getParameter("param_key");
 		Gson gson = new Gson();
 
-		PortletSession session = request.getPortletSession(true);
-		Map<String, String> key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), Map.class);
+		Map<String, String> key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), Map.class);
+
 		String contextType = request.getParameter("context_type");
 		String contextId = request.getParameter("context_id");
 		String featureList = null;
@@ -83,14 +84,12 @@ public class TranscriptomicsEnrichment extends GenericPortlet {
 			Map<String, String> key = new HashMap<>();
 			key.put("feature_id", req.getParameter("feature_id"));
 
-			Random g = new Random();
-			int random = g.nextInt();
+			long pk = (new Random()).nextLong();
 
-			PortletSession session = req.getPortletSession(true);
-			session.setAttribute("key" + random, gson.toJson(key, key.getClass()), PortletSession.APPLICATION_SCOPE);
+			SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, Map.class));
 
 			PrintWriter writer = resp.getWriter();
-			writer.write("" + random);
+			writer.write("" + pk);
 			writer.close();
 		}
 
@@ -127,11 +126,9 @@ public class TranscriptomicsEnrichment extends GenericPortlet {
 		}
 		else if (callType.equals("getFeatureTable")) {
 
-			PortletSession session = req.getPortletSession(true);
-
 			String pk = req.getParameter("pk");
 
-			Map<String, String> key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), Map.class);
+			Map<String, String> key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), Map.class);
 
 			if (key != null && key.containsKey("feature_id")) {
 

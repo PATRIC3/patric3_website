@@ -18,6 +18,7 @@ package edu.vt.vbi.patric.portlets;
 import com.google.gson.Gson;
 import edu.vt.vbi.ci.util.CommandResults;
 import edu.vt.vbi.ci.util.ExecUtilities;
+import edu.vt.vbi.patric.common.SessionHandler;
 import edu.vt.vbi.patric.common.SiteHelper;
 import edu.vt.vbi.patric.dao.ResultType;
 import edu.vt.vbi.patric.proteinfamily.FIGfamData;
@@ -75,9 +76,7 @@ public class FIGfam extends GenericPortlet {
 
 			if (pk != null) {
 				Gson gson = new Gson();
-
-				PortletSession session = request.getPortletSession(true);
-				key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), ResultType.class);
+				key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), ResultType.class);
 			}
 
 			if (key == null) {
@@ -173,12 +172,11 @@ public class FIGfam extends GenericPortlet {
 
 				getGenomeIds(req, key);
 				Random g = new Random();
-				int random = g.nextInt();
+				long pk = g.nextLong();
 				Gson gson = new Gson();
-				PortletSession session = req.getPortletSession(true);
-				session.setAttribute("key" + random, gson.toJson(key, Map.class), PortletSession.APPLICATION_SCOPE);
+				SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
 				PrintWriter writer = resp.getWriter();
-				writer.write("" + random);
+				writer.write("" + pk);
 				writer.close();
 				break;
 			}
@@ -202,12 +200,11 @@ public class FIGfam extends GenericPortlet {
 				setKeyValues("figfamId", req, key);
 				setKeyValues("product", req, key);
 				Random g = new Random();
-				int random = g.nextInt();
+				long pk = g.nextLong();
 				Gson gson = new Gson();
-				PortletSession session = req.getPortletSession(true);
-				session.setAttribute("key" + random, gson.toJson(key, Map.class), PortletSession.APPLICATION_SCOPE);
+				SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
 				PrintWriter writer = resp.getWriter();
-				writer.write("" + random);
+				writer.write("" + pk);
 				writer.close();
 				break;
 			}
@@ -216,12 +213,11 @@ public class FIGfam extends GenericPortlet {
 				setKeyValues("genomeIds", req, key);
 				setKeyValues("figfamIds", req, key);
 				Random g = new Random();
-				int random = g.nextInt();
+				long pk = g.nextLong();
 				Gson gson = new Gson();
-				PortletSession session = req.getPortletSession(true);
-				session.setAttribute("key" + random, gson.toJson(key, Map.class), PortletSession.APPLICATION_SCOPE);
+				SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
 				PrintWriter writer = resp.getWriter();
-				writer.write("" + random);
+				writer.write("" + pk);
 				writer.close();
 				break;
 			}
@@ -282,27 +278,24 @@ public class FIGfam extends GenericPortlet {
 				setKeyValues("heatmapState", req, key);
 				setKeyValues("steps", req, key);
 				Random g = new Random();
-				int random = 0;
-				while (random == 0) {
-					random = g.nextInt();
-				}
+				long pk = g.nextLong();
 				Gson gson = new Gson();
-				PortletSession session = req.getPortletSession(true);
-				session.setAttribute(keyType + random, gson.toJson(key, Map.class), PortletSession.APPLICATION_SCOPE);
+				SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
+
 				PrintWriter writer = resp.getWriter();
-				writer.write("" + random);
+				writer.write("" + pk);
 				writer.close();
 				break;
 			}
 			case "getState": {
 				PrintWriter writer = resp.getWriter();
-				PortletSession session = req.getPortletSession(true);
+
 				Gson gson = new Gson();
 				String keyType = req.getParameter("keyType");
-				String random = req.getParameter("random");
-				if ((random != null) && (keyType != null)) {
-					Map<String, String> key = gson
-							.fromJson((String) session.getAttribute(keyType + random, PortletSession.APPLICATION_SCOPE), Map.class);
+				String pk = req.getParameter("random");
+				if ((pk != null) && (keyType != null)) {
+					Map<String, String> key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), Map.class);
+
 					writer.write(getKeyValue("pageAt", key));
 					writer.write("\t" + getKeyValue("syntonyId", key));
 					writer.write("\t" + getKeyValue("regex", key));

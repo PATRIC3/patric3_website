@@ -1,5 +1,4 @@
-<%@ page session="true" 
-%><%@ page import="edu.vt.vbi.patric.common.SolrInterface"
+<%@ page import="edu.vt.vbi.patric.common.SolrInterface"
 %><%@ page import="edu.vt.vbi.patric.common.SolrCore"
 %><%@ page import="org.json.simple.JSONArray" 
 %><%@ page import="org.json.simple.JSONObject" 

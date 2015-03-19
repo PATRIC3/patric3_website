@@ -2,6 +2,7 @@
 %><%@ page import="java.util.*"
 %><%
 List<Map<String, Object>> lineage = (List<Map<String, Object>>) request.getAttribute("lineage");
+long pk = (new Random()).nextLong();
 
 String tId = request.getParameter("context_id");
 String gid = "";
@@ -77,7 +78,7 @@ Ext.onReady(function () {
 			timeout: 600000, 
 			params: {need:"tree_for_taxon"
 				,state:JSON.stringify({})
-				,pk:Math.floor(Math.random()*10001) 
+				,pk: '<%=pk %>'
 				,facet:JSON.stringify({"facet":configuration[name].display_facets.join(","), "facet_text":configuration[name].display_facets_texts.join(",")})
 				,keyword:constructKeyword(object, name, "")
 			},

@@ -19,6 +19,7 @@ import com.google.gson.Gson;
 import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.beans.GenomeFeature;
 import edu.vt.vbi.patric.beans.Taxonomy;
+import edu.vt.vbi.patric.common.SessionHandler;
 import edu.vt.vbi.patric.common.SiteHelper;
 import edu.vt.vbi.patric.common.SolrCore;
 import edu.vt.vbi.patric.common.SolrInterface;
@@ -66,8 +67,7 @@ public class GenomicFeature extends GenericPortlet {
 			String pk = request.getParameter("param_key");
 			Gson gson = new Gson();
 
-			PortletSession session = request.getPortletSession(true);
-			ResultType key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), ResultType.class);
+			ResultType key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), ResultType.class);
 
 			String taxonId = "";
 			String genomeId = "";
@@ -229,14 +229,12 @@ public class GenomicFeature extends GenericPortlet {
 				key.put("taxonId", cId);
 			}
 			// random
-			Random g = new Random();
-			int random = g.nextInt();
+			long pk = (new Random()).nextLong();
 
-			PortletSession session = request.getPortletSession(true);
-			session.setAttribute("key" + random, gson.toJson(key, ResultType.class), PortletSession.APPLICATION_SCOPE);
+			SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
 
 			PrintWriter writer = response.getWriter();
-			writer.write("" + random);
+			writer.write("" + pk);
 			writer.close();
 
 		}
@@ -247,8 +245,6 @@ public class GenomicFeature extends GenericPortlet {
 			String facet, keyword, pk, state;
 			boolean grouping = false;
 			boolean hl;
-
-			PortletSession session = request.getPortletSession(true);
 
 			ResultType key = new ResultType();
 
@@ -269,14 +265,15 @@ public class GenomicFeature extends GenericPortlet {
 					grouping = Boolean.parseBoolean(request.getParameter("grouping"));
 				}
 
-				if (session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE) == null) {
+				String json = SessionHandler.getInstance().get(SessionHandler.PREFIX + pk);
+				if (json == null) {
 					key.put("facet", facet);
 					key.put("keyword", keyword);
 
-					session.setAttribute("key" + pk, gson.toJson(key, ResultType.class), PortletSession.APPLICATION_SCOPE);
+					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
 				}
 				else {
-					key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), ResultType.class);
+					key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), ResultType.class);
 					key.put("facet", facet);
 				}
 
@@ -332,7 +329,8 @@ public class GenomicFeature extends GenericPortlet {
 
 				if (!key.containsKey("facets")) {
 					JSONObject facets = (JSONObject) object.get("facets");
-					key.put("facets", facets.toString());
+					key.put("facets", facets.toJSONString());
+					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
 				}
 
 				jsonResult.put("results", obj1);
@@ -344,95 +342,14 @@ public class GenomicFeature extends GenericPortlet {
 				writer.close();
 
 			}
-/*			else if (need.equals("featurewofacet")) {
-
-				solr.setCurrentInstance(SolrCore.FEATURE);
-
-				pk = request.getParameter("pk");
-				keyword = request.getParameter("keyword");
-				facet = request.getParameter("facet");
-
-				if (sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE) == null) {
-					key.put("facet", facet);
-					key.put("keyword", keyword);
-
-					sess.setAttribute("key" + pk, key, PortletSession.APPLICATION_SCOPE);
-				}
-				else {
-					key = (ResultType) sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
-					key.put("facet", facet);
-				}
-
-				String start_id = request.getParameter("start");
-				String limit = request.getParameter("limit");
-				int start = Integer.parseInt(start_id);
-				int end = Integer.parseInt(limit);
-
-				// sorting
-				Map<String, String> sort = null;
-				if (request.getParameter("sort") != null) {
-					// sorting
-					JSONParser a = new JSONParser();
-					JSONArray sorter;
-					String sort_field = "";
-					String sort_dir = "";
-					try {
-						sorter = (JSONArray) a.parse(request.getParameter("sort"));
-						sort_field += ((JSONObject) sorter.get(0)).get("property").toString();
-						sort_dir += ((JSONObject) sorter.get(0)).get("direction").toString();
-						for (int i = 1; i < sorter.size(); i++) {
-							sort_field += "," + ((JSONObject) sorter.get(i)).get("property").toString();
-						}
-					}
-					catch (ParseException e) {
-						LOGGER.error(e.getMessage(), e);
-					}
-
-					sort = new HashMap<>();
-
-					if (!sort_field.equals("") && !sort_dir.equals("")) {
-						sort.put("field", sort_field);
-						sort.put("direction", sort_dir);
-					}
-				}
-				// add join condition
-				if (request.getParameter("taxonId") != null && !request.getParameter("taxonId").equals("")) {
-					key.put("taxonId", request.getParameter("taxonId"));
-				}
-				if (key.containsKey("taxonId") && key.get("taxonId") != null) {
-					key.put("join", SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + key.get("taxonId")));
-				}
-
-				JSONObject object = solr.getData(key, sort, facet, start, end, false, false, grouping);
-
-				JSONObject obj = (JSONObject) object.get("response");
-				JSONArray obj1 = (JSONArray) obj.get("docs");
-
-				jsonResult.put("results", obj1);
-				jsonResult.put("total", obj.get("numFound"));
-
-				response.setContentType("application/json");
-				PrintWriter writer = response.getWriter();
-				jsonResult.writeJSONString(writer);
-				writer.close();
-
-			}*/
 			else if (need.equals("featurewofacet")) {
 
 				pk = request.getParameter("pk");
 				keyword = request.getParameter("keyword");
 				facet = request.getParameter("facet");
 
-				//				if (sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE) == null) {
-				//					key.put("facet", facet);
 				key.put("keyword", keyword);
 
-				//					sess.setAttribute("key" + pk, key, PortletSession.APPLICATION_SCOPE);
-				//				}
-				//				else {
-				//					key = (ResultType) sess.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE);
-				//					key.put("facet", facet);
-				//				}
 				if (request.getParameter("taxonId") != null && !request.getParameter("taxonId").equals("")) {
 					key.put("taxonId", request.getParameter("taxonId"));
 				}
@@ -514,8 +431,9 @@ public class GenomicFeature extends GenericPortlet {
 
 				pk = request.getParameter("pk");
 
-				if (session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE) != null) {
-					key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), ResultType.class);
+				String json = SessionHandler.getInstance().get(SessionHandler.PREFIX + pk);
+				if (json != null) {
+					key = gson.fromJson(json, ResultType.class);
 				}
 
 				if (key != null && key.containsKey("state")) {
@@ -525,7 +443,7 @@ public class GenomicFeature extends GenericPortlet {
 					state = request.getParameter("state");
 				}
 
-				session.setAttribute("key" + pk, gson.toJson(key, ResultType.class), PortletSession.APPLICATION_SCOPE);
+				SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
 
 				try {
 					if (!key.containsKey("tree")) {
@@ -556,7 +474,7 @@ public class GenomicFeature extends GenericPortlet {
 				int rows = Integer.parseInt(request.getParameter("limit"));
 				String field = request.getParameter("field");
 
-				key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), ResultType.class);
+				key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), ResultType.class);
 
 				JSONObject object = solr.getIdsForCart(key, field, rows);
 

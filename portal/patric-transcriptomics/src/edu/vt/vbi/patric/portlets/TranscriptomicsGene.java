@@ -74,8 +74,7 @@ public class TranscriptomicsGene extends GenericPortlet {
 			if (pk != null && !pk.equals("")) {
 				pk = pk.split("/")[0];
 				Gson gson = new Gson();
-				PortletSession session = request.getPortletSession(true);
-				Map<String, String> key = gson.fromJson((String) session.getAttribute("key" + pk, PortletSession.APPLICATION_SCOPE), Map.class);
+				Map<String, String> key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), Map.class);
 				if (key != null && key.get("keyword") != null) {
 					keyword = key.get("keyword");
 					sampleId = key.get("sampleId");
@@ -124,14 +123,12 @@ public class TranscriptomicsGene extends GenericPortlet {
 
 				if (!sId.equals("")) {
 					key.put("sampleId", sId);
-					Random g = new Random();
-					int random = g.nextInt();
+					long pk = (new Random()).nextLong();
 					Gson gson = new Gson();
 
-					PortletSession session = req.getPortletSession(true);
-					session.setAttribute("key" + random, gson.toJson(key, key.getClass()), PortletSession.APPLICATION_SCOPE);
+					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, Map.class));
 
-					writer.write("" + random);
+					writer.write("" + pk);
 				}
 				else {
 					writer.write("");
@@ -270,16 +267,11 @@ public class TranscriptomicsGene extends GenericPortlet {
 				key.put("colorScheme", (colorScheme == null) ? "" : colorScheme);
 				key.put("filterOffset", (filterOffset == null) ? "" : filterOffset);
 
-				Random g = new Random();
-				int random = 0;
-				while (random == 0) {
-					random = g.nextInt();
-				}
+				long pk = (new Random()).nextLong();
 				Gson gson = new Gson();
-				PortletSession session = req.getPortletSession(true);
-				session.setAttribute(keyType + random, gson.toJson(key, Map.class), PortletSession.APPLICATION_SCOPE);
+				SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, Map.class));
 
-				writer.write("" + random);
+				writer.write("" + pk);
 				writer.close();
 
 			}
@@ -288,13 +280,12 @@ public class TranscriptomicsGene extends GenericPortlet {
 				PortletSession session = req.getPortletSession(true);
 				Gson gson = new Gson();
 				String keyType = req.getParameter("keyType");
-				String random = req.getParameter("random");
+				String pk = req.getParameter("random");
 
-				if ((random != null) && (keyType != null)) {
+				if ((pk != null) && (keyType != null)) {
 					JSONArray results = new JSONArray();
 					JSONObject a = new JSONObject();
-					Map<String, String> key = gson.fromJson((String) session.getAttribute(keyType + random, PortletSession.APPLICATION_SCOPE),
-							Map.class);
+					Map<String, String> key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), Map.class);
 					if (key != null) {
 						a.put("sampleFilter", key.get("sampleFilter"));
 						a.put("pageAt", key.get("pageAt"));
