@@ -150,7 +150,7 @@ public class CompareRegionViewer extends GenericPortlet {
 
 				Gson gson = new Gson();
 				SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(crRS, CRResultSet.class));
-				SessionHandler.getInstance().set(SessionHandler.PREFIX + pk + "_windowsize", windowSize);
+				SessionHandler.getInstance().set(SessionHandler.PREFIX + "_windowsize" + pk, windowSize);
 
 			}
 			catch (Exception ex) {
@@ -259,14 +259,28 @@ public class CompareRegionViewer extends GenericPortlet {
 		String pk = request.getParameter("key");
 
 		Gson gson = new Gson();
-		CRResultSet crRS = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), CRResultSet.class);
+		String pin_strand = null;
+		CRTrack crTrack = null;
+		String pseed_ids = null;
+		try {
+			CRResultSet crRS = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), CRResultSet.class);
+			pin_strand = crRS.getPinStrand();
+			crTrack = crRS.getTrackMap().get(Integer.parseInt(_rowID));
+			pseed_ids = crTrack.getSeedIds();
+		}
+		catch (Exception e) {
+			LOGGER.error(e.getMessage());
+			LOGGER.debug("{}", SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
+		}
 
-		LOGGER.trace("pk:{}, windowsize:{}", pk, SessionHandler.getInstance().get(SessionHandler.PREFIX + pk + "_windowsize"));
-		int _window_size = Integer.parseInt(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk + "_windowsize"));
-
-		String pin_strand = crRS.getPinStrand();
-		CRTrack crTrack = crRS.getTrackMap().get(Integer.parseInt(_rowID));
-		String pseed_ids = crTrack.getSeedIds();
+		int _window_size = 0;
+		try {
+			_window_size = Integer.parseInt(SessionHandler.getInstance().get(SessionHandler.PREFIX + "_windowsize" + pk));
+		}
+		catch (Exception e) {
+			LOGGER.error(e.getMessage());
+			LOGGER.debug("pk:{}, {}", SessionHandler.getInstance().get(SessionHandler.PREFIX + "_windowsize" + pk));
+		}
 
 		int features_count = 0;
 		try {
