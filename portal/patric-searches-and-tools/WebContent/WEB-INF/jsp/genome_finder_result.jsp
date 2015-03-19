@@ -76,7 +76,7 @@ Ext.onReady(function()
 		cart: true,
 		cartType:'',
 		scm: [[checkbox,
-			{header:'Organism Name',	dataIndex:'genome_name',		flex:2, renderer:renderGenomeName},
+			{header:'Genome Name',	dataIndex:'genome_name',		flex:2, renderer:renderGenomeName},
 			{header:'NCBI Taxon ID',	dataIndex:'ncbi_tax_id',		flex:1, hidden:true, align:'right'},
 			{header:'Genome Status',	dataIndex:'genome_status',		flex:1, align:'center'},
 			{header:'Genome Browser',	dataIndex:'genome_browser',		flex:1, sortable:false, align: 'center', renderer:renderGenomeBrowserByGenome},
