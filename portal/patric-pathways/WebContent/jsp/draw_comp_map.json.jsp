@@ -84,7 +84,7 @@
                 if (!ecNumbers.isEmpty()) {
                     query = new SolrQuery("pathway_id:" + map + " AND map_type:enzyme AND ec_number:(" + StringUtils.join(ecNumbers, " OR ") + ")");
                     query.setFields("ec_number,ec_description,map_location,occurrence");
-                    query.setRows(100000);
+                    query.setRows(1000000);
 
                     qr = solr.getSolrServer(SolrCore.PATHWAY_REF).query(query);
                     SolrDocumentList sdl = qr.getResults();
@@ -135,7 +135,7 @@
             if (!genomeId.equals("")) {
                 query.addFilterQuery("genome_id:(" + genomeId.replaceAll(",", " OR ") + ")");
             }
-            query.setFields("pathway_id,pathway_name,annotation").setRows(100000);
+            query.setFields("pathway_id,pathway_name,annotation").setRows(1000000);
 
             QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query);
             SolrDocumentList sdl = qr.getResults();

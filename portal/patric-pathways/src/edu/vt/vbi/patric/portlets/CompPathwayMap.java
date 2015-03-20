@@ -111,9 +111,11 @@ public class CompPathwayMap extends GenericPortlet {
 			}
 
 			SolrQuery query = new SolrQuery("*:*");
+			query.setRows(1000000);
 			if (!genomeId.equals("")) {
 				if (genomeId.contains(",")) {
 					query.addFilterQuery("genome_id:(" + StringUtils.join(genomeId.split(","), " OR ") + ")");
+					query.setRows(genomeId.split(",").length);
 				}
 				else {
 					query.addFilterQuery("genome_id:" + genomeId);
@@ -122,7 +124,6 @@ public class CompPathwayMap extends GenericPortlet {
 			if (!taxonId.equals("")) {
 				query.addFilterQuery("taxon_lineage_ids:" + taxonId);
 			}
-			query.setRows(10000);
 
 			QueryResponse qr = solr.getSolrServer(SolrCore.GENOME).query(query);
 			SolrDocumentList sdl = qr.getResults();

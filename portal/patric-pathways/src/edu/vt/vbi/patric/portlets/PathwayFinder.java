@@ -309,7 +309,7 @@ public class PathwayFinder extends GenericPortlet {
 			query.add("json.facet",
 					"{stat:{field:{field:pathway_id,limit:-1,facet:{genome_count:\"unique(genome_id)\",gene_count:\"unique(feature_id)\",ec_count:\"unique(ec_number)\",genome_ec:\"unique(genome_ec)\"}}}}");
 
-			LOGGER.debug("processPathwayTab 1:{}", query.toString());
+			LOGGER.trace("processPathwayTab 1:{}", query.toString());
 			QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query, SolrRequest.METHOD.POST);
 			List<SimpleOrderedMap> buckets = (List) ((SimpleOrderedMap) ((SimpleOrderedMap) qr.getResponse().get("facets")).get("stat")).get(
 					"buckets");
@@ -543,9 +543,9 @@ public class PathwayFinder extends GenericPortlet {
 			Set<String> listFeatureIds = new HashSet<>();
 
 			query.setFields("pathway_id,pathway_name,feature_id,ec_number,ec_description");
-			query.setRows(100000);
+			query.setRows(1000000);
 
-			LOGGER.debug("processGeneTab 1/2: {}", query.toString());
+			LOGGER.trace("processGeneTab 1/2: {}", query.toString());
 
 			QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query, SolrRequest.METHOD.POST);
 			SolrDocumentList sdl = qr.getResults();
@@ -561,9 +561,9 @@ public class PathwayFinder extends GenericPortlet {
 			if (!listFeatureIds.isEmpty()) {
 				SolrQuery featureQuery = new SolrQuery("feature_id:(" + StringUtils.join(listFeatureIds, " OR ") + ")");
 				featureQuery.setFields("genome_name,genome_id,accession,alt_locus_tag,refseq_locus_tag,seed_id,feature_id,gene,product");
-				featureQuery.setRows(100000);
+				featureQuery.setRows(listFeatureIds.size());
 
-				LOGGER.debug("processGeneTab 2/2: {}", featureQuery.toString());
+				LOGGER.trace("processGeneTab 2/2: {}", featureQuery.toString());
 
 				QueryResponse featureQueryResponse = solr.getSolrServer(SolrCore.FEATURE).query(featureQuery, SolrRequest.METHOD.POST);
 				sdl = featureQueryResponse.getResults();

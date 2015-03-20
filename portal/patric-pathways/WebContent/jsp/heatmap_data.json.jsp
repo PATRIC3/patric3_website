@@ -47,7 +47,7 @@
         if (genomeId != null && !genomeId.equals("")) {
             query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "genome_id:(" + genomeId.replaceAll(",", " OR ") + ") AND genome_status:(complete OR wgs)"));
         }
-        query.setRows(100000).setFields("genome_id,annotation,ec_number,ec_description").setFacet(true);
+        query.setRows(1000000).setFields("genome_id,annotation,ec_number,ec_description").setFacet(true);
         // {stat:{field:{field:genome_ec,limit:-1,facet:{gene_count:\"unique(feature_id)\"}}}}
         query.add("json.facet","{stat:{field:{field:genome_ec,limit:-1}}}}");
 
