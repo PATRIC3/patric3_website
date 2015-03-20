@@ -16,6 +16,7 @@
 package edu.vt.vbi.patric.portlets;
 
 import com.google.gson.Gson;
+import com.google.gson.internal.LinkedTreeMap;
 import edu.vt.vbi.ci.util.CommandResults;
 import edu.vt.vbi.ci.util.ExecUtilities;
 import edu.vt.vbi.patric.common.SessionHandler;
@@ -40,15 +41,12 @@ public class FIGfam extends GenericPortlet {
 	private final boolean removeAfterClusterComputed = true;
 
 	public boolean isLoggedIn(PortletRequest request) {
-		boolean isLoggedIn = false;
 
-		PortletSession session = request.getPortletSession(true);
+		String sessionId = request.getPortletSession(true).getId();
+		Gson gson = new Gson();
+		LinkedTreeMap sessionMap = gson.fromJson(SessionHandler.getInstance().get(sessionId), LinkedTreeMap.class);
 
-		if (session.getAttribute("authorizationToken", PortletSession.APPLICATION_SCOPE) != null) {
-			isLoggedIn = true;
-		}
-
-		return isLoggedIn;
+		return sessionMap.containsKey("authorizationToken");
 	}
 
 	public void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {

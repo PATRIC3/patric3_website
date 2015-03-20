@@ -15,12 +15,11 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.portlets;
 
+import com.google.gson.Gson;
+import com.google.gson.internal.LinkedTreeMap;
 import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.beans.Taxonomy;
-import edu.vt.vbi.patric.common.CreateZip;
-import edu.vt.vbi.patric.common.SiteHelper;
-import edu.vt.vbi.patric.common.SolrCore;
-import edu.vt.vbi.patric.common.SolrInterface;
+import edu.vt.vbi.patric.common.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest;
@@ -41,16 +40,13 @@ public class Downloads extends GenericPortlet {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Downloads.class);
 
-	public static boolean isLoggedIn(PortletRequest request) {
-		boolean isLoggedIn = false;
+	public boolean isLoggedIn(PortletRequest request) {
 
-		PortletSession session = request.getPortletSession(true);
+		String sessionId = request.getPortletSession(true).getId();
+		Gson gson = new Gson();
+		LinkedTreeMap sessionMap = gson.fromJson(SessionHandler.getInstance().get(sessionId), LinkedTreeMap.class);
 
-		if (session.getAttribute("authorizationToken", PortletSession.APPLICATION_SCOPE) != null) {
-			isLoggedIn = true;
-		}
-
-		return isLoggedIn;
+		return sessionMap.containsKey("authorizationToken");
 	}
 
 	@Override

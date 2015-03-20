@@ -16,6 +16,7 @@
 package edu.vt.vbi.patric.portlets;
 
 import com.google.gson.Gson;
+import com.google.gson.internal.LinkedTreeMap;
 import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.common.*;
 import org.apache.commons.lang.StringUtils;
@@ -42,15 +43,12 @@ public class PathwayFinder extends GenericPortlet {
 	private static final Logger LOGGER = LoggerFactory.getLogger(PathwayFinder.class);
 
 	public boolean isLoggedIn(PortletRequest request) {
-		boolean isLoggedIn = false;
 
-		PortletSession session = request.getPortletSession(true);
+		String sessionId = request.getPortletSession(true).getId();
+		Gson gson = new Gson();
+		LinkedTreeMap sessionMap = gson.fromJson(SessionHandler.getInstance().get(sessionId), LinkedTreeMap.class);
 
-		if (session.getAttribute("authorizationToken", PortletSession.APPLICATION_SCOPE) != null) {
-			isLoggedIn = true;
-		}
-
-		return isLoggedIn;
+		return sessionMap.containsKey("authorizationToken");
 	}
 
 	@Override
@@ -561,7 +559,7 @@ public class PathwayFinder extends GenericPortlet {
 			if (!listFeatureIds.isEmpty()) {
 				SolrQuery featureQuery = new SolrQuery("feature_id:(" + StringUtils.join(listFeatureIds, " OR ") + ")");
 				featureQuery.setFields("genome_name,genome_id,accession,alt_locus_tag,refseq_locus_tag,seed_id,feature_id,gene,product");
-				featureQuery.setRows(Math.max(1000000,listFeatureIds.size()));
+				featureQuery.setRows(Math.max(1000000, listFeatureIds.size()));
 
 				LOGGER.trace("processGeneTab 2/2: {}", featureQuery.toString());
 

@@ -16,6 +16,7 @@
 package edu.vt.vbi.patric.portlets;
 
 import com.google.gson.Gson;
+import com.google.gson.internal.LinkedTreeMap;
 import edu.vt.vbi.ci.util.CommandResults;
 import edu.vt.vbi.ci.util.ExecUtilities;
 import edu.vt.vbi.patric.beans.GenomeFeature;
@@ -425,7 +426,9 @@ public class TranscriptomicsGene extends GenericPortlet {
 
 		SolrQuery query = new SolrQuery("*:*");
 		if (!featureIdList.isEmpty() && !p2FeatureIdList.isEmpty()) {
-			query.addFilterQuery("feature_id:(" + StringUtils.join(featureIdList, " OR ") + ") OR p2_feature_id:(" + StringUtils.join(p2FeatureIdList, " OR ") + ")");
+			query.addFilterQuery(
+					"feature_id:(" + StringUtils.join(featureIdList, " OR ") + ") OR p2_feature_id:(" + StringUtils.join(p2FeatureIdList, " OR ")
+							+ ")");
 		}
 		else if (featureIdList.isEmpty() && !p2FeatureIdList.isEmpty()) {
 			query.addFilterQuery("p2_feature_id:(" + StringUtils.join(p2FeatureIdList, " OR ") + ")");
@@ -478,10 +481,12 @@ public class TranscriptomicsGene extends GenericPortlet {
 	public String getAuthorizationToken(PortletRequest request) {
 		String token = null;
 
-		PortletSession session = request.getPortletSession(true);
+		String sessionId = request.getPortletSession(true).getId();
+		Gson gson = new Gson();
+		LinkedTreeMap sessionMap = gson.fromJson(SessionHandler.getInstance().get(sessionId), LinkedTreeMap.class);
 
-		if (session.getAttribute("authorizationToken", PortletSession.APPLICATION_SCOPE) != null) {
-			token = (String) session.getAttribute("authorizationToken", PortletSession.APPLICATION_SCOPE);
+		if (sessionMap.containsKey("authorizationToken")) {
+			token = (String) sessionMap.get("authorizationToken");
 		}
 
 		return token;
