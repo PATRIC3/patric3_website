@@ -40,7 +40,7 @@ public class Downloads extends GenericPortlet {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Downloads.class);
 
-	public boolean isLoggedIn(PortletRequest request) {
+	public static boolean isLoggedIn(PortletRequest request) {
 
 		String sessionId = request.getPortletSession(true).getId();
 		Gson gson = new Gson();
