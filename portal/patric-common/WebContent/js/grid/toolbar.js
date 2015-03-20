@@ -889,6 +889,17 @@ function createToolbar(type, download_option, workspace_type) {
 							callOperation('DoIDMapping', this.text, 'No item(s) are selected. To run id mapping tool, at least one item must be selected.');
 					}
 				}, {
+					text : 'UniProtKB-Accession',
+					itemCls : 'x-menu-item-cstm',
+					handler : function() {
+						if (Page.exemptList.some(function(element, index, array) {
+								return property.name && property.name == element;
+							}))
+							submitIDMapping(property.name, this.text);
+						else
+							callOperation('DoIDMapping', this.text, 'No item(s) are selected. To run id mapping tool, at least one item must be selected.');
+					}
+				}, {
 					text : 'UniProtKB-ID',
 					itemCls : 'x-menu-item-cstm',
 					handler : function() {
