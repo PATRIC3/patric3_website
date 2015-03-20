@@ -168,8 +168,8 @@ public class GenomicFeature extends GenericPortlet {
 
 			request.setAttribute("taxonId", taxonomy.getId());
 			request.setAttribute("organismName", organismName);
-			request.setAttribute("cType", contextType);
-			request.setAttribute("cId", contextId);
+			request.setAttribute("contextType", contextType);
+			request.setAttribute("contextId", contextId);
 			request.setAttribute("featureTypes", featureTypes);
 
 			prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/feature_finder.jsp");
@@ -191,8 +191,8 @@ public class GenomicFeature extends GenericPortlet {
 
 			String genomeId = request.getParameter("genomeId");
 			String taxonId = "";
-			String cType = request.getParameter("context_type");
-			String cId = request.getParameter("context_id");
+			String cType = request.getParameter("cType");
+			String cId = request.getParameter("cId");
 
 			if (cType != null && cId != null && cType.equals("taxon") && !cId.equals("")) {
 				taxonId = cId;

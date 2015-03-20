@@ -19,7 +19,6 @@ function loadComboFacets() {
 function searchbykeyword(cId, cType) {
 	var object = {};
 	var genomeId = "";
-//	var need_genome_info_id = false;
 
 	if (name == "Feature") {
 		object["annotation"] = Ext.getDom("annotation").value;
@@ -31,24 +30,6 @@ function searchbykeyword(cId, cType) {
 			object["Keyword"] = "(" + ConvertNewlineforSolrQuery(EncodeKeyword(Ext.getDom("keyword").value)) + ")";
 		}
 	}
-//	else if (name == "GO" || name == "EC") {
-//		object["annotation"] = Ext.getDom("annotation").value;
-//
-//		if (Ext.getDom("keyword").value == "" || Ext.getDom("keyword").value == "*") {
-//			if (Ext.getDom("search_on").value == "Keyword") {
-//				object["Keyword"] = "(*)";
-//			} else {
-//				object[Ext.getDom("search_on").value] = "*";
-//			}
-//		} else {
-//			if (Ext.getDom("search_on").value == "Keyword") {
-//				object["Keyword"] = "(" + ConvertNewlineforSolrQuery(EncodeKeyword(Ext.getDom("keyword").value)) + ")";
-//			} else {
-//				object[Ext.getDom("search_on").value] = EncodeKeyword(Ext.getDom("keyword").value);
-//				object["Keyword"] = "(*)";
-//			}
-//		}
-//	}
 	else if (name == "Genome") {
 		if (Ext.getDom("keyword").value == "" || Ext.getDom("keyword").value == "*") {
 			if (Ext.getDom("search_on").value == "Keyword") {

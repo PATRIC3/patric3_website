@@ -4,8 +4,8 @@
 %><%
 int taxonId = (Integer) request.getAttribute("taxonId");
 String organismName = (String) request.getAttribute("organismName");
-String cType = (String) request.getAttribute("cType");
-String cId = (String) request.getAttribute("cId");
+String contextType = (String) request.getAttribute("contextType");
+String contextId = (String) request.getAttribute("contextId");
 List<String> featureTypes = (List<String>) request.getAttribute("featureTypes");
 boolean isLoggedIn = (Boolean) request.getAttribute("isLoggedIn");
 
@@ -77,7 +77,7 @@ boolean isLoggedIn = (Boolean) request.getAttribute("isLoggedIn");
 		</select>
 		<div class="clear"></div>
 		
-		<input class="right button rightarrow"  type="submit" value="Search" onclick="searchbykeyword('<%=cId%>', '<%=cType %>')" />
+		<input class="right button rightarrow"  type="submit" value="Search" onclick="searchbykeyword('<%=contextId%>', '<%=contextType %>')" />
 		
 		</form>
 	</div>
