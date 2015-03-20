@@ -129,23 +129,23 @@ function saveToWorkspace(wsItemType, wsPath, wsIdType, wsIds, action, groupName)
 		groupName = ' default ';
 		WorkspaceManager.getObject(wsPath + groupName, true).then(function(results) { 
 			// add to default group
-			console.log('adding to default group');
+			// console.log('adding to default group');
 			// console.log(group_name, wsItemType, wsPath, wsIdType, wsIds);
 			WorkspaceManager.addToGroup(wsPath + groupName, wsItemType, wsIds);
 		}, function(err) {
 			// create a default group
-			console.log('creating a default group');
+			// console.log('creating a default group');
 			WorkspaceManager.createGroup(groupName, wsItemType, wsPath, wsIdType, wsIds);
 		});
 	}
 	else if (action == 'Create New Group') {
 		// create a new group
-		console.log('creating a new group: ' + groupName);
+		// console.log('creating a new group: ' + groupName);
 		WorkspaceManager.createGroup(groupName, wsItemType, wsPath, wsIdType, wsIds);
 	}
 	else {
 		// adding to existing group
-		console.log('adding to existing group: ' + grouName);
+		// console.log('adding to existing group: ' + groupName);
 		WorkspaceManager.addToGroup(wsPath + groupName, wsItemType, wsIds);
 	}
 	/*
