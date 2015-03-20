@@ -253,7 +253,7 @@ function _launchCPT(idList) {
 			,keyword: ""
 		},
 		success: function(rs) {
-			document.location.href="PathwayFinder?cType=taxon&cId=&dm=result&map=&ec_number=&algorithm=PATRIC&pk="+rs.responseText;
+			document.location.href="PathwayFinder?cType=taxon&cId=<%=mtbTaxon%>&dm=result&map=&ec_number=&algorithm=PATRIC&pk="+rs.responseText;
 		}
 	});
 }
@@ -286,42 +286,10 @@ function _launchPFS(idList) {
 }
 
 function launchTranscriptomicsUploader() {
-alert("Due to infrastructure changes in progress, transcriptomics data upload only supports genomes included in PATRIC through the October 2014 release.  Upload functionality will be enhanced in the next release planned for Feb, 2015.");
+    alert("In order to support new functionality in PATRIC, we have implemented a new workspace which includes a new form for upload of transcriptomics data.");
 
-	Ext.Ajax.request({
-		url: '/portal/portal/patric/BreadCrumb/WorkspaceWindow?action=b&cacheability=PAGE',
-		params: {
-			action_type: "WSSupport",
-			action: "getToken"
-		},
-		success: function(response) {
-			var res = response.responseText;
-			
-			if (res != undefined && res != "") {
-				uploader = Ext.create('TranscriptomicsUploader.view.Viewport',{
-					callback: function() {
-						// customize ending behavior either to refresh workspace or add message to the launch button
-						if(!msgCt){
-							msgCt = Ext.DomHelper.insertFirst("uploader_div", {id:'atc-msg-div'}, true);
-						}
-						
-						var m = Ext.DomHelper.append(msgCt, '<div class="msg"><p> Your experiment data is added</p></div>', true).hide();
-						m.slideIn('l').ghost("l", {delay: 2000, remove: true});	
-						
-						updateCartInfo();
-					},
-					"params":{
-						"metaData":{"data_type":"Transcriptomics"}
-					}
-				}).show();
-			}
-			else {
-				getLoginUpPopupWindow('Upload Transcriptomics Data to Workspace','Upload Transcriptomics Data<br/> to Workspace','Register @ PATRIC To Upload Your Transcriptomics Data');
-				PopupModalLoading = false;
-			}
-		}
-	});
-
+    // link to new app page (/app/Expression)
+    document.location = "/app/Expression";
 }
 //]]>
 </script>

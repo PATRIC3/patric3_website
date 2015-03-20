@@ -5,36 +5,10 @@
 <script type="text/javascript">var popup; </script>
 <script type="text/javascript">
 function launchTranscriptomicsUploader() {
-alert("Due to infrastructure changes in progress, transcriptomics data upload only supports genomes included in PATRIC through the October 2014 release.  Upload functionality will be enhanced in the next release planned for Feb, 2015.");
+    alert("In order to support new functionality in PATRIC, we have implemented a new workspace which includes a new form for upload of transcriptomics data.");
 
-	Ext.Ajax.request({
-		url: '/portal/portal/patric/BreadCrumb/WorkspaceWindow?action=b&cacheability=PAGE',
-		params: {
-			action_type: "WSSupport",
-			action: "getToken"
-		},
-		success: function(response) {
-			var res = response.responseText;
-			
-			if (res != undefined && res != "") {
-				uploader = Ext.create('TranscriptomicsUploader.view.Viewport',{
-					callback: function() {
-						// customize ending behavior either to refresh workspace or add message to the launch button
-						Ext.getCmp("expressionexperimenttoolbar").refreshWorkspaceViews();
-					},
-					"params":{
-						"metaData":{"data_type":"Transcriptomics"}
-					}
-				}).show();
-			}
-			else {
-				getLoginUpPopupWindow('Upload Transcriptomics Data to Workspace','Upload Transcriptomics Data<br/> to Workspace','Register @ PATRIC To Upload Your Transcriptomics Data');
-			}
-		},
-		failure: function(response) {
-		}
-	});
-
+    // link to new app page (/app/Expression)
+    document.location = "/app/Expression";
 }
 </script>
 <script type="text/javascript" src="/patric/js/vbi/Workspace.min.js"></script>
