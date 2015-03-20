@@ -244,6 +244,7 @@ public class ExperimentListPortlet extends GenericPortlet {
 					JSONObject facets = (JSONObject) object.get("facets");
 					if (facets != null) {
 						key.put("facets", facets.toString());
+						SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
 					}
 				}
 
@@ -286,6 +287,7 @@ public class ExperimentListPortlet extends GenericPortlet {
 				if (!key.containsKey("facets")) {
 					JSONObject facets = (JSONObject) object.get("facets");
 					key.put("facets", facets.toString());
+					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
 				}
 
 				key.put("keyword", orig_keyword);
@@ -363,6 +365,7 @@ public class ExperimentListPortlet extends GenericPortlet {
 					if (object.containsKey("facets")) {
 						JSONObject facets = (JSONObject) object.get("facets");
 						key.put("facets", facets.toString());
+						SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
 					}
 				}
 
