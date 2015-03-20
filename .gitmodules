@@ -1,0 +1,4 @@
+[submodule "webRoot/patric/pig"]
+	path = webRoot/patric/pig
+	url = git@github.com:cidvbi/pig.git
+	branch = patric-prod
