@@ -151,7 +151,7 @@ public class CompPathwayTable extends GenericPortlet {
 				// get pathway list
 				SolrQuery pathwayQuery = new SolrQuery("pathway_id:(" + StringUtils.join(listPathwayIds, " OR ") + ")");
 				pathwayQuery.setFields("pathway_id,pathway_name,pathway_class");
-				pathwayQuery.setRows(listPathwayIds.size());
+				pathwayQuery.setRows(Math.max(1000000,listPathwayIds.size()));
 
 				QueryResponse pathwayQueryResponse = solr.getSolrServer(SolrCore.PATHWAY_REF).query(pathwayQuery);
 				SolrDocumentList sdl = pathwayQueryResponse.getResults();
@@ -280,7 +280,7 @@ public class CompPathwayTable extends GenericPortlet {
 				pathwayQuery.setQuery("pathway_id:(" + StringUtils.join(listPathwayIds, " OR ") + ")");
 
 				pathwayQuery.setFields("pathway_id,pathway_name,pathway_class,ec_number,ec_description");
-				pathwayQuery.setRows(listPathwayIds.size());
+				pathwayQuery.setRows(Math.max(1000000,listPathwayIds.size()));
 				// LOGGER.debug("{}", pathwayQuery.toString());
 				QueryResponse pathwayQueryResponse = solr.getSolrServer(SolrCore.PATHWAY_REF).query(pathwayQuery, SolrRequest.METHOD.POST);
 				SolrDocumentList sdl = pathwayQueryResponse.getResults();
@@ -383,7 +383,7 @@ public class CompPathwayTable extends GenericPortlet {
 			if (!listFeatureIds.isEmpty()) {
 				SolrQuery featureQuery = new SolrQuery("feature_id:(" + StringUtils.join(listFeatureIds, " OR ") + ")");
 				featureQuery.setFields("genome_name,genome_id,accession,alt_locus_tag,refseq_locus_tag,seed_id,feature_id,gene,product");
-				featureQuery.setRows(listFeatureIds.size());
+				featureQuery.setRows(Math.max(1000000,listFeatureIds.size()));
 				// LOGGER.debug("{}", featureQuery.toString());
 				QueryResponse featureQueryResponse = solr.getSolrServer(SolrCore.FEATURE).query(featureQuery, SolrRequest.METHOD.POST);
 				sdl = featureQueryResponse.getResults();
