@@ -5,7 +5,7 @@ var metadataGenomeSummaryValue = {};
 metadataGenomeSummaryValue['Organism_Info'] = [{
 	name : 'Genome ID',
 	text : 'genome_id',
-	style : 'none'
+	style : 'visible'
 }, {
 	name : 'Genome Name',
 	text : 'genome_name',
