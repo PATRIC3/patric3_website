@@ -28,10 +28,6 @@ function loadFBCD() {
         header = "Alt Locus Tag";
         requested_data = hash.to;
     }
-    else if (hash.to == "uniprotkb_accession") {
-        header = "UniProtKB-Accession";
-        requested_data = hash.to;
-    }
 	else if (hash.to == "seed_id") {
 		if (hash.from == "refseq_locus_tag") {
 		    header = "RefSeq Locus Tag";
@@ -56,10 +52,6 @@ function loadFBCD() {
 		else if (hash.from == "alt_locus_tag") {
 		    header = "Alt Locus Tag";
 			requested_data = hash.from;
-		}
-		else if (hash.from == "uniprotkb_accession") {
-            header = "UniProtKB-Accession";
-            requested_data = hash.from;
 		}
 		else if (hash.from == "seed_id") {
 		    header = "PATRIC ID";
