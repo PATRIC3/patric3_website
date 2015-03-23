@@ -351,7 +351,9 @@ Ext.onReady(function(){
 				}else if(Ext.getCmp('tabs').getActiveTab().getId() == "heatmap-tab"){
 
 					if(Ext.getCmp('kegg-panel')){
-						
+						if (pNS != undefined && pNS.tooltip != undefined) {
+						    pNS.tooltip.show();
+						}
 						Ext.getCmp('kegg-panel').setVisible(false);
 					}
 
