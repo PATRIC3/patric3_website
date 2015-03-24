@@ -5,9 +5,13 @@ String cType = request.getParameter("context_type");
 String cId = request.getParameter("context_id");
 String algorithm = request.getParameter("algorithm");
 String ec_number = request.getParameter("ec_number");
+String map = request.getParameter("map");
 
 if(ec_number == null) {
 	ec_number="";
+}
+if (map == null) {
+    map = "";
 }
 %>
 
@@ -17,7 +21,7 @@ if(ec_number == null) {
 	<input type="hidden" id="cId" name="cId" value="<%=(cId!=null)?cId:"" %>"/>
 	<input type="hidden" id="alg" name="alg" value="<%=algorithm%>"/>
 	<input type="hidden" id="ecN" name="ecN" value="<%=ec_number %>" />
-	<input type="hidden" id="pId" name="pId" value="" />
+	<input type="hidden" id="pId" name="pId" value="<%=map %>" />
 	<input type="hidden" id="pClass" name="pClass" value="" />
 	<input type="hidden" id="sort" name="sort" value="" />
 	<input type="hidden" id="dir" name="dir" value="" />
@@ -134,7 +138,7 @@ Ext.onReady(function()
 			alg: "<%=algorithm%>",
 			cwEC: false,
 			cwP: false,
-			pId: "",
+			pId: "<%=map%>",
 			pClass: "",
 			ecN: "<%=ec_number%>"
 		},

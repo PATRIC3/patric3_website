@@ -87,7 +87,7 @@
 		<supported-public-render-parameter>context_id</supported-public-render-parameter>
 		<supported-public-render-parameter>algorithm</supported-public-render-parameter>
 		<supported-public-render-parameter>ec_number</supported-public-render-parameter>
-		
+        <supported-public-render-parameter>map</supported-public-render-parameter>
 	</portlet>
 	<portlet>
 		<portlet-name>PathwayTableSingleB</portlet-name>

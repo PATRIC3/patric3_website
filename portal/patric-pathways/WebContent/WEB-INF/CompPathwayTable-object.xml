@@ -73,6 +73,10 @@
 						<id>ec_number</id>
 						<qname>{http://patricbrc.org/params}ec_number</qname>
 					</alias-binding>
+                    <alias-binding>
+                        <id>map</id>
+                        <qname>{http://patricbrc.org/params}map</qname>
+                    </alias-binding>
 				</bindings>
 			</coordination>
 		</page>
