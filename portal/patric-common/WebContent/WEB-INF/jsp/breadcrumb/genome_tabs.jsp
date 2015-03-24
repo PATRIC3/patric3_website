@@ -32,7 +32,7 @@ String flag = "";
 		</ul>
 	</nav>
 	<div id="utilitybox" class="smallest right no-underline-links">
-		<a class="double-arrow-link" href="ftp://ftp.patricbrc.org/patric2/genomes/<%=context.getCommonName() %>/" target="_blank">Download genome data</a>
+		<a class="double-arrow-link" href="ftp://ftp.patricbrc.org/patric2/patric3/genomes/<%=context.getId() %>/" target="_blank">Download genome data</a>
 	</div>
 	<div class="clear"></div>
 
