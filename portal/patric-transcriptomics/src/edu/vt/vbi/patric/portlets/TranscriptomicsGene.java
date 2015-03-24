@@ -108,8 +108,6 @@ public class TranscriptomicsGene extends GenericPortlet {
 		PrintWriter writer = resp.getWriter();
 		JSONObject jsonResult = new JSONObject();
 
-		String token = getAuthorizationToken(req);
-
 		if (callType != null) {
 			if (callType.equals("saveParams")) {
 
@@ -158,6 +156,7 @@ public class TranscriptomicsGene extends GenericPortlet {
 				// Read from JSON if collection parameter is there
 				ExpressionDataCollection parser = null;
 				if (wsExperimentId != null && !wsExperimentId.equals("")) {
+					String token = getAuthorizationToken(req);
 
 					parser = new ExpressionDataCollection(wsExperimentId, token);
 					parser.read(ExpressionDataCollection.CONTENT_SAMPLE);
@@ -278,7 +277,6 @@ public class TranscriptomicsGene extends GenericPortlet {
 			}
 			else if (callType.equals("getState")) {
 
-				PortletSession session = req.getPortletSession(true);
 				Gson gson = new Gson();
 				String keyType = req.getParameter("keyType");
 				String pk = req.getParameter("random");

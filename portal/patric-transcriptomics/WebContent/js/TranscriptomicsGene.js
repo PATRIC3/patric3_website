@@ -1168,6 +1168,51 @@ function DownloadTable(windowID, fileType) {"use strict";
 	tS.submit();
 }
 
+//function DownloadTable(windowID, fileType) {
+//    var header = ['Genome Name','Locus Tag','RefSeq Locus Tag','Gene Symbol','Product Description','Samples','Upregulated','Downregulated'];
+//    var body = [];
+//
+//    if (fileType == 'txt') {
+//        body.push(header.join('\t'));
+//    }
+//    else {
+//        body.push(header.join(','));
+//    }
+//
+//    var gridObject = getScratchObject(windowID), Pi = gridObject.Pagingstore.data.items;
+//	for (var k = 0; k < Pi.length; k++) {
+//	    var row = [];
+//        row.push(Pi[k].data.genome_name);
+//		row.push(Pi[k].data.alt_locus_tag);
+//		row.push(Pi[k].data.exp_locus_tag);
+//		row.push(Pi[k].data.gene);
+//		row.push(Pi[k].data.patric_product);
+//		row.push(Pi[k].data.sample_size);
+//		row.push(Pi[k].data.up);
+//		row.push(Pi[k].data.down);
+//
+//        if (fileType == 'txt') {
+//            body.push(row.join('\t'));
+//        }
+//        else {
+//    		body.push(row.join(','))
+//    	}
+//	}
+//
+//    var a = document.createElement('a');
+//    a.target = '_blank';
+//    if (fileType == 'txt') {
+//        a.href = 'data:attachment/txt;charset=utf-8,' + encodeURIComponent(body.join('\r\n'));
+//        a.download = 'TranscriptomicsGenes.txt';
+//    }
+//    else {
+//        a.href = 'data:attachment/csv;charset=utf-8,' + encodeURIComponent(body.join('\r\n'));
+//        a.download = 'TranscriptomicsGenes.csv';
+//    }
+//    document.body.appendChild(a);
+//    a.click();
+//}
+
 function DownloadAllData(windowID) {"use strict";
 
 	var gridObject = getScratchObject(windowID), tR = getScratchObject(windowID + "_groupRows"), items = Ext.getStore('ds_sample').data.items, Pi = gridObject.Pagingstore.data.items, tP = "", i, j, k, d, ik, tS, m;
@@ -1179,7 +1224,7 @@ function DownloadAllData(windowID) {"use strict";
 
 	for ( j = 0; j < Pi.length; j++) {
 		for ( m = 0; m < tR.length; m++) {
-			if (tR[m].refseq_locus_tag == Pi[j].data.refseq_locus_tag) {
+			if (tR[m].refseq_locus_tag == Pi[j].data.exp_locus_tag) {
 				d = tR[m];
 				tP += d.refseq_locus_tag;
 				for ( k = 0; k < items.length; k++) {
@@ -1204,6 +1249,51 @@ function DownloadAllData(windowID) {"use strict";
 	tS.submit();
 
 }
+
+//function DownloadAllData(windowID) {"use strict";
+//
+//	var gridObject = getScratchObject(windowID), tR = getScratchObject(windowID + "_groupRows");
+//	var items = Ext.getStore('ds_sample').data.items, Pi = gridObject.Pagingstore.data.items;
+//	var i, j, k, d, ik, m;
+//
+//    var body = [];
+//    var header = ['gene'];
+//	for ( i = 0; i < items.length; i++) {
+//		header.push(items[i].data.pid);
+//	}
+//	body.push(header.join('\t'));
+//
+//	for ( j = 0; j < Pi.length; j++) {
+//        var row = [];
+//		for ( m = 0; m < tR.length; m++) {
+//			if (tR[m].refseq_locus_tag == Pi[j].data.exp_locus_tag) {
+//				d = tR[m];
+//				row.push(d.refseq_locus_tag);
+//				for ( k = 0; k < items.length; k++) {
+//					ik = items[k].data;
+//					if (d.samples[ik.pid]) {
+//						if (d.samples[ik.pid].log_ratio == "") {
+//							row.push(0);
+//						}
+//						else {
+//							row.push(d.samples[ik.pid].log_ratio);
+//						}
+//					} else {
+//						row.push(0);
+//					}
+//				}
+//			}
+//		}
+//		body.push(row.join('\t'));
+//	}
+//
+//	var a = document.createElement('a');
+//    a.href = 'data:attachment/csv;charset=utf-8,' + encodeURIComponent(body.join('\r\n'));
+//    a.target = '_blank';
+//    a.download = 'SamplesGenes.txt';
+//    document.body.appendChild(a);
+//    a.click();
+//}
 
 function prepareDataForCluster(windowID) {
 	var stateObject = getStateObject(windowID), tP = "", c, r, id, datalabel, i, j;
