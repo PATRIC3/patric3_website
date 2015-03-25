@@ -1,7 +1,32 @@
 <%@ page import="org.json.simple.JSONObject" %>
 <%@ page import="org.json.simple.JSONArray" %>
+<%@ page import="org.json.simple.parser.JSONParser" %>
+<%@ page import="org.json.simple.parser.ParseException" %>
+<%@ page import="java.io.IOException" %>
+<%@ page import="org.apache.http.client.ResponseHandler" %>
+<%@ page import="org.apache.http.client.methods.HttpGet" %>
+<%@ page import="org.apache.http.impl.client.BasicResponseHandler" %>
+<%@ page import="org.apache.http.impl.client.DefaultHttpClient" %>
 <%
-JSONObject jsonData = (JSONObject) request.getAttribute("jsonData");
+	String genomedataurl = "http://" + request.getServerName() + ":" + request.getServerPort() + "/patric-common/data/transcriptomics.json";
+	DefaultHttpClient httpclient = new DefaultHttpClient();
+	HttpGet httpRequest = new HttpGet(genomedataurl);
+	JSONObject jsonData = null;
+	try {
+		ResponseHandler<String> responseHandler = new BasicResponseHandler();
+		String strResponseBody = httpclient.execute(httpRequest, responseHandler);
+
+		JSONParser parser = new JSONParser();
+		jsonData = (JSONObject) parser.parse(strResponseBody);
+		
+	} catch (IOException e) {
+		e.printStackTrace();
+	} catch (ParseException e) {
+		e.printStackTrace();
+	} finally {
+		httpclient.getConnectionManager().shutdown();
+	}
+	
 %>
 <link rel="stylesheet" href="/patric/css/dlp.css"></link>
 <script type="text/javascript" src="/patric/js/libs/d3.v3.min.js"></script>
@@ -62,7 +87,7 @@ JSONObject jsonData = (JSONObject) request.getAttribute("jsonData");
 						<br/><span style="color: #C60;"><%=exp.get("organism")%></span>
 						<br/><span>Accession: <%=exp.get("accession") %></span>
 						<% if (exp.get("pmid") != "") { %>
-							, &nbsp; <span>PubMed: <a class="arrow-slate-e" href="//www.ncbi.nlm.nih.gov/pubmed/<%=exp.get("pmid") %>" target="_blank"><%=exp.get("pmid") %></a></span>
+							, &nbsp; <span>PubMed: <a class="arrow-slate-e" href="http://www.ncbi.nlm.nih.gov/pubmed/<%=exp.get("pmid") %>" target="_blank"><%=exp.get("pmid") %></a></span>
 						<% } %>
 					</div>
 				</div>

@@ -94,7 +94,7 @@
 		</div>
 		<div class="column-wide">
 			<h2 class="close2x light">
-				eNews <a class="smallest double-arrow-link" href="//enews.patricbrc.org/">More</a>
+				eNews <a class="smallest double-arrow-link" href="http://enews.patricbrc.org/">More</a>
 			</h2>
 			<div id="newsCol1" class="column">
 				<div id="newsSlot1"></div>
