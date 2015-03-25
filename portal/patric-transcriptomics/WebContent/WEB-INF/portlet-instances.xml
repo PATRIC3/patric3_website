@@ -54,12 +54,6 @@
 	</deployment>
 	<deployment>
 		<instance>
-			<instance-id>TestFileUploaderInstance</instance-id>
-			<portlet-ref>TestFileUploader</portlet-ref>
-		</instance>
-	</deployment>
-	<deployment>
-		<instance>
 			<instance-id>SingleExperimentInstance</instance-id>
 			<portlet-ref>SingleExperiment</portlet-ref>
 		</instance>

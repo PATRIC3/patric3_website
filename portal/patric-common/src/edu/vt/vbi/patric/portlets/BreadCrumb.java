@@ -57,9 +57,7 @@ public class BreadCrumb extends GenericPortlet {
 		DBSearch.setSessionFactory(HibernateHelper.getSessionFactory(k));
 		DBPathways.setSessionFactory(HibernateHelper.getSessionFactory(k));
 		DBDisease.setSessionFactory(HibernateHelper.getSessionFactory(k));
-		// DBPIG.setSessionFactory(HibernateHelper.getSessionFactory(k));
 		DBPRC.setSessionFactory(HibernateHelper.getSessionFactory(k));
-		DBTranscriptomics.setSessionFactory(HibernateHelper.getSessionFactory(k));
 		try {
 			List<MBeanServer> list = MBeanServerFactory.findMBeanServer(null);
 			MBeanServer server = list.get(0);

@@ -97,7 +97,6 @@ public class TranscriptomicsGeneExp extends GenericPortlet {
 
 		//		HashMap<String, String> key = new HashMap<>();
 		//		HashMap<String, String> sort = new HashMap<>();
-		//		DBTranscriptomics conn_transcriptopics = new DBTranscriptomics();
 		//		if (paramFeatureId != null && !paramFeatureId.equals("")) {
 		//			key.put("feature_id", paramFeatureId);
 		//		}

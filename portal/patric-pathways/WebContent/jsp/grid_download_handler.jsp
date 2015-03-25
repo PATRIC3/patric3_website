@@ -4,7 +4,6 @@
 	import="edu.vt.vbi.patric.common.ExcelHelper"%><%@ page
 	import="edu.vt.vbi.patric.dao.ResultType"%><%@ page
 	import="edu.vt.vbi.patric.dao.DBPathways"%><%@ page
-	import="edu.vt.vbi.patric.dao.DBTranscriptomics"%><%@ page
 	import="javax.portlet.PortletSession"%><%@ page
 	import="java.io.OutputStream"%><%
 

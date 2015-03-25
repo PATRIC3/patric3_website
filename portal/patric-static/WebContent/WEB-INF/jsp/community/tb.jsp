@@ -1,7 +1,6 @@
 <%@ page import="edu.vt.vbi.patric.common.SolrInterface" %>
 <%@ page import="edu.vt.vbi.patric.common.SolrCore" %>
 <%@ page import="edu.vt.vbi.patric.dao.ResultType" %>
-<%@ page import="edu.vt.vbi.patric.dao.DBTranscriptomics" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.HashMap" %>

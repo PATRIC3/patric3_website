@@ -1,5 +1,4 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet"%>
-<%@ page import="edu.vt.vbi.patric.dao.DBTranscriptomics" %>
 <%@ page import="edu.vt.vbi.patric.common.SolrInterface" %>
 <%@ page import="edu.vt.vbi.patric.common.SolrCore" %>
 <%@ page import="edu.vt.vbi.patric.dao.ResultType" %>

@@ -71,7 +71,7 @@ public class PathwayTable extends GenericPortlet {
 		HashMap<String, String> key = new HashMap<>();
 
 		// sorting
-		HashMap<String, String> sort = null;
+		HashMap<String, String> sort;
 		if (request.getParameter("sort") != null) {
 			// sorting
 			JSONParser a = new JSONParser();
@@ -102,22 +102,6 @@ public class PathwayTable extends GenericPortlet {
 		if (request.getParameter("id") != null) {
 			key.put("na_feature_id", request.getParameter("id"));
 		}
-//		DBPathways conn_pathways = new DBPathways();
-//		int count_total = Integer.parseInt(conn_pathways.getFeaturePathwayCount(key));
-//		List<ResultType> items = conn_pathways.getPathwayList(key, sort, start, end);
-
-//		row.put("pathway_id", obj[0]);
-//		row.put("na_feature_id", obj[1]);
-//		row.put("pathway_name", obj[2]);
-//
-//		row.put("pathway_class", temp[1]);
-//		row.put("algorithm", "Legacy BRC");
-//
-//		row.put("ec_number", obj[5]);
-//		row.put("occurrence", obj[6]);
-//		row.put("ec_name", obj[7]);
-//		row.put("taxon_id", obj[8]);
-//		row.put("genome_info_id", obj[9]);
 
 		int count_total = 0;
 		JSONArray results = new JSONArray();
@@ -169,14 +153,7 @@ public class PathwayTable extends GenericPortlet {
 		JSONObject jsonResult = new JSONObject();
 
 		try {
-
 			jsonResult.put("total", count_total);
-//			JSONArray results = new JSONArray();
-//			for (ResultType item : items) {
-//				JSONObject obj = new JSONObject();
-//				obj.putAll(item);
-//				results.add(obj);
-//			}
 			jsonResult.put("results", results);
 		}
 		catch (Exception ex) {
