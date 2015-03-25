@@ -259,8 +259,7 @@ function getExtraParams(){
 
 function CallBack(){
 	var Page = $Page;
-	
-	// writeBreadCrumb();
+
 	var property = Page.getPageProperties(), hash = property.hash
 	var summary = Ext.getDom('grid_result_summary');
     var uniqueCount = Page.getGrid().store.proxy.reader.rawData.unique;

@@ -17,19 +17,7 @@
 	String algorithm = request.getParameter("algorithm");
 	String status = request.getParameter("status");
 	JSONObject json = new JSONObject();
-/*
-	JSONObject json = new JSONObject();
-	DBSearch conn_search = new DBSearch();
-	
-	try {
-		ArrayList<ResultType> items = conn_search.getTaxonIdList(cId, cType, genomeId, algorithm, status);
-		json.put("ids",items);
-	}
-	catch (NullPointerException nex) {
-	}
-	
-	out.println(json.toString());
-*/
+
 	try {
 		SolrInterface solr = new SolrInterface();
 		SolrQuery query = new SolrQuery("*:*");
