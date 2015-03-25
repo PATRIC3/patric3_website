@@ -11,6 +11,7 @@ String featureList = (String) request.getAttribute("featureList");
 <input type="hidden" id="cId" name="cId" value="<%=contextId %>" />
 <input type="hidden" id="tablesource" name="tablesource" value="TranscriptomicsEnrichment" />
 <input type="hidden" id="fileformat" name="fileformat" value="" />
+<input type="hidden" id="pk" name="pk" value="<%=pk%>" />
 
 <!-- fasta download specific param -->
 <input type="hidden" id="fastaaction" name="fastaaction" value="" />

@@ -43,7 +43,7 @@ function DownloadFile() {"use strict";
 
 	var form = Ext.getDom("fTableForm");
 
-	form.action = "/patric-pathways/jsp/grid_download_handler.jsp", form.target = "", form.fileformat.value = arguments[0];
+	form.action = "/portal/portal/patric/TranscriptomicsEnrichment/TranscriptomicsEnrichmentWindow?action=b&cacheability=PAGE&callType=download", form.target = "", form.fileformat.value = arguments[0];
 	getHashFieldsToDownload(form);
 	form.submit();
 }
