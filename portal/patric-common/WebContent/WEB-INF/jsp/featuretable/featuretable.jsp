@@ -45,7 +45,7 @@ long pk = (new Random()).nextLong();
 <div class="far">
 	<p>
 	Feature tables contain all of the identified features for all of the genomes in a particular genus.  
-	Tables may be refined to show subsets of features via various user controls, as described in <a href="//enews.patricbrc.org/faqs/feature-table-faqs/" target="_blank">Feature Table FAQs</a>.
+	Tables may be refined to show subsets of features via various user controls, as described in <a href="http://enews.patricbrc.org/faqs/feature-table-faqs/" target="_blank">Feature Table FAQs</a>.
 	</p>	
 	<div id="panelFilter" style="display:block;">
 		<div id="f_feature_type" style="float:left; padding:7px;"></div>

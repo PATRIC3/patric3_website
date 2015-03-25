@@ -19,7 +19,7 @@ if (_grIdxString != null) {
 		The Group Explorer allows you to compare and contrast selected groups from within
 		 your Workspace using a Venn diagram-based interactive visualization.
 		 To learn more see
-		<a href="//enews.patricbrc.org/faqs/group-explorer-faqs/" target="_blank">Group Explorer FAQs</a>.
+		<a href="http://enews.patricbrc.org/faqs/group-explorer-faqs/" target="_blank">Group Explorer FAQs</a>.
 	</p>
 	&nbsp;&nbsp;<input type="radio" name="color_type" id="default" value="true" onclick="colorChoice('Y');" checked/> <label for="default">default color</label>
 	&nbsp;&nbsp;<input type="radio" name="color_type" id="alter_color" value="false" onclick="colorChoice('N');" /> <label for="alter_color">alternative color</label>

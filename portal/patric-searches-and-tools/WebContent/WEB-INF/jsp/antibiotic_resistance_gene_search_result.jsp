@@ -32,7 +32,7 @@ String exact_search_term = (String) request.getAttribute("exact_search_term");
 Antibiotic Resistance refers to the ability of bacteria to develop resistance to antibiotics through gene mutation or acquisition of antibiotic resistance genes. 
 We collect known antibiotic resistance genes from reputed external databases and publications and mapped them to homologous genes in PATRIC using BLASTP. 
 <b>Genes with the designation "Literature" in the Evidence field have been experimentally verified. Those with Evidence designated as "BLASTP" are identified based on sequence homology.</b>
-For more details, see <a href="//enews.patricbrc.org/faqs/specialty-genes-faqs/" target="_blank">Specialty Genes FAQs</a>.
+For more details, see <a href="http://enews.patricbrc.org/faqs/specialty-genes-faqs/" target="_blank">Specialty Genes FAQs</a>.
 </div>
 <div id="tree-panel" style="float:left"></div>
 <div id="sample-layout" style="float:left"></div>

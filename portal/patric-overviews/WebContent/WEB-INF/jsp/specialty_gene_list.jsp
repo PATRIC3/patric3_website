@@ -55,7 +55,7 @@
 <p>For this taxonomy/genome level, the list below provides Specialty Genes, i.e. genes that are of particular interest to the infectious disease researches, 
 such as virulence factors, antibiotic resistance genes, drug targets, and human homologs. 
 <b>Genes with the designation "Literature" in the Evidence field have been experimentally verified. Those with Evidence designated as "BLASTP" are identified based on sequence homology.</b>
-For more details, see <a href="//enews.patricbrc.org/faqs/specialty-genes-faqs/" target="_blank">Specialty Genes FAQs</a>.</p>
+For more details, see <a href="http://enews.patricbrc.org/faqs/specialty-genes-faqs/" target="_blank">Specialty Genes FAQs</a>.</p>
 <div id="tree-panel" style="float:left"></div>
 <div id="sample-layout" style="float:left"></div>
 <div class="clear"></div>

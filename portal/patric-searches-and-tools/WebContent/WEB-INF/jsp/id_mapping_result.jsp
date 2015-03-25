@@ -47,7 +47,7 @@ int keyword_size = x.replaceAll("[,\\s]+",",").split(",").length;
 <div id="SearchSummary">
 	<div id="grid_result_summary"><b>Loading...</b></div>
 	<p>To learn how to filer, sort, manipulate, refine, and save data within PATRIC feature tables, 
-	please see <a href="//enews.patricbrc.org/feature-table-faqs/" target="_blank">Feature Table FAQs</a>.</p>
+	please see <a href="http://enews.patricbrc.org/feature-table-faqs/" target="_blank">Feature Table FAQs</a>.</p>
 </div>
 <div id="copy-button" class="x-hidden"></div>
 <div id='PATRICGrid'></div>

@@ -14,7 +14,7 @@ var countSequences = '<%=genome.getSequences()%>';
 <script type="text/javascript" src="/patric-overviews/circos/main.js"></script>
 <link rel="stylesheet" type="text/css" href="/patric-overviews/circos/styles.css">
 <p>Below is the circular map of the genome, showing genome annotations and sequence properties. 
-For more information on how to add custom tracks and/or upload your own data, see <a href="//enews.patricbrc.org/faqs/circular-genome-viewer-faqs/" target="_blank">Circular Genome Viewer FAQs</a>.</p>
+For more information on how to add custom tracks and/or upload your own data, see <a href="http://enews.patricbrc.org/faqs/circular-genome-viewer-faqs/" target="_blank">Circular Genome Viewer FAQs</a>.</p>
 <div id="circosPanel">
 	<div id="circosGraph"></div>
 </div>

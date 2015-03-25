@@ -13,7 +13,7 @@ boolean isLoggedIn = (Boolean) request.getAttribute("isLoggedIn");
 		<p>Antibiotic Resistance refers to the ability of a bacteria to develop resistance to antibiotics through gene mutation or 
 		acquisition of antibiotic resistance genes. This search tool allows researchers to find antibiotic resistance genes in their organisms of interest 
 		based on taxonomy, special property class, and keyword search. 
-		For more details, see <a href="//enews.patricbrc.org/faqs/specialty-genes-faqs/" target="_blank">Specialty Genes FAQs</a>.
+		For more details, see <a href="http://enews.patricbrc.org/faqs/specialty-genes-faqs/" target="_blank">Specialty Genes FAQs</a>.
 	</div>
 
 	<div class="left" style="width:480px">

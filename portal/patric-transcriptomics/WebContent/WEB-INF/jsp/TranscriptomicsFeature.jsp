@@ -30,7 +30,7 @@ String featureIds = (String) request.getAttribute("featureIds");
 	<div id="grid_result_summary"></div>
 	<p>
 	Feature tables contain all of the identified features for all of the genomes in a particular genus.  
-	Tables may be refined to show subsets of features via various user controls, as described in <a href="//enews.patricbrc.org/faqs/feature-table-faqs/" target="_blank">Feature Table FAQs</a>.
+	Tables may be refined to show subsets of features via various user controls, as described in <a href="http://enews.patricbrc.org/faqs/feature-table-faqs/" target="_blank">Feature Table FAQs</a>.
 	</p>
 </div>
 <div id='PATRICGrid'></div>

@@ -35,8 +35,8 @@ String exactSearchTerm = (String) request.getAttribute("exactSearchTerm");
 
 <div>
 	To learn how to filter results based on metadata or perform an advanced search, 
-		see <a href="//enews.patricbrc.org/genome-finder-faqs/" target="_blank">Genome Finder FAQs</a>.
-	To learn more about available metadata, see .<a href="//enews.patricbrc.org/genome-metadata-faqs/" target="_blank">Genome Metadata FAQs</a>.
+		see <a href="http://enews.patricbrc.org/genome-finder-faqs/" target="_blank">Genome Finder FAQs</a>.
+	To learn more about available metadata, see .<a href="http://enews.patricbrc.org/genome-metadata-faqs/" target="_blank">Genome Metadata FAQs</a>.
 </div>
 <div id="tree-panel" style="float:left"></div>
 <div id="sample-layout" style="float:left"></div>

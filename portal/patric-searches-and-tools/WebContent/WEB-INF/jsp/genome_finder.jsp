@@ -11,7 +11,7 @@ boolean isLoggedIn = (Boolean) request.getAttribute("isLoggedIn");
 %>
 
 	<p>The Genome Finder allows you to search for all PATRIC genomes based on genome names and available metadata.
-		To learn more, see <a href="//enews.patricbrc.org/genome-finder-faqs/" target="_blank">Genome Finder FAQs</a>.
+		To learn more, see <a href="http://enews.patricbrc.org/genome-finder-faqs/" target="_blank">Genome Finder FAQs</a>.
 	</p>
 
 	<div class="left" style="width:480px">
