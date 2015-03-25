@@ -61,7 +61,7 @@ public class P2Management extends GenericPortlet {
 		}
 		else if (mode.equals("updateENews") || mode.equals("updateENewsDev")) {
 			String prodENewsURL = "http://enews.patricbrc.org/php/rssAdapter.php";
-			String devENewsURL = "http://patricenews-dev.vbi.vt.edu/php/rssAdapter.php";
+			String devENewsURL = "http://patricenews-test.vbi.vt.edu/php/rssAdapter.php";
 			String eNewsURL = prodENewsURL;
 			if (mode.equals("updateENewsDev")) {
 				eNewsURL = devENewsURL;
