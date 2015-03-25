@@ -62,7 +62,7 @@ JSONObject jsonData = (JSONObject) request.getAttribute("jsonData");
 						<br/><span style="color: #C60;"><%=exp.get("organism")%></span>
 						<br/><span>Accession: <%=exp.get("accession") %></span>
 						<% if (exp.get("pmid") != "") { %>
-							, &nbsp; <span>PubMed: <a class="arrow-slate-e" href="http://www.ncbi.nlm.nih.gov/pubmed/<%=exp.get("pmid") %>" target="_blank"><%=exp.get("pmid") %></a></span>
+							, &nbsp; <span>PubMed: <a class="arrow-slate-e" href="//www.ncbi.nlm.nih.gov/pubmed/<%=exp.get("pmid") %>" target="_blank"><%=exp.get("pmid") %></a></span>
 						<% } %>
 					</div>
 				</div>
