@@ -85,7 +85,7 @@
 	<div class="container tight-paragraphs">
 		<div class="column-narrow">
 			<figure class="caption-bottom ondark">
-				<img id="featureImage" src="http://placehold.it/230x165" alt="blank image for placeholder" />
+				<img id="featureImage" src="//placehold.it/230x165" alt="blank image for placeholder" />
 				<figcaption>
 					<div id="featureCaption" class="wrapper"></div>
 				</figcaption>
@@ -94,7 +94,7 @@
 		</div>
 		<div class="column-wide">
 			<h2 class="close2x light">
-				eNews <a class="smallest double-arrow-link" href="http://enews.patricbrc.org/">More</a>
+				eNews <a class="smallest double-arrow-link" href="//enews.patricbrc.org/">More</a>
 			</h2>
 			<div id="newsCol1" class="column">
 				<div id="newsSlot1"></div>

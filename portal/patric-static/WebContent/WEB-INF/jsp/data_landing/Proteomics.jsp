@@ -1,32 +1,7 @@
 <%@ page import="org.json.simple.JSONObject" %>
 <%@ page import="org.json.simple.JSONArray" %>
-<%@ page import="org.json.simple.parser.JSONParser" %>
-<%@ page import="org.json.simple.parser.ParseException" %>
-<%@ page import="java.io.IOException" %>
-<%@ page import="org.apache.http.client.ResponseHandler" %>
-<%@ page import="org.apache.http.client.methods.HttpGet" %>
-<%@ page import="org.apache.http.impl.client.BasicResponseHandler" %>
-<%@ page import="org.apache.http.impl.client.DefaultHttpClient" %>
 <%
-	String genomedataurl = "http://" + request.getServerName() + ":" + request.getServerPort() + "/patric-common/data/proteomics.json";
-	DefaultHttpClient httpclient = new DefaultHttpClient();
-	HttpGet httpRequest = new HttpGet(genomedataurl);
-	JSONObject jsonData = null;
-	try {
-		ResponseHandler<String> responseHandler = new BasicResponseHandler();
-		String strResponseBody = httpclient.execute(httpRequest, responseHandler);
-
-		JSONParser parser = new JSONParser();
-		jsonData = (JSONObject) parser.parse(strResponseBody);
-		
-	} catch (IOException e) {
-		e.printStackTrace();
-	} catch (ParseException e) {
-		e.printStackTrace();
-	} finally {
-		httpclient.getConnectionManager().shutdown();
-	}
-	
+JSONObject jsonData = (JSONObject) request.getAttribute("jsonData");
 %>
 <link rel="stylesheet" href="/patric/css/dlp.css"></link>
 <script type="text/javascript" src="/patric/js/libs/d3.v3.min.js"></script>

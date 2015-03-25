@@ -300,7 +300,7 @@ function launchTranscriptomicsUploader() {
 
 <div class="container tabs-above">
 	<div id="utilitybox" class="smallest right no-underline-links">
-		<a class="double-arrow-link" href="http://enews.patricbrc.org/what-is-tb-patric/" target="_blank">About TB @ PATRIC</a>
+		<a class="double-arrow-link" href="//enews.patricbrc.org/what-is-tb-patric/" target="_blank">About TB @ PATRIC</a>
 		<br><a class="double-arrow-link" href="Downloads?cType=taxon&amp;cId=<%=mtbTaxon %>" target="_blank">Download all TB @ PATRIC genomes</a>
 	</div>
 	<h1 class="bold">Welcome to TB @ PATRIC</h1>
@@ -369,7 +369,7 @@ function launchTranscriptomicsUploader() {
 					<h4 class="bold">Protein Family Sorter</h4>
 					<div>Compare protein families across groups of Mtb genomes via visualization and multiple sequence alignments.</div>
 					<div class="no-underline-links right">
-						<a class="double-arrow-link" href="http://enews.patricbrc.org/faqs/protein-family-sorter/" target="_blank">Learn more</a>
+						<a class="double-arrow-link" href="//enews.patricbrc.org/faqs/protein-family-sorter/" target="_blank">Learn more</a>
 						&nbsp;
 					</div>
 					<div class="clear"></div>
@@ -382,7 +382,7 @@ function launchTranscriptomicsUploader() {
 					<h4 class="bold">Comparative Pathway Tool</h4>
 					<div>Compare consistently annotated metabolic pathways across closely related or diverse groups of Mtb genomes.</div>
 					<div class="no-underline-links right">
-						<a class="double-arrow-link" href="http://enews.patricbrc.org/faqs/comparative-pathway-tool-faqs/" target="_blank">Learn more</a>
+						<a class="double-arrow-link" href="//enews.patricbrc.org/faqs/comparative-pathway-tool-faqs/" target="_blank">Learn more</a>
 						&nbsp;
 					</div>
 					<div class="clear"></div>
@@ -477,7 +477,7 @@ function launchTranscriptomicsUploader() {
 							<br/><br/>
 						</div>
 						<div class="no-underline-links">
-							<a class="double-arrow-link" href="http://enews.patricbrc.org/faqs/transcriptomics-faqs/upload-transcriptomics-data-to-workspace-faqs/" target="_blank">Learn more</a>
+							<a class="double-arrow-link" href="//enews.patricbrc.org/faqs/transcriptomics-faqs/upload-transcriptomics-data-to-workspace-faqs/" target="_blank">Learn more</a>
 							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 							<a href="javascript:void(0)" onclick="launchTranscriptomicsUploader()">Upload now</a>
 						</div>
