@@ -1276,7 +1276,7 @@
         "image": "http://enews.patricbrc.org/wp-content/uploads/2012/05/FeatureFinder-170x170-02.png",
         "subtitle": "",
         "title": "Feature Finder",
-        "url": "GenomicFeature?cType=taxon&cId=&dm="
+        "url": "GenomicFeature?cType=taxon&cId=131567&dm="
       },
       {
         "category": "Specialized Searches",
@@ -1284,7 +1284,7 @@
         "image": "http://enews.patricbrc.org/wp-content/uploads/2012/03/ID_mapping.jpg",
         "subtitle": "",
         "title": "ID Mapping",
-        "url": "IDMapping?cType=taxon&cId=&dm="
+        "url": "IDMapping?cType=taxon&cId=131567&dm="
       },
       {
         "category": "Visual Browsers",
@@ -1292,7 +1292,7 @@
         "image": "http://enews.patricbrc.org/wp-content/uploads/2012/05/GenomeBrowser_170sq2.jpg",
         "subtitle": "",
         "title": "Genome Browser",
-        "url": "http://patricbrc.org/portal/portal/patric/GenomeBrowser?cType=feature&cId=18154601&loc=sid%7C576%7Caccn%7CNC_000962%3A3016830..3020422&tracks=DNA%2CPATRICGenes%2CRefSeqGenes&highlight= "
+        "url": "GenomeBrowser?cType=feature&cId=PATRIC.83332.12.NC_000962.CDS.3017829.3019421.fwd&loc=NC_000962:3016829..3020421&tracks=DNA,PATRICGenes,RefSeqGenes"
       },
       {
         "category": "Visual Browsers",
@@ -1300,7 +1300,7 @@
         "image": "http://enews.patricbrc.org/wp-content/uploads/2012/05/CompareRegionViewer_170sq.jpg",
         "subtitle": "",
         "title": "Compare Region Viewer",
-        "url": "http://patricbrc.org/portal/portal/patric/CompareRegionViewer?cType=feature&cId=18154601&regions=40&window=10000&loc=1..10000"
+        "url": "CompareRegionViewer?cType=feature&cId=PATRIC.83332.12.NC_000962.CDS.3017829.3019421.fwd&tracks=&regions=5&window=10000&loc=1..10000"
       },
       {
         "category": "Specialized Searches",

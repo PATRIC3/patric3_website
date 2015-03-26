@@ -4,58 +4,58 @@
     "chart_title": "Protein Family Conservation in Pathogenic Bacteria",
     "data": [
       {
-        "accessory": 16284,
-        "core": 914,
-        "functional": 9947,
-        "genomes": 474,
-        "hypothetical": 7251,
+        "accessory": 15659,
+        "core": 1013,
+        "functional": 9927,
+        "genomes": 585,
+        "hypothetical": 6745,
         "pathogen": "Bacillus",
-        "total": 17198
+        "total": 16672
       },
       {
-        "accessory": 1134,
-        "core": 728,
-        "functional": 1733,
-        "genomes": 68,
-        "hypothetical": 129,
+        "accessory": 983,
+        "core": 783,
+        "functional": 1669,
+        "genomes": 75,
+        "hypothetical": 97,
         "pathogen": "Bartonella",
-        "total": 1862
+        "total": 1766
       },
       {
-        "accessory": 1255,
-        "core": 131,
-        "functional": 916,
-        "genomes": 111,
-        "hypothetical": 470,
+        "accessory": 1227,
+        "core": 135,
+        "functional": 895,
+        "genomes": 115,
+        "hypothetical": 467,
         "pathogen": "Borrelia",
-        "total": 1386
+        "total": 1362
       },
       {
-        "accessory": 1949,
-        "core": 1961,
-        "functional": 2738,
-        "genomes": 464,
-        "hypothetical": 1172,
+        "accessory": 1551,
+        "core": 2196,
+        "functional": 2625,
+        "genomes": 466,
+        "hypothetical": 1122,
         "pathogen": "Brucella",
-        "total": 3910
+        "total": 3747
       },
       {
-        "accessory": 13131,
-        "core": 512,
-        "functional": 7786,
-        "genomes": 222,
-        "hypothetical": 5857,
+        "accessory": 12408,
+        "core": 1107,
+        "functional": 8151,
+        "genomes": 317,
+        "hypothetical": 5364,
         "pathogen": "Burkholderia",
-        "total": 13643
+        "total": 13515
       },
       {
-        "accessory": 2988,
-        "core": 719,
-        "functional": 2844,
-        "genomes": 202,
-        "hypothetical": 863,
+        "accessory": 2844,
+        "core": 749,
+        "functional": 2785,
+        "genomes": 227,
+        "hypothetical": 808,
         "pathogen": "Campylobacter",
-        "total": 3707
+        "total": 3593
       },
       {
         "accessory": 140,
@@ -67,139 +67,139 @@
         "total": 986
       },
       {
-        "accessory": 15924,
-        "core": 405,
-        "functional": 9561,
-        "genomes": 209,
-        "hypothetical": 6768,
+        "accessory": 13577,
+        "core": 470,
+        "functional": 8831,
+        "genomes": 190,
+        "hypothetical": 5216,
         "pathogen": "Clostridium",
-        "total": 16329
+        "total": 14047
       },
       {
-        "accessory": 606,
-        "core": 1249,
-        "functional": 1234,
-        "genomes": 11,
+        "accessory": 1464,
+        "core": 403,
+        "functional": 1246,
+        "genomes": 13,
         "hypothetical": 621,
         "pathogen": "Coxiella",
-        "total": 1855
+        "total": 1867
       },
       {
-        "accessory": 392,
-        "core": 529,
-        "functional": 766,
-        "genomes": 15,
-        "hypothetical": 155,
+        "accessory": 322,
+        "core": 563,
+        "functional": 732,
+        "genomes": 16,
+        "hypothetical": 153,
         "pathogen": "Ehrlichia",
-        "total": 921
+        "total": 885
       },
       {
-        "accessory": 9258,
-        "core": 2547,
-        "functional": 7702,
-        "genomes": 2208,
-        "hypothetical": 4103,
+        "accessory": 10620,
+        "core": 2691,
+        "functional": 8575,
+        "genomes": 2707,
+        "hypothetical": 4736,
         "pathogen": "Escherichia",
-        "total": 11805
+        "total": 13311
       },
       {
-        "accessory": 1300,
-        "core": 1006,
-        "functional": 1768,
-        "genomes": 51,
-        "hypothetical": 538,
+        "accessory": 1205,
+        "core": 1045,
+        "functional": 1731,
+        "genomes": 65,
+        "hypothetical": 519,
         "pathogen": "Francisella",
-        "total": 2306
+        "total": 2250
       },
       {
-        "accessory": 2651,
-        "core": 830,
-        "functional": 2396,
-        "genomes": 425,
-        "hypothetical": 1085,
+        "accessory": 2784,
+        "core": 715,
+        "functional": 2440,
+        "genomes": 462,
+        "hypothetical": 1059,
         "pathogen": "Helicobacter",
-        "total": 3481
+        "total": 3499
       },
       {
-        "accessory": 3011,
-        "core": 1061,
-        "functional": 2983,
-        "genomes": 90,
-        "hypothetical": 1089,
+        "accessory": 2966,
+        "core": 1163,
+        "functional": 3031,
+        "genomes": 124,
+        "hypothetical": 1098,
         "pathogen": "Listeria",
-        "total": 4072
+        "total": 4129
       },
       {
-        "accessory": 15931,
-        "core": 1544,
-        "functional": 10558,
-        "genomes": 2390,
-        "hypothetical": 6917,
+        "accessory": 14739,
+        "core": 1675,
+        "functional": 10163,
+        "genomes": 2520,
+        "hypothetical": 6251,
         "pathogen": "Mycobacterium",
-        "total": 17475
+        "total": 16414
       },
       {
-        "accessory": 1394,
-        "core": 569,
-        "functional": 1133,
-        "genomes": 60,
-        "hypothetical": 830,
+        "accessory": 1301,
+        "core": 629,
+        "functional": 1115,
+        "genomes": 66,
+        "hypothetical": 815,
         "pathogen": "Rickettsia",
-        "total": 1963
+        "total": 1930
       },
       {
-        "accessory": 7504,
-        "core": 2705,
-        "functional": 7635,
-        "genomes": 964,
-        "hypothetical": 2574,
+        "accessory": 4791,
+        "core": 2946,
+        "functional": 5530,
+        "genomes": 985,
+        "hypothetical": 2207,
         "pathogen": "Salmonella",
-        "total": 10209
+        "total": 7737
       },
       {
-        "accessory": 4631,
-        "core": 2409,
-        "functional": 5212,
-        "genomes": 111,
-        "hypothetical": 1828,
+        "accessory": 4652,
+        "core": 2278,
+        "functional": 5124,
+        "genomes": 136,
+        "hypothetical": 1806,
         "pathogen": "Shigella",
-        "total": 7040
+        "total": 6930
       },
       {
-        "accessory": 5589,
-        "core": 1696,
-        "functional": 4828,
-        "genomes": 4276,
-        "hypothetical": 2457,
+        "accessory": 5217,
+        "core": 1838,
+        "functional": 4698,
+        "genomes": 4320,
+        "hypothetical": 2357,
         "pathogen": "Staphylococcus",
-        "total": 7285
+        "total": 7055
       },
       {
-        "accessory": 10993,
-        "core": 635,
-        "functional": 6901,
-        "genomes": 1384,
-        "hypothetical": 4727,
+        "accessory": 15600,
+        "core": 748,
+        "functional": 9507,
+        "genomes": 4514,
+        "hypothetical": 6841,
         "pathogen": "Streptococcus",
-        "total": 11628
+        "total": 16348
       },
       {
-        "accessory": 10206,
-        "core": 1658,
-        "functional": 7819,
-        "genomes": 579,
-        "hypothetical": 4045,
+        "accessory": 8761,
+        "core": 1759,
+        "functional": 7155,
+        "genomes": 676,
+        "hypothetical": 3365,
         "pathogen": "Vibrio",
-        "total": 11864
+        "total": 10520
       },
       {
-        "accessory": 4513,
-        "core": 2109,
-        "functional": 5070,
-        "genomes": 150,
-        "hypothetical": 1552,
+        "accessory": 4483,
+        "core": 2048,
+        "functional": 4989,
+        "genomes": 174,
+        "hypothetical": 1542,
         "pathogen": "Yersinia",
-        "total": 6622
+        "total": 6531
       }
     ]
   },
@@ -226,43 +226,43 @@
         "popularData": [
           {
             "x": "10%",
-            "y": 11214
+            "y": 10668
           },
           {
             "x": "20%",
-            "y": 1348
+            "y": 1305
           },
           {
             "x": "30%",
-            "y": 814
+            "y": 882
           },
           {
             "x": "40%",
-            "y": 481
+            "y": 497
           },
           {
             "x": "50%",
-            "y": 701
+            "y": 570
           },
           {
             "x": "60%",
-            "y": 678
+            "y": 810
           },
           {
             "x": "70%",
-            "y": 205
+            "y": 187
           },
           {
             "x": "80%",
-            "y": 233
+            "y": 182
           },
           {
             "x": "90%",
-            "y": 356
+            "y": 327
           },
           {
             "x": "100%",
-            "y": 1168
+            "y": 1244
           }
         ],
         "popularName": "Bacillus"
@@ -272,15 +272,15 @@
         "popularData": [
           {
             "x": "10%",
-            "y": 583
+            "y": 528
           },
           {
             "x": "20%",
-            "y": 115
+            "y": 75
           },
           {
             "x": "30%",
-            "y": 71
+            "y": 77
           },
           {
             "x": "40%",
@@ -288,27 +288,27 @@
           },
           {
             "x": "50%",
-            "y": 32
-          },
-          {
-            "x": "60%",
-            "y": 40
-          },
-          {
-            "x": "70%",
             "y": 41
           },
           {
+            "x": "60%",
+            "y": 46
+          },
+          {
+            "x": "70%",
+            "y": 30
+          },
+          {
             "x": "80%",
-            "y": 90
+            "y": 82
           },
           {
             "x": "90%",
-            "y": 78
+            "y": 50
           },
           {
             "x": "100%",
-            "y": 782
+            "y": 807
           }
         ],
         "popularName": "Bartonella"
@@ -318,15 +318,15 @@
         "popularData": [
           {
             "x": "10%",
-            "y": 211
+            "y": 185
           },
           {
             "x": "20%",
-            "y": 100
+            "y": 104
           },
           {
             "x": "30%",
-            "y": 81
+            "y": 82
           },
           {
             "x": "40%",
@@ -334,27 +334,27 @@
           },
           {
             "x": "50%",
-            "y": 38
+            "y": 37
           },
           {
             "x": "60%",
-            "y": 41
+            "y": 43
           },
           {
             "x": "70%",
-            "y": 50
+            "y": 54
           },
           {
             "x": "80%",
-            "y": 113
+            "y": 112
           },
           {
             "x": "90%",
-            "y": 200
+            "y": 190
           },
           {
             "x": "100%",
-            "y": 486
+            "y": 489
           }
         ],
         "popularName": "Borrelia"
@@ -364,23 +364,23 @@
         "popularData": [
           {
             "x": "10%",
-            "y": 975
+            "y": 830
           },
           {
             "x": "20%",
-            "y": 142
+            "y": 133
           },
           {
             "x": "30%",
-            "y": 45
+            "y": 38
           },
           {
             "x": "40%",
-            "y": 62
+            "y": 60
           },
           {
             "x": "50%",
-            "y": 30
+            "y": 32
           },
           {
             "x": "60%",
@@ -392,15 +392,15 @@
           },
           {
             "x": "80%",
-            "y": 83
+            "y": 77
           },
           {
             "x": "90%",
-            "y": 167
+            "y": 147
           },
           {
             "x": "100%",
-            "y": 2296
+            "y": 2320
           }
         ],
         "popularName": "Brucella"
@@ -410,43 +410,43 @@
         "popularData": [
           {
             "x": "10%",
-            "y": 6926
+            "y": 7300
           },
           {
             "x": "20%",
-            "y": 1589
+            "y": 1242
           },
           {
             "x": "30%",
-            "y": 833
+            "y": 587
           },
           {
             "x": "40%",
-            "y": 727
+            "y": 389
           },
           {
             "x": "50%",
-            "y": 665
+            "y": 411
           },
           {
             "x": "60%",
-            "y": 274
+            "y": 688
           },
           {
             "x": "70%",
-            "y": 335
+            "y": 331
           },
           {
             "x": "80%",
-            "y": 314
+            "y": 349
           },
           {
             "x": "90%",
-            "y": 459
+            "y": 402
           },
           {
             "x": "100%",
-            "y": 1521
+            "y": 1816
           }
         ],
         "popularName": "Burkholderia"
@@ -456,7 +456,7 @@
         "popularData": [
           {
             "x": "10%",
-            "y": 1731
+            "y": 1638
           },
           {
             "x": "20%",
@@ -464,35 +464,35 @@
           },
           {
             "x": "30%",
-            "y": 191
+            "y": 193
           },
           {
             "x": "40%",
-            "y": 64
+            "y": 53
           },
           {
             "x": "50%",
-            "y": 39
+            "y": 38
           },
           {
             "x": "60%",
-            "y": 72
+            "y": 68
           },
           {
             "x": "70%",
-            "y": 49
+            "y": 55
           },
           {
             "x": "80%",
-            "y": 73
+            "y": 100
           },
           {
             "x": "90%",
-            "y": 231
+            "y": 186
           },
           {
             "x": "100%",
-            "y": 878
+            "y": 883
           }
         ],
         "popularName": "Campylobacter"
@@ -548,43 +548,43 @@
         "popularData": [
           {
             "x": "10%",
-            "y": 11830
+            "y": 9955
           },
           {
             "x": "20%",
-            "y": 1915
+            "y": 1468
           },
           {
             "x": "30%",
-            "y": 614
+            "y": 641
           },
           {
             "x": "40%",
-            "y": 351
+            "y": 314
           },
           {
             "x": "50%",
-            "y": 262
+            "y": 243
           },
           {
             "x": "60%",
-            "y": 211
+            "y": 203
           },
           {
             "x": "70%",
-            "y": 225
+            "y": 213
           },
           {
             "x": "80%",
-            "y": 214
+            "y": 196
           },
           {
             "x": "90%",
-            "y": 190
+            "y": 224
           },
           {
             "x": "100%",
-            "y": 517
+            "y": 590
           }
         ],
         "popularName": "Clostridium"
@@ -594,43 +594,43 @@
         "popularData": [
           {
             "x": "10%",
-            "y": 53
+            "y": 63
           },
           {
             "x": "20%",
-            "y": 33
+            "y": 31
           },
           {
             "x": "30%",
-            "y": 36
+            "y": 34
           },
           {
             "x": "40%",
-            "y": 66
+            "y": 102
           },
           {
             "x": "50%",
-            "y": 51
-          },
-          {
-            "x": "60%",
-            "y": 55
-          },
-          {
-            "x": "70%",
-            "y": 51
-          },
-          {
-            "x": "80%",
             "y": 56
           },
           {
+            "x": "60%",
+            "y": 44
+          },
+          {
+            "x": "70%",
+            "y": 97
+          },
+          {
+            "x": "80%",
+            "y": 41
+          },
+          {
             "x": "90%",
-            "y": 43
+            "y": 122
           },
           {
             "x": "100%",
-            "y": 1411
+            "y": 1277
           }
         ],
         "popularName": "Coxiella"
@@ -640,43 +640,43 @@
         "popularData": [
           {
             "x": "10%",
-            "y": 31
+            "y": 29
           },
           {
             "x": "20%",
-            "y": 87
+            "y": 86
           },
           {
             "x": "30%",
-            "y": 9
+            "y": 3
           },
           {
             "x": "40%",
-            "y": 32
+            "y": 30
           },
           {
             "x": "50%",
-            "y": 37
+            "y": 11
           },
           {
             "x": "60%",
-            "y": 52
+            "y": 9
           },
           {
             "x": "70%",
-            "y": 14
+            "y": 20
           },
           {
             "x": "80%",
-            "y": 21
+            "y": 7
           },
           {
             "x": "90%",
-            "y": 10
+            "y": 25
           },
           {
             "x": "100%",
-            "y": 628
+            "y": 665
           }
         ],
         "popularName": "Ehrlichia"
@@ -686,43 +686,43 @@
         "popularData": [
           {
             "x": "10%",
-            "y": 6140
+            "y": 7790
           },
           {
             "x": "20%",
-            "y": 847
+            "y": 876
           },
           {
             "x": "30%",
-            "y": 594
+            "y": 499
           },
           {
             "x": "40%",
-            "y": 329
+            "y": 322
           },
           {
             "x": "50%",
-            "y": 255
+            "y": 264
           },
           {
             "x": "60%",
-            "y": 218
+            "y": 254
           },
           {
             "x": "70%",
-            "y": 206
+            "y": 190
           },
           {
             "x": "80%",
-            "y": 406
+            "y": 208
           },
           {
             "x": "90%",
-            "y": 153
+            "y": 117
           },
           {
             "x": "100%",
-            "y": 2657
+            "y": 2791
           }
         ],
         "popularName": "Escherichia"
@@ -732,43 +732,43 @@
         "popularData": [
           {
             "x": "10%",
-            "y": 437
+            "y": 283
           },
           {
             "x": "20%",
-            "y": 193
+            "y": 316
           },
           {
             "x": "30%",
-            "y": 77
+            "y": 76
           },
           {
             "x": "40%",
-            "y": 47
+            "y": 46
           },
           {
             "x": "50%",
-            "y": 37
+            "y": 52
           },
           {
             "x": "60%",
-            "y": 56
+            "y": 67
           },
           {
             "x": "70%",
-            "y": 55
+            "y": 64
           },
           {
             "x": "80%",
-            "y": 104
+            "y": 135
           },
           {
             "x": "90%",
-            "y": 213
+            "y": 93
           },
           {
             "x": "100%",
-            "y": 1087
+            "y": 1118
           }
         ],
         "popularName": "Francisella"
@@ -778,43 +778,43 @@
         "popularData": [
           {
             "x": "10%",
-            "y": 2052
+            "y": 2071
           },
           {
             "x": "20%",
-            "y": 124
+            "y": 131
           },
           {
             "x": "30%",
-            "y": 79
+            "y": 76
           },
           {
             "x": "40%",
-            "y": 52
+            "y": 50
           },
           {
             "x": "50%",
-            "y": 48
+            "y": 56
           },
           {
             "x": "60%",
-            "y": 39
+            "y": 32
           },
           {
             "x": "70%",
-            "y": 42
+            "y": 52
           },
           {
             "x": "80%",
-            "y": 38
+            "y": 34
           },
           {
             "x": "90%",
-            "y": 33
+            "y": 47
           },
           {
             "x": "100%",
-            "y": 974
+            "y": 950
           }
         ],
         "popularName": "Helicobacter"
@@ -824,43 +824,43 @@
         "popularData": [
           {
             "x": "10%",
-            "y": 1300
+            "y": 1367
           },
           {
             "x": "20%",
-            "y": 230
+            "y": 234
           },
           {
             "x": "30%",
-            "y": 174
+            "y": 170
           },
           {
             "x": "40%",
-            "y": 121
+            "y": 133
           },
           {
             "x": "50%",
-            "y": 84
+            "y": 116
           },
           {
             "x": "60%",
-            "y": 70
+            "y": 73
           },
           {
             "x": "70%",
-            "y": 55
+            "y": 34
           },
           {
             "x": "80%",
-            "y": 128
+            "y": 99
           },
           {
             "x": "90%",
-            "y": 446
+            "y": 425
           },
           {
             "x": "100%",
-            "y": 1464
+            "y": 1478
           }
         ],
         "popularName": "Listeria"
@@ -870,19 +870,19 @@
         "popularData": [
           {
             "x": "10%",
-            "y": 13969
+            "y": 12978
           },
           {
             "x": "20%",
-            "y": 178
+            "y": 106
           },
           {
             "x": "30%",
-            "y": 54
+            "y": 62
           },
           {
             "x": "40%",
-            "y": 56
+            "y": 55
           },
           {
             "x": "50%",
@@ -890,23 +890,23 @@
           },
           {
             "x": "60%",
-            "y": 54
+            "y": 64
           },
           {
             "x": "70%",
-            "y": 68
+            "y": 64
           },
           {
             "x": "80%",
-            "y": 138
+            "y": 195
           },
           {
             "x": "90%",
-            "y": 501
+            "y": 320
           },
           {
             "x": "100%",
-            "y": 2413
+            "y": 2526
           }
         ],
         "popularName": "Mycobacterium"
@@ -916,11 +916,11 @@
         "popularData": [
           {
             "x": "10%",
-            "y": 482
+            "y": 421
           },
           {
             "x": "20%",
-            "y": 179
+            "y": 205
           },
           {
             "x": "30%",
@@ -928,31 +928,31 @@
           },
           {
             "x": "40%",
-            "y": 151
+            "y": 148
           },
           {
             "x": "50%",
-            "y": 125
+            "y": 138
           },
           {
             "x": "60%",
-            "y": 105
+            "y": 84
           },
           {
             "x": "70%",
-            "y": 91
+            "y": 77
           },
           {
             "x": "80%",
-            "y": 35
+            "y": 57
           },
           {
             "x": "90%",
-            "y": 21
+            "y": 16
           },
           {
             "x": "100%",
-            "y": 640
+            "y": 650
           }
         ],
         "popularName": "Rickettsia"
@@ -962,43 +962,43 @@
         "popularData": [
           {
             "x": "10%",
-            "y": 5424
+            "y": 3094
           },
           {
             "x": "20%",
-            "y": 447
+            "y": 421
           },
           {
             "x": "30%",
-            "y": 218
+            "y": 211
           },
           {
             "x": "40%",
-            "y": 323
+            "y": 179
           },
           {
             "x": "50%",
-            "y": 205
+            "y": 194
           },
           {
             "x": "60%",
-            "y": 220
+            "y": 200
           },
           {
             "x": "70%",
-            "y": 370
+            "y": 145
           },
           {
             "x": "80%",
-            "y": 101
+            "y": 105
           },
           {
             "x": "90%",
-            "y": 121
+            "y": 150
           },
           {
             "x": "100%",
-            "y": 2780
+            "y": 3038
           }
         ],
         "popularName": "Salmonella"
@@ -1008,43 +1008,43 @@
         "popularData": [
           {
             "x": "10%",
-            "y": 2716
+            "y": 2551
           },
           {
             "x": "20%",
-            "y": 436
+            "y": 435
           },
           {
             "x": "30%",
-            "y": 149
+            "y": 178
           },
           {
             "x": "40%",
-            "y": 74
+            "y": 115
           },
           {
             "x": "50%",
-            "y": 54
+            "y": 98
           },
           {
             "x": "60%",
-            "y": 90
+            "y": 189
           },
           {
             "x": "70%",
-            "y": 176
+            "y": 253
           },
           {
             "x": "80%",
-            "y": 259
+            "y": 296
           },
           {
             "x": "90%",
-            "y": 329
+            "y": 272
           },
           {
             "x": "100%",
-            "y": 2757
+            "y": 2543
           }
         ],
         "popularName": "Shigella"
@@ -1054,43 +1054,43 @@
         "popularData": [
           {
             "x": "10%",
-            "y": 4679
+            "y": 4539
           },
           {
             "x": "20%",
-            "y": 164
-          },
-          {
-            "x": "30%",
-            "y": 132
-          },
-          {
-            "x": "40%",
-            "y": 56
-          },
-          {
-            "x": "50%",
-            "y": 43
-          },
-          {
-            "x": "60%",
-            "y": 54
-          },
-          {
-            "x": "70%",
             "y": 138
           },
           {
+            "x": "30%",
+            "y": 85
+          },
+          {
+            "x": "40%",
+            "y": 46
+          },
+          {
+            "x": "50%",
+            "y": 33
+          },
+          {
+            "x": "60%",
+            "y": 56
+          },
+          {
+            "x": "70%",
+            "y": 124
+          },
+          {
             "x": "80%",
-            "y": 211
+            "y": 107
           },
           {
             "x": "90%",
-            "y": 58
+            "y": 38
           },
           {
             "x": "100%",
-            "y": 1750
+            "y": 1889
           }
         ],
         "popularName": "Staphylococcus"
@@ -1100,43 +1100,43 @@
         "popularData": [
           {
             "x": "10%",
-            "y": 8587
+            "y": 14149
           },
           {
             "x": "20%",
-            "y": 869
+            "y": 450
           },
           {
             "x": "30%",
-            "y": 623
+            "y": 159
           },
           {
             "x": "40%",
-            "y": 232
+            "y": 104
           },
           {
             "x": "50%",
-            "y": 158
+            "y": 60
           },
           {
             "x": "60%",
-            "y": 133
+            "y": 57
           },
           {
             "x": "70%",
-            "y": 101
+            "y": 60
           },
           {
             "x": "80%",
-            "y": 109
+            "y": 262
           },
           {
             "x": "90%",
-            "y": 130
+            "y": 181
           },
           {
             "x": "100%",
-            "y": 686
+            "y": 866
           }
         ],
         "popularName": "Streptococcus"
@@ -1146,43 +1146,43 @@
         "popularData": [
           {
             "x": "10%",
-            "y": 7107
+            "y": 5797
           },
           {
             "x": "20%",
-            "y": 540
+            "y": 480
           },
           {
             "x": "30%",
-            "y": 436
+            "y": 462
           },
           {
             "x": "40%",
-            "y": 453
+            "y": 568
           },
           {
             "x": "50%",
-            "y": 539
+            "y": 488
           },
           {
             "x": "60%",
-            "y": 323
+            "y": 326
           },
           {
             "x": "70%",
-            "y": 220
+            "y": 177
           },
           {
             "x": "80%",
-            "y": 93
+            "y": 66
           },
           {
             "x": "90%",
-            "y": 224
+            "y": 216
           },
           {
             "x": "100%",
-            "y": 1929
+            "y": 1940
           }
         ],
         "popularName": "Vibrio"
@@ -1192,43 +1192,43 @@
         "popularData": [
           {
             "x": "10%",
-            "y": 2450
+            "y": 2309
           },
           {
             "x": "20%",
-            "y": 662
+            "y": 626
           },
           {
             "x": "30%",
-            "y": 80
+            "y": 157
           },
           {
             "x": "40%",
-            "y": 39
+            "y": 54
           },
           {
             "x": "50%",
-            "y": 49
+            "y": 67
           },
           {
             "x": "60%",
-            "y": 69
+            "y": 124
           },
           {
             "x": "70%",
-            "y": 221
+            "y": 264
           },
           {
             "x": "80%",
-            "y": 317
+            "y": 465
           },
           {
             "x": "90%",
-            "y": 468
+            "y": 256
           },
           {
             "x": "100%",
-            "y": 2267
+            "y": 2209
           }
         ],
         "popularName": "Yersinia"
@@ -1257,7 +1257,7 @@
         "image": "http://enews.patricbrc.org/wp-content/uploads/2012/03/PFS_170sq.jpg",
         "subtitle": "",
         "title": "Protein Family Sorter",
-        "url": "FIGfamSorter?cType=taxon&cId=&dm="
+        "url": "FIGfam?cType=taxon&cId=131567&dm=&bm=tool"
       },
       {
         "category": "Visual Browsers",
@@ -1273,7 +1273,7 @@
         "image": "http://enews.patricbrc.org/wp-content/uploads/2012/05/GenomeFinder-170x170-01.png",
         "subtitle": "",
         "title": "Genome Finder",
-        "url": "GenomeFinder?cType=taxon&cId=&dm="
+        "url": "GenomeFinder?cType=taxon&cId=131567&dm="
       },
       {
         "category": "Comparative Analyses",

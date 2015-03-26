@@ -691,7 +691,7 @@
         "image": "http://enews.patricbrc.org/wp-content/uploads/2014/05/SG_DLP_170x170.jpg",
         "subtitle": "",
         "title": "Specialty Gene Search",
-        "url": "http://patricbrc.org/portal/portal/patric/SpecialtyGeneSearch?cType=taxon&cId=&dm= "
+        "url": "SpecialtyGeneSearch?cType=taxon&cId=131567&dm="
       },
       {
         "category": "Specialized Searches",
@@ -707,7 +707,7 @@
         "image": "http://enews.patricbrc.org/wp-content/uploads/2012/05/FeatureFinder-170x170-02.png",
         "subtitle": "",
         "title": "Feature Finder",
-        "url": "GenomicFeature?cType=taxon&cId=&dm="
+        "url": "GenomicFeature?cType=taxon&cId=131567&dm="
       },
       {
         "category": "Specialized Searches",
@@ -715,7 +715,7 @@
         "image": "http://enews.patricbrc.org/wp-content/uploads/2012/05/GenomeFinder-170x170-01.png",
         "subtitle": "",
         "title": "Genome Finder",
-        "url": "GenomeFinder?cType=taxon&cId=&dm="
+        "url": "GenomeFinder?cType=taxon&cId=131567&dm="
       },
       {
         "category": "Comparative Analyses",

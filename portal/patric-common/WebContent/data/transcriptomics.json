@@ -598,7 +598,7 @@
         "image": "http://enews.patricbrc.org/wp-content/uploads/2013/06/Experimentand-ComparisonList_170sq.jpg",
         "subtitle": "",
         "title": "Transcriptomics Experiment and Comparison Lists",
-        "url": "http://patricbrc.org/portal/portal/patric/ExperimentList?cType=taxon&cId=2&kw"
+        "url": "ExperimentList?cType=taxon&cId=2&kw="
       },
       {
         "category": "Comparative Analyses",
@@ -606,7 +606,7 @@
         "image": "http://enews.patricbrc.org/wp-content/uploads/2013/06/TranscriptomicsGeneListandHeatmap_170sq.jpg",
         "subtitle": "",
         "title": "Transcriptomics Gene List and Heatmap",
-        "url": "http://patricbrc.org/portal/portal/patric/TranscriptomicsGene?cType=taxon&cId=1763&dm=result&expId=233094&sampleId=&colId=&log_ratio=0&zscore=0&pk="
+        "url": "TranscriptomicsGene?cType=taxon&cId=1763&dm=result&expId=233094&sampleId=&colId=&log_ratio=0&zscore=0&pk="
       },
       {
         "category": "Specialized Searches",
@@ -614,7 +614,7 @@
         "image": "http://enews.patricbrc.org/wp-content/uploads/2013/06/GenePageTranscriptomics_170sq.jpg",
         "subtitle": "",
         "title": "Gene Page Transcriptomics",
-        "url": "http://patricbrc.org/portal/portal/patric/TranscriptomicsGeneExp?cType=feature&cId=18154431&sampleId=&colId=&log_ratio=&zscore"
+        "url": "TranscriptomicsGeneExp?cType=feature&cId=18154431&sampleId=&colId=&log_ratio=&zscore"
       },
       {
         "category": "Miscellaneous",
@@ -622,7 +622,7 @@
         "image": "http://enews.patricbrc.org/wp-content/uploads/2014/02/CorrelatedGenes_notext.jpg",
         "subtitle": "",
         "title": "Correlated Genes",
-        "url": "http://patricbrc.org/portal/portal/patric/TranscriptomicsGeneCorrelated?cType=feature&cId=18154431  "
+        "url": "TranscriptomicsGeneCorrelated?cId=PATRIC.83332.12.NC_000962.CDS.2949593.2950486.fwd&cType=feature"
       },
       {
         "category": "Annotation Pipelines",

@@ -21,14 +21,14 @@
       {
         "label": "Whole Genome Shotgun",
         "m_label": "gsc_shotgun_sequence",
-        "reported": "88%",
-        "value": 88
+        "reported": "79%",
+        "value": 79
       },
       {
         "label": "Complete",
         "m_label": "gsc_complete",
-        "reported": "12%",
-        "value": 12
+        "reported": "11%",
+        "value": 11
       },
       {
         "label": "Plasmid",
@@ -47,28 +47,28 @@
         "year": 2010
       },
       {
-        "complete": 1823,
+        "complete": 1824,
         "wgs": 2831,
         "year": 2011
       },
       {
-        "complete": 2250,
+        "complete": 2252,
         "wgs": 6140,
         "year": 2012
       },
       {
-        "complete": 2719,
+        "complete": 2731,
         "wgs": 13255,
         "year": 2013
       },
       {
-        "complete": 3247,
-        "wgs": 23009,
+        "complete": 3469,
+        "wgs": 25299,
         "year": 2014
       },
       {
-        "complete": 3247,
-        "wgs": 23009,
+        "complete": 3643,
+        "wgs": 25648,
         "year": 2015
       }
     ]
@@ -537,7 +537,7 @@
         "image": "http://enews.patricbrc.org/wp-content/uploads/2012/05/GenomeFinder-170x170-01.png",
         "subtitle": "",
         "title": "Genome Finder",
-        "url": "GenomeFinder?cType=taxon&cId=&dm="
+        "url": "GenomeFinder?cType=taxon&cId=131567&dm="
       },
       {
         "category": "Comparative Analyses",
@@ -553,7 +553,7 @@
         "image": "http://enews.patricbrc.org/wp-content/uploads/2012/05/GenomeBrowser_170sq2.jpg",
         "subtitle": "",
         "title": "Genome Browser",
-        "url": "http://patricbrc.org/portal/portal/patric/GenomeBrowser?cType=feature&cId=18154601&loc=sid%7C576%7Caccn%7CNC_000962%3A3016830..3020422&tracks=DNA%2CPATRICGenes%2CRefSeqGenes&highlight= "
+        "url": "GenomeBrowser?cType=feature&cId=PATRIC.83332.12.NC_000962.CDS.3017829.3019421.fwd&loc=NC_000962:3016829..3020421&tracks=DNA,PATRICGenes,RefSeqGenes"
       },
       {
         "category": "Visual Browsers",
@@ -561,14 +561,14 @@
         "image": "http://enews.patricbrc.org/wp-content/uploads/2012/05/CompareRegionViewer_170sq.jpg",
         "subtitle": "",
         "title": "Compare Region Viewer",
-        "url": "http://patricbrc.org/portal/portal/patric/CompareRegionViewer?cType=feature&cId=18154601&regions=40&window=10000&loc=1..10000"
+        "url": "CompareRegionViewer?cType=feature&cId=PATRIC.83332.12.NC_000962.CDS.3017829.3019421.fwd&tracks=&regions=5&window=10000&loc=1..10000"
       },
       {
         "category": "Annotation Pipelines",
-        "content": "<p>RAST (Rapid Annotation using Subsystem Technology) is a fully-automated service for annotating bacterial and archaeal genomes. It provides high quality genome annotations for these genomes across all bacteria.</p>\n",
-        "image": "http://enews.patricbrc.org/wp-content/uploads/2012/05/RAST_170sq.jpg",
+        "content": "<p>The Genome Annotation Service is a fully-automated pipeline for annotating bacterial and archaeal genomes using RAST (Rapid Annotation using Subsystem Technology) to provide high quality genome annotations.</p>\n",
+        "image": "http://enews.patricbrc.org/wp-content/uploads/2012/05/Cirular-genome-170px.png",
         "subtitle": "",
-        "title": "RAST",
+        "title": "Genome Annotation",
         "url": "RAST"
       },
       {
@@ -584,7 +584,7 @@
       {
         "bottom_left_headline": null,
         "bottom_right_headline": null,
-        "content": "<p>Data in PATRIC is organized in a similar fashion at various taxonomic levels throughout the website.\u00c2\u00a0 Follow along in this <i>Mycobacterium</i> example and see what data is available and where to find it for your favorite organisms/genomes/genes.</p>\n",
+        "content": "<p>Data in PATRIC is organized in a similar fashion at various taxonomic levels throughout the website.\u00c2  Follow along in this <i>Mycobacterium</i> example and see what data is available and where to find it for your favorite organisms/genomes/genes.</p>\n",
         "headline": null,
         "image": "http://enews.patricbrc.org/wp-content/uploads/2013/07/data-orgnaization-overview-thumbnail.png",
         "subtitle": "",
@@ -668,32 +668,32 @@
         "icon": "/patric/images/hosts/human.png",
         "label": "Human, Homo sapiens",
         "m_label": "human,_homo_sapiens",
-        "reported": 794,
-        "value": 12689
+        "reported": 809,
+        "value": 16918
       },
       {
         "icon": "/patric/images/hosts/cow.png",
         "label": "Cattle, Bos taurus",
         "m_label": "cattle,_bos_taurus",
-        "value": 529
-      },
-      {
-        "icon": "/patric/images/hosts/cow.png",
-        "label": "Bovine, Bovinae",
-        "m_label": "bovine,_bovinae",
-        "value": 160
+        "value": 539
       },
       {
         "icon": "/patric/images/hosts/pig.png",
         "label": "Pig, Sus scrofa",
         "m_label": "pig,_sus_scrofa",
-        "value": 152
+        "value": 185
+      },
+      {
+        "icon": "/patric/images/hosts/cow.png",
+        "label": "Bovine, Bovinae",
+        "m_label": "bovine,_bovinae",
+        "value": 161
       },
       {
         "icon": "/patric/images/hosts/blank.png",
         "label": "Chicken, Gallus gallus",
         "m_label": "chicken,_gallus_gallus",
-        "value": 96
+        "value": 137
       }
     ],
     "tab_title": "Host"
@@ -706,32 +706,32 @@
         "icon": "/patric/images/flags/United-States.png",
         "label": "USA",
         "m_label": "usa",
-        "reported": 996,
-        "value": 7358
+        "reported": 4799,
+        "value": 8656
       },
       {
-        "icon": "/patric/images/flags/South-Africa.png",
-        "label": "South Africa",
-        "m_label": "south_africa",
-        "value": 664
-      },
-      {
-        "icon": "/patric/images/flags/Netherlands.png",
-        "label": "Netherlands",
-        "m_label": "netherlands",
-        "value": 613
+        "icon": "/patric/images/flags/Thailand.png",
+        "label": "Thailand",
+        "m_label": "thailand",
+        "value": 3199
       },
       {
         "icon": "/patric/images/flags/China.png",
         "label": "China",
         "m_label": "china",
-        "value": 527
+        "value": 746
       },
       {
-        "icon": "/patric/images/flags/India.png",
-        "label": "India",
-        "m_label": "india",
-        "value": 518
+        "icon": "/patric/images/flags/South-Africa.png",
+        "label": "South Africa",
+        "m_label": "south_africa",
+        "value": 677
+      },
+      {
+        "icon": "/patric/images/flags/Netherlands.png",
+        "label": "Netherlands",
+        "m_label": "netherlands",
+        "value": 634
       }
     ],
     "tab_title": "Isolation Country"
