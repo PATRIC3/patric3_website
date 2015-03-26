@@ -736,7 +736,7 @@
         "subtitle": "",
         "summary": null,
         "title": "PATRIC Data Organization Overview",
-        "url": "patric-data-organization-overview-2"
+        "url": "http://enews.patricbrc.org/patric-data-organization-overview/"
       },
       {
         "bottom_left_headline": null,
@@ -747,7 +747,7 @@
         "subtitle": "",
         "summary": null,
         "title": "Using PATRIC Tables",
-        "url": "using-patric-tables"
+        "url": "http://enews.patricbrc.org/patric-feature-table-tutorial/"
       },
       {
         "bottom_left_headline": null,
@@ -758,7 +758,7 @@
         "subtitle": "",
         "summary": null,
         "title": "Frequently Asked Questions",
-        "url": "frequently-asked-questions"
+        "url": "http://enews.patricbrc.org/faqs/"
       }
     ]
   }

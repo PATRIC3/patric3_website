@@ -1,7 +1,7 @@
 {
   "data": {
     "content": "<p>Genomes are received on a regular basis from a multitude of sources (GenBank, RefSeq, Collaborator Request, etc.). Our signature PATRIC annotation is generated via the RAST (Rapid Annotation Subsystems Technologies) Pipeline, resulting in a consistently annotated set of genomes in which meaningful comparisons can be made within and across taxonomic boundaries. We also maintain the original annotations from GenBank to allow users to explore and compare annotation differences. In addition, we automatically gather, parse, and curate over 60 various associated metadata attributes, such as isolation source, geographic location, and host. Find out how to search for genomes of interest in our <a href=\"http://enews.patricbrc.org/faqs/genome-finder-faqs/\" >Genome Finder FAQs</a>.</p>\n",
-    "subtitle": "PATRIC Offers Over 32,000 Assembled Bacterial Genomes Sequences",
+    "subtitle": "PATRIC Offers Over 16,000 Assembled Bacterial Genomes Sequences",
     "tab_title": "Testing Data sub-tab Title field",
     "title": "DLP-Genomes-Data",
     "tools": [],
@@ -63,12 +63,12 @@
       },
       {
         "complete": 3469,
-        "wgs": 25299,
+        "wgs": 25311,
         "year": 2014
       },
       {
         "complete": 3643,
-        "wgs": 25648,
+        "wgs": 25660,
         "year": 2015
       }
     ]
@@ -590,7 +590,7 @@
         "subtitle": "",
         "summary": null,
         "title": "PATRIC Data Organization Overview",
-        "url": "patric-data-organization-overview-2"
+        "url": "http://enews.patricbrc.org/patric-data-organization-overview/"
       },
       {
         "bottom_left_headline": null,
@@ -601,7 +601,7 @@
         "subtitle": "",
         "summary": null,
         "title": "Identifying the Shiga Toxin Proteins from 2011 Outbreak",
-        "url": "identifying-the-shiga-toxin-proteins-from-2011-outbreak"
+        "url": "Workflow?page=collect-2011-e-coli-outbreak-shiga-toxins"
       },
       {
         "bottom_left_headline": null,
@@ -612,7 +612,7 @@
         "subtitle": "",
         "summary": null,
         "title": "PATRIC for the Novice User:  <i>Mycobacterium</i>",
-        "url": "patric-for-the-novice-user-mycobacterium"
+        "url": "http://enews.patricbrc.org/wp-content/uploads/2011/04/PATRIC-for-the-novice-user-Mycobacterium.pdf "
       },
       {
         "bottom_left_headline": null,
@@ -623,7 +623,7 @@
         "subtitle": "",
         "summary": null,
         "title": "Using PATRIC Tables",
-        "url": "using-patric-tables"
+        "url": "http://enews.patricbrc.org/patric-feature-table-tutorial/"
       },
       {
         "bottom_left_headline": null,
@@ -634,7 +634,7 @@
         "subtitle": "",
         "summary": null,
         "title": "Finding Potential Genomic Islands in Emergent E. coli Strains",
-        "url": "finding-potential-genomic-islands-in-emergent-e-coli-strains"
+        "url": "Workflow?page=new-e-coli-strain-virulence-analysis-via-genomic-island"
       },
       {
         "bottom_left_headline": null,
@@ -645,7 +645,7 @@
         "subtitle": "",
         "summary": null,
         "title": "PATRIC for the Novice User:  <i>Brucella</i>",
-        "url": "patric-for-the-novice-user-brucella-2"
+        "url": "http://enews.patricbrc.org/wp-content/uploads/2012/11/PATRIC-for-the-novice-user-Brucella.pdf"
       },
       {
         "bottom_left_headline": null,
@@ -656,7 +656,7 @@
         "subtitle": "",
         "summary": null,
         "title": "Frequently Asked Questions",
-        "url": "frequently-asked-questions"
+        "url": "http://enews.patricbrc.org/faqs/"
       }
     ]
   },
@@ -707,7 +707,7 @@
         "label": "USA",
         "m_label": "usa",
         "reported": 4799,
-        "value": 8656
+        "value": 8660
       },
       {
         "icon": "/patric/images/flags/Thailand.png",

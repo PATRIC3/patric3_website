@@ -643,7 +643,7 @@
         "subtitle": "",
         "summary": null,
         "title": "Transcriptomics Data at PATRIC",
-        "url": "transcriptomics-data-at-patric"
+        "url": "http://enews.patricbrc.org/transcriptomics-data-at-patric-tutorial/"
       },
       {
         "bottom_left_headline": null,
@@ -654,7 +654,7 @@
         "subtitle": "",
         "summary": null,
         "title": "Exploring Expression Data",
-        "url": "exploring-expression-data"
+        "url": "Workflow?page=transcriptomics-experiment-level-existing-data"
       },
       {
         "bottom_left_headline": null,
@@ -665,7 +665,7 @@
         "subtitle": "",
         "summary": null,
         "title": "Using Transcriptomics to Examine the Function of Hypothetical Proteins",
-        "url": "using-transcriptomics-to-examine-the-function-of-hypothetical-proteins"
+        "url": "http://enews.patricbrc.org/wp-content/uploads/2013/11/hypotheticalpro.pdf"
       },
       {
         "bottom_left_headline": null,
@@ -676,7 +676,7 @@
         "subtitle": "",
         "summary": null,
         "title": "Using RNA-Seq analysis Pipeline, RNA-Rocket",
-        "url": "using-rna-seq-analysis-pipeline-rna-rocket"
+        "url": "http://enews.patricbrc.org/wp-content/uploads/2013/09/RNARocketDemo.pdf"
       },
       {
         "bottom_left_headline": null,
@@ -687,7 +687,7 @@
         "subtitle": "",
         "summary": null,
         "title": "Upload Your Own Transcriptomics Data",
-        "url": "upload-your-own-transcriptomics-data"
+        "url": "http://enews.patricbrc.org/upload-your-own-transcriptomics-data-tutorial/"
       },
       {
         "bottom_left_headline": null,
@@ -698,7 +698,7 @@
         "subtitle": "",
         "summary": null,
         "title": "Using PATRIC Tables",
-        "url": "using-patric-tables"
+        "url": "http://enews.patricbrc.org/patric-feature-table-tutorial/"
       },
       {
         "bottom_left_headline": null,
@@ -709,7 +709,7 @@
         "subtitle": "",
         "summary": null,
         "title": "Frequently Asked Questions",
-        "url": "frequently-asked-questions"
+        "url": "http://enews.patricbrc.org/faqs/"
       }
     ]
   },
