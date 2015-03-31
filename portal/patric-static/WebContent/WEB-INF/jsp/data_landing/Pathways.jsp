@@ -2,6 +2,7 @@
 <%@ page import="org.json.simple.JSONArray" %>
 <%
 JSONObject jsonData = (JSONObject) request.getAttribute("jsonData");
+String ftpUrl = (String) request.getAttribute("ftpUrl");
 %>
 <link rel="stylesheet" href="/patric/css/dlp.css"></link>
 <script type="text/javascript" src="/patric/js/libs/d3.v3.min.js"></script>
@@ -224,7 +225,7 @@ JSONObject jsonData = (JSONObject) request.getAttribute("jsonData");
 			<div class="data-box">
 				<h3 class="ribbon-title left"><%=jsonDownload.get("subtitle") %></h3>
 				<div class="no-underline-links right" style="width:480px; padding-top:13px;">
-					<a class="arrow-slate-e" href="ftp://ftp.patricbrc.org/patric2" target="_blank">Download files via FTP Server</a>
+					<a class="arrow-slate-e" href="<%=ftpUrl%>" target="_blank">Download files via FTP Server</a>
 				</div>
 				<div class="clear"></div>
 				<% if (jsonDownload.containsKey("content") && jsonDownload.get("content") != null) { %>

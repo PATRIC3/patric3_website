@@ -33,6 +33,8 @@ import java.io.PrintWriter;
 
 public class DataLanding extends GenericPortlet {
 
+	protected final String ftpUrl = "ftp://ftp.patricbrc.org/patric2/patric3";
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(DataLanding.class);
 
 	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
@@ -44,6 +46,7 @@ public class DataLanding extends GenericPortlet {
 		if (windowID.indexOf("Genomes") >= 1) {
 			JSONObject jsonData = readJsonData(request, "/patric-common/data/genomes.json");
 			request.setAttribute("jsonData", jsonData);
+			request.setAttribute("ftpUrl", ftpUrl);
 
 			response.setTitle("Genomes");
 			prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/data_landing/Genomes.jsp");
@@ -52,6 +55,7 @@ public class DataLanding extends GenericPortlet {
 		else if (windowID.indexOf("GenomicFeatures") >= 1) {
 			JSONObject jsonData = readJsonData(request, "/patric-common/data/features.json");
 			request.setAttribute("jsonData", jsonData);
+			request.setAttribute("ftpUrl", ftpUrl);
 
 			response.setTitle("Features");
 			prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/data_landing/GenomicFeatures.jsp");
@@ -76,6 +80,7 @@ public class DataLanding extends GenericPortlet {
 		else if (windowID.indexOf("ProteinFamilies") >= 1) {
 			JSONObject jsonData = readJsonData(request, "/patric-common/data/proteinfamilies.json");
 			request.setAttribute("jsonData", jsonData);
+			request.setAttribute("ftpUrl", ftpUrl);
 
 			response.setTitle("Protein Families");
 			prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/data_landing/ProteinFamilies.jsp");
@@ -108,6 +113,7 @@ public class DataLanding extends GenericPortlet {
 		else if (windowID.indexOf("Pathways") >= 1) {
 			JSONObject jsonData = readJsonData(request, "/patric-common/data/pathways.json");
 			request.setAttribute("jsonData", jsonData);
+			request.setAttribute("ftpUrl", ftpUrl);
 
 			response.setTitle("Pathways");
 			prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/data_landing/Pathways.jsp");
