@@ -1,18 +1,20 @@
-/*******************************************************************************
+/**
+ * ****************************************************************************
  * Copyright 2014 Virginia Polytechnic Institute and State University
- * 
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- ******************************************************************************/
+ * ****************************************************************************
+ */
 package edu.vt.vbi.patric.common;
 
 import edu.vt.vbi.patric.beans.Genome;
@@ -227,8 +229,8 @@ public class SiteHelper {
 	}
 
 	public void setHtmlMetaElements(RenderRequest req, RenderResponse res, String context) {
-		String strTitle = "PATRIC::";
-		String strKeywords = "";
+		StringBuffer sbTitle = new StringBuffer().append("PATRIC::");
+		StringBuffer sbKeyword = new StringBuffer();
 		String contextType = req.getParameter("context_type");
 		String contextId = req.getParameter("context_id");
 
@@ -241,43 +243,56 @@ public class SiteHelper {
 
 				Taxonomy taxonomy = solr.getTaxonomy(Integer.parseInt(contextId));
 				if (taxonomy != null) {
-					strTitle += taxonomy.getTaxonName() + "::" + context;
-					strKeywords = context + ", " + taxonomy.getTaxonName() + ", PATRIC";
+					sbTitle.append(taxonomy.getTaxonName()).append("::").append(context);
+					sbKeyword.append(context).append(", ").append(taxonomy.getTaxonName()).append(", PATRIC");
 				}
 				else {
-					strTitle += context;
+					sbTitle.append(context);
 				}
 				break;
 			case "genome":
 
 				Genome genome = solr.getGenome(contextId);
 				if (genome != null) {
-					strTitle += genome.getGenomeName() + "::" + context;
-					strKeywords = context + ", " + genome.getGenomeName() + ", PATRIC";
+					sbTitle.append(genome.getGenomeName()).append("::").append(context);
+					sbKeyword.append(context).append(", ").append(genome.getGenomeName()).append(", PATRIC");
 				}
 				break;
 			case "feature":
 
 				GenomeFeature feature = solr.getFeature(contextId);
 				if (feature != null) {
-					strTitle += feature.getSeedId() + ":" + feature.getProduct() + "::" + context;
-					strKeywords = context + ", " + feature.getSeedId() + ":" + feature.getProduct() + ", PATRIC";
+					if (feature.getSeedId() != null) {
+						sbTitle.append(feature.getSeedId()).append(":").append(feature.getProduct()).append("::").append(context);
+						sbKeyword.append(context).append(", ").append(feature.getSeedId()).append(":").append(feature.getProduct())
+								.append(", PATRIC");
+					}
+					else if (feature.getRefseqLocusTag() != null) {
+						sbTitle.append(feature.getRefseqLocusTag()).append(":").append(feature.getProduct()).append("::").append(context);
+						sbKeyword.append(context).append(", ").append(feature.getRefseqLocusTag()).append(":").append(feature.getProduct())
+								.append(", PATRIC");
+					}
+					else {
+						sbTitle.append(feature.getAltLocusTag()).append(":").append(feature.getProduct()).append("::").append(context);
+						sbKeyword.append(context).append(", ").append(feature.getAltLocusTag()).append(":").append(feature.getProduct())
+								.append(", PATRIC");
+					}
 				}
 				break;
 			}
 		}
 		else {
-			strTitle += context;
-			strKeywords = context + ", PATRIC";
+			sbTitle.append(context);
+			sbKeyword.append(context).append(", PATRIC");
 		}
 
 		// Setup elements
 		Element elTitle = res.createElement("title");
 		Element elKeywords = res.createElement("meta");
 
-		elTitle.setTextContent(strTitle);
+		elTitle.setTextContent(sbTitle.toString());
 		elKeywords.setAttribute("name", "Keywords");
-		elKeywords.setAttribute("content", strKeywords);
+		elKeywords.setAttribute("content", sbKeyword.toString());
 
 		// Set to headerContents
 		res.addProperty(MimeResponse.MARKUP_HEAD_ELEMENT, elTitle);
