@@ -1,39 +1,26 @@
-/*******************************************************************************
+/**
+ * ****************************************************************************
  * Copyright 2014 Virginia Polytechnic Institute and State University
- * 
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- ******************************************************************************/
+ * ****************************************************************************
+ */
 package edu.vt.vbi.patric.portlets;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.portlet.ActionRequest;
-import javax.portlet.ActionResponse;
-import javax.portlet.GenericPortlet;
-import javax.portlet.PortletConfig;
-import javax.portlet.PortletException;
-import javax.portlet.PortletRequestDispatcher;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
-import javax.portlet.ResourceRequest;
-import javax.portlet.ResourceResponse;
-
 import edu.vt.vbi.patric.beans.Genome;
+import edu.vt.vbi.patric.circos.Circos;
+import edu.vt.vbi.patric.circos.CircosGenerator;
+import edu.vt.vbi.patric.common.SiteHelper;
 import edu.vt.vbi.patric.common.SolrInterface;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
@@ -41,12 +28,16 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.portlet.PortletFileUpload;
 import org.apache.commons.lang.StringUtils;
 import org.json.simple.JSONObject;
-
-import edu.vt.vbi.patric.circos.Circos;
-import edu.vt.vbi.patric.circos.CircosGenerator;
-import edu.vt.vbi.patric.common.SiteHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.portlet.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 public class CircosGenomeViewerPortlet extends GenericPortlet {
 
@@ -128,8 +119,12 @@ public class CircosGenomeViewerPortlet extends GenericPortlet {
 		Circos circosConf = circosGenerator.createCircosImage(parameters);
 
 		if (circosConf != null) {
-			response.sendRedirect("/portal/portal/patric/CircosGenomeViewer/CircosGenomeViewerWindow?action=b&cacheability=PAGE&imageId="
-					+ circosConf.getUuid() + "&trackList=" + StringUtils.join(circosConf.getTrackList(), ", "));
+			String baseUrl = "https://" + request.getServerName();
+			String redirectUrl = baseUrl + "/portal/portal/patric/CircosGenomeViewer/CircosGenomeViewerWindow?action=b&cacheability=PAGE&imageId="
+					+ circosConf.getUuid() + "&trackList=" + StringUtils.join(circosConf.getTrackList(), ",");
+
+			LOGGER.trace("redirect: {}", redirectUrl);
+			response.sendRedirect(redirectUrl);
 		}
 	}
 }
