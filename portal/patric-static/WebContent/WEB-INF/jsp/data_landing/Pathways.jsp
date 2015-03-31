@@ -244,14 +244,12 @@ JSONObject jsonData = (JSONObject) request.getAttribute("jsonData");
 					<h3>Annotation Source</h3>
 					<div class="far queryblock">
 						<input id="annotation_patric" type="checkbox" name="algorithm" value=".PATRIC" checked="checked"/> <label for="annotation_patric">PATRIC</label>
-						<input id="annotation_brc" type="checkbox" name="algorithm" value=".BRC"/> <label for="annotation_brc">Legacy BRC</label>
 						<input id="annotation_refseq" type="checkbox" name="algorithm" value=".RefSeq"/> <label for="annotation_refseq">RefSeq</label>
 					</div>
 					<h3>File Type</h3>
 					<div class="far">
 						<div class="left queryblock" style="width:480px">
-							<input type="checkbox" name="filetype" value=".ec" id="filetype_ec"/> <label for="filetype_ec">EC assignments in tab-delimited format (*.ec)</label>
-							<input type="checkbox" name="filetype" value=".path" id="filetype_path" checked="checked"/> <label for="filetype_path">Pathway assignments in tab-delimited format (*.path)</label>
+							<input type="radio" name="filetype" value=".pathway.tab" id="filetype_path"/> <label for="filetype_path">Pathway assignments in tab-delimited format (*.pathway.tab)</label>
 						</div>
 						<div class="clear"></div>
 					</div>

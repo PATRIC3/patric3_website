@@ -230,13 +230,11 @@ JSONObject jsonData = (JSONObject) request.getAttribute("jsonData");
 					<h3>Annotation Source</h3>
 					<div class="far queryblock">
 						<input id="annotation_patric" type="radio" name="algorithm" value=".PATRIC" checked="checked"/> <label for="annotation_patric">PATRIC</label>
-						<%--<input id="annotation_brc" type="checkbox" name="algorithm" value=".BRC"/> <label for="annotation_brc">Legacy BRC</label>
-						<input id="annotation_refseq" type="checkbox" name="algorithm" value=".RefSeq"/> <label for="annotation_refseq">RefSeq</label>--%>
 					</div>
 					<h3>File Type</h3>
 					<div class="far">
 						<div class="left queryblock" style="width:480px">
-							<input type="radio" name="filetype" value=".figfam" id="filetype_figfam" checked="checked" /> <label for="filetype_figfam">FIGfam assignments in tab-delimited format (*.figfam)</label>
+							<input type="radio" name="filetype" value=".features.tab" id="filetype_features"/> <label for="filetype_features">All genomic features in tab-delimited format (*.features)</label>
 						</div>
 						<div class="clear"></div>
 					</div>

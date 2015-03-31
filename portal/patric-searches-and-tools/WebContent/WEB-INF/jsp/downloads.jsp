@@ -40,14 +40,14 @@ int taxonId = (Integer) request.getAttribute("taxonId");
 					<input type="radio" name="filetype" value=".fna" id="filetype_fna" checked="checked"/> <label for="filetype_fna">Genomic Sequences in FASTA (*.fna)</label>
 					<input type="radio" name="filetype" value=".faa" id="filetype_faa"/> <label for="filetype_faa">Protein Sequences in FASTA (*.faa)</label>
 					<input type="radio" name="filetype" value=".gbf" id="filetype_gbf"/> <label for="filetype_gbf">All annotations in GenBank file format (*.gbf)</label>
-					<input type="radio" name="filetype" value=".features.tab" id="filetype_features"/> <label for="filetype_features">All genomic features in tab-delimited format (*.features)</label>
+					<input type="radio" name="filetype" value=".features.tab" id="filetype_features"/> <label for="filetype_features">All genomic features in tab-delimited format (*.features.tab)</label>
 					<input type="radio" name="filetype" value=".cds.tab" id="filetype_cds"/> <label for="filetype_cds">Protein coding genes in tab-delimited format (*.cds.tab)</label>
 					<input type="radio" name="filetype" value=".rna.tab" id="filetype_rna"/> <label for="filetype_rna">RNAs in tab-delimited format (*.rna.tab)</label>
 				</div>
 				<div class="right queryblock">
 					<input type="radio" name="filetype" value=".ffn" id="filetype_ffn"/> <label for="filetype_ffn">DNA Sequences of Protein Coding Genes (*.ffn)</label>
 					<input type="radio" name="filetype" value=".frn" id="filetype_frn"/> <label for="filetype_frn">DNA Sequences of RNA Coding Genes (*.frn)</label>
-					<input type="radio" name="filetype" value=".pathway.tab" id="filetype_path"/> <label for="filetype_path">Pathway assignments in tab-delimited format (*.path)</label>
+					<input type="radio" name="filetype" value=".pathway.tab" id="filetype_path"/> <label for="filetype_path">Pathway assignments in tab-delimited format (*.pathway.tab)</label>
 				</div>
 				<div class="clear"></div>
 			</div>

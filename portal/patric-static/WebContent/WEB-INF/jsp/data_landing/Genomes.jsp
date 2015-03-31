@@ -302,26 +302,22 @@ JSONObject jsonData = (JSONObject) request.getAttribute("jsonData");
 					<h3>Annotation Source</h3>
 					<div class="far queryblock">
 						<input id="annotation_patric" type="checkbox" name="algorithm" value=".PATRIC" checked="checked"/> <label for="annotation_patric">PATRIC</label>
-						<input id="annotation_brc" type="checkbox" name="algorithm" value=".BRC"/> <label for="annotation_brc">Legacy BRC</label>
 						<input id="annotation_refseq" type="checkbox" name="algorithm" value=".RefSeq"/> <label for="annotation_refseq">RefSeq</label>
 					</div>
 					<h3>File Type</h3>
 					<div class="far">
 						<div class="left queryblock">
-							<input type="checkbox" name="filetype" value=".fna" id="filetype_fna" checked="checked"/> <label for="filetype_fna">Genomic Sequences in FASTA (*.fna)</label>
-							<input type="checkbox" name="filetype" value=".faa" id="filetype_faa"/> <label for="filetype_faa">Protein Sequences in FASTA (*.faa)</label>
-							<input type="checkbox" name="filetype" value=".gbf" id="filetype_gbf"/> <label for="filetype_gbf">All annotations in GenBank file format (*.gbf)</label>
-							<input type="checkbox" name="filetype" value=".features.tab" id="filetype_features"/> <label for="filetype_features">All genomic features in tab-delimited format (*.features)</label>
-							<input type="checkbox" name="filetype" value=".cds.tab" id="filetype_cds"/> <label for="filetype_cds">Protein coding genes in tab-delimited format (*.cds)</label>
-							<input type="checkbox" name="filetype" value=".rna.tab" id="filetype_rna"/> <label for="filetype_rna">RNAs in tab-delimited format (*.rna)</label>
-							<input type="checkbox" name="filetype" value=".figfam" id="filetype_figfam"/> <label for="filetype_figfam">FIGfam assignments in tab-delimited format (*.figfam)</label>
+							<input type="radio" name="filetype" value=".fna" id="filetype_fna" checked="checked"/> <label for="filetype_fna">Genomic Sequences in FASTA (*.fna)</label>
+							<input type="radio" name="filetype" value=".faa" id="filetype_faa"/> <label for="filetype_faa">Protein Sequences in FASTA (*.faa)</label>
+							<input type="radio" name="filetype" value=".gbf" id="filetype_gbf"/> <label for="filetype_gbf">All annotations in GenBank file format (*.gbf)</label>
+							<input type="radio" name="filetype" value=".features.tab" id="filetype_features"/> <label for="filetype_features">All genomic features in tab-delimited format (*.features.tab)</label>
+							<input type="radio" name="filetype" value=".cds.tab" id="filetype_cds"/> <label for="filetype_cds">Protein coding genes in tab-delimited format (*.cds)</label>
+							<input type="radio" name="filetype" value=".rna.tab" id="filetype_rna"/> <label for="filetype_rna">RNAs in tab-delimited format (*.rna)</label>
 						</div>
 						<div class="right queryblock">
-							<input type="checkbox" name="filetype" value=".ffn" id="filetype_ffn"/> <label for="filetype_ffn">DNA Sequences of Protein Coding Genes (*.ffn)</label>
-							<input type="checkbox" name="filetype" value=".frn" id="filetype_frn"/> <label for="filetype_frn">DNA Sequences of RNA Coding Genes (*.frn)</label>
-							<input type="checkbox" name="filetype" value=".go" id="filetype_go"/> <label for="filetype_go">GO function assignments in tab-delimited format (*.go)</label>
-							<input type="checkbox" name="filetype" value=".ec" id="filetype_ec"/> <label for="filetype_ec">EC assignments in tab-delimited format (*.ec)</label>
-							<input type="checkbox" name="filetype" value=".path" id="filetype_path"/> <label for="filetype_path">Pathway assignments in tab-delimited format (*.path)</label>
+							<input type="radio" name="filetype" value=".ffn" id="filetype_ffn"/> <label for="filetype_ffn">DNA Sequences of Protein Coding Genes (*.ffn)</label>
+							<input type="radio" name="filetype" value=".frn" id="filetype_frn"/> <label for="filetype_frn">DNA Sequences of RNA Coding Genes (*.frn)</label>
+							<input type="radio" name="filetype" value=".pathway.tab" id="filetype_path"/> <label for="filetype_path">Pathway assignments in tab-delimited format (*.pathway.tab)</label>
 						</div>
 						<div class="clear"></div>
 					</div>
