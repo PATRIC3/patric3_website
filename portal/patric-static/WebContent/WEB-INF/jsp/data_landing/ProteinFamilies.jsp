@@ -162,7 +162,7 @@ String ftpUrl = (String) request.getAttribute("ftpUrl");
 						{
 							JSONObject wf = (JSONObject)workflows.get(wfct);
 							out.println("<li>");
-							out.println("	<figure class='figure-left'><a href=''><img src='" + wf.get("image") + "' /></a></figure>");
+							out.println("	<figure class='figure-left'><a href='" + wf.get("url") + "'><img src='" + wf.get("image") + "' /></a></figure>");
 							out.println("	<h3 class='no-underline-links close'><a href='" + wf.get("url") + "'>" + wf.get("title") + "</a></h3>");
 							out.println(	wf.get("content"));
 							out.println("</li>");
@@ -174,7 +174,7 @@ String ftpUrl = (String) request.getAttribute("ftpUrl");
 						{
 							JSONObject wf = (JSONObject)workflows.get(wfct);
 							out.println("<li>");
-							out.println("	<figure class='figure-left'><a href=''><img src='" + wf.get("image") + "' /></a></figure>");
+							out.println("	<figure class='figure-left'><a href='" + wf.get("url") + "'><img src='" + wf.get("image") + "' /></a></figure>");
 							out.println("	<h3 class='no-underline-links close'><a href='" + wf.get("url") + "'>" + wf.get("title") + "</a></h3>");
 							out.println(	wf.get("content"));
 							out.println("</li>");
