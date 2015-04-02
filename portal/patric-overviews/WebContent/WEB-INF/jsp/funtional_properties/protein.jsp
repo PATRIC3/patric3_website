@@ -216,10 +216,10 @@ function requestPPICount(fid, is_hpi, base_url) {
 	var myURL;
 	
 	if (myHPI === 'Y') {
-		myURL = base_url + '/pig/?descendants((2,33208))&between()&keyword('+ keyword + ')&eq(is_hpi,Y)&facet((sort,+rownum))&limit(0,0)';
+		myURL = base_url + '/oldapi/pig/?descendants((2,33208))&between()&keyword('+ keyword + ')&eq(is_hpi,Y)&facet((sort,+rownum))&limit(0,0)';
 	}
 	else {
-		myURL = base_url + '/pig/?descendants((2,33208))&between()&keyword('+ keyword + ')&facet((sort,+rownum))&limit(0,0)';
+		myURL = base_url + '/oldapi/pig/?descendants((2,33208))&between()&keyword('+ keyword + ')&facet((sort,+rownum))&limit(0,0)';
 	}
 	
 	Ext.Ajax.disableCaching = false;
