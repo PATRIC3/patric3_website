@@ -465,7 +465,7 @@ function addFileTrack() {
 }
 function linkFeature(id) {
   Ext.Ajax.request({
-    url: ds_url + '/genome_feature/' + id,
+    url: ds_url + '/oldapi/genome_feature/' + id,
     success: function(rs) {
       createPopup(JSON.parse(rs.responseText));
     }
@@ -572,7 +572,7 @@ function createTooltip() {
         beforeshow: function updateTipBody(tip) {
           if (tip.html === "") {
             Ext.Ajax.request({
-              url: ds_url + '/genome_feature/' + tooltipId,
+              url: ds_url + '/oldapi/genome_feature/' + tooltipId,
               success: function(rs) {
                 var feature = JSON.parse(rs.responseText);
                 var strFeature = Ext.String.format("{0}{1}{2}", feature.seed_id, (feature.refseq_locus_tag != null ? " | "
