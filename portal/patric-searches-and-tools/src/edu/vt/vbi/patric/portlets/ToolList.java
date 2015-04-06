@@ -56,7 +56,7 @@ public class ToolList extends GenericPortlet {
 		}
 
 		try {
-			jsonResult.put("tutorials", new JSONParser().parse(sb.toString()));
+			jsonResult.put("tools", new JSONParser().parse(sb.toString()));
 		}
 		catch (ParseException e) {
 			LOGGER.error(e.getMessage(), e);
