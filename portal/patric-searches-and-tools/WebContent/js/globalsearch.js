@@ -379,6 +379,7 @@ function CallBack() {
 			docked_items[2].disable();
 			docked_items[4].items.items[1].disable();
 			docked_items[6].disable();
+			docked_items[8].disable();
 			if (which == 2) {
 				docked_items[0].disable();
 			} else if(which == 1){
@@ -403,6 +404,7 @@ function CallBack() {
 			docked_items[2].enable();
 			docked_items[4].items.items[1].disable();
 			docked_items[6].enable();
+			docked_items[8].disable();
 			docked_items[0].items.items[0].el.dom.childNodes[0].childNodes[0].childNodes[0].innerHTML = "Add Feature(s)";
 		}
 		grid.columns[1].setText("<a href=\"javascript:hideToolbar('" + hide_show + "');\"><span style=\"float:right\">" + hide_show + " Toolbar</span></a> Select all (" + updateCountAtColumnHeader() + ") displayed feature(s)");
@@ -448,6 +450,7 @@ function hideToolbar(action) {
 			docked_items[2].disable();
 			docked_items[4].items.items[1].disable();
 			docked_items[6].disable();
+			docked_items[8].disable();
 			if (which == 1) {
 				docked_items[0].enable();
 				grid.columns[1].setText("<a href=\"javascript:hideToolbar('hide');\"><span style=\"float:right\">Hide Toolbar</span></a> Select all (" + updateCountAtColumnHeader() + ") displayed genome(s)");
@@ -712,7 +715,6 @@ function renderListFeature(value, p, record) {
 			text += "</span>";
 			highlights_checked.product = true;
 		} else {
-			console.log(data);
 			text += "<span>" + renderSeedId(data.start + ".." + data.end, "", record) + "</span>";
 		}
 
