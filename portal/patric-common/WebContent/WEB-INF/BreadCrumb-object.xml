@@ -45,12 +45,6 @@
 				<region>center</region>
 				<height>2</height>
 			</window>
-			<window>
-				<window-name>TranscriptomicsUploaderWindow</window-name>
-				<instance-ref>TranscriptomicsUploaderInstance</instance-ref>
-				<region>center</region>
-				<height>3</height>
-			</window>
 			<coordination>
 				<bindings>
 					<implicit-mode>FALSE</implicit-mode>

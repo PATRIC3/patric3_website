@@ -85,17 +85,6 @@
 		</portlet-info>
 	</portlet>
 	<portlet>
-		<portlet-name>TranscriptomicsUploader</portlet-name>
-		<portlet-class>edu.vt.vbi.patric.portlets.TranscriptomicsUploader</portlet-class>
-		<supports>
-			<mime-type>text/html</mime-type>
-			<portlet-mode>VIEW</portlet-mode>
-		</supports>
-		<portlet-info>
-			<title>TranscriptomicsUploader</title>
-		</portlet-info>
-	</portlet>
-	<portlet>
 		<portlet-name>FeatureTable</portlet-name>
 		<portlet-class>edu.vt.vbi.patric.portlets.FeatureTable</portlet-class>
 		<supports>

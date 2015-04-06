@@ -52,10 +52,4 @@
 			<portlet-ref>Workspace</portlet-ref>
 		</instance>
 	</deployment>
-	<deployment>
-		<instance>
-			<instance-id>TranscriptomicsUploaderInstance</instance-id>
-			<portlet-ref>TranscriptomicsUploader</portlet-ref>
-		</instance>
-	</deployment>
 </deployments>
