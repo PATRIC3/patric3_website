@@ -16,6 +16,7 @@
 package edu.vt.vbi.patric.jbrowse;
 
 import edu.vt.vbi.patric.common.StringHelper;
+import org.apache.commons.lang.StringUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -103,7 +104,7 @@ public class CRResultSet implements Serializable {
 	}
 
 	public String getDefaultTracks() {
-		return StringHelper.implode(defaultTracks.toArray(), ",");
+		return StringUtils.join(defaultTracks, ",");
 	}
 
 	public Map<Integer, CRTrack> getTrackMap() {

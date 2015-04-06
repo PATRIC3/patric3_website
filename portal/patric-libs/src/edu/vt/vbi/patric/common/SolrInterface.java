@@ -72,8 +72,6 @@ public class SolrInterface {
 
 	LBHttpSolrServer server = null;
 
-	CloudSolrServer cloud = null;
-
 	private static final Logger LOGGER = LoggerFactory.getLogger(SolrInterface.class);
 
 	public SolrInterface() {
@@ -99,10 +97,6 @@ public class SolrInterface {
 		return endDateFormat;
 	}
 
-//	public LBHttpSolrServer getServer() {
-//		return server;
-//	}
-
 	/**
 	 * will be replaced by getSolrServer(SolrCore core) later
 	 * @return
@@ -122,25 +116,6 @@ public class SolrInterface {
 		else {
 			server = new LBHttpSolrServer(solrServerUrl + coreName);
 		}
-	}
-	/**
-	 * will be replaced by getSolrServer(SolrCore core) later
-	 * @return
-	 */
-	public String getServerUrl(SolrCore core) {
-		String url = null;
-		if (solrServerUrl.contains(",")) {
-			String[] urls = solrServerUrl.split(",");
-			List<String> listUrl = new ArrayList<>();
-			for (String u: urls) {
-				listUrl.add(u + "/solr/" + core.getSolrCoreName());
-			}
-			url = StringUtils.join(listUrl, ",");
-		}
-		else {
-			url = solrServerUrl + "/solr/" + core.getSolrCoreName();
-		}
-		return url;
 	}
 
 	public LBHttpSolrServer getSolrServer(SolrCore core) throws MalformedURLException {
@@ -264,7 +239,6 @@ public class SolrInterface {
 		query.setFields(field);
 
 		return ConverttoJSON(server, query, false, false);
-
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -435,10 +409,6 @@ public class SolrInterface {
 		return keyword;
 	}
 
-	public JSONObject getSingleFacetsData(String keyword, String single_facet, String[] facets, boolean grouping) throws IOException, ParseException {
-		return getSingleFacetsData(keyword, single_facet, facets, null, grouping);
-	}
-
 	public JSONObject getSingleFacetsData(String keyword, String single_facet, String[] facets, String fq, boolean grouping) throws IOException,
 			ParseException {
 		keyword = KeywordReplace(keyword);
@@ -506,49 +476,6 @@ public class SolrInterface {
 		}
 
 		return ConverttoJSON(server, query, true, false);
-	}
-
-//	public JSONObject getGenomeTabJSON(String genome_info_id, String solr_instance) throws IOException, ParseException {
-//
-//		SolrQuery query = new SolrQuery();
-//		query.setQuery("genome_id:" + genome_info_id);
-//
-//		return ConverttoJSON(server, query, false, false);
-//
-//	}
-
-	public JSONObject getGenomeIDsfromSolr(String keyword, String facets, boolean faceted) throws MalformedURLException {
-
-		SolrQuery query = new SolrQuery();
-		query.setQuery(KeywordReplace(keyword));
-
-		if (faceted) {
-			// if (type.equals("GenomeFinder")) {
-			if (this.core == SolrCore.GENOME) {
-				JSONObject facet_data = null;
-
-				try {
-					facet_data = (JSONObject) new JSONParser().parse(facets);
-				}
-				catch (ParseException e2) {
-					e2.printStackTrace();
-				}
-
-				query.setFacet(true);
-				query.setFacetMinCount(1);
-				String[] ff = facet_data.get("facet").toString().split(",");
-
-				for (int i = 0; i < ff.length; i++)
-					if (!ff[i].equals("completion_date") && !ff[i].equals("release_date"))
-						query.addFacetField(ff[i]);
-					else
-						query.addDateRangeFacet(ff[i], startDateFormat, endDateFormat, rangeDate);
-			}
-		}
-
-		query.setRows(100000);
-
-		return ConverttoJSON(server, query, faceted, false);
 	}
 
 	public JSONObject getSummaryforGlobalSearch(String keyword) throws SolrServerException {
@@ -819,14 +746,6 @@ public class SolrInterface {
 		return f;
 	}
 
-	/*
-	 * public String ConstructSequenceFinderKeyword(String gid) {
-	 * 
-	 * String keyword = "";
-	 * 
-	 * if (gid.contains(",")) { String[] gids = gid.split(","); if (gids.length > 0) { keyword += "(gid:(" + gids[0]; for (int i = 1; i < gids.length;
-	 * i++) { keyword += " OR " + gids[i]; } keyword += "))"; } } else { keyword = "(gid:" + gid + ")"; } return keyword; }
-	 */
 	public String ConstructKeyword(String field_name, String id) {
 		String keyword = "";
 		if (id.contains(",")) {
@@ -841,31 +760,6 @@ public class SolrInterface {
 			keyword = "(" + field_name + ":" + id + ")";
 		}
 		return keyword;
-	}
-
-	public String getGenomeIdsfromSolrOutput(JSONObject solr_output) {
-
-		String solrId = "";
-		try {
-			JSONObject obj = (JSONObject) solr_output.get("response");
-			JSONArray obj1 = (JSONArray) obj.get("docs");
-			JSONObject a = (JSONObject) obj1.get(0);
-
-			if (a.containsKey("genome_info_id"))
-				solrId = a.get("genome_info_id").toString();
-
-			for (int i = 1; i < obj1.size(); i++) {
-				a = (JSONObject) obj1.get(i);
-				if (a.containsKey("genome_info_id")) {
-					solrId += "," + a.get("genome_info_id").toString();
-				}
-			}
-		}
-		catch (Exception ex) {
-			System.out.println("error getSolrIds" + ex.toString());
-		}
-
-		return solrId;
 	}
 
 	/**
@@ -1305,69 +1199,6 @@ public class SolrInterface {
 
 		return res;
 	}
-
-//	public JSONArray searchSolrRecords(String queryParam) {
-//		return searchSolrRecords(queryParam, null);
-//	}
-//
-//	public JSONArray searchSolrRecords(String queryParam, HashMap<?, ?> options) {
-//
-//		JSONArray docs = new JSONArray();
-//		SolrQuery query = new SolrQuery();
-//		query.setQuery(queryParam);
-//
-//		// options
-//		if (options != null && options.containsKey("sort")) {
-//			String sortParam = options.get("sort").toString();
-//			try {
-//				JSONParser parser = new JSONParser();
-//				JSONObject jsonSort = (JSONObject) ((JSONArray) parser.parse(sortParam)).get(0);
-//				query.setSort(jsonSort.get("property").toString(), SolrQuery.ORDER.valueOf(jsonSort.get("direction").toString().toLowerCase()));
-//			}
-//			catch (Exception ex) {
-//				ex.printStackTrace();
-//			}
-//		}
-//
-//		try {
-//			QueryResponse qr = server.query(query);
-//			SolrDocumentList sdl = qr.getResults();
-//
-//			for (SolrDocument d : sdl) {
-//				JSONObject r = new JSONObject();
-//				for (Iterator<Map.Entry<String, Object>> i = d.iterator(); i.hasNext();) {
-//					Map.Entry<String, Object> el = i.next();
-//
-//					if (el.getKey().equals("release_date")) {
-//						r.put(el.getKey(), transformDate((Date) el.getValue()));
-//					}
-//					else {
-//						r.put(el.getKey(), el.getValue());
-//					}
-//				}
-//				docs.add(r);
-//			}
-//		}
-//		catch (SolrServerException e) {
-//			e.printStackTrace();
-//		}
-//
-//		return docs;
-//	}
-
-//	public <T> List<T> searchSolrRecords(Class<T> type, SolrQuery query) {
-//		List<T> list = null;
-//
-//		try {
-//			QueryResponse qr = server.query(query);
-//			list = qr.getBeans(type);
-//		}
-//		catch (SolrServerException e) {
-//			e.printStackTrace();
-//		}
-//
-//		return list;
-//	}
 
 	public String transformDate(Date solrDate) {
 		if (solrDate != null) {
