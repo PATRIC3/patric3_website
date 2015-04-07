@@ -56,7 +56,7 @@ public class JmolPortlet extends GenericPortlet {
 
 			String _context_path = request.getContextPath();
 			String _codebase = _context_path + "/jmol";
-			String _datafile = "http://" + request.getServerName() + _context_path + "/jsp/readPDB.jsp?pdbID=" + pdbID;
+			String _datafile = "https://" + request.getServerName() + _context_path + "/jsp/readPDB.jsp?pdbID=" + pdbID;
 
 			String urlNCBIStructure = "http://www.ncbi.nlm.nih.gov/sites/entrez?db=structure&cmd=DetailsSearch&term=";
 			String urlPDB = "http://www.pdb.org/pdb/explore/explore.do?structureId=";
