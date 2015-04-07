@@ -187,61 +187,63 @@ public class WorkspacePortlet extends GenericPortlet {
 							JSONParser jsonParser = new JSONParser();
 
 							for (ObjectMeta group : groupList) {
-								JSONObject grp = new JSONObject();
-								String genomeGroupId = group.e_5;  // e_5, object id
-								grp.put("id", genomeGroupId);
-								grp.put("name", group.e_1); // e_1, object name
-								grp.put("leaf", false);
-								grp.put("collapsed", true);
+								LOGGER.trace("reading: {},{},{},{},{},{},{}", group.e_1, group.e_2, group.e_3, group.e_5, group.e_7, group.e_8, group.e_9);
 
-								JSONArray children = new JSONArray();
-								// get genome associated in this group
-								get_params gp = new get_params();
-								gp.objects = Arrays.asList(group.e_3 + group.e_1); // e_3, path
-								gp.metadata_only = 0;
-								gp.adminmode = 0;
+								if ("genome_group".equals(group.e_2)) {
+									JSONObject grp = new JSONObject();
+									String genomeGroupId = group.e_5;  // e_5, object id
+									grp.put("id", genomeGroupId);
+									grp.put("name", group.e_1); // e_1, object name
+									grp.put("leaf", false);
+									grp.put("collapsed", true);
 
-								//								LOGGER.debug("requesting.. {}", group.e_3 + group.e_1);
-								List<Workspace_tuple_2> r = serviceWS.get(gp);
+									JSONArray children = new JSONArray();
+									// get genome associated in this group
+									get_params gp = new get_params();
+									gp.objects = Arrays.asList(group.e_3 + group.e_1); // e_3, path
+									gp.metadata_only = 0;
+									gp.adminmode = 0;
 
-								for (Workspace_tuple_2 item : r) {
-									if (item.e_2 != null) {
+									LOGGER.trace("requesting.. {}", group.e_3 + group.e_1);
+									List<Workspace_tuple_2> r = serviceWS.get(gp);
 
-										JSONObject groupInfo = (JSONObject) jsonParser.parse(item.e_2); // objectMeta
-										List<String> genomeIdList = (List<String>) ((JSONObject) groupInfo.get("id_list")).get("genome_id");
-										Set<String> genomeIdSet = new HashSet<>(genomeIdList);
-										genomeIdSet.remove("");
+									for (Workspace_tuple_2 item : r) {
+										if (item.e_2 != null) {
 
-										SolrQuery query = new SolrQuery("genome_id:(" + StringUtils.join(genomeIdSet, " OR ") + ")");
-										query.setRows(10000).addField("genome_id,genome_name,taxon_id");
+											JSONObject groupInfo = (JSONObject) jsonParser.parse(item.e_2); // objectMeta
+											List<String> genomeIdList = (List<String>) ((JSONObject) groupInfo.get("id_list")).get("genome_id");
+											Set<String> genomeIdSet = new HashSet<>(genomeIdList);
+											genomeIdSet.remove("");
 
-										//										LOGGER.debug("{}", query.toString());
+											SolrQuery query = new SolrQuery("genome_id:(" + StringUtils.join(genomeIdSet, " OR ") + ")");
+											query.setRows(10000).addField("genome_id,genome_name,taxon_id");
 
-										QueryResponse qr = solr.getSolrServer(SolrCore.GENOME).query(query, SolrRequest.METHOD.POST);
-										List<Genome> genomes = qr.getBeans(Genome.class);
-										Map<String, Genome> genomeHash = new LinkedHashMap<>();
-										for (Genome g : genomes) {
-											genomeHash.put(g.getId(), g);
-										}
+											QueryResponse qr = solr.getSolrServer(SolrCore.GENOME).query(query, SolrRequest.METHOD.POST);
+											List<Genome> genomes = qr.getBeans(Genome.class);
+											Map<String, Genome> genomeHash = new LinkedHashMap<>();
+											for (Genome g : genomes) {
+												genomeHash.put(g.getId(), g);
+											}
 
-										for (String genomeId : genomeIdSet) {
-											Genome genome = genomeHash.get(genomeId);
+											for (String genomeId : genomeIdSet) {
+												Genome genome = genomeHash.get(genomeId);
 
-											JSONObject leafGenome = new JSONObject();
-											leafGenome.put("id", genomeId);
-											leafGenome.put("parentID", genomeGroupId);
-											leafGenome.put("name", genome.getGenomeName());
-											leafGenome.put("leaf", true);
-											leafGenome.put("genome_id", genomeId);
-											leafGenome.put("taxon_id", genome.getTaxonId());
+												JSONObject leafGenome = new JSONObject();
+												leafGenome.put("id", genomeId);
+												leafGenome.put("parentID", genomeGroupId);
+												leafGenome.put("name", genome.getGenomeName());
+												leafGenome.put("leaf", true);
+												leafGenome.put("genome_id", genomeId);
+												leafGenome.put("taxon_id", genome.getTaxonId());
 
-											children.add(leafGenome);
+												children.add(leafGenome);
+											}
 										}
 									}
-								}
 
-								grp.put("children", children);
-								res.add(grp);
+									grp.put("children", children);
+									res.add(grp);
+								}
 							}
 						}
 						catch (Exception e) {
