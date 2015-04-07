@@ -345,33 +345,22 @@
             LBHttpSolrServer lbHttpSolrServer = solr.getSolrServer(SolrCore.TRANSCRIPTOMICS_GENE);
             SolrQuery query = new SolrQuery();
 
-//            if (paramKeyword != null && !paramKeyword.equals("")) {
-//               query.setQuery(paramKeyword + " AND feature_id:" + paramFeatureId);
-//            }
-//            else {
-                query.setQuery("feature_id:" + paramFeatureId);
-//            }
+            query.setQuery("feature_id:" + paramFeatureId);
 
             if (paramSampleId != null && !paramSampleId.equals("")) {
                 String[] pids = paramSampleId.split(",");
 
                 query.addFilterQuery("pid:(" + StringUtils.join(pids, " OR ") + ")");
             }
-//            if (paramLogRatio != null && !paramLogRatio.equals("") && !paramLogRatio.equals("0")) {
-//                query.addFilterQuery("log_ratio:[* TO -" + paramLogRatio + "] OR log_ratio:[" + paramLogRatio + " TO *]");
-//            }
-//            if (paramZScore != null && !paramZScore.equals("") && !paramZScore.equals("0")) {
-//                query.addFilterQuery("z_score:[* TO -" + paramZScore + "] OR z_score:[" + paramZScore + " TO *]");
-//            }
 
-            LOGGER.debug("{}", query.toString());
+            LOGGER.debug("grid_download_handler.jsp::GeneExpression, {}", query.toString());
 
-            QueryResponse qr = lbHttpSolrServer.query(query);
+            QueryResponse qr = lbHttpSolrServer.query(query, SolrRequest.METHOD.POST);
             long numFound = qr.getResults().getNumFound();
 
             query.setRows((int) numFound);
 
-            qr = lbHttpSolrServer.query(query);
+            qr = lbHttpSolrServer.query(query, SolrRequest.METHOD.POST);
 
             // features
             JSONArray features = new JSONArray();
@@ -439,7 +428,7 @@
 			query.setFilterQueries("{!correlation fieldId=refseq_locus_tag fieldCondition=pid fieldValue=log_ratio srcId=" + feature.getRefseqLocusTag() + " filterCutOff=" + cutoffValue + " filterDir=" + cutoffDir.substring(0,3) + " cost=101}");
 			query.setRows(0);
 
-			QueryResponse qr = solr.getSolrServer(SolrCore.TRANSCRIPTOMICS_GENE).query(query);
+			QueryResponse qr = solr.getSolrServer(SolrCore.TRANSCRIPTOMICS_GENE).query(query, SolrRequest.METHOD.POST);
 
 			SolrDocumentList sdl = (SolrDocumentList) qr.getResponse().get("correlation");
 			numFound = sdl.getNumFound();
@@ -469,7 +458,7 @@
 			query.setFields("genome_id,genome_name,accession,feature_id,start,end,strand,feature_type,annotation,alt_locus_tag,refseq_locus_tag,seed_id,na_length,aa_length,protein_id,gene,product");
 			query.setRows((int) numFound);
 
-			QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query);
+			QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query, SolrRequest.METHOD.POST);
 			List<GenomeFeature> features = qr.getBeans(GenomeFeature.class);
 
 			for (GenomeFeature f: features) {
