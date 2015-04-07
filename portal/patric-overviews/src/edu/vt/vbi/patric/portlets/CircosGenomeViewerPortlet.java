@@ -57,7 +57,7 @@ public class CircosGenomeViewerPortlet extends GenericPortlet {
 
 		response.setContentType("text/html");
 
-		new SiteHelper().setHtmlMetaElements(request, response, "Circos Genome Viewer");
+		SiteHelper.setHtmlMetaElements(request, response, "Circos Genome Viewer");
 		response.setTitle("Circos Genome Viewer");
 
 		SolrInterface solr = new SolrInterface();

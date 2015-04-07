@@ -1,33 +1,21 @@
-/*******************************************************************************
+/**
+ * ****************************************************************************
  * Copyright 2014 Virginia Polytechnic Institute and State University
- * 
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- ******************************************************************************/
+ * ****************************************************************************
+ */
 package edu.vt.vbi.patric.portlets;
-
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.portlet.GenericPortlet;
-import javax.portlet.PortletException;
-import javax.portlet.PortletRequestDispatcher;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
 
 import edu.vt.vbi.patric.common.SiteHelper;
 import edu.vt.vbi.patric.common.SolrCore;
@@ -40,13 +28,22 @@ import org.apache.solr.common.SolrDocumentList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.portlet.*;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class TaxonSummaryPortlet extends GenericPortlet {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(TaxonSummaryPortlet.class);
 
 	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 
-		new SiteHelper().setHtmlMetaElements(request, response, "Taxon Overview");
+		SiteHelper.setHtmlMetaElements(request, response, "Taxon Overview");
 
 		response.setContentType("text/html");
 		String cType = request.getParameter("context_type");
@@ -64,14 +61,14 @@ public class TaxonSummaryPortlet extends GenericPortlet {
 
 				SolrDocumentList sdl = qr.getResults();
 
-				for (SolrDocument doc: sdl) {
+				for (SolrDocument doc : sdl) {
 					lineage = new ArrayList<>();
 
 					List<Integer> txIds = (List<Integer>) doc.get("lineage_ids");
-					List<String> txNames = (List<String>)doc.get("lineage_names");
-					List<String> txRanks = (List<String>)doc.get("lineage_ranks");
+					List<String> txNames = (List<String>) doc.get("lineage_names");
+					List<String> txRanks = (List<String>) doc.get("lineage_ranks");
 
-					for (Integer taxonId: txIds) {
+					for (Integer taxonId : txIds) {
 						int idx = txIds.indexOf(taxonId);
 						Map<String, Object> taxon = new HashMap<>();
 						taxon.put("taxonId", taxonId);
@@ -82,7 +79,8 @@ public class TaxonSummaryPortlet extends GenericPortlet {
 					}
 				}
 
-			} catch (MalformedURLException | SolrServerException e) {
+			}
+			catch (MalformedURLException | SolrServerException e) {
 				LOGGER.error(e.getMessage(), e);
 			}
 

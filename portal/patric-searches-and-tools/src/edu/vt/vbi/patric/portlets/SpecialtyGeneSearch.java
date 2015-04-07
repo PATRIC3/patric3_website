@@ -50,7 +50,7 @@ public class SpecialtyGeneSearch extends GenericPortlet {
 
 		response.setContentType("text/html");
 		String mode = request.getParameter("display_mode");
-		new SiteHelper().setHtmlMetaElements(request, response, "Specialty Gene Search");
+		SiteHelper.setHtmlMetaElements(request, response, "Specialty Gene Search");
 
 		PortletRequestDispatcher prd;
 		if (mode != null && mode.equals("result")) {

@@ -1,33 +1,21 @@
-/*******************************************************************************
+/**
+ * ****************************************************************************
  * Copyright 2014 Virginia Polytechnic Institute and State University
- * 
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- ******************************************************************************/
+ * ****************************************************************************
+ */
 package edu.vt.vbi.patric.portlets;
-
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.MalformedURLException;
-import java.util.*;
-
-import javax.management.Query;
-import javax.portlet.GenericPortlet;
-import javax.portlet.PortletException;
-import javax.portlet.PortletRequestDispatcher;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
-import javax.portlet.ResourceRequest;
-import javax.portlet.ResourceResponse;
 
 import edu.vt.vbi.patric.common.SolrCore;
 import edu.vt.vbi.patric.common.SolrInterface;
@@ -41,10 +29,16 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-
-import edu.vt.vbi.patric.dao.DBPathways;
-import edu.vt.vbi.patric.dao.ResultType;
 import org.slf4j.LoggerFactory;
+
+import javax.portlet.*;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class PathwayTable extends GenericPortlet {
 
@@ -114,7 +108,7 @@ public class PathwayTable extends GenericPortlet {
 			SolrDocumentList sdl = qr.getResults();
 			count_total = (int) sdl.getNumFound();
 
-			for (SolrDocument doc: sdl) {
+			for (SolrDocument doc : sdl) {
 				String pathwayKey = "(pathway_id:" + doc.get("pathway_id").toString() + " AND ec_number:" + doc.get("ec_number").toString() + ")";
 
 				pathwayKeys.add(pathwayKey);
@@ -125,11 +119,11 @@ public class PathwayTable extends GenericPortlet {
 			queryRef.setRows(pathwayKeys.size());
 			QueryResponse qrRef = solr.getSolrServer(SolrCore.PATHWAY_REF).query(queryRef);
 
-			for (SolrDocument doc: qrRef.getResults()) {
+			for (SolrDocument doc : qrRef.getResults()) {
 				mapOccurrence.put(doc.get("pathway_id") + "_" + doc.get("ec_number"), (Integer) doc.get("occurrence"));
 			}
 
-			for (SolrDocument doc: sdl) {
+			for (SolrDocument doc : sdl) {
 				JSONObject item = new JSONObject();
 				item.put("pathway_id", doc.get("pathway_id"));
 				item.put("feature_id", doc.get("feature_id"));

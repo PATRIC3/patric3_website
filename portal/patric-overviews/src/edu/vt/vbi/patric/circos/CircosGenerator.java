@@ -1,36 +1,19 @@
 package edu.vt.vbi.patric.circos;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import com.samskivert.mustache.Mustache;
+import com.samskivert.mustache.Template;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.samskivert.mustache.Mustache;
-import com.samskivert.mustache.Template;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class CircosGenerator {
 
@@ -140,7 +123,7 @@ public class CircosGenerator {
 		Map<String, List<Map<String, Object>>> genomeData = new LinkedHashMap<>();
 		Map<String, String> trackNames = new HashMap<>();
 
-		for (String parameter: parameters.keySet()) {
+		for (String parameter : parameters.keySet()) {
 			// Skip over parameters that aren't track types
 			int idx = defaultDataTracks.indexOf(parameter);
 			if (idx < 0) {
@@ -168,10 +151,10 @@ public class CircosGenerator {
 		// Create a set of all the entered custom track numbers
 		// parameters.keys.select{ |e| /custom_track_.*/.match e }.each { |parameter| track_nums << parameter[/.*_(\d+)$/, 1] }
 		Set<Integer> trackNums = new HashSet<>();
-//		paramKeys = (Iterator<String>) parameters.keySet().iterator();
-//		while (paramKeys.hasNext()) {
-//			String key = paramKeys.next();
-		for (String key: parameters.keySet()) {
+		//		paramKeys = (Iterator<String>) parameters.keySet().iterator();
+		//		while (paramKeys.hasNext()) {
+		//			String key = paramKeys.next();
+		for (String key : parameters.keySet()) {
 			if (key.matches("custom_track_.*_(\\d+)$")) {
 				int num = Integer.parseInt(key.substring(key.lastIndexOf("_") + 1));
 				LOGGER.trace("{} matches {}", key, num);
@@ -244,7 +227,8 @@ public class CircosGenerator {
 		// 2. Write karyotype file (Accession list)
 		try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(dirData + "/karyotype.txt")))) {
 			for (Map<String, Object> accession : accessions) {
-				writer.format("chr\t-\t %s\t %s\t 0\t %d\t grey\n", accession.get("accession"), genomeName.replace(" ", "_"), accession.get("length"));
+				writer.format("chr\t-\t %s\t %s\t 0\t %d\t grey\n", accession.get("accession"), genomeName.replace(" ", "_"),
+						accession.get("length"));
 			}
 		}
 		catch (IOException e) {
@@ -457,7 +441,8 @@ public class CircosGenerator {
 						file.put("maxValue", maxValue);
 						if (minValue < 0 && maxValue > 0) {
 							file.put("color_scheme", "rdylgn-7-div-rev"); // divergent
-						} else {
+						}
+						else {
 							file.put("color_scheme", "ylorrd-7-seq"); // sequential, linear
 						}
 						fileupload.add(file);

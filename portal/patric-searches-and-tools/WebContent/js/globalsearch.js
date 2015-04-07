@@ -360,18 +360,21 @@ function CallBack() {
 		treeDS.load();
 	} else {
 		Ext.getDom("GenericSelector").innerHTML = "";
-		createTree();
+		if (which != 0) {
+			createTree();
+		}
 	}
 
-	if (!Ext.get(Ext.get('GenericSelector').dom.childNodes[0].childNodes[1].id).hasCls('x-docked-noborder-top')) {
-		Ext.get(Ext.get('GenericSelector').dom.childNodes[0].childNodes[1].id).addCls('x-docked-noborder-top');
-	}
-
-	if (which == 0)
+	if (which == 0) {
 		Ext.get("GenericSelectorTree") ? Ext.get("GenericSelectorTree").setHeight(0) : "";
-	else
-		Ext.get("GenericSelectorTree").setHeight(565);
+	}
+	else {
+		if (!Ext.get(Ext.get('GenericSelector').dom.childNodes[0].childNodes[1].id).hasCls('x-docked-noborder-top')) {
+			Ext.get(Ext.get('GenericSelector').dom.childNodes[0].childNodes[1].id).addCls('x-docked-noborder-top');
+		}
 
+		Ext.get("GenericSelectorTree").setHeight(565);
+	}
 	if (parseInt(which) > 0) {
 		if (grid.getDockedItems('toolbar').length > 1) {
 			hide_show = "Hide";

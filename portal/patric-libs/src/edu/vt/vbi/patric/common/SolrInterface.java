@@ -174,8 +174,6 @@ public class SolrInterface {
 			query.setFacetLimit(-1);
 			query.setFacetSort(FacetParams.FACET_SORT_COUNT);
 
-			// if (!type.equals("FigFamSorter")) {
-			// if (this.core != SolrCore.FIGFAM) { // figfam core is replaced by dnafeature and no need to prevent facet
 			JSONObject facet_data = null;
 
 			try {
@@ -200,7 +198,6 @@ public class SolrInterface {
 					query.addDateRangeFacet(ff[i], startDateFormat, endDateFormat, rangeDate);
 				}
 			}
-			// }
 		}
 
 		if (sort != null && sort.get("field") != null && sort.get("field") != "") {
@@ -487,7 +484,7 @@ public class SolrInterface {
 
 		// if (type.equals("GenomicFeature")) {
 		if (this.core == SolrCore.FEATURE) {
-			query.setFields("genome_id,genome_name,accession,seed_id,alt_locus_tag,refseq_locus_tag,gene,annotation,feature_type,feature_id,start,end,na_length,strand,protein_id,aa_length,product,figfam_id");
+			query.setFields(StringUtils.join(DownloadHelper.getFieldsForFeatures(), ","));
 			query.addFilterQuery("!feature_type:source");
 			query.addFilterQuery("!annotation:BRC1");
 //			query.set("group", true);
@@ -496,7 +493,7 @@ public class SolrInterface {
 //			query.set("group.ngroups", "true");
 		}
 		else if (this.core == SolrCore.GENOME) {
-			query.setFields("genome_id,genome_name,taxon_id,genome_status,genome_length,chromosomes,plasmids,contigs,sequences,rast_cds,refseq_cds,isolation_country,host_name,disease,collection_date,completion_date,mlst,strain,serovar,biovar,pathovar,culture_collection,type_strain,sequencing_centers,publication,ncbi_project_id,refseq_project_id,genbank_accessions,refseq_accessions,sequencing_platform,sequencing_depth,assembly_method,gc_content,isolation_site,isolation_source,isolation_comments,geographic_location,latitude,longitude,altitude,depth,host_gender,host_age,host_health,body_sample_site,body_sample_subsite,gram_stain,cell_shape,motility,sporulation,temperature_range,salinity,oxygen_requirement,habitat,comments");
+			query.setFields(StringUtils.join(DownloadHelper.getFieldsForGenomes(), ","));
 		}
 		else if (this.core == SolrCore.TAXONOMY) {
 			query.setFields("taxon_id,taxon_name,taxon_rank,genomes");

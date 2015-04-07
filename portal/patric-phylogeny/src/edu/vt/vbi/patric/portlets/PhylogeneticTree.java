@@ -1,18 +1,20 @@
-/*******************************************************************************
+/**
+ * ****************************************************************************
  * Copyright 2014 Virginia Polytechnic Institute and State University
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- ******************************************************************************/
+ * ****************************************************************************
+ */
 package edu.vt.vbi.patric.portlets;
 
 import edu.vt.vbi.patric.beans.Genome;
@@ -69,10 +71,7 @@ public class PhylogeneticTree extends GenericPortlet {
 			out.println(sb.toString());
 			out.close();
 		}
-		catch (MalformedURLException | SolrServerException e) {
-			LOGGER.error(e.getMessage(), e);
-		}
-		catch (Exception e) {
+		catch (SolrServerException | IOException e) {
 			LOGGER.error(e.getMessage(), e);
 		}
 	}
@@ -80,7 +79,7 @@ public class PhylogeneticTree extends GenericPortlet {
 	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 		response.setContentType("text/html");
 
-		new SiteHelper().setHtmlMetaElements(request, response, "Phylogeny");
+		SiteHelper.setHtmlMetaElements(request, response, "Phylogeny");
 
 		List<Integer> phylogenyOrderIds = Arrays
 				.asList(2037, 1385, 80840, 213849, 51291, 186802, 91347, 186826, 118969, 356, 766, 136, 72273, 135623);

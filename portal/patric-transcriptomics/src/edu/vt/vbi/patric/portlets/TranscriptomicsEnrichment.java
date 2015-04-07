@@ -45,7 +45,7 @@ public class TranscriptomicsEnrichment extends GenericPortlet {
 	@Override
 	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 
-		new SiteHelper().setHtmlMetaElements(request, response, "Pathway Summary");
+		SiteHelper.setHtmlMetaElements(request, response, "Pathway Summary");
 
 		response.setContentType("text/html");
 		response.setTitle("Pathway Summary");

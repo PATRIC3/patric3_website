@@ -53,7 +53,7 @@ public class ExperimentListPortlet extends GenericPortlet {
 
 		response.setContentType("text/html");
 
-		new SiteHelper().setHtmlMetaElements(request, response, "Experiment List");
+		SiteHelper.setHtmlMetaElements(request, response, "Experiment List");
 		response.setTitle("Experiment List");
 
 		String cType = request.getParameter("context_type");

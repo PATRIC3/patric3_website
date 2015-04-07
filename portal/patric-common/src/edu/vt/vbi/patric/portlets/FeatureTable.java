@@ -42,7 +42,7 @@ public class FeatureTable extends GenericPortlet {
 	@Override
 	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 
-		new SiteHelper().setHtmlMetaElements(request, response, "Feature Table");
+		SiteHelper.setHtmlMetaElements(request, response, "Feature Table");
 
 		response.setContentType("text/html");
 		String cType = request.getParameter("context_type");
@@ -137,7 +137,6 @@ public class FeatureTable extends GenericPortlet {
 			String output = FASTAHelper.getFASTASequence(featureIds, fastaType);
 
 			response.getPortletOutputStream().write(output.getBytes());
-
 		}
 		else if (fastaAction != null && fastaAction.equalsIgnoreCase("display")) {
 

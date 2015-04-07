@@ -1,18 +1,20 @@
-/*******************************************************************************
+/**
+ * ****************************************************************************
  * Copyright 2014 Virginia Polytechnic Institute and State University
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- ******************************************************************************/
+ * ****************************************************************************
+ */
 package edu.vt.vbi.patric.portlets;
 
 import com.google.gson.Gson;
@@ -47,7 +49,7 @@ public class IDMapping extends GenericPortlet {
 		response.setContentType("text/html");
 		response.setTitle("ID Mapping");
 		String mode = request.getParameter("display_mode");
-		new SiteHelper().setHtmlMetaElements(request, response, "ID Mapping");
+		SiteHelper.setHtmlMetaElements(request, response, "ID Mapping");
 
 		String contextType = request.getParameter("context_type");
 		String contextId = request.getParameter("context_id");
@@ -84,14 +86,14 @@ public class IDMapping extends GenericPortlet {
 		}
 		else {
 
-			String to = request.getParameter("to") == null?"UniProtKB-ID":request.getParameter("to");
-			String from = request.getParameter("from") == null?"seed_id":request.getParameter("from");
-			String keyword = request.getParameter("id") == null?"":request.getParameter("id");
+			String to = request.getParameter("to") == null ? "UniProtKB-ID" : request.getParameter("to");
+			String from = request.getParameter("from") == null ? "seed_id" : request.getParameter("from");
+			String keyword = request.getParameter("id") == null ? "" : request.getParameter("id");
 
-			if(pk != null){
+			if (pk != null) {
 				Map<String, String> key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), Map.class);
 
-				if(key != null){
+				if (key != null) {
 					to = key.get("to");
 					from = key.get("from");
 					keyword = key.get("keyword");
@@ -355,51 +357,53 @@ public class IDMapping extends GenericPortlet {
 				}
 				LOGGER.trace("accessionGiMap:{}", accessionGiMap);
 
-				// get Target Value
-				try {
-					SolrQuery query = new SolrQuery("uniprotkb_accession:(" + StringUtils.join(accessionGiMap.keySet(), " OR ") + ")");
-					if (toId.equals("UniProtKB-Accession")) {
-						query.addFilterQuery("id_type:GI");
-					}
-					else {
-						query.addFilterQuery("id_type:(" + toId + ")");
-					}
-					query.setRows(accessionGiMap.size());
-
-					LOGGER.trace("PATRIC TO Other 3/3: {}", query.toString());
-					QueryResponse qr = solr.getSolrServer(SolrCore.ID_REF).query(query, SolrRequest.METHOD.POST);
-					SolrDocumentList targets = qr.getResults();
-
-					for (SolrDocument doc : targets) {
-						String accession = doc.get("uniprotkb_accession").toString();
-						String target = doc.get("id_value").toString();
-
-						Long targetGi = Long.parseLong(accessionGiMap.get(accession));
-
-						Map<Long, String> giTarget = new HashMap<>();
+				if (!accessionGiMap.isEmpty()) {
+					// get Target Value
+					try {
+						SolrQuery query = new SolrQuery("uniprotkb_accession:(" + StringUtils.join(accessionGiMap.keySet(), " OR ") + ")");
 						if (toId.equals("UniProtKB-Accession")) {
-							giTarget.put(targetGi, accession);
+							query.addFilterQuery("id_type:GI");
 						}
 						else {
-							giTarget.put(targetGi, target);
+							query.addFilterQuery("id_type:(" + toId + ")");
 						}
-						giTargetList.add(giTarget);
+						query.setRows(accessionGiMap.size());
+
+						LOGGER.trace("PATRIC TO Other 3/3: {}", query.toString());
+						QueryResponse qr = solr.getSolrServer(SolrCore.ID_REF).query(query, SolrRequest.METHOD.POST);
+						SolrDocumentList targets = qr.getResults();
+
+						for (SolrDocument doc : targets) {
+							String accession = doc.get("uniprotkb_accession").toString();
+							String target = doc.get("id_value").toString();
+
+							Long targetGi = Long.parseLong(accessionGiMap.get(accession));
+
+							Map<Long, String> giTarget = new HashMap<>();
+							if (toId.equals("UniProtKB-Accession")) {
+								giTarget.put(targetGi, accession);
+							}
+							else {
+								giTarget.put(targetGi, target);
+							}
+							giTargetList.add(giTarget);
+						}
 					}
-				}
-				catch (MalformedURLException | SolrServerException e) {
-					LOGGER.error(e.getMessage(), e);
-				}
+					catch (MalformedURLException | SolrServerException e) {
+						LOGGER.error(e.getMessage(), e);
+					}
 
-				LOGGER.trace("giTargetList:{}", giTargetList);
+					LOGGER.trace("giTargetList:{}", giTargetList);
 
-				// query to GenomeFeature
-				for (GenomeFeature feature : featureList) {
-					for (Map<Long, String> targetMap : giTargetList) {
-						if (targetMap.containsKey(feature.getGi())) {
-							JSONObject item = feature.toJSONObject();
-							item.put("target", targetMap.get(feature.getGi()));
+					// query to GenomeFeature
+					for (GenomeFeature feature : featureList) {
+						for (Map<Long, String> targetMap : giTargetList) {
+							if (targetMap.containsKey(feature.getGi())) {
+								JSONObject item = feature.toJSONObject();
+								item.put("target", targetMap.get(feature.getGi()));
 
-							results.add(item);
+								results.add(item);
+							}
 						}
 					}
 				}

@@ -92,15 +92,15 @@ var $Page;
 Ext.onReady(function() {
 	
 	var pageProperties = {
-		name: ["Feature", /* "GOSearch", "ECSearch", "GlobalProteinFamilies", "GlobalPathwaySearch",*/ "Genome", "GlobalTaxonomy", "GENEXP_Experiment"],
-		text: ["Features", /* "by GO Terms", "by EC Numbers", "by Protein Families", "by Pathways", */ "Genomes", "Taxa", "Experiments"],
-		resultcount: [0, /*0, 0, 0, 0,*/ 0, 0, 0],
-		need: ["feature", /*"go", "ec", "figfam", "pathway",*/ "0", "taxonomy", "0"],
-		divID: ["feature", /*"feature_by_go", "feature_by_ec", "feature_by_protein", "feature_by_pathway",*/ "genome", "taxa", "experiment"],
-		summaryHeaderText: ["Features", /*"Features by Go Terms", "Features by EC Numbers", "Features by Protein Families", "Features by Pathways",*/ "Genomes", "Taxonomy", "Experiments"],
-		summaryPostText :["features", /*"features", "features", "features", "features",*/ "genomes", "taxas", "experiments"],
+		name: ["Feature", "Genome", "GlobalTaxonomy", "GENEXP_Experiment"],
+		text: ["Features", "Genomes", "Taxa", "Experiments"],
+		resultcount: [0, 0, 0, 0],
+		need: ["featurewofacet", "0", "taxonomy", "0"],
+		divID: ["feature", "genome", "taxa", "experiment"],
+		summaryHeaderText: ["Features", "Genomes", "Taxonomy", "Experiments"],
+		summaryPostText :["features", "genomes", "taxas", "experiments"],
 		summary_data: [[], [], [], []],
-		renderFunction: [renderListFeature, /*renderListGO, renderListEC, renderListFigFam, renderListPathway,*/ renderListGenome, renderListTaxonomy, renderListExperiment],
+		renderFunction: [renderListFeature, renderListGenome, renderListTaxonomy, renderListExperiment],
 		alternativeKW: null,
 		tree: null,
 		treeDS: null,
@@ -121,7 +121,7 @@ Ext.onReady(function() {
 			spellcheck: true
 		},
 		reconfigure: true,
-		model:["Feature", /*"GO", "EC", "Figfam", "Pathway",*/ "Genome", "Taxonomy", "Experiment"],
+		model:["Feature", "Genome", "Taxonomy", "Experiment"],
 		fids: [],
 		gridType: "",
 		current_hash: window.location.hash?window.location.hash.substring(1):"",

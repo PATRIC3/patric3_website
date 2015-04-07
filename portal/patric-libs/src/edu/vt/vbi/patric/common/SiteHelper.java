@@ -224,11 +224,7 @@ public class SiteHelper {
 		}
 	}
 
-	public static void addHtmlMetaElements(RenderRequest req, RenderResponse res, String key, Element el) {
-		res.addProperty(key, el);
-	}
-
-	public void setHtmlMetaElements(RenderRequest req, RenderResponse res, String context) {
+	public static void setHtmlMetaElements(RenderRequest req, RenderResponse res, String context) {
 		StringBuffer sbTitle = new StringBuffer().append("PATRIC::");
 		StringBuffer sbKeyword = new StringBuffer();
 		String contextType = req.getParameter("context_type");

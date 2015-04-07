@@ -1,29 +1,29 @@
-/*******************************************************************************
+/**
+ * ****************************************************************************
  * Copyright 2014 Virginia Polytechnic Institute and State University
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- ******************************************************************************/
+ * ****************************************************************************
+ */
 package edu.vt.vbi.patric.portlets;
 
 import com.google.gson.Gson;
 import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.beans.GenomeFeature;
 import edu.vt.vbi.patric.beans.Taxonomy;
-import edu.vt.vbi.patric.common.SessionHandler;
-import edu.vt.vbi.patric.common.SiteHelper;
-import edu.vt.vbi.patric.common.SolrCore;
-import edu.vt.vbi.patric.common.SolrInterface;
+import edu.vt.vbi.patric.common.*;
 import edu.vt.vbi.patric.dao.ResultType;
+import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.LBHttpSolrServer;
@@ -39,8 +39,8 @@ import org.slf4j.LoggerFactory;
 import javax.portlet.*;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URLDecoder;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
@@ -57,7 +57,7 @@ public class GenomicFeature extends GenericPortlet {
 
 		response.setContentType("text/html");
 		String mode = request.getParameter("display_mode");
-		new SiteHelper().setHtmlMetaElements(request, response, "Feature Finder");
+		SiteHelper.setHtmlMetaElements(request, response, "Feature Finder");
 
 		PortletRequestDispatcher prd;
 		if (mode != null && mode.equals("result")) {
@@ -74,28 +74,28 @@ public class GenomicFeature extends GenericPortlet {
 			String keyword = "";
 			String exactSearchTerm = "";
 
-			if(key != null && key.containsKey("taxonId")){
+			if (key != null && key.containsKey("taxonId")) {
 				taxonId = key.get("taxonId");
 			}
 
-			if(key != null && key.containsKey("genomeId")){
+			if (key != null && key.containsKey("genomeId")) {
 				genomeId = key.get("genomeId");
 			}
 
-			if(key != null && key.containsKey("keyword")){
+			if (key != null && key.containsKey("keyword")) {
 				keyword = key.get("keyword");
 			}
 
-			if(key != null && key.containsKey("exact_search_term")){
+			if (key != null && key.containsKey("exact_search_term")) {
 				exactSearchTerm = key.get("exact_search_term");
 			}
 			String algorithm = "";
-			if(keyword.contains("annotation:)")){
+			if (keyword.contains("annotation:)")) {
 				algorithm = keyword.split("annotation:\\(")[1].split("\\)")[0];
 			}
 
 			String featureType = "";
-			if(keyword.contains("feature_type:")){
+			if (keyword.contains("feature_type:")) {
 				featureType = keyword.split("feature_type:\\(")[1].split("\\)")[0];
 			}
 
@@ -166,6 +166,7 @@ public class GenomicFeature extends GenericPortlet {
 				}
 			}
 
+			assert taxonomy != null;
 			request.setAttribute("taxonId", taxonomy.getId());
 			request.setAttribute("organismName", organismName);
 			request.setAttribute("contextType", contextType);
@@ -242,122 +243,41 @@ public class GenomicFeature extends GenericPortlet {
 
 			String need = request.getParameter("need");
 
-			String facet, keyword, pk, state;
-			boolean grouping = false;
-			boolean hl;
+			String keyword, pk;
 
-			ResultType key = new ResultType();
+			ResultType key;
 
 			JSONObject jsonResult = new JSONObject();
 
-			if (need.equals("feature")) {
-				// global search
-				solr.setCurrentInstance(SolrCore.FEATURE);
+			switch (need) {
+			case "featurewofacet": {
 
 				pk = request.getParameter("pk");
-				keyword = request.getParameter("keyword");
-				facet = request.getParameter("facet");
-				String highlight = request.getParameter("highlight");
+				keyword = "*:*";
 
-				hl = Boolean.parseBoolean(highlight);
-
-				if (request.getParameter("grouping") != null) {
-					grouping = Boolean.parseBoolean(request.getParameter("grouping"));
-				}
-
-				String json = SessionHandler.getInstance().get(SessionHandler.PREFIX + pk);
-				if (json == null) {
-					key.put("facet", facet);
-					key.put("keyword", keyword);
-
-					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
-				}
-				else {
+				if (pk != null) {
 					key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), ResultType.class);
-					key.put("facet", facet);
-				}
-
-				// To support grouping option
-				key.put("grouping", true);
-
-				String start_id = request.getParameter("start");
-				String limit = request.getParameter("limit");
-				int start = Integer.parseInt(start_id);
-				int end = Integer.parseInt(limit);
-
-				HashMap<String, String> sort = null;
-				if (request.getParameter("sort") != null) {
-					// sorting
-					// JSONParser a = new JSONParser();
-					JSONArray sorter;
-					String sort_field = "";
-					String sort_dir = "";
-					try {
-						sorter = (JSONArray) jsonParser.parse(request.getParameter("sort"));
-						sort_field += ((JSONObject) sorter.get(0)).get("property").toString();
-						sort_dir += ((JSONObject) sorter.get(0)).get("direction").toString();
-						for (int i = 1; i < sorter.size(); i++) {
-							sort_field += "," + ((JSONObject) sorter.get(i)).get("property").toString();
-						}
-					}
-					catch (ParseException e) {
-						LOGGER.error(e.getMessage(), e);
-					}
-
-					sort = new HashMap<>();
-
-					if (!sort_field.equals("") && !sort_dir.equals("")) {
-						sort.put("field", sort_field);
-						sort.put("direction", sort_dir);
+					if (key != null && key.containsKey("keyword") && key.get("keyword") != null && !key.get("keyword").equals("")) {
+						keyword = StringHelper.parseSolrKeywordOperator(URLDecoder.decode(key.get("keyword"), "UTF-8"));
 					}
 				}
-				// add join condition
-				if (key.containsKey("taxonId") && key.get("taxonId") != null) {
-					key.put("join", SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + key.get("taxonId")));
-				}
-				if (key.containsKey("genomeId") && key.get("genomeId") != null && !key.get("genomeId").equals("")) {
-					key.put("join", "genome_id:(" + key.get("genomeId").replaceAll(",", " OR ") + ")");
-				}
 
-				key.put("fields",
-						"genome_id,genome_name,sequence_id,accession,seed_id,alt_locus_tag,refseq_locus_tag,gene,annotation,feature_type,feature_id,start,end,na_length,strand,protein_id,aa_length,product,figfam_id");
-
-				JSONObject object = solr.getData(key, sort, facet, start, end, true, hl, grouping);
-
-				JSONObject obj = (JSONObject) object.get("response");
-				JSONArray obj1 = (JSONArray) obj.get("docs");
-
-				if (!key.containsKey("facets")) {
-					JSONObject facets = (JSONObject) object.get("facets");
-					key.put("facets", facets.toJSONString());
-					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
+				if (request.getParameterMap().containsKey("keyword")
+						&& request.getParameter("keyword") != null
+						&& !request.getParameter("keyword").equals("")
+						&& !request.getParameter("keyword").equals("*:*")) {
+					keyword = StringHelper.parseSolrKeywordOperator(URLDecoder.decode(request.getParameter("keyword"), "UTF-8"));
 				}
 
-				jsonResult.put("results", obj1);
-				jsonResult.put("total", obj.get("numFound"));
-
-				response.setContentType("application/json");
-				PrintWriter writer = response.getWriter();
-				jsonResult.writeJSONString(writer);
-				writer.close();
-
-			}
-			else if (need.equals("featurewofacet")) {
-
-				pk = request.getParameter("pk");
-				keyword = request.getParameter("keyword");
-				facet = request.getParameter("facet");
-
-				key.put("keyword", keyword);
+				String taxonId = null;
+				String genomeId = null;
 
 				if (request.getParameter("taxonId") != null && !request.getParameter("taxonId").equals("")) {
-					key.put("taxonId", request.getParameter("taxonId"));
+					taxonId = request.getParameter("taxonId");
 				}
 				if (request.getParameter("genomeId") != null && !request.getParameter("genomeId").equals("")) {
-					key.put("genomeId", request.getParameter("genomeId"));
+					genomeId = request.getParameter("genomeId");
 				}
-
-				LOGGER.debug("need:featurewofacet, key:{}", key);
 
 				String start_id = request.getParameter("start");
 				String limit = request.getParameter("limit");
@@ -365,11 +285,10 @@ public class GenomicFeature extends GenericPortlet {
 				int end = Integer.parseInt(limit);
 
 				SolrQuery query = new SolrQuery();
-				query.setQuery(solr.KeywordReplace(key.get("keyword")));
+				query.setQuery(keyword);
 
 				// set fields
-				query.addField(
-						"genome_id,genome_name,sequence_id,accession,seed_id,alt_locus_tag,refseq_locus_tag,gene,annotation,feature_type,feature_id,start,end,na_length,strand,protein_id,aa_length,product,figfam_id");
+				query.addField(StringUtils.join(DownloadHelper.getFieldsForFeatures(), ","));
 
 				// paging
 				query.setStart(start);
@@ -393,18 +312,16 @@ public class GenomicFeature extends GenericPortlet {
 					}
 				}
 				// add join condition
-				if (key.containsKey("taxonId") && key.get("taxonId") != null) {
-					query.setFilterQueries(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + key.get("taxonId")));
+				if (taxonId != null) {
+					query.setFilterQueries(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + taxonId));
 				}
-				if (key.containsKey("genomeId")) {
-					query.setFilterQueries("genome_id:" + key.get("genomeId"));
+				if (genomeId != null) {
+					query.setFilterQueries("genome_id:" + genomeId);
 				}
 
 				JSONArray docs = new JSONArray();
 				long numFound = 0l;
 				try {
-					LOGGER.debug("featurewofacet:{}", query.toString());
-
 					QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query);
 					List<GenomeFeature> records = qr.getBeans(GenomeFeature.class);
 					numFound = qr.getResults().getNumFound();
@@ -412,7 +329,6 @@ public class GenomicFeature extends GenericPortlet {
 					for (GenomeFeature feature : records) {
 						docs.add(feature.toJSONObject());
 					}
-
 				}
 				catch (SolrServerException e) {
 					LOGGER.error(e.getMessage(), e);
@@ -426,68 +342,48 @@ public class GenomicFeature extends GenericPortlet {
 				jsonResult.writeJSONString(writer);
 				writer.close();
 
+				break;
 			}
-			else if (need.equals("tree")) {
-
-				pk = request.getParameter("pk");
-
-				String json = SessionHandler.getInstance().get(SessionHandler.PREFIX + pk);
-				if (json != null) {
-					key = gson.fromJson(json, ResultType.class);
-				}
-
-				if (key != null && key.containsKey("state")) {
-					state = key.get("state");
-				}
-				else {
-					state = request.getParameter("state");
-				}
-
-				SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
-
-				try {
-					if (!key.containsKey("tree")) {
-						JSONObject facet_fields = (JSONObject) jsonParser.parse(key.get("facets"));
-						JSONArray arr1 = solr.processStateAndTree(key, need, facet_fields, key.get("facet"), state, 4, true);
-						jsonResult.put("results", arr1);
-
-						key.put("tree", arr1);
-					}
-					else {
-						jsonResult.put("results", key.get("tree"));
-					}
-				}
-				catch (ParseException e) {
-					LOGGER.error(e.getMessage(), e);
-				}
-
-				response.setContentType("application/json");
-				PrintWriter writer = response.getWriter();
-				writer.write(jsonResult.get("results").toString());
-				writer.close();
-			}
-			else if (need.equals("getIdsForCart")) {
-
-				solr.setCurrentInstance(SolrCore.FEATURE);
-
-				pk = request.getParameter("pk");
-				int rows = Integer.parseInt(request.getParameter("limit"));
-				String field = request.getParameter("field");
-
-				key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), ResultType.class);
-
-				JSONObject object = solr.getIdsForCart(key, field, rows);
-
-				JSONObject obj = (JSONObject) object.get("response");
-				JSONArray obj1 = (JSONArray) obj.get("docs");
-
-				jsonResult.put("results", obj1);
-				jsonResult.put("total", obj.get("numFound"));
-
-				response.setContentType("application/json");
-				PrintWriter writer = response.getWriter();
-				jsonResult.writeJSONString(writer);
-				writer.close();
+//			case "tree": {
+//
+//				pk = request.getParameter("pk");
+//
+//				String json = SessionHandler.getInstance().get(SessionHandler.PREFIX + pk);
+//				if (json != null) {
+//					key = gson.fromJson(json, ResultType.class);
+//				}
+//
+//				if (key != null && key.containsKey("state")) {
+//					state = key.get("state");
+//				}
+//				else {
+//					state = request.getParameter("state");
+//				}
+//
+//				SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
+//
+//				try {
+//					if (!key.containsKey("tree")) {
+//						JSONObject facet_fields = (JSONObject) jsonParser.parse(key.get("facets"));
+//						JSONArray arr1 = solr.processStateAndTree(key, need, facet_fields, key.get("facet"), state, 4, true);
+//						jsonResult.put("results", arr1);
+//
+//						key.put("tree", arr1);
+//					}
+//					else {
+//						jsonResult.put("results", key.get("tree"));
+//					}
+//				}
+//				catch (ParseException e) {
+//					LOGGER.error(e.getMessage(), e);
+//				}
+//
+//				response.setContentType("application/json");
+//				PrintWriter writer = response.getWriter();
+//				writer.write(jsonResult.get("results").toString());
+//				writer.close();
+//				break;
+//			}
 			}
 		}
 	}

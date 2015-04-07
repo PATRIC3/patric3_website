@@ -94,7 +94,6 @@ Ext.onReady(function() {
 			{name:'aa_length',	type:'string'},
 			{name:'gene',	type:'string'},
 			{name:'product',	type:'string'},
-			{name:'uniprotkb_accession',	type:'string'},
 			{name:'uniprot_id',	type:'string'},
 			{name:'refseq_locus_tag', type:'string'},
 			{name:'gene_id',	type:'int'},

@@ -1,12 +1,5 @@
 package edu.vt.vbi.patric.circos;
 
-import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
 import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.beans.GenomeFeature;
 import edu.vt.vbi.patric.beans.GenomeSequence;
@@ -14,14 +7,16 @@ import edu.vt.vbi.patric.common.SolrCore;
 import edu.vt.vbi.patric.common.SolrInterface;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.SortClause;
-import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.net.MalformedURLException;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 public class CircosData {
 
@@ -59,7 +54,7 @@ public class CircosData {
 
 			List<GenomeFeature> features = qr.getBeans(GenomeFeature.class);
 
-			for (GenomeFeature feature: features) {
+			for (GenomeFeature feature : features) {
 				HashMap<String, Object> doc = new HashMap<>();
 				doc.put("accession", feature.getAccession());
 				doc.put("start", feature.getStart());
@@ -90,7 +85,7 @@ public class CircosData {
 		try {
 			QueryResponse qr = solr.getSolrServer(SolrCore.SEQUENCE).query(query);
 			List<GenomeSequence> sequences = qr.getBeans(GenomeSequence.class);
-			for (GenomeSequence sequence: sequences) {
+			for (GenomeSequence sequence : sequences) {
 				HashMap<String, Object> doc = new HashMap<>();
 
 				doc.put("accession", sequence.getAccession());
@@ -118,7 +113,7 @@ public class CircosData {
 			QueryResponse qr = solr.getSolrServer(SolrCore.GENOME).query(query);
 
 			List<Genome> genomes = qr.getBeans(Genome.class);
-			for (Genome genome: genomes) {
+			for (Genome genome : genomes) {
 				genomeName = genome.getGenomeName();
 			}
 		}

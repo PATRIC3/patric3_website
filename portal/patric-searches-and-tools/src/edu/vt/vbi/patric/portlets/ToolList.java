@@ -17,6 +17,7 @@
  */
 package edu.vt.vbi.patric.portlets;
 
+import edu.vt.vbi.patric.common.SiteHelper;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -37,7 +38,7 @@ public class ToolList extends GenericPortlet {
 	@Override
 	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 		response.setContentType("text/html");
-		response.setTitle("Tool List");
+		SiteHelper.setHtmlMetaElements(request, response, "Tool List");
 
 		PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/tool_list.jsp");
 		prd.include(request, response);

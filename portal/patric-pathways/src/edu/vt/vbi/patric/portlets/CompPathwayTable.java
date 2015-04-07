@@ -1,18 +1,20 @@
-/*******************************************************************************
+/**
+ * ****************************************************************************
  * Copyright 2014 Virginia Polytechnic Institute and State University
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- ******************************************************************************/
+ * ****************************************************************************
+ */
 package edu.vt.vbi.patric.portlets;
 
 import edu.vt.vbi.patric.common.ExcelHelper;
@@ -48,7 +50,7 @@ public class CompPathwayTable extends GenericPortlet {
 	@Override
 	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 
-		new SiteHelper().setHtmlMetaElements(request, response, "Pathways");
+		SiteHelper.setHtmlMetaElements(request, response, "Pathways");
 		response.setContentType("text/html");
 		response.setTitle("Pathways");
 		PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/comp_pathway_table.jsp");
@@ -151,7 +153,7 @@ public class CompPathwayTable extends GenericPortlet {
 				// get pathway list
 				SolrQuery pathwayQuery = new SolrQuery("pathway_id:(" + StringUtils.join(listPathwayIds, " OR ") + ")");
 				pathwayQuery.setFields("pathway_id,pathway_name,pathway_class");
-				pathwayQuery.setRows(Math.max(1000000,listPathwayIds.size()));
+				pathwayQuery.setRows(Math.max(1000000, listPathwayIds.size()));
 
 				QueryResponse pathwayQueryResponse = solr.getSolrServer(SolrCore.PATHWAY_REF).query(pathwayQuery);
 				SolrDocumentList sdl = pathwayQueryResponse.getResults();
@@ -280,7 +282,7 @@ public class CompPathwayTable extends GenericPortlet {
 				pathwayQuery.setQuery("pathway_id:(" + StringUtils.join(listPathwayIds, " OR ") + ")");
 
 				pathwayQuery.setFields("pathway_id,pathway_name,pathway_class,ec_number,ec_description");
-				pathwayQuery.setRows(Math.max(1000000,listPathwayIds.size()));
+				pathwayQuery.setRows(Math.max(1000000, listPathwayIds.size()));
 				// LOGGER.debug("{}", pathwayQuery.toString());
 				QueryResponse pathwayQueryResponse = solr.getSolrServer(SolrCore.PATHWAY_REF).query(pathwayQuery, SolrRequest.METHOD.POST);
 				SolrDocumentList sdl = pathwayQueryResponse.getResults();
@@ -383,7 +385,7 @@ public class CompPathwayTable extends GenericPortlet {
 			if (!listFeatureIds.isEmpty()) {
 				SolrQuery featureQuery = new SolrQuery("feature_id:(" + StringUtils.join(listFeatureIds, " OR ") + ")");
 				featureQuery.setFields("genome_name,genome_id,accession,alt_locus_tag,refseq_locus_tag,seed_id,feature_id,gene,product");
-				featureQuery.setRows(Math.max(1000000,listFeatureIds.size()));
+				featureQuery.setRows(Math.max(1000000, listFeatureIds.size()));
 				// LOGGER.debug("{}", featureQuery.toString());
 				QueryResponse featureQueryResponse = solr.getSolrServer(SolrCore.FEATURE).query(featureQuery, SolrRequest.METHOD.POST);
 				sdl = featureQueryResponse.getResults();
@@ -447,12 +449,12 @@ public class CompPathwayTable extends GenericPortlet {
 
 		JSONObject json = new JSONObject();
 
-//		String algorithm = val.get("alg") != null ? val.get("alg").toString() : "";
-//		String pid = val.get("pId") != null ? val.get("pId").toString() : "";
-//		String pathway_class = val.get("pClass") != null ? val.get("pClass").toString() : "";
-//		String ec_number = val.get("ecN") != null ? val.get("ecN").toString() : "";
-//		String cType = val.get("cType") != null ? val.get("cType").toString() : "";
-//		String cId = val.get("cId") != null ? val.get("cId").toString() : "";
+		//		String algorithm = val.get("alg") != null ? val.get("alg").toString() : "";
+		//		String pid = val.get("pId") != null ? val.get("pId").toString() : "";
+		//		String pathway_class = val.get("pClass") != null ? val.get("pClass").toString() : "";
+		//		String ec_number = val.get("ecN") != null ? val.get("ecN").toString() : "";
+		//		String cType = val.get("cType") != null ? val.get("cType").toString() : "";
+		//		String cId = val.get("cId") != null ? val.get("cId").toString() : "";
 		String need = val.get("need") != null ? val.get("need").toString() : "";
 
 		SolrInterface solr = new SolrInterface();
@@ -465,25 +467,25 @@ public class CompPathwayTable extends GenericPortlet {
 		items.add(defaultItem);
 
 		// common solrQuery
-//		SolrQuery query = new SolrQuery("annotation:" + algorithm);
-//		if (cType.equals("taxon")) {
-//			query.addFilterQuery(
-//					SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "genome_status:(complete OR wgs) AND taxon_lineage_ids:" + cId));
-//		}
-//		else {
-//			query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "genome_status:(complete OR wgs) AND genome_id:" + cId));
-//		}
-//		query.setRows(0).setFacet(true).setFacetMinCount(1).setFacetLimit(-1);
-//
-//		if (!pathway_class.equals("")) {
-//			query.addFilterQuery("pathway_class:" + pathway_class);
-//		}
-//		if (!pid.equals("")) {
-//			query.addFilterQuery("pathway_name:" + pid);
-//		}
-//		if (!ec_number.equals("")) {
-//			query.addFilterQuery("ec_number:" + ec_number);
-//		}
+		//		SolrQuery query = new SolrQuery("annotation:" + algorithm);
+		//		if (cType.equals("taxon")) {
+		//			query.addFilterQuery(
+		//					SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "genome_status:(complete OR wgs) AND taxon_lineage_ids:" + cId));
+		//		}
+		//		else {
+		//			query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "genome_status:(complete OR wgs) AND genome_id:" + cId));
+		//		}
+		//		query.setRows(0).setFacet(true).setFacetMinCount(1).setFacetLimit(-1);
+		//
+		//		if (!pathway_class.equals("")) {
+		//			query.addFilterQuery("pathway_class:" + pathway_class);
+		//		}
+		//		if (!pid.equals("")) {
+		//			query.addFilterQuery("pathway_name:" + pid);
+		//		}
+		//		if (!ec_number.equals("")) {
+		//			query.addFilterQuery("ec_number:" + ec_number);
+		//		}
 		SolrQuery query = new SolrQuery("*:*");
 		query.setRows(0).setFacet(true).setFacetMinCount(1).setFacetLimit(-1);
 
@@ -555,29 +557,29 @@ public class CompPathwayTable extends GenericPortlet {
 			}
 			break;
 		case "algorithm":
-//			try {
-//				query.addFacetField("annotation");
-//
-//				QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query);
-//				FacetField facet = qr.getFacetField("annotation");
-//
-//				for (FacetField.Count item : facet.getValues()) {
-//					JSONObject i = new JSONObject();
-//					i.put("name", item.getName());
-//					i.put("value", item.getName());
-//
-//					items.add(i);
-//				}
-				JSONObject annotationPATRIC = new JSONObject();
-				annotationPATRIC.put("name", "PATRIC");
-				annotationPATRIC.put("value", "PATRIC");
-				items.add(annotationPATRIC);
+			//			try {
+			//				query.addFacetField("annotation");
+			//
+			//				QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query);
+			//				FacetField facet = qr.getFacetField("annotation");
+			//
+			//				for (FacetField.Count item : facet.getValues()) {
+			//					JSONObject i = new JSONObject();
+			//					i.put("name", item.getName());
+			//					i.put("value", item.getName());
+			//
+			//					items.add(i);
+			//				}
+			JSONObject annotationPATRIC = new JSONObject();
+			annotationPATRIC.put("name", "PATRIC");
+			annotationPATRIC.put("value", "PATRIC");
+			items.add(annotationPATRIC);
 
-				json.put(need, items);
-//			}
-//			catch (MalformedURLException | SolrServerException e) {
-//				LOGGER.error(e.getMessage(), e);
-//			}
+			json.put(need, items);
+			//			}
+			//			catch (MalformedURLException | SolrServerException e) {
+			//				LOGGER.error(e.getMessage(), e);
+			//			}
 			break;
 		}
 		response.setContentType("application/json");
