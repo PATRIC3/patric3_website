@@ -89,7 +89,7 @@ function saveToGroup(fid, type) {
 				'Content-Type': 'application/solrquery+x-www-form-urlencoded'
 			},
 			params:'q=feature_id:(' + wsIds.join("+OR+") + ')&facet=true&facet.field=genome_id&facet.mincount=1&rows=0',
-			url: '/api/genome_feature/',
+			url: '/oldapi/genome_feature/',
 			success: function(response, opts) {
 				var res = JSON.parse(response.responseText);
 				var genomeIdsRaw = res.facet_counts.facet_fields.genome_id;
