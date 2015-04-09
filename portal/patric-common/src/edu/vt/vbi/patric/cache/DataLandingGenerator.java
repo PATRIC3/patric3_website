@@ -1,18 +1,20 @@
-/*******************************************************************************
+/**
+ * ****************************************************************************
  * Copyright 2014 Virginia Polytechnic Institute and State University
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- ******************************************************************************/
+ * ****************************************************************************
+ */
 package edu.vt.vbi.patric.cache;
 
 import edu.vt.vbi.patric.beans.Genome;
@@ -24,7 +26,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.BasicResponseHandler;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.LBHttpSolrServer;
@@ -1697,13 +1700,13 @@ public class DataLandingGenerator {
 	}
 
 	private JSONObject read(String url) {
-		DefaultHttpClient httpclient = new DefaultHttpClient();
-		HttpGet httpRequest = new HttpGet(url);
+
 		JSONObject jsonData = null;
 
-		try {
+		try (CloseableHttpClient client = HttpClientBuilder.create().build()) {
+			HttpGet httpRequest = new HttpGet(url);
 			ResponseHandler<String> responseHandler = new BasicResponseHandler();
-			String response = httpclient.execute(httpRequest, responseHandler);
+			String response = client.execute(httpRequest, responseHandler);
 
 			JSONParser parser = new JSONParser();
 			jsonData = (JSONObject) parser.parse(response);
@@ -1711,9 +1714,7 @@ public class DataLandingGenerator {
 		catch (IOException | ParseException e) {
 			LOGGER.error(e.getMessage(), e);
 		}
-		finally {
-			httpclient.getConnectionManager().shutdown();
-		}
+
 		return jsonData;
 	}
 

@@ -20,7 +20,8 @@ package edu.vt.vbi.patric.portlets;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.BasicResponseHandler;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -128,25 +129,21 @@ public class DataLanding extends GenericPortlet {
 
 	private JSONObject readJsonData(PortletRequest request, String fileUrl) {
 
-//		String url = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + fileUrl;
+		// String url = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + fileUrl;
 		String url = "http://localhost" + fileUrl;
-		LOGGER.debug("requesting.. {}", url);
-		DefaultHttpClient httpclient = new DefaultHttpClient();
-		HttpGet httpRequest = new HttpGet(url);
+		LOGGER.trace("requesting.. {}", url);
 		JSONObject jsonData = null;
 
-		try {
+		try (CloseableHttpClient client = HttpClientBuilder.create().build()) {
+			HttpGet httpRequest = new HttpGet(url);
 			ResponseHandler<String> responseHandler = new BasicResponseHandler();
-			String strResponseBody = httpclient.execute(httpRequest, responseHandler);
+			String strResponseBody = client.execute(httpRequest, responseHandler);
 
 			JSONParser parser = new JSONParser();
 			jsonData = (JSONObject) parser.parse(strResponseBody);
 		}
 		catch (IOException | ParseException e) {
 			LOGGER.error(e.getMessage(), e);
-		}
-		finally {
-			httpclient.getConnectionManager().shutdown();
 		}
 
 		return jsonData;
