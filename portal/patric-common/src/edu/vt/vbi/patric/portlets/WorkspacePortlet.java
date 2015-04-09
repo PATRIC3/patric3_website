@@ -261,17 +261,22 @@ public class WorkspacePortlet extends GenericPortlet {
 					JSONArray res = new JSONArray();
 
 					String grp_path = getUserWorkspacePath(request, DEFAULT_WORKSPACE_NAME);
+					String grp_obj_type;
 					switch (grp_type) {
 					case "Genome":
 						grp_path += "/Genome Groups";
+						grp_obj_type = "genome_group";
 						break;
 					case "Feature":
 						grp_path += "/Feature Groups";
+						grp_obj_type = "feature_group";
 						break;
 					case "ExpressionExperiment":
 						grp_path += "/Experiment Groups";
+						grp_obj_type = "experiment_group";
 						break;
 					default:
+						grp_obj_type = "";
 						//
 					}
 
@@ -289,17 +294,19 @@ public class WorkspacePortlet extends GenericPortlet {
 							String groupName = group.e_1; // e_1, object name
 							// TODO: how to read group description???
 
-							JSONObject grp = new JSONObject();
-							grp.put("name", groupName);
-							grp.put("description", "");
-							grp.put("tag", "");
-							grp.put("id", groupId);
+							if (grp_obj_type.equals(group.e_2)) {
+								JSONObject grp = new JSONObject();
+								grp.put("name", groupName);
+								grp.put("description", "");
+								grp.put("tag", "");
+								grp.put("id", groupId);
 
-							res.add(grp);
+								res.add(grp);
+							}
 						}
 					}
 					catch (Exception e) {
-						e.printStackTrace();
+						LOGGER.error(e.getMessage(), e);
 					}
 
 					response.setContentType("application/json");
