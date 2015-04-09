@@ -86,9 +86,10 @@ function saveToGroup(fid, type) {
 		Ext.Ajax.request({
 			method:'POST',
 			headers: {
+				'Accept': 'application/solr+json',
 				'Content-Type': 'application/solrquery+x-www-form-urlencoded'
 			},
-			params:'q=feature_id:(' + wsIds.join("+OR+") + ')&facet=true&facet.field=genome_id&facet.mincount=1&rows=0',
+			params:'q=feature_id:(' + wsIds.join("+OR+") + ')&facet=true&facet.field=genome_id&facet.mincount=1&rows=1',
 			url: '/api/genome_feature/',
 			success: function(response, opts) {
 				var res = JSON.parse(response.responseText);
