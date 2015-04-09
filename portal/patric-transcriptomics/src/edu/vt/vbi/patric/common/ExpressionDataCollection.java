@@ -17,12 +17,18 @@
  */
 package edu.vt.vbi.patric.common;
 
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.patricbrc.Workspace.ObjectMeta;
 import org.patricbrc.Workspace.Workspace_tuple_2;
+import org.patricbrc.Workspace.get_download_url_params;
 import org.patricbrc.Workspace.get_params;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,23 +80,41 @@ public class ExpressionDataCollection {
 			gp.metadata_only = 1;
 			gp.adminmode = 0;
 
-			LOGGER.debug("{}", gp.objects);
+			LOGGER.trace("reading collection: {}", gp.objects);
 			List<Workspace_tuple_2> r = serviceWS.get(gp);
 
 			for (Workspace_tuple_2 item : r) {
 				ObjectMeta meta = item.e_1;
 				Map<String, Object> autoMeta = meta.e_9;
-				List<String> outputFiles = (List) autoMeta.get("output_files");
+				List<Object> outputFiles = (List) autoMeta.get("output_files");
 
-				for (String filename : outputFiles) {
-					if (filename.contains("expression.json")) {
-						expressionFileName.add(filename);
+				for (Object outputFile : outputFiles) {
+
+					LOGGER.trace("reading output file: {}", outputFile);
+
+					if (outputFile instanceof String) {
+						String filename = (String) outputFile;
+						if (filename.contains("expression.json")) {
+							expressionFileName.add(filename);
+						}
+						else if (filename.contains("sample.json")) {
+							sampleFileName.add(filename);
+						}
+						else if (filename.contains("mapping.json")) {
+							mappingFileName.add(filename);
+						}
 					}
-					else if (filename.contains("sample.json")) {
-						sampleFileName.add(filename);
-					}
-					else if (filename.contains("mapping.json")) {
-						mappingFileName.add(filename);
+					else {
+						String filename = (String) ((List) outputFile).get(0);
+						if (filename.contains("expression.json")) {
+							expressionFileName.add(filename);
+						}
+						else if (filename.contains("sample.json")) {
+							sampleFileName.add(filename);
+						}
+						else if (filename.contains("mapping.json")) {
+							mappingFileName.add(filename);
+						}
 					}
 				}
 			}
@@ -104,16 +128,23 @@ public class ExpressionDataCollection {
 
 		String content = null;
 		try {
+			LOGGER.trace("readFileContent path: {}", path);
 			org.patricbrc.Workspace.Workspace serviceWS = new org.patricbrc.Workspace.Workspace(WORKSPACE_API_URL, WORKSPACE_TOKEN);
-			get_params gp = new get_params();
+
+			get_download_url_params gp = new get_download_url_params();
 			gp.objects = Arrays.asList(path);
-			gp.metadata_only = 0;
-			gp.adminmode = 0;
 
-			List<Workspace_tuple_2> r = serviceWS.get(gp);
+			List<String> r = serviceWS.get_download_url(gp);
 
-			for (Workspace_tuple_2 item : r) {
-				content = item.e_2;
+			for (String url : r) {
+				LOGGER.trace("retrieving url: {}", url);
+
+				try (CloseableHttpClient client = HttpClientBuilder.create().build()) {
+					HttpGet request = new HttpGet(url);
+
+					ResponseHandler<String> response = new BasicResponseHandler();
+					content = client.execute(request, response);
+				}
 			}
 		}
 		catch (Exception e) {

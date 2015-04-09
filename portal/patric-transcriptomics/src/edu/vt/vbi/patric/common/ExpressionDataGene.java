@@ -46,10 +46,10 @@ public class ExpressionDataGene {
 		this.refseq_locus_tag = (data.get("refseq_locus_tag") != null) ? data.get("refseq_locus_tag").toString() : data.get("exp_locus_tag")
 				.toString();
 		if (data.containsKey("feature_id")) {
-			this.feature_id = data.get("feature_id").toString();
+			this.feature_id = (String) data.get("feature_id");
 		}
 		else if (data.containsKey("na_feature_id")) {
-			this.p2_feature_id = data.get("na_feature_id").toString();
+			this.p2_feature_id = (String) data.get("na_feature_id");
 		}
 	}
 

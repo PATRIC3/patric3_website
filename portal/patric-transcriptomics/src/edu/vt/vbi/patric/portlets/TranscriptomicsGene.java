@@ -376,10 +376,14 @@ public class TranscriptomicsGene extends GenericPortlet {
 			JSONObject a = (JSONObject) aData;
 			String id;
 			if (a.containsKey("feature_id")) {
-				id = a.get("feature_id").toString();
+				id = (String) a.get("feature_id");
+			}
+			else if (a.containsKey("na_feature_id")) {
+				id = (String) a.get("na_feature_id");
 			}
 			else {
-				id = a.get("na_feature_id").toString();
+				LOGGER.debug("data error: {}", a);
+				id = "";
 			}
 			ExpressionDataGene b;
 
@@ -421,6 +425,11 @@ public class TranscriptomicsGene extends GenericPortlet {
 				temp.put(value.getP2FeatureId(), a);
 			}
 		}
+
+		featureIdList.remove(null);
+		p2FeatureIdList.remove(null);
+
+		LOGGER.trace("featureIdList[{}]: {}, p2FeatureIdList[{}]: {}", featureIdList.size(), featureIdList, p2FeatureIdList.size(), p2FeatureIdList);
 
 		SolrInterface solr = new SolrInterface();
 
