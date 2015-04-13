@@ -52,6 +52,8 @@ public class CRResultSet implements Serializable {
 			if (br != null) {
 				JSONObject res = (JSONObject) (new JSONParser()).parse(br);
 
+				LOGGER.trace("CompareRegionViewer result: {}", res.toJSONString());
+
 				JSONArray tracks = (JSONArray) res.get(pin);
 				genomeNames = new HashSet<>();
 				genomeIds = new HashSet<>();
