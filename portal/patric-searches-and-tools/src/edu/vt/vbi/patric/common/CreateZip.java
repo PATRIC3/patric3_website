@@ -55,7 +55,7 @@ public class CreateZip {
 						File file = new File(DOWNLOAD_ROOT + genomeId + "/" + genomeId + (fileType.equals(".fna") ? "" : annotation) + fileType);
 
 						if (!file.exists()) {
-							System.err.println("Skipping File: " + file.getAbsolutePath());
+							LOGGER.error("Skipping File: {}", file.getAbsolutePath());
 						}
 						else {
 							files.add(file.getAbsolutePath());
@@ -72,19 +72,18 @@ public class CreateZip {
 
 			if (!files.isEmpty()) {
 
-				int bytesRead;
-				byte[] buffer = new byte[1024];
-
 				for (String path : files) {
 					File file = new File(path);
 					BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
-					ZipEntry entry = new ZipEntry(file.getName());
-					zos.putNextEntry(entry);
+					zos.putNextEntry(new ZipEntry(file.getName()));
+
+					int bytesRead;
+					byte[] buffer = new byte[1024];
 					while ((bytesRead = bis.read(buffer)) != -1) {
 						zos.write(buffer, 0, bytesRead);
 					}
-					bis.close();
 					zos.closeEntry();
+					bis.close();
 				}
 				zos.close();
 			}
