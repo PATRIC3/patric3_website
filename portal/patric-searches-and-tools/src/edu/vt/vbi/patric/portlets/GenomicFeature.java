@@ -250,6 +250,7 @@ public class GenomicFeature extends GenericPortlet {
 			JSONObject jsonResult = new JSONObject();
 
 			switch (need) {
+			case "feature":
 			case "featurewofacet": {
 
 				pk = request.getParameter("pk");
