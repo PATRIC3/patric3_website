@@ -5,7 +5,7 @@
 %><%@ page import="java.io.InputStreamReader"
 %><%
 String taxonID = request.getParameter("taxonID");
-String baseURL = "http://"+request.getServerName()+"/patric/static/phylogeny/";
+String baseURL = "http://localhost/patric/static/phylogeny/";
 
 URL url = new URL(baseURL+taxonID+".tree");
 URLConnection conn = url.openConnection();
