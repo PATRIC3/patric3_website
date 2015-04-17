@@ -132,7 +132,7 @@ function saveToWorkspace(wsItemType, wsPath, wsIdType, wsIds, action, groupName)
 			// add to default group
 			// console.log('adding to default group');
 			// console.log(group_name, wsItemType, wsPath, wsIdType, wsIds);
-			WorkspaceManager.addToGroup(wsPath + groupName, wsItemType, wsIds);
+			WorkspaceManager.addToGroup(wsPath + groupName, wsIdType, wsIds);
 		}, function(err) {
 			// create a default group
 			// console.log('creating a default group');
@@ -147,7 +147,7 @@ function saveToWorkspace(wsItemType, wsPath, wsIdType, wsIds, action, groupName)
 	else {
 		// adding to existing group
 		// console.log('adding to existing group: ' + groupName);
-		WorkspaceManager.addToGroup(wsPath + groupName, wsItemType, wsIds);
+		WorkspaceManager.addToGroup(wsPath + groupName, wsIdType, wsIds);
 	}
 	/*
 	Ext.Ajax.request({
