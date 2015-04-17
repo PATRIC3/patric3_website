@@ -259,10 +259,6 @@ function getSelectedFeatures() {
 	else {
 		for (var i = 0; i < sl.length; i++) {
 		    property.fids.push(sl[i].data.genome_id);
-//			if (sl[i].data.genome_info_id)
-//				property.fids.push(sl[i].data.genome_info_id);
-//			else
-//				property.fids.push(sl[i].data.gid);
 		}
 		for (var i = 0; i < property.fids.length; i++) {
 			(arr.length > 0 && arr.indexOf(property.fids[i]) == -1) ? arr.push(property.fids[i]) : arr.length == 0 ? arr.push(property.fids[i]) : "";

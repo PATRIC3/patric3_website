@@ -27,7 +27,7 @@ boolean isLoggedIn = (Boolean) request.getAttribute("isLoggedIn");
 
 		<select class="left" id="search_on" name="search_on" size="1" onchange="Combo_Change()" style="width:150px;"></select>
 		<div class="right far2x">
-			<textarea id="keyword" name="keyword" rows="5" cols="30"><%-- =(key!=null && key.containsKey("keyword") && !key.get("keyword").equalsIgnoreCase(""))?key.get("keyword"):""--%></textarea>
+			<textarea id="keyword" name="keyword" rows="5" cols="30"></textarea>
 			<br/>
 			<input class="button" type="submit" value="Search" onclick="searchbykeyword('<%=cId%>', '<%=cType %>')" />
 		</div>

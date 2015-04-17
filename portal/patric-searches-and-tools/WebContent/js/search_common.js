@@ -42,7 +42,7 @@ function searchbykeyword(cId, cType) {
 			if (Ext.getDom("search_on").value == "Keyword") {
 				object["Keyword"] = "(" + ConvertNewlineforSolrQuery(EncodeKeyword(Ext.getDom("keyword").value)) + ")";
 			} else {
-				object[Ext.getDom("search_on").value] = EncodeKeyword(Ext.getDom("keyword").value);
+				object[Ext.getDom("search_on").value] = ConvertNewlineforSolrQuery(EncodeKeyword(Ext.getDom("keyword").value));
 				object["Keyword"] = "(*)";
 			}
 		}
