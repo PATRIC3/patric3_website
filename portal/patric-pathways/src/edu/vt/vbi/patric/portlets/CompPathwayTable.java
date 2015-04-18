@@ -155,7 +155,7 @@ public class CompPathwayTable extends GenericPortlet {
 				pathwayQuery.setFields("pathway_id,pathway_name,pathway_class");
 				pathwayQuery.setRows(Math.max(1000000, listPathwayIds.size()));
 
-				QueryResponse pathwayQueryResponse = solr.getSolrServer(SolrCore.PATHWAY_REF).query(pathwayQuery);
+				QueryResponse pathwayQueryResponse = solr.getSolrServer(SolrCore.PATHWAY_REF).query(pathwayQuery, SolrRequest.METHOD.POST);
 				SolrDocumentList sdl = pathwayQueryResponse.getResults();
 
 				for (SolrDocument doc : sdl) {

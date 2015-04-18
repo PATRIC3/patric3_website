@@ -1,7 +1,4 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
-<%@ page import="java.util.*" %>
-<%@ page import="edu.vt.vbi.patric.dao.ResultType" %>
-<%@ page import="javax.portlet.PortletSession" %>
 <portlet:defineObjects/>
 <%
 String contextType = (String) request.getAttribute("contextType");
@@ -72,7 +69,6 @@ Click on a pathway name to view a pathway map.
 <script type="text/javascript" src="/patric-common/js/grid/PATRICGrid.js"></script>    
 <script type="text/javascript" src="/patric-common/js/grid/table_checkboxes.js"></script>
 <script type="text/javascript" src="/patric-pathways/js/comp_pathway_grids.js"></script>
-<script type="text/javascript" src="/patric-pathways/js/pathway_breadcrumb.js"></script>
 <script type="text/javascript" src="/patric/js/vbi/AddToWorkspace.min.js"></script>
 <script type="text/javascript" src="/patric/js/extjs/extjs/examples/ux/data/PagingMemoryProxy.js"></script>
 

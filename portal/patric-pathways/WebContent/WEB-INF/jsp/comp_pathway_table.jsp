@@ -65,7 +65,6 @@ if (map == null) {
 <script type="text/javascript" src="/patric-common/js/grid/PATRICGrid.js"></script>    
 <script type="text/javascript" src="/patric-common/js/grid/table_checkboxes.js"></script>
 <script type="text/javascript" src="/patric-pathways/js/comp_pathway_grids.js"></script>
-<script type="text/javascript" src="/patric-pathways/js/pathway_breadcrumb.js"></script>
 <script type="text/javascript" src="/patric/js/vbi/AddToWorkspace.min.js"></script>
 <script type="text/javascript" src="/patric/js/extjs/extjs/examples/ux/data/PagingMemoryProxy.js"></script>
 

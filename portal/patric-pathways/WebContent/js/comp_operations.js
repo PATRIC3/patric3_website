@@ -116,8 +116,9 @@ function drawMap(type){
 	if(type != "all")
 		passObject.value = Ext.getDom(type).value;
 	else{
-		passObject.genomeId = Ext.getDom("genomeId").value,
+		passObject.genomeId = Ext.getDom("genomeId").value;
 		passObject.taxonId = Ext.getDom("taxonId").value;
+		passObject.pk = Ext.getDom("pk").value;
 	}
 	
 	Ext.getCmp('kegg-panel').mask();

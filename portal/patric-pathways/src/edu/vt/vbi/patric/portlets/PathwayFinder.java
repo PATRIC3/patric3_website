@@ -507,6 +507,8 @@ public class PathwayFinder extends GenericPortlet {
 	private JSONObject processGeneTab(String pathwayId, String ecNumber, String annotation, String taxonId, String genomeId, String keyword)
 			throws PortletException, IOException {
 
+		LOGGER.debug("pathwayId:{}, ecNumber:{}, annotation:{}, taxonId:{}, genomeId:{}, keyword:{}", pathwayId, ecNumber, annotation, taxonId, genomeId, keyword);
+
 		JSONObject jsonResult = new JSONObject();
 		SolrQuery query = new SolrQuery("*:*");
 
@@ -515,7 +517,7 @@ public class PathwayFinder extends GenericPortlet {
 		}
 
 		if (ecNumber != null && !ecNumber.equals("")) {
-			query.addFilterQuery("ec_number:" + ecNumber);
+			query.addFilterQuery("ec_number:(" + ecNumber.replaceAll(",", " OR ").replaceAll("'","") + ")");
 		}
 
 		if (annotation != null && !annotation.equals("")) {

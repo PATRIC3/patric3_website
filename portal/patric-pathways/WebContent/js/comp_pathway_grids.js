@@ -405,39 +405,47 @@ function sortRowsData(value) {
     };
 }
 
-
-function renderAvgECCount(value, metadata, record, rowIndex, colIndex, store) {
-	metadata.tdAttr = 'data-qtip="'+record.data.ec_count+'" data-qclass="x-tip"';
-	return Ext.String.format("<a href=\"javascript:void(0);\" onclick=\"ShowECTab('"+record.data.pathway_id+"','"+record.data.pathway_name+"','"+record.data.pathway_class+"','"+record.data.algorithm+"');\"/>"+record.data.ec_count+"</a>");
-		
-}
-
-function renderPathwayName(value, metadata, record, rowIndex, colIndex, store){
+// render pathway name in pathway tab
+function renderPathwayName(value, metadata, record, rowIndex, colIndex, store) {
 	metadata.tdAttr = 'data-qtip="'+record.data.pathway_name+'" data-qclass="x-tip"';
-	return Ext.String.format('<a href=CompPathwayMap?cType={0}&amp;cId={1}&amp;dm=&amp;feature_id=&amp;ec_number=&amp;map={2}&amp;pk={3}&amp;algorithm={4}>{5}</a>', Ext.getDom("cType").value, Ext.getDom("cId").value, record.data.pathway_id, '', record.data.algorithm, record.data.pathway_name);
+	return Ext.String.format('<a href="CompPathwayMap?cType={0}&amp;cId={1}&amp;dm={2}&amp;feature_id={3}&amp;ec_number={4}&amp;map={5}&amp;algorithm={6}&amp;pk={7}">{8}</a>',
+		Ext.getDom("cType").value, Ext.getDom("cId").value, '', '', '', record.data.pathway_id, record.data.algorithm, (Ext.getDom("pk")!=undefined?Ext.getDom("pk").value:''), record.data.pathway_name);
 }
 
-function renderPathwayFeature(value, metadata, record, rowIndex, colIndex, store){
-	metadata.tdAttr = 'data-qtip="'+record.data.pathway_name+'" data-qclass="x-tip"';
-	return Ext.String.format('<a href=CompPathwayMap?cType={0}&amp;cId={1}&amp;dm=feature&amp;feature_id={2}&amp;ec_number=&amp;map={3}&amp;algorithm={4}>{5}</a>', Ext.getDom("cType").value, Ext.getDom("cId").value, record.data.feature_id,  record.data.pathway_id, record.data.algorithm, record.data.pathway_name);
-}
-
-function renderPathwayEc(value, metadata, record, rowIndex, colIndex, store){
-	metadata.tdAttr = 'data-qtip="'+record.data.pathway_name+'" data-qclass="x-tip"';
-	return Ext.String.format('<a href=CompPathwayMap?cType={0}&amp;cId={1}&amp;dm=ec&amp;ec_number={2}&amp;feature_id=&amp;map={3}&amp;pk=&amp;algorithm={4}>{5}</a>', Ext.getDom("cType").value, Ext.getDom("cId").value, record.data.ec_number, record.data.pathway_id, record.data.algorithm, record.data.pathway_name);
-}
-
-function renderGeneCountEc(value, metadata, record, rowIndex, colIndex, store){
-	metadata.tdAttr = 'data-qtip="'+record.data.gene_count+'" data-qclass="x-tip"';
-	return Ext.String.format("<a href=\"javascript:void(0);\" onclick=\"ShowFeatureTab('"+record.data.pathway_id+"','"+record.data.pathway_name+"','"+record.data.pathway_class+"','"+record.data.ec_number+"','"+record.data.algorithm+"');\"/>"+record.data.gene_count+"</a>");
-	
-}
-
+// render Unique Gene Count in pathway tab
 function renderGeneCountPathway(value, metadata, record, rowIndex, colIndex, store) {
 	metadata.tdAttr = 'data-qtip="'+record.data.gene_count+'" data-qclass="x-tip"';
-	return Ext.String.format("<a href=\"javascript:void(0);\" onclick=\"ShowFeatureTab('"+record.data.pathway_id+"','"+record.data.pathway_name+"','"+record.data.pathway_class+"','','"+record.data.algorithm+"');\"/>"+record.data.gene_count+"</a>");
-		
+	return Ext.String.format('<a href="javascript:void(0);" onclick=ShowFeatureTab("{0}","{1}","{2}","{3}","{4}"); />{5}</a>', record.data.pathway_id, record.data.pathway_name, record.data.pathway_class, '', record.data.algorithm, record.data.gene_count);
 }
+
+// render Unique EC Count in pathway tab
+function renderAvgECCount(value, metadata, record, rowIndex, colIndex, store) {
+	metadata.tdAttr = 'data-qtip="'+record.data.ec_count+'" data-qclass="x-tip"';
+	return Ext.String.format('<a href="javascript:void(0);" onclick=ShowECTab("{0}","{1}","{2}","{3}"); />{4}</a>',
+		record.data.pathway_id, record.data.pathway_name, record.data.pathway_class, record.data.algorithm, record.data.ec_count);
+}
+
+// render pathway name in ec tab
+function renderPathwayEc(value, metadata, record, rowIndex, colIndex, store) {
+	metadata.tdAttr = 'data-qtip="'+record.data.pathway_name+'" data-qclass="x-tip"';
+	return Ext.String.format('<a href="CompPathwayMap?cType={0}&amp;cId={1}&amp;dm={2}&amp;feature_id={3}&amp;ec_number={4}&amp;map={5}&amp;algorithm={6}&amp;pk={7}">{8}</a>',
+		Ext.getDom("cType").value, Ext.getDom("cId").value, 'ec', '', record.data.ec_number, record.data.pathway_id, record.data.algorithm, (Ext.getDom("pk")!=undefined?Ext.getDom("pk").value:''), record.data.pathway_name);
+}
+
+// render Unique Gene Count in ec tab
+function renderGeneCountEc(value, metadata, record, rowIndex, colIndex, store) {
+	metadata.tdAttr = 'data-qtip="'+record.data.gene_count+'" data-qclass="x-tip"';
+	return Ext.String.format('<a href="javascript:void(0);" onclick=ShowFeatureTab("{0}","{1}","{2}","{3}","{4}"); />{5}</a>',
+		record.data.pathway_id, record.data.pathway_name, record.data.pathway_class, record.data.ec_number, record.data.algorithm, record.data.gene_count);
+}
+
+// render pathway name in gene tab
+function renderPathwayFeature(value, metadata, record, rowIndex, colIndex, store) {
+	metadata.tdAttr = 'data-qtip="'+record.data.pathway_name+'" data-qclass="x-tip"';
+	return Ext.String.format('<a href="CompPathwayMap?cType={0}&amp;cId={1}&amp;dm={2}&amp;feature_id={3}&amp;ec_number={4}&amp;map={5}&amp;algorithm={6}&amp;pk={7}">{8}</a>',
+		Ext.getDom("cType").value, Ext.getDom("cId").value, 'feature', record.data.feature_id, '', record.data.pathway_id, record.data.algorithm, (Ext.getDom("pk")!=undefined?Ext.getDom("pk").value:''), record.data.pathway_name);
+}
+
 
 function getSelectedFeatures(actiontype, showdownload, fastatype, to){
 

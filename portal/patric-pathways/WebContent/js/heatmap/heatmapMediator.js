@@ -53,11 +53,6 @@ function flashRowsHidden(flashObjectID) {
 function flashCellClicked(flashObjectID, colID, rowID) {
 	var algorithm = Ext.getDom("algorithm").value,
 		temp;	
-			
-//	if(algorithm == "PATRIC")
-//		algorithm = "RAST";
-//	else if(algorithm == "Legacy BRC" || algorithm == "BRC")
-//		algorithm = "Curation";
 
 	if(axis == "Transpose"){
 		temp = colID;
@@ -76,34 +71,22 @@ function flashCellClicked(flashObjectID, colID, rowID) {
 	
 }
 	
-function catchLocusTags(colID, rowID, responseText) {
-	
+function catchLocusTags(colID, rowID, na_idList) {
+
+	console.log("catchLocusTags", colID, rowID, na_idList);
 	var locusList =[],
-		na_idList =[],
 		i,
 		parts = getCellData_ECGenome(colID, rowID),
 		algorithm = Ext.getDom("algorithm").value,
-		memberCount = responseText.length,
+		memberCount = na_idList.length,
 		buttonList = [],
 		showDetails = null,
 		download = null,
 		putInCart = null,
 		downloadF = null,
 		discard = null, 
-		text = "",
-		colID = colID,
-		rowID = rowID;
-		
-	for(i=0;i<responseText.length; i++){
-//		locusList.push(responseText.genes[i].locustags);
-		na_idList.push(responseText[i]);
-	}
-			
-//	if(algorithm == "PATRIC")
-//		algorithm = "RAST";
-//	else if(algorithm == "Legacy BRC" || algorithm == "BRC")
-//		algorithm = "Curation";
-	
+		text = "";
+
 	if (0 < memberCount) {
 		putInCart =
 			new Ext.Button({
@@ -115,21 +98,21 @@ function catchLocusTags(colID, rowID, responseText) {
 			text: 'Download Heatmap Data',
 			ctCls:'x-btn-over',
 			xtype:'splitbutton',
-    		menu: [{text: 'Text File (.txt)',
+    		menu: [{
+				text: 'Text File (.txt)',
 			    icon: '/patric/images/toolbar_text.png',
 			 	handler: function(){
 			 		MediatorDownload(original_ec, colID, 'txt');
-			 		Ext.getCmp('clickPop').hide();
-	 				}
-		 		}, 
-		 		{text: 'Excel file (.xls)',
+			 		Ext.getCmp('clickPop').close();
+				}
+			}, {
+				text: 'Excel file (.xls)',
 		 		icon: '/patric/images/toolbar_excel.png',
 		 		handler: function(){
 		 			MediatorDownload(original_ec, colID, 'xls');
-		 			Ext.getCmp('clickPop').hide();
-		 			}
-		 		}
-		 	]
+		 			Ext.getCmp('clickPop').close();
+				}
+			}]
 		});
 		
 		showDetails = new Ext.Button({
@@ -145,14 +128,14 @@ function catchLocusTags(colID, rowID, responseText) {
 			    icon: '/patric/images/toolbar_text.png',
 			 	handler: function(){
 			 		MediatorDownloadF("'"+rowID +"'", colID, 'txt');
-			 		Ext.getCmp('clickPop').hide();
+			 		Ext.getCmp('clickPop').close();
 	 				}
 		 		}, 
 		 		{text: 'Excel file (.xls)',
 		 		icon: '/patric/images/toolbar_excel.png',
 		 		handler: function(){
 		 			MediatorDownloadF("'"+rowID +"'", colID, 'xlsx');
-		 			Ext.getCmp('clickPop').hide();
+		 			Ext.getCmp('clickPop').close();
 		 			}
 		 		}
 		 	]
@@ -174,39 +157,36 @@ function catchLocusTags(colID, rowID, responseText) {
 	text += '<b>Genome: </b> ' + parts[1] + '<br />'+
 		'<b>Product: </b> ' + parts[0] + '<br />' +
 		'<b>EC Number: </b> ' + rowID + '<br />' +
-		'<b>Members: </b> ' + responseText.length;
+		'<b>Members: </b> ' + memberCount;
 			
 	for(i = 0; i < locusList.length; i++) {
 		text += "<br />" + locusList[i];
 	}
-	
-	if(Ext.getCmp('clickPop'))
-		Ext.getDom('clickPop-body').innerHTML = text;
-	else
-		Ext.create('Ext.Window', {
-			id: 'clickPop',
-			html: text,
-			layout:'fit',
-			width:640,
-			height:300,
-			closeAction:'hide',
-			plain: true,
-			modal:true,
-			shim: false, 
-			autoScroll: true,
-			title: 'Selected Cell from Heatmap',
-			buttons: buttonList
-		});
+
+	Ext.create('Ext.Window', {
+		id: 'clickPop',
+		html: text,
+		layout:'fit',
+		width:640,
+		height:300,
+		closeAction:'destroy',
+		plain: true,
+		modal:true,
+		shim: false,
+		autoScroll: true,
+		title: 'Selected Cell from Heatmap',
+		buttons: buttonList
+	});
 	
 	if (0 < memberCount) {
 		putInCart.on('click', function() {
-			Ext.getCmp('clickPop').hide();
+			Ext.getCmp('clickPop').close();
 			addSelectedItems("Feature");
 			Ext.getDom("fids").value = na_idList.join(",");
          });
 		
 		showDetails.on('click',	function() {
-			Ext.getCmp('clickPop').hide();
+			Ext.getCmp('clickPop').close();
 			Ext.Ajax.request({
 				url: "/portal/portal/patric/PathwayTableSingle/PathwayTableSingleWindow?action=b&cacheability=PAGE",
 				method: 'POST',
@@ -219,7 +199,7 @@ function catchLocusTags(colID, rowID, responseText) {
 	}
 	
 	discard.on('click', function() {
-		Ext.getCmp('clickPop').hide();
+		Ext.getCmp('clickPop').close();
 	});
 	
 	Ext.getCmp('clickPop').show();
@@ -265,11 +245,10 @@ function flashCellsSelected(flashObjectID, affectedColumns, affectedRows) {
 }
 	
 function catchLocusTagsMultiple(affectedColumns, affectedRows, selectGenomes, selectEcs, members){
-	
+
+	console.log("catchLocusTagsMultiple", affectedColumns, affectedRows, selectGenomes, selectEcs, members);
+
 	var membersCount = members.length,
-		locusList =[],
-		na_idList =[],
-		i,
 		algorithm = Ext.getDom("algorithm").value,
 		buttonList = [],
 		showDetails = null,
@@ -278,13 +257,7 @@ function catchLocusTagsMultiple(affectedColumns, affectedRows, selectGenomes, se
 		downloadF = null,
 		discard,
 		text = "";
-		
-	for(i=0;i<members.length; i++){
-		//locusList.push(members[i].locustags);
-		na_idList.push(members[i]);
-	}
-	
-	
+
 	if (0 < membersCount) {
 		putInCart = new Ext.Button({
 			text: 'Add Proteins To Group',
@@ -304,13 +277,13 @@ function catchLocusTagsMultiple(affectedColumns, affectedRows, selectGenomes, se
 			    icon: '/patric/images/toolbar_text.png',
 			 	handler: function(){
 			 		MediatorDownloadMultiple(affectedRows, affectedColumns, 'txt');
-			 		Ext.getCmp('selectPop').hide();
+			 		Ext.getCmp('selectPop').close();
 	 			}
 		 		},{text: 'Excel file (.xls)',
 		 		icon: '/patric/images/toolbar_excel.png',
 		 		handler: function(){
 		 			MediatorDownloadMultiple(affectedRows, affectedColumns, 'xls');
-		 			Ext.getCmp('selectPop').hide();
+		 			Ext.getCmp('selectPop').close();
 		 		}
 		 	}]
 		});
@@ -323,13 +296,13 @@ function catchLocusTagsMultiple(affectedColumns, affectedRows, selectGenomes, se
 			    icon: '/patric/images/toolbar_text.png',
 			 	handler: function(){
 			 		MediatorDownloadF(selectEcs, selectGenomes, 'txt');
-			 		Ext.getCmp('selectPop').hide();	   		 		
+			 		Ext.getCmp('selectPop').close();
 	 			}
 		 		},{text: 'Excel file (.xlsx)',
 		 		icon: '/patric/images/toolbar_excel.png',
 		 		handler: function(){
 		 			MediatorDownloadF(selectEcs, selectGenomes, 'xlsx');
-		 			Ext.getCmp('selectPop').hide();	    		 		
+		 			Ext.getCmp('selectPop').close();
 		 		}
 		 	}]
 		});
@@ -350,34 +323,31 @@ function catchLocusTagsMultiple(affectedColumns, affectedRows, selectGenomes, se
 			'<b>EC Numbers selected: </b> ' + affectedRows.length + '<br />'+
 			'<b>Members: </b> ' + membersCount;
 
-	if(Ext.getCmp('selectPop'))
-		Ext.getDom('selectPop-body').innerHTML = text;
-	else
-		Ext.create('Ext.Window', {
-			id:'selectPop',
-			html: text,
-			layout:'fit',
-			width:640,
-			height:300,
-			closeAction:'hide',
-			plain: true,
-			modal:true,
-			shim: false, 
-			autoScroll: true,
-			title: 'Selected Area from Heatmap',
-			buttons: buttonList
-		});
+	Ext.create('Ext.Window', {
+		id: 'selectPop',
+		html: text,
+		layout:'fit',
+		width:640,
+		height:300,
+		closeAction:'destroy',
+		plain: true,
+		modal:true,
+		shim: false,
+		autoScroll: true,
+		title: 'Selected Area from Heatmap',
+		buttons: buttonList
+	});
 	
 	if (0 < membersCount) {
 		
 		putInCart.on('click', function() {
-			Ext.getCmp('selectPop').hide();
-			Ext.getDom("fids").value = na_idList;
+			Ext.getCmp('selectPop').close();
+			Ext.getDom("fids").value = members;
 			addSelectedItems("Feature");
         });
 		
 		showDetails.on('click', function() {
-			Ext.getCmp('selectPop').hide();
+			Ext.getCmp('selectPop').close();
 			Ext.Ajax.request({
 				url: "/portal/portal/patric/PathwayTableSingle/PathwayTableSingleWindow?action=b&cacheability=PAGE",
 				method: 'POST',
@@ -391,7 +361,7 @@ function catchLocusTagsMultiple(affectedColumns, affectedRows, selectGenomes, se
 	}
 	
 	discard.on('click', function() {
-		Ext.getCmp('selectPop').hide();
+		Ext.getCmp('selectPop').close();
 	});
 	
 	Ext.getCmp('selectPop').show();
@@ -400,8 +370,7 @@ function catchLocusTagsMultiple(affectedColumns, affectedRows, selectGenomes, se
 
 function MediatorDownloadF(selectEcs, selectGenomes, type){
 	
-	Ext.getDom("tablesource").value = "MapFeatureTable";	
-	//Ext.getDom("fMapForm").action = "/patric-pathways/jsp/grid_download_handler.jsp";
+	Ext.getDom("tablesource").value = "MapFeatureTable";
 	Ext.getDom("fMapForm").action = "/portal/portal/patric/PathwayFinder/PathwayFinderWindow?action=b&cacheability=PAGE&need=downloadMapFeatureTable";
 	Ext.getDom("ec_number").value = typeof selectEcs == "object"?selectEcs.join(","):selectEcs;
 	Ext.getDom("genomeId").value = typeof selectGenomes == "object"?selectGenomes.join(","):selectGenomes;

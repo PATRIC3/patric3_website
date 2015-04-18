@@ -9,15 +9,15 @@
 %><%@ page import="edu.vt.vbi.patric.common.SolrInterface"
 %><%@ page import="org.apache.commons.lang.StringUtils"
 %><%@ page import="org.apache.solr.client.solrj.SolrQuery"
-%><%@ page import="org.apache.solr.client.solrj.SolrRequest"
 %><%@ page import="org.apache.solr.client.solrj.SolrServerException"
-%><%@ page import="org.apache.solr.client.solrj.response.FacetField"
 %><%@ page import="org.apache.solr.client.solrj.response.QueryResponse"
 %><%@ page import="org.apache.solr.common.SolrDocument"
 %><%@ page import="org.apache.solr.common.SolrDocumentList"
 %><%@ page import="org.apache.solr.common.util.SimpleOrderedMap"
 %><%@ page import="java.net.MalformedURLException"
-%><%
+%><%@ page import="com.google.gson.Gson"
+%><%@ page import="edu.vt.vbi.patric.common.SessionHandler" %><%
+
     Logger LOGGER = LoggerFactory.getLogger(DBPathways.class);
 
 	Map<String, String> key = new HashMap<String, String>();
@@ -27,7 +27,7 @@
 	JSONObject val = (JSONObject) a.parse(request.getParameter("val").toString());
 
 	String need = val.get("need").toString();
-	String genomeId = "", taxonId = "", map = "";
+	String genomeId = "", taxonId = "", map = "", pk = "";
 	
 	if (need.equals("all")) {
 		if(val.get("genomeId") != null) {
@@ -40,6 +40,14 @@
 		}
 		key.put("map", val.get("map").toString());
 		map = val.get("map").toString();
+        pk = val.get("pk").toString();
+        if (pk != null) {
+            Gson gson = new Gson();
+            Map<String, String> sessKey = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), Map.class);
+            if (sessKey != null && sessKey.containsKey("genomeId") && !sessKey.get("genomeId").equals("")) {
+                genomeId = sessKey.get("genomeId");
+            }
+        }
 
         List<String> annotations = Arrays.asList("PATRIC", "RefSeq");
 
@@ -126,7 +134,6 @@
 
         // get pathways
         try {
-			// key.remove("map");
 
             SolrQuery query = new SolrQuery("annotation:(" + StringUtils.join(annotations, " OR ") + ")");
             if (!taxonId.equals("")) {

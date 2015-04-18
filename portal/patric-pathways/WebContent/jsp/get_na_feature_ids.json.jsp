@@ -1,21 +1,15 @@
-<%@ page import="java.util.*" %><%@ page
-import="edu.vt.vbi.patric.dao.DBPathways" %><%@ page
-import="edu.vt.vbi.patric.dao.ResultType" %><%@ page
+<%@ page import="edu.vt.vbi.patric.dao.DBPathways" %><%@ page
 import="org.json.simple.*" %><%@ page
 import="org.slf4j.Logger" %><%@ page
 import="org.slf4j.LoggerFactory" %><%@ page
-import="edu.vt.vbi.patric.beans.Genome" %><%@ page
 import="edu.vt.vbi.patric.common.SolrCore" %><%@ page
 import="edu.vt.vbi.patric.common.SolrInterface" %><%@ page
-import="org.apache.commons.lang.StringUtils" %><%@ page
 import="org.apache.solr.client.solrj.SolrQuery" %><%@ page
 import="org.apache.solr.client.solrj.SolrRequest" %><%@ page
 import="org.apache.solr.client.solrj.SolrServerException" %><%@ page
-import="org.apache.solr.client.solrj.response.FacetField" %><%@ page
 import="org.apache.solr.client.solrj.response.QueryResponse" %><%@ page
 import="org.apache.solr.common.SolrDocument" %><%@ page
 import="org.apache.solr.common.SolrDocumentList" %><%@ page
-import="org.apache.solr.common.util.SimpleOrderedMap" %><%@ page
 import="java.net.MalformedURLException" %><%
 
     Logger LOGGER = LoggerFactory.getLogger(DBPathways.class);
@@ -27,12 +21,9 @@ import="java.net.MalformedURLException" %><%
 	String ec_number = request.getParameter("ec_number");
 	String featureList = request.getParameter("featureList");
 
-//	JSONObject json = new JSONObject();
 	SolrInterface solr = new SolrInterface();
     JSONArray items = new JSONArray();
 
-//	DBPathways conn_pathways = new DBPathways();
-	
 	try {
         SolrQuery query = new SolrQuery("*:*");
 

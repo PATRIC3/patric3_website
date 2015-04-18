@@ -100,7 +100,8 @@ public class CompPathwayMap extends GenericPortlet {
 			else if (cType != null && cType.equals("genome")) {
 				genomeId = cId;
 			}
-			else {
+
+			if (pk != null) {
 				Gson gson = new Gson();
 				Map<String, String> key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), Map.class);
 
@@ -127,6 +128,7 @@ public class CompPathwayMap extends GenericPortlet {
 				query.addFilterQuery("taxon_lineage_ids:" + taxonId);
 			}
 
+			LOGGER.debug("counting features: {}", query.toString());
 			QueryResponse qr = solr.getSolrServer(SolrCore.GENOME).query(query);
 			SolrDocumentList sdl = qr.getResults();
 
@@ -203,6 +205,10 @@ public class CompPathwayMap extends GenericPortlet {
 		String cType = request.getParameter("cType");
 		String map = request.getParameter("map");
 		String algorithm = request.getParameter("algorithm");
+		String pk = request.getParameter("pk");
+
+		Gson gson = new Gson();
+		Map<String, String> key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), Map.class);
 
 		int count_total = 0;
 		JSONArray results = new JSONArray();
@@ -220,6 +226,10 @@ public class CompPathwayMap extends GenericPortlet {
 						SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id",
 								"genome_id:(" + genomeId.replaceAll(",", " OR ") + ") AND genome_status:(complete OR wgs)"));
 			}
+			if (key != null && key.containsKey("genomeId") && !key.get("genomeId").equals("")) {
+				query.addFilterQuery("genome_id:(" + key.get("genomeId").replaceAll(",", " OR ") + ")");
+			}
+
 			query.setRows(0).setFacet(true);
 			query.add("json.facet",
 					"{stat:{field:{field:ec_number,limit:-1,facet:{genome_count:\"unique(genome_id)\",gene_count:\"unique(feature_id)\"}}}}");
