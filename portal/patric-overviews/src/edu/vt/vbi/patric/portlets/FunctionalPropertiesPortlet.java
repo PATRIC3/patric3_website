@@ -87,7 +87,7 @@ public class FunctionalPropertiesPortlet extends GenericPortlet {
 				}
 
 				// Structure Center related
-				List<Map<String, Object>> listStructure = new ArrayList<>();
+				List<Map<String, Object>> listStructure = null;
 				try {
 					SolrQuery query = new SolrQuery("gene_symbol_collection:\"PATRIC_ID:" + feature.getP2FeatureId() + "\"");
 					query.addField("target_id,target_status,has_clones,has_proteins,selection_criteria");
@@ -95,6 +95,10 @@ public class FunctionalPropertiesPortlet extends GenericPortlet {
 
 					QueryResponse qr = solr.getSolrServer(SolrCore.STRUCTURE).query(query);
 					SolrDocumentList sdl = qr.getResults();
+
+					if (sdl.getNumFound() > 0) {
+						listStructure = new ArrayList<>();
+					}
 
 					for (SolrDocument doc : sdl) {
 						LOGGER.trace("{}", doc.getFieldValueMap());
