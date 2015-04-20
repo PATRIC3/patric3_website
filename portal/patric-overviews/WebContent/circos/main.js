@@ -294,14 +294,14 @@ function submitCircosRequest(form) {
 
 function loadCircosMap(conf) {
   Ext.Ajax.request({
-            url: '/patric/shared_tmp/' + conf.imageId + '/circos.html',
+            url: '/patric/shared_tmp/circos/' + conf.imageId + '/circos.html',
             success: function(rs) {
               Ext.get("circosGraph").unmask();
               var graph = Ext.getDom("circosGraph");
               graph.innerHTML = rs.responseText
                       + '<div id="circosLegend"><label for="trlist">List of tracks, from outside to inside: </label><span id="trlist">'
                       + conf.trackList
-                      + '</span></div><button class="button" onclick="saveImage()">Download Image</button><div class="clear"></div><img src="/patric/shared_tmp/'
+                      + '</span></div><button class="button" onclick="saveImage()">Download Image</button><div class="clear"></div><img src="/patric/shared_tmp/circos/'
                       + conf.imageId + '/circos.svg" usemap="#circosmap">';
             }
           });
