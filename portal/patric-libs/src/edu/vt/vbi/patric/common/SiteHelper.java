@@ -145,16 +145,16 @@ public class SiteHelper {
 			link = "//www.reactome.org/cgi-bin/eventbrowser_st_id?ST_ID=";
 		}
 		else if (target.equalsIgnoreCase("VFDB")) {
-			link = "//www.mgc.ac.cn/cgi-bin/VFs/gene.cgi?GeneID="; // VFG1817
+			link = "http://www.mgc.ac.cn/cgi-bin/VFs/gene.cgi?GeneID="; // VFG1817
 		}
 		else if (target.equalsIgnoreCase("VFDB_HOME")) {
-			link = "//www.mgc.ac.cn/VFs/";
+			link = "http://www.mgc.ac.cn/VFs/";
 		}
 		else if (target.equalsIgnoreCase("Victors")) {
-			link = "//www.phidias.us/victors/gene_detail.php?c_mc_victor_id="; // 220
+			link = "http://www.phidias.us/victors/gene_detail.php?c_mc_victor_id="; // 220
 		}
 		else if (target.equalsIgnoreCase("Victors_HOME")) {
-			link = "//www.phidias.us/victors/";
+			link = "http://www.phidias.us/victors/";
 		}
 		else if (target.equalsIgnoreCase("PATRIC_VF")) {
 			link = "SpecialtyGeneEvidence?source=PATRIC_VF&sourceId="; // Rv3875
@@ -172,19 +172,19 @@ public class SiteHelper {
 			link = ""; //TODO: need to add
 		}
 		else if (target.equalsIgnoreCase("CARD_HOME")) {
-			link = "//arpcard.mcmaster.ca";
+			link = "http://arpcard.mcmaster.ca";
 		}
 		else if (target.equalsIgnoreCase("DrugBank")) {
-			link = "//v3.drugbank.ca/molecules/"; // 1
+			link = "http://v3.drugbank.ca/molecules/"; // 1
 		}
 		else if (target.equalsIgnoreCase("DrugBank_HOME")) {
-			link = "//v3.drugbank.ca";
+			link = "http://v3.drugbank.ca";
 		}
 		else if (target.equalsIgnoreCase("TTD")) {
-			link = "//bidd.nus.edu.sg/group/TTD/ZFTTDDetail.asp?ID="; // TTDS00427
+			link = "http://bidd.nus.edu.sg/group/TTD/ZFTTDDetail.asp?ID="; // TTDS00427
 		}
 		else if (target.equalsIgnoreCase("TTD_HOME")) {
-			link = "//bidd.nus.edu.sg/group/TTD/ttd.asp";
+			link = "http://bidd.nus.edu.sg/group/TTD/ttd.asp";
 		}
 		else if (target.equalsIgnoreCase("Human")) {
 			link = "//www.ncbi.nlm.nih.gov/protein/"; // NP_001005484.1
