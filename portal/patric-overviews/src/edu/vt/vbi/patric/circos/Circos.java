@@ -34,7 +34,7 @@ public class Circos {
 
 	public Circos(String dir) {
 		uuid = UUID.randomUUID().toString();
-		tmpDir = dir + "/images/" + uuid;
+		tmpDir = dir + "/" + uuid;
 		trackList = new LinkedList<>();
 	}
 

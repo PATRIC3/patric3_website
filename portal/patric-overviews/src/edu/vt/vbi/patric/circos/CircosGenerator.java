@@ -25,6 +25,8 @@ public class CircosGenerator {
 
 	private String appDir;
 
+	private String outputDir;
+
 	private Template tmplPlotConf;
 
 	private Template tmplImageConf;
@@ -33,13 +35,14 @@ public class CircosGenerator {
 
 	CircosData circosData;
 
-	public CircosGenerator(String path) {
-		appDir = path;
+	public CircosGenerator(String appPath, String outputPath) {
+		appDir = appPath;
+		outputDir = outputPath;
 		circosData = new CircosData();
 		try {
-			tmplPlotConf = Mustache.compiler().compile(new BufferedReader(new FileReader(path + "/conf_templates/plots.mu")));
-			tmplImageConf = Mustache.compiler().compile(new BufferedReader(new FileReader(path + "/conf_templates/image.mu")));
-			tmplCircosConf = Mustache.compiler().compile(new BufferedReader(new FileReader(path + "/conf_templates/circos.mu")));
+			tmplPlotConf = Mustache.compiler().compile(new BufferedReader(new FileReader(appDir + "/conf_templates/plots.mu")));
+			tmplImageConf = Mustache.compiler().compile(new BufferedReader(new FileReader(appDir + "/conf_templates/image.mu")));
+			tmplCircosConf = Mustache.compiler().compile(new BufferedReader(new FileReader(appDir + "/conf_templates/circos.mu")));
 		}
 		catch (FileNotFoundException e) {
 			LOGGER.error(e.getMessage(), e);
@@ -53,7 +56,7 @@ public class CircosGenerator {
 		}
 		else {
 			// 1. Create instance and set configs
-			Circos circos = new Circos(appDir);
+			Circos circos = new Circos(outputDir);
 			circos.setGenomeId(parameters.get("genome_id").toString());
 
 			// Record whether to include GC content track or not

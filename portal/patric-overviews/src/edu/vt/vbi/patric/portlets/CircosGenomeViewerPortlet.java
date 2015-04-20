@@ -48,7 +48,8 @@ public class CircosGenomeViewerPortlet extends GenericPortlet {
 	@Override
 	public void init(PortletConfig config) throws PortletException {
 		String contextPath = config.getPortletContext().getRealPath(File.separator);
-		circosGenerator = new CircosGenerator(contextPath);
+		String tmpPath = System.getProperty("shared_tmp", "/cid/share/deployment_software/patric/alpha/shared_tmp/");
+		circosGenerator = new CircosGenerator(contextPath, tmpPath);
 		super.init(config);
 	}
 
@@ -63,7 +64,7 @@ public class CircosGenomeViewerPortlet extends GenericPortlet {
 		SolrInterface solr = new SolrInterface();
 
 		String actionUrl = "/portal/portal/patric/CircosGenomeViewer/CircosGenomeViewerWindow?action=1";
-		String polyomicUrl = System.getProperty("polyomic.baseUrl", "http://polyomic.patricbrc.org:8888");
+		String polyomicUrl = System.getProperty("polyomic.baseUrl", "https://www.patricbrc.org/oldapi/");
 		String genomeId = request.getParameter("context_id");
 		Genome genome = solr.getGenome(genomeId);
 

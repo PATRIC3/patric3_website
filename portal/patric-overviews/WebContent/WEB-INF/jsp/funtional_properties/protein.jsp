@@ -9,7 +9,7 @@ List<Map<String, Object>> listStructure = (List<Map<String, Object>>) request.ge
 String genusName = (String) request.getAttribute("genusName");
 
 String urlBEIR = SiteHelper.getExternalLinks("BEIR");
-String ENDPOINT = System.getProperty("polyomic.baseUrl", "http://polyomic.patricbrc.org");
+String ENDPOINT = System.getProperty("polyomic.baseUrl", "https://www.patricbrc.org/oldapi/");
 
 %>
 <table class="basic stripe far2x">
@@ -216,10 +216,10 @@ function requestPPICount(fid, is_hpi, base_url) {
 	var myURL;
 	
 	if (myHPI === 'Y') {
-		myURL = base_url + '/oldapi/pig/?descendants((2,33208))&between()&keyword('+ keyword + ')&eq(is_hpi,Y)&facet((sort,+rownum))&limit(0,0)';
+		myURL = base_url + '/pig/?descendants((2,33208))&between()&keyword('+ keyword + ')&eq(is_hpi,Y)&facet((sort,+rownum))&limit(0,0)';
 	}
 	else {
-		myURL = base_url + '/oldapi/pig/?descendants((2,33208))&between()&keyword('+ keyword + ')&facet((sort,+rownum))&limit(0,0)';
+		myURL = base_url + '/pig/?descendants((2,33208))&between()&keyword('+ keyword + ')&facet((sort,+rownum))&limit(0,0)';
 	}
 	
 	Ext.Ajax.disableCaching = false;
