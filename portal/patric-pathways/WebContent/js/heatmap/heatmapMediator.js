@@ -73,7 +73,7 @@ function flashCellClicked(flashObjectID, colID, rowID) {
 	
 function catchLocusTags(colID, rowID, na_idList) {
 
-	console.log("catchLocusTags", colID, rowID, na_idList);
+//	console.log("catchLocusTags", colID, rowID, na_idList);
 	var locusList =[],
 		i,
 		parts = getCellData_ECGenome(colID, rowID),
@@ -246,7 +246,7 @@ function flashCellsSelected(flashObjectID, affectedColumns, affectedRows) {
 	
 function catchLocusTagsMultiple(affectedColumns, affectedRows, selectGenomes, selectEcs, members){
 
-	console.log("catchLocusTagsMultiple", affectedColumns, affectedRows, selectGenomes, selectEcs, members);
+//	console.log("catchLocusTagsMultiple", affectedColumns, affectedRows, selectGenomes, selectEcs, members);
 
 	var membersCount = members.length,
 		algorithm = Ext.getDom("algorithm").value,
