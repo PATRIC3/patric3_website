@@ -415,7 +415,8 @@ function renderPathwayName(value, metadata, record, rowIndex, colIndex, store) {
 // render Unique Gene Count in pathway tab
 function renderGeneCountPathway(value, metadata, record, rowIndex, colIndex, store) {
 	metadata.tdAttr = 'data-qtip="'+record.data.gene_count+'" data-qclass="x-tip"';
-	return Ext.String.format('<a href="javascript:void(0);" onclick=ShowFeatureTab("{0}","{1}","{2}","{3}","{4}"); />{5}</a>', record.data.pathway_id, record.data.pathway_name, record.data.pathway_class, '', record.data.algorithm, record.data.gene_count);
+	return Ext.String.format('<a href="javascript:void(0);" onclick=ShowFeatureTab("{0}","{1}","{2}","{3}","{4}"); />{5}</a>',
+		record.data.pathway_id, record.data.pathway_name, record.data.pathway_class, '', record.data.algorithm, record.data.gene_count);
 }
 
 // render Unique EC Count in pathway tab
@@ -460,7 +461,7 @@ function getSelectedFeatures(actiontype, showdownload, fastatype, to){
 		sl = Page.getCheckBox().getSelections(),
 		i,
 		fids = property.fids;
-			
+
 	if (property.pageType == "Finder") {
 		if(Ext.getDom("genomeId").value != ""){
 			cId =  Ext.getDom("genomeId").value;
@@ -475,21 +476,21 @@ function getSelectedFeatures(actiontype, showdownload, fastatype, to){
 		cType = Ext.getDom("cType").value;
 		cId = Ext.getDom("cId").value;
 	}
-	
+
 	if (hash.aT != "2") {
 
 		for (i=0; i<sl.length; i++) {
 			pid.push(sl[i].data.pathway_id);
 
 			aid.push(sl[i].data.algorithm);
-						
+
 			if (hash.aT == "1")
 				ecid.push(sl[i].data.ec_number);
 		}
-		
+
 		if(Ext.getDom("ecN").value)
 	    	ecid.push(Ext.getDom("ecN").value);
-		
+
 		Ext.Ajax.request({
 		    url: "/patric-pathways/jsp/get_na_feature_ids.json.jsp",
 		    method: 'POST',
@@ -513,7 +514,7 @@ function getSelectedFeatures(actiontype, showdownload, fastatype, to){
 
 function KeepParameters(){
 	"use strict";
-	
+
 	var Page = $Page,
 		property = Page.getPageProperties(),
 		hash = property.hash;
@@ -527,7 +528,7 @@ function KeepParameters(){
 		hash.pId = Ext.getDom("pId").value;
 		hash.ecN = "";
 	}
-	
+
 }
 
 function DownloadFile(){
@@ -537,7 +538,7 @@ function DownloadFile(){
 		return false;
 	}
 	var form = Ext.getDom("fTableForm");
-	
+
 	form.action = "/portal/portal/patric/CompPathwayTable/CompPathwayTableWindow?action=b&cacheability=PAGE&need=download";
 	form.fileformat.value = arguments[0];
 	form.target = "";

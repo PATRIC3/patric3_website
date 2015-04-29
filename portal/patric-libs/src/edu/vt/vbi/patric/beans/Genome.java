@@ -17,6 +17,8 @@ package edu.vt.vbi.patric.beans;
 
 import org.apache.solr.client.solrj.beans.Field;
 import org.json.simple.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -24,6 +26,8 @@ import java.util.Date;
 import java.util.List;
 
 public class Genome {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(Genome.class);
 
 	DateFormat dfCompletionDate = new SimpleDateFormat("yyyy-MM-dd");
 

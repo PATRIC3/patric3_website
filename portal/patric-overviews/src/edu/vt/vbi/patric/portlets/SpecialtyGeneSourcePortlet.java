@@ -251,7 +251,7 @@ public class SpecialtyGeneSourcePortlet extends GenericPortlet {
 						if (!key.containsKey("tree")) {
 							solr.setCurrentInstance(SolrCore.SPECIALTY_GENE);
 							JSONObject facet_fields = (JSONObject) new JSONParser().parse(key.get("facets"));
-							JSONArray arr1 = solr.processStateAndTree(key, need, facet_fields, key.get("facet"), state, 4, false);
+							JSONArray arr1 = solr.processStateAndTree(key, need, facet_fields, key.get("facet"), state, null, 4, false);
 							jsonResult.put("results", arr1);
 							key.put("tree", arr1);
 						}

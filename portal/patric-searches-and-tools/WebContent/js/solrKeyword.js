@@ -316,58 +316,6 @@ Ext.define('Sequence', {
 	}]
 });
 
-//Ext.define('Pathway', {
-//	extend : 'Ext.data.Model',
-//	fields : [{
-//		name : 'accession',
-//		type : 'string'
-//	}, {
-//		name : 'annotation',
-//		type : 'string'
-//	}, {
-//		name : 'ec_name',
-//		type : 'string'
-//	}, {
-//		name : 'ec_number',
-//		type : 'string'
-//	}, {
-//		name : 'feature_type',
-//		type : 'string'
-//	}, {
-//		name : 'genome_name',
-//		type : 'string'
-//	}, {
-//		name : 'gid',
-//		type : 'string'
-//	}, {
-//		name : 'locus_tag',
-//		type : 'string'
-//	}, {
-//		name : 'na_feature_id',
-//		type : 'string'
-//	}, {
-//		name : 'ncbi_tax_id',
-//		type : 'string'
-//	}, {
-//		name : 'pathway_id',
-//		type : 'string'
-//	}, {
-//		name : 'pathway_name',
-//		type : 'string'
-//	}, {
-//		name : 'product',
-//		type : 'string'
-//	}, {
-//		name : 'start_max',
-//		type : 'int'
-//	}, {
-//		name : 'end_min',
-//		type : 'int'
-//	}, {
-//		name : 'highlight'
-//	}]
-//});
-
 Ext.define('Taxonomy', {
 	extend : 'Ext.data.Model',
 	fields : [{
@@ -387,45 +335,6 @@ Ext.define('Taxonomy', {
 	}]
 });
 
-//Ext.define('Figfam', {
-//	extend : 'Ext.data.Model',
-//	fields : [{
-//		name : 'figfam_id',
-//		type : 'string'
-//	}, {
-//		name : 'figfam_product',
-//		type : 'string'
-//	}, {
-//		name : 'gid',
-//		type : 'string'
-//	}, {
-//		name : 'genome_info_id',
-//		type : 'srring'
-//	}, {
-//		name : 'genome_name',
-//		type : 'string'
-//	}, {
-//		name : 'accession',
-//		type : 'string'
-//	}, {
-//		name : 'locus_tag',
-//		type : 'string'
-//	}, {
-//		name : 'na_feature_id',
-//		type : 'int'
-//	}, {
-//		name : 'start_max',
-//		type : 'int'
-//	}, {
-//		name : 'end_min',
-//		type : 'int'
-//	}, {
-//		name : 'refseq_locus_tag',
-//		type : 'string'
-//	}, {
-//		name : 'highlight'
-//	}]
-//});
 
 Ext.define('Cart', {
 	extend : 'Ext.data.Model',
@@ -687,6 +596,9 @@ configuration['Genome'] = {
 	display_facets : ['genome_status', 'reference_genome', 'antimicrobial_resistance', 'antimicrobial_resistance_evidence', 'isolation_country', 'host_name', 'disease', 'collection_date', 'completion_date'],
 	display_facets_texts : ['Genome Status', 'Reference Genome', 'Antimicrobial Resistance', 'Antimicrobial Resistance Evidence', 'Isolation Country', 'Host Name', 'Disease', 'Collection Date', 'Completion Date'],
 	all_facets : ['Keyword', 'genome_status', 'reference_genome', 'antimicrobial_resistance', 'antimicrobial_resistance_evidence', 'isolation_country', 'host_name', 'disease', 'collection_date', 'completion_date', 'genome_id', 'genome_name', 'annotation', 'taxon_id'],
+	field_facets : ['genome_status', 'reference_genome', 'antimicrobial_resistance', 'antimicrobial_resistance_evidence', 'isolation_country', 'host_name', 'disease', 'collection_date'],
+	date_range_facets : ['completion_date'],
+	numeric_range_facets : [],
 	search_fields : [{
 		value : 'Keyword',
 		text : 'Keyword'

@@ -169,7 +169,7 @@ public class GlobalTaxonomy extends GenericPortlet {
 				try {
 					if (!key.containsKey("tree")) {
 						JSONObject facet_fields = (JSONObject) new JSONParser().parse(key.get("facets"));
-						JSONArray arr1 = solr.processStateAndTree(key, need, facet_fields, key.get("facet"), state, 4, false);
+						JSONArray arr1 = solr.processStateAndTree(key, need, facet_fields, key.get("facet"), state, null, 4, false);
 						jsonResult.put("results", arr1);
 						key.put("tree", arr1);
 					}

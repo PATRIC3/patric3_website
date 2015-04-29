@@ -19,6 +19,7 @@ import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.beans.GenomeFeature;
 import edu.vt.vbi.patric.beans.Taxonomy;
 import edu.vt.vbi.patric.cache.ENewsGenerator;
+import edu.vt.vbi.patric.common.DataApiHandler;
 import edu.vt.vbi.patric.common.OrganismTreeBuilder;
 import edu.vt.vbi.patric.common.SolrInterface;
 import edu.vt.vbi.patric.dao.*;
@@ -150,7 +151,7 @@ public class BreadCrumb extends GenericPortlet {
 		}
 		else {
 
-			SolrInterface solr = new SolrInterface();
+			DataApiHandler dataApi = new DataApiHandler(request);
 
 			// for backward compatibility, check id format for genome & feature level request, and redirect url as needed.
 
@@ -158,7 +159,7 @@ public class BreadCrumb extends GenericPortlet {
 				if (cType.equals("feature")) {
 					try {
 						int p2_feature_id = Integer.parseInt(cId);
-						GenomeFeature feature = solr.getPATRICFeatureByP2FeatureId(p2_feature_id);
+						GenomeFeature feature = dataApi.getPATRICFeatureByP2FeatureId(p2_feature_id);
 
 						if (feature != null) {
 							String origUrl = response.createRenderURL().toString();
@@ -177,7 +178,7 @@ public class BreadCrumb extends GenericPortlet {
 				else if (cType.equals("genome")) {
 					try {
 						int p2_genome_id = Integer.parseInt(cId);
-						Genome genome = solr.getGenomeByP2GenomeId(p2_genome_id);
+						Genome genome = dataApi.getGenomeByP2GenomeId(p2_genome_id);
 
 						if (genome != null) {
 							String origUrl = response.createRenderURL().toString();
@@ -214,11 +215,11 @@ public class BreadCrumb extends GenericPortlet {
 				List<Map<String, Object>> lineage = new ArrayList<>();
 				Taxonomy taxonomy = null;
 				if (cType.equals("taxon")) {
-					taxonomy = solr.getTaxonomy(Integer.parseInt(cId));
+					taxonomy = dataApi.getTaxonomy(Integer.parseInt(cId));
 				}
 				else if (cType.equals("genome")) {
-					Genome genome = solr.getGenome(cId);
-					taxonomy = solr.getTaxonomy(genome.getTaxonId());
+					Genome genome = dataApi.getGenome(cId);
+					taxonomy = dataApi.getTaxonomy(genome.getTaxonId());
 				}
 				List<Integer> taxonIds = taxonomy.getLineageIds();
 				List<String> txNames = taxonomy.getLineageNames();
@@ -257,14 +258,14 @@ public class BreadCrumb extends GenericPortlet {
 					boolean hasPATRICAnnotation = false;
 					List<Map<String, Object>> lineage = new ArrayList<>();
 
-					GenomeFeature feature = solr.getPATRICFeature(cId);
+					GenomeFeature feature = dataApi.getPATRICFeature(cId);
 					int taxonId = feature.getTaxonId();
 
 					if (feature.getAnnotation().equals("PATRIC")) {
 						hasPATRICAnnotation = true;
 					}
 
-					Taxonomy taxonomy = solr.getTaxonomy(taxonId);
+					Taxonomy taxonomy = dataApi.getTaxonomy(taxonId);
 					List<Integer> taxonIds = taxonomy.getLineageIds();
 					List<String> txNames = taxonomy.getLineageNames();
 					List<String> txRanks = taxonomy.getLineageRanks();
@@ -292,13 +293,13 @@ public class BreadCrumb extends GenericPortlet {
 					boolean isBelowGenus = false;
 					boolean hasPATRICAnnotation = false;
 
-					Genome genome = solr.getGenome(cId);
+					Genome genome = dataApi.getGenome(cId);
 					int taxonId = genome.getTaxonId();
 					if (genome.getPatricCds() > 0) {
 						hasPATRICAnnotation = true;
 					}
 
-					Taxonomy taxonomy = solr.getTaxonomy(taxonId);
+					Taxonomy taxonomy = dataApi.getTaxonomy(taxonId);
 					// TODO: handle when taxonomy is null
 					List<Integer> txIds = taxonomy.getLineageIds();
 					List<String> txNames = taxonomy.getLineageNames();
@@ -332,7 +333,7 @@ public class BreadCrumb extends GenericPortlet {
 					List<Map<String, Object>> lineage = new ArrayList<>();
 					boolean isBelowGenus = false;
 
-					Taxonomy taxonomy = solr.getTaxonomy(Integer.parseInt(cId));
+					Taxonomy taxonomy = dataApi.getTaxonomy(Integer.parseInt(cId));
 
 					List<Integer> txIds = taxonomy.getLineageIds();
 					List<String> txNames = taxonomy.getLineageNames();

@@ -398,19 +398,19 @@ public class GenomeFeature {
 	}
 
 	public boolean hasExternalId() {
-		return (this.externalId != null && this.externalId.isEmpty() == false);
+		return (this.externalId != null && !this.externalId.isEmpty());
 	}
 
 	public boolean hasEnzymeClass() {
-		return (this.enzymeClass != null && this.enzymeClass.isEmpty() == false);
+		return (this.enzymeClass != null && !this.enzymeClass.isEmpty());
 	}
 
 	public boolean hasGeneOntology() {
-		return (this.geneOntology != null && this.geneOntology.isEmpty() == false);
+		return (this.geneOntology != null && !this.geneOntology.isEmpty());
 	}
 
 	public boolean hasPathway() {
-		return (this.pathway != null && this.pathway.isEmpty() == false);
+		return (this.pathway != null && !this.pathway.isEmpty());
 	}
 
 	public void setAccession(String accession) {

@@ -18,10 +18,14 @@ package edu.vt.vbi.patric.beans;
 
 import org.apache.solr.client.solrj.beans.Field;
 import org.json.simple.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 
 public class GenomeSequence {
+	private static final Logger LOGGER = LoggerFactory.getLogger(GenomeSequence.class);
+
 	@Field("genome_id")
 	private String genomeId;
 

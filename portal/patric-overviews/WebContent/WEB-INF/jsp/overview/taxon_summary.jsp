@@ -5,8 +5,6 @@ List<Map<String, Object>> lineage = (List<Map<String, Object>>) request.getAttri
 long pk = (new Random()).nextLong();
 
 String tId = request.getParameter("context_id");
-String gid = "";
-String keyword = "(*)";
 if (tId != null) {
     int taxonId = Integer.parseInt(tId);
 
@@ -67,8 +65,8 @@ Ext.onReady(function () {
 	<% if (tId != null) { %>
 	object["Keyword"] =  'taxon_lineage_ids:<%=tId%>';
 	<% } else { %>
-	object["gid"] =  '<%=gid%>';
-	object["Keyword"] =  '<%=keyword%>';
+	object["gid"] =  '';
+	object["Keyword"] =  '(*)';
 	<% } %>
 
 	if (object["gid"] != "" || '<%=tId%>' == '2') {
@@ -79,7 +77,12 @@ Ext.onReady(function () {
 			params: {need:"tree_for_taxon"
 				,state:JSON.stringify({})
 				,pk: '<%=pk %>'
-				,facet:JSON.stringify({"facet":configuration[name].display_facets.join(","), "facet_text":configuration[name].display_facets_texts.join(",")})
+				,facet:JSON.stringify({
+					'facet': configuration[name].display_facets.join(','),
+					'facet_text': configuration[name].display_facets_texts.join(','),
+					'field_facets': configuration[name].field_facets.join(','),
+					'date_range_facets': configuration[name].date_range_facets.join(',')
+				})
 				,keyword:constructKeyword(object, name, "")
 			},
 			success: function(response, opts) {
@@ -110,13 +113,11 @@ function AppendData(data){
 		if (i%2==0) {
 			row.setAttribute('class', 'alt');
 		}
-		
-		//var cell0 = row.insertCell(0);
+
 		var cell0 = document.createElement('th');
 		cell0.setAttribute('scope', 'row');
 		row.appendChild(cell0);
 		var cell1 = row.insertCell(1);
-		//cell1.setAttribute('class', 'last');
 		
 		var ind1_parent = obj.text.indexOf("<b>(");
 		var ind2_parent = obj.text.indexOf(")</b>");
@@ -128,23 +129,25 @@ function AppendData(data){
 		
 			var text = obj.children[j].text;
 			
-			var ind1 = obj.children[j].text.indexOf("> (");
-			var ind2 = obj.children[j].text.indexOf(") </span>");
+			var ind1 = obj.children[j].text.indexOf(">(");
+			var ind2 = obj.children[j].text.indexOf(")</span>");
 			var ind3 = obj.children[j].text.indexOf(" <span");
 			
-			var count = obj.children[j].text.substring(ind1+3, ind2);
+			var count = obj.children[j].text.substring(ind1+2, ind2);
 			
-			var newtext = "<a href=\"javascript:GotoGenomeList('"+obj.id+"', '"+text.substring(0, ind3).trim()+"', '"+text.substring(ind1+3, ind2)+"','single')\">"+count+"</a>";
+			var newtext = "<a href=\"javascript:GotoGenomeList('"+obj.id+"', '"+text.substring(0, ind3).trim()+"', '"+text.substring(ind1+2, ind2)+"','single')\">"+count+"</a>";
 			
-			if(obj.children.length == 1 && j == 0){
+			if (obj.children.length == 1 && j == 0) {
 				cell1.innerHTML += text.substring(0, ind3)+" ("+newtext+")";
-			}else if(j < 2){
+			}
+			else if (j < 2) {
 				cell1.innerHTML += text.substring(0, ind3)+" ("+newtext+")" + ", &nbsp;";
-			}else if(j == 2){
+			}
+			else if (j == 2) {
 				cell1.innerHTML += "<a href=\"javascript:GotoGenomeList('"+obj.id+"', '*', '*','all')\"><u>show all "+obj.text.substring(ind1_parent+4, ind2_parent)+" genomes</u></a>";
 			}
 			
-			if(obj.children.length == 2 && j == 1){
+			if (obj.children.length == 2 && j == 1) {
 				cell1.innerHTML = cell1.innerHTML.substring(0, cell1.innerHTML.length - 8);
 			}
 		}
@@ -158,7 +161,7 @@ function GotoGenomeList(search_on, keyword, count, type)
 {
 
 	var object = {};
-	object["gid"] =  '<%=gid%>';
+	object["gid"] =  '';
 	
 	if(type == 'single'){
 	
@@ -184,29 +187,6 @@ function GotoGenomeList(search_on, keyword, count, type)
 		}
 	});
 
-}
-
-function GenomeList(algorithm, status){
-
-	var object = {};
-	object["gid"] =  '<%=gid%>';
-	object["genome_status_f"] = status;
-	object["annotation"] = algorithm;
-	
-	Ext.Ajax.request({
-		url: '/portal/portal/patric/GenomeFinder/GenomeFinderWindow?action=b&cacheability=PAGE',
-		method: 'POST',
-		params: {cType: 'taxon',
-			cId: '<%=tId%>',
-			sraction: "save_params",
-			keyword: constructKeyword(object, name),
-			state:(status=="")?JSON.stringify({}):JSON.stringify(getState("genome_status_f", status, "", "single"))
-		},
-		success: function(rs) {
-			//relocate to result page
-			document.location.href="GenomeList?cType=taxon&cId="+<%=tId%>+"&displayMode="+status+"&dataSource="+algorithm+"&pk="+rs.responseText;
-		}
-	});
 }
 
 function getState(search_on, keyword, count, type){

@@ -353,7 +353,9 @@ function CallBack() {
 			pk : hash.key,
 			facet : JSON.stringify({
 				"facet" : configuration[name].display_facets.join(","),
-				"facet_text" : configuration[name].display_facets_texts.join(",")
+				"facet_text" : configuration[name].display_facets_texts.join(","),
+				'field_facets': configuration[name].field_facets.join(','),
+				'date_range_facets': configuration[name].date_range_facets.join(',')
 			}),
 			state : JSON.stringify(tree.getState())
 		};
