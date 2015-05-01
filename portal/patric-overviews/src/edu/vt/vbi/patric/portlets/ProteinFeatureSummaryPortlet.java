@@ -17,34 +17,25 @@
  */
 package edu.vt.vbi.patric.portlets;
 
+import edu.vt.vbi.patric.common.DataApiHandler;
 import edu.vt.vbi.patric.common.SolrCore;
-import edu.vt.vbi.patric.common.SolrInterface;
-import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.LBHttpSolrServer;
-import org.apache.solr.client.solrj.response.FacetField;
-import org.apache.solr.client.solrj.response.QueryResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.portlet.*;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.MalformedURLException;
-import java.util.HashMap;
 import java.util.Map;
 
 public class ProteinFeatureSummaryPortlet extends GenericPortlet {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ProteinFeatureSummaryPortlet.class);
 
-	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException, UnavailableException {
+	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 
 		response.setContentType("text/html");
 		String cType = request.getParameter("context_type");
 		String cId = request.getParameter("context_id");
-
-		// TODO: redirect p2_genome_id to new genome_id
 
 		if (cType != null && cId != null) {
 			PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/overview/protein_feature_summary_init.jsp");
@@ -64,80 +55,45 @@ public class ProteinFeatureSummaryPortlet extends GenericPortlet {
 
 		if (contextType != null && contextId != null) {
 
-			Map<String, Long> hypotheticalProteins = new HashMap<>();
-			Map<String, Long> functionalProteins = new HashMap<>();
-			Map<String, Long> ecAssignedProteins = new HashMap<>();
-			Map<String, Long> goAssignedProteins = new HashMap<>();
-			Map<String, Long> pathwayAssignedProteins = new HashMap<>();
-			Map<String, Long> figfamAssignedProteins = new HashMap<>();
+			// TODO: use json.facet after moving to Solr5. query facet in heliosearch has a bug that not using post filter.
+			DataApiHandler dataApi = new DataApiHandler(request);
 
-			try {
-				SolrInterface solr = new SolrInterface();
-				LBHttpSolrServer lbHttpSolrServer = solr.getSolrServer(SolrCore.FEATURE);
-
-				// set default params
-				SolrQuery query = new SolrQuery();
-				if (contextType.equals("taxon")) {
-					query.setFilterQueries(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + contextId));
-				}
-				else { // genome
-					query.setFilterQueries("genome_id:" + contextId);
-				}
-				query.setRows(0).setFacet(true).setFacetMinCount(1).addFacetField("annotation");
-
-				// hypothetical
-				query.setQuery("product:(hypothetical AND protein) AND feature_type:CDS");
-
-				QueryResponse qr = lbHttpSolrServer.query(query);
-				FacetField ff = qr.getFacetField("annotation");
-				for (FacetField.Count fc : ff.getValues()) {
-					hypotheticalProteins.put(fc.getName(), fc.getCount());
-				}
-
-				// funtional assigned
-				query.setQuery("!product:(hypothetical AND protein) AND feature_type:CDS");
-				qr = lbHttpSolrServer.query(query);
-				ff = qr.getFacetField("annotation");
-				for (FacetField.Count fc : ff.getValues()) {
-					functionalProteins.put(fc.getName(), fc.getCount());
-				}
-
-				// ec assigned
-				query.setQuery("ec:[* TO *]");
-				qr = lbHttpSolrServer.query(query);
-				ff = qr.getFacetField("annotation");
-				for (FacetField.Count fc : ff.getValues()) {
-					ecAssignedProteins.put(fc.getName(), fc.getCount());
-				}
-
-				// go assigned
-				query.setQuery("go:[* TO *]");
-				qr = lbHttpSolrServer.query(query);
-				ff = qr.getFacetField("annotation");
-				for (FacetField.Count fc : ff.getValues()) {
-					goAssignedProteins.put(fc.getName(), fc.getCount());
-				}
-
-				// pathway assigned
-				query.setQuery("pathway:[* TO *]");
-				qr = lbHttpSolrServer.query(query);
-				ff = qr.getFacetField("annotation");
-				for (FacetField.Count fc : ff.getValues()) {
-					pathwayAssignedProteins.put(fc.getName(), fc.getCount());
-				}
-
-				// figfam assigned
-				query.setQuery("figfam_id:[* TO *]");
-
-				qr = lbHttpSolrServer.query(query);
-				ff = qr.getFacetField("annotation");
-				for (FacetField.Count fc : ff.getValues()) {
-					figfamAssignedProteins.put(fc.getName(), fc.getCount());
-				}
+			// set default params
+			String filterParam;
+			if (contextType.equals("taxon")) {
+				filterParam = SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + contextId);
 			}
-			catch (MalformedURLException | SolrServerException e) {
-				LOGGER.error(e.getMessage(), e);
+			else { // genome
+				filterParam = "genome_id:" + contextId;
 			}
+
+			// hypothetical
+			Map facets = dataApi
+					.getFieldFacets(SolrCore.FEATURE, "product:(hypothetical AND protein) AND feature_type:CDS", filterParam, "annotation");
+			Map<String, Integer> hypotheticalProteins = (Map) ((Map) facets.get("facets")).get("annotation");
+
+			// funtional assigned
+			facets = dataApi.getFieldFacets(SolrCore.FEATURE, "!product:(hypothetical AND protein) AND feature_type:CDS", filterParam, "annotation");
+			Map<String, Integer> functionalProteins = (Map) ((Map) facets.get("facets")).get("annotation");
+
+			// ec assigned
+			facets = dataApi.getFieldFacets(SolrCore.FEATURE, "ec:[* TO *]", filterParam, "annotation");
+			Map<String, Integer> ecAssignedProteins = (Map) ((Map) facets.get("facets")).get("annotation");
+
+			// go assigned
+			facets = dataApi.getFieldFacets(SolrCore.FEATURE, "go:[* TO *]", filterParam, "annotation");
+			Map<String, Integer> goAssignedProteins = (Map) ((Map) facets.get("facets")).get("annotation");
+
+			// pathway assigned
+			facets = dataApi.getFieldFacets(SolrCore.FEATURE, "pathway:[* TO *]", filterParam, "annotation");
+			Map<String, Integer> pathwayAssignedProteins = (Map) ((Map) facets.get("facets")).get("annotation");
+
+			// figfam assigned
+			facets = dataApi.getFieldFacets(SolrCore.FEATURE, "figfam_id:[* TO *]", filterParam, "annotation");
+			Map<String, Integer> figfamAssignedProteins = (Map) ((Map) facets.get("facets")).get("annotation");
+
+			request.setAttribute("contextType", contextType);
+			request.setAttribute("contextId", contextId);
 
 			request.setAttribute("hypotheticalProteins", hypotheticalProteins);
 			request.setAttribute("functionalProteins", functionalProteins);

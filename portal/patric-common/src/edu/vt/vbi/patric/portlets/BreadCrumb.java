@@ -21,7 +21,6 @@ import edu.vt.vbi.patric.beans.Taxonomy;
 import edu.vt.vbi.patric.cache.ENewsGenerator;
 import edu.vt.vbi.patric.common.DataApiHandler;
 import edu.vt.vbi.patric.common.OrganismTreeBuilder;
-import edu.vt.vbi.patric.common.SolrInterface;
 import edu.vt.vbi.patric.dao.*;
 import org.hibernate.jmx.StatisticsService;
 import org.json.simple.JSONArray;
@@ -317,8 +316,6 @@ public class BreadCrumb extends GenericPortlet {
 						}
 						lineage.add(taxon);
 					}
-
-					LOGGER.trace("{},{}", lineage, isBelowGenus);
 
 					request.setAttribute("lineage", lineage);
 					request.setAttribute("isBelowGenus", isBelowGenus);

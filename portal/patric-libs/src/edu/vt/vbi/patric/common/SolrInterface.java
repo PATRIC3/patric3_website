@@ -181,12 +181,16 @@ public class SolrInterface {
 					}
 				}
 
-				String[] fieldFacets = facetConditions.get("field_facets").toString().split(",");
-				query.addFacetField(fieldFacets);
+				if (facetConditions.containsKey("field_facets")) {
+					String[] fieldFacets = facetConditions.get("field_facets").toString().split(",");
+					query.addFacetField(fieldFacets);
+				}
 
-				String[] dateRangeFacets = facetConditions.get("date_range_facets").toString().split(",");
-				for (String field : dateRangeFacets) {
-					query.addDateRangeFacet(field, startDateFormat, endDateFormat, rangeDate);
+				if (facetConditions.containsKey("date_range_facets")) {
+					String[] dateRangeFacets = facetConditions.get("date_range_facets").toString().split(",");
+					for (String field : dateRangeFacets) {
+						query.addDateRangeFacet(field, startDateFormat, endDateFormat, rangeDate);
+					}
 				}
 			}
 			catch (ParseException e) {

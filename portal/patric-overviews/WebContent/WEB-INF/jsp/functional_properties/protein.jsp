@@ -5,7 +5,7 @@
 GenomeFeature feature = (GenomeFeature) request.getAttribute("feature");
 String uniprotkbAccession = (String) request.getAttribute("uniprotkbAccession");
 List<String> pdbIds = (List<String>) request.getAttribute("pdbIds");
-List<Map<String, Object>> listStructure = (List<Map<String, Object>>) request.getAttribute("listStructure");
+List<Map> listStructure = (List<Map>) request.getAttribute("listStructure");
 String genusName = (String) request.getAttribute("genusName");
 
 String urlBEIR = SiteHelper.getExternalLinks("BEIR");

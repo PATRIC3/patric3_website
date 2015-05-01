@@ -18,6 +18,8 @@ package edu.vt.vbi.patric.beans;
 import org.apache.solr.client.solrj.beans.Field;
 import org.json.simple.JSONObject;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.List;
 
 public class GenomeFeature {
@@ -200,6 +202,17 @@ public class GenomeFeature {
 
 	public String getPosGroupInQuote() {
 		return "\"" + posGroup + "\"";
+	}
+
+	public String getPosGroupEncoded() {
+		String pos = getPosGroupInQuote();
+		try {
+			return URLEncoder.encode(pos, "UTF-8");
+		}
+		catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	public String getProduct() {

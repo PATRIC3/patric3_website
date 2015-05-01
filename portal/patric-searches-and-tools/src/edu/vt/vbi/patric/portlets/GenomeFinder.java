@@ -17,18 +17,12 @@
  */
 package edu.vt.vbi.patric.portlets;
 
-import com.google.gson.Gson;
 import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.beans.GenomeSequence;
 import edu.vt.vbi.patric.beans.Taxonomy;
 import edu.vt.vbi.patric.common.*;
-import edu.vt.vbi.patric.dao.ResultType;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrRequest;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.params.FacetParams;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.ObjectReader;
 import org.codehaus.jackson.map.ObjectWriter;
@@ -48,6 +42,18 @@ public class GenomeFinder extends GenericPortlet {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(GenomeFinder.class);
 
+	ObjectReader jsonReader;
+
+	ObjectWriter jsonWriter;
+
+	@Override public void init() throws PortletException {
+		super.init();
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		jsonReader = objectMapper.reader(Map.class);
+		jsonWriter = objectMapper.writerWithType(Map.class);
+	}
+
 	@Override protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 
 		response.setContentType("text/html");
@@ -61,9 +67,8 @@ public class GenomeFinder extends GenericPortlet {
 			String contextType = request.getParameter("context_type");
 			String contextId = request.getParameter("context_id");
 			String pk = request.getParameter("param_key");
-			Gson gson = new Gson();
 
-			ResultType key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), ResultType.class);
+			Map<String, String> key = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
 
 			String taxonId = "";
 			String genomeId = "";
@@ -115,7 +120,7 @@ public class GenomeFinder extends GenericPortlet {
 				throw new PortletException("Important parameter (cId) is missing");
 			}
 
-			DataApiHandler dataApi = new DataApiHandler();
+			DataApiHandler dataApi = new DataApiHandler(request);
 
 			if (contextType.equals("taxon")) {
 				taxonomy = dataApi.getTaxonomy(Integer.parseInt(contextId));
@@ -142,9 +147,6 @@ public class GenomeFinder extends GenericPortlet {
 			throws PortletException, IOException {
 
 		String sraction = request.getParameter("sraction");
-		ObjectMapper objectMapper = new ObjectMapper();
-		ObjectReader jsonReaderFromMap = objectMapper.reader(Map.class);
-		ObjectWriter jsonWriterFromMap = objectMapper.writerWithType(Map.class);
 
 		if (sraction != null && sraction.equals("save_params")) {
 
@@ -192,7 +194,7 @@ public class GenomeFinder extends GenericPortlet {
 
 			long pk = (new Random()).nextLong();
 
-			SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriterFromMap.writeValueAsString(key));
+			SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
 
 			PrintWriter writer = response.getWriter();
 			writer.write("" + pk);
@@ -204,7 +206,7 @@ public class GenomeFinder extends GenericPortlet {
 			String pk = request.getParameter("pk");
 			String json = SessionHandler.getInstance().get(SessionHandler.PREFIX + pk);
 			if (json != null) {
-				Map<String, String> key = jsonReaderFromMap.readValue(json);
+				Map<String, String> key = jsonReader.readValue(json);
 				ret = key.get("keyword");
 			}
 
@@ -239,10 +241,10 @@ public class GenomeFinder extends GenericPortlet {
 					key.put("facet", facet);
 					key.put("keyword", keyword);
 
-					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriterFromMap.writeValueAsString(key));
+					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
 				}
 				else {
-					key = jsonReaderFromMap.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
+					key = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
 					key.put("facet", facet);
 				}
 
@@ -275,9 +277,8 @@ public class GenomeFinder extends GenericPortlet {
 				DataApiHandler dataApi = new DataApiHandler(request);
 				String apiResponse = dataApi.solrQuery(SolrCore.GENOME, query);
 
-				Map<String, Object> resp = jsonReaderFromMap.readValue(apiResponse);
+				Map<String, Object> resp = jsonReader.readValue(apiResponse);
 				Map<String, Object> respBody = (Map<String, Object>) resp.get("response");
-
 
 				int numFound = (Integer) respBody.get("numFound");
 				JSONArray docs = new JSONArray();
@@ -289,7 +290,7 @@ public class GenomeFinder extends GenericPortlet {
 				if (resp.containsKey("facet_counts")) {
 					JSONObject facets = solr.formatFacetTree((Map) resp.get("facet_counts"));
 					key.put("facets", facets.toJSONString());
-					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriterFromMap.writeValueAsString(key));
+					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
 				}
 
 				jsonResult.put("results", docs);
@@ -313,10 +314,10 @@ public class GenomeFinder extends GenericPortlet {
 					key.put("facet", facet);
 					key.put("keyword", keyword);
 
-					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriterFromMap.writeValueAsString(key));
+					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
 				}
 				else {
-					key = jsonReaderFromMap.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
+					key = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
 					key.put("facet", facet);
 				}
 
@@ -325,35 +326,6 @@ public class GenomeFinder extends GenericPortlet {
 				}
 
 				// Pre-processing. Query genome core and get facets and genome_ids for next query on sequence core
-/*				SolrQuery query = new SolrQuery();
-
-				query.setQuery(key.get("keyword"));
-				query.setFilterQueries("taxon_lineage_ids:" + key.get("taxonId"));
-				query.addField("genome_id");
-				query.setRows(500000);
-
-				query.setFacet(true);
-				query.setFacetMinCount(1);
-				query.setFacetLimit(-1);
-				query.setFacetSort(FacetParams.FACET_SORT_COUNT);
-				JSONObject facet_data = new JSONObject();
-				try {
-					facet_data = (JSONObject) new JSONParser().parse(facet);
-				}
-				catch (ParseException e) {
-					LOGGER.error(e.getMessage(), e);
-				}
-				String[] facetFields = facet_data.get("facet").toString().split(",");
-
-				for (String facetField : facetFields) {
-					if (!facetField.equals("completion_date") && !facetField.equals("release_date")) {
-						query.addFacetField(facetField);
-					}
-					else {
-						query.addDateRangeFacet(facetField, solr.getRangeStartDate(), solr.getRangeEndDate(), "+1YEAR");
-					}
-				}
-*/
 				key.put("fields", "genome_id");
 				key.put("join", "taxon_lineage_ids:" + key.get("taxonId"));
 
@@ -366,7 +338,7 @@ public class GenomeFinder extends GenericPortlet {
 				DataApiHandler dataApi = new DataApiHandler(request);
 				String apiResponse = dataApi.solrQuery(SolrCore.GENOME, query);
 
-				Map<String, Object> resp = jsonReaderFromMap.readValue(apiResponse);
+				Map<String, Object> resp = jsonReader.readValue(apiResponse);
 				Map<String, Object> respBody = (Map<String, Object>) resp.get("response");
 				List<Genome> records = dataApi.bindDocuments((List<Map>) respBody.get("docs"), Genome.class);
 				for (Genome item : records) {
@@ -377,27 +349,8 @@ public class GenomeFinder extends GenericPortlet {
 				if (resp.containsKey("facet_counts")) {
 					JSONObject facets = solr.formatFacetTree((Map) resp.get("facet_counts"));
 					key.put("facets", facets.toJSONString());
-					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriterFromMap.writeValueAsString(key));
+					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
 				}
-
-//				try {
-//					QueryResponse qr = solr.getSolrServer(SolrCore.GENOME).query(query);
-//					List<Genome> records = qr.getBeans(Genome.class);
-//
-//					JSONObject facets;
-//					if (facet != null) {
-//						facets = solr.facetFieldstoJSONObject(qr);
-//						key.put("facets", facets.toJSONString());
-//						SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriterFromMap.writeValueAsString(key));
-//					}
-//
-//					for (Genome item : records) {
-//						listGenomeId.add(item.getId());
-//					}
-//				}
-//				catch (SolrServerException e) {
-//					LOGGER.error(e.getMessage(), e);
-//				}
 
 				if (listGenomeId.size() > 0) {
 					key.put("keyword", "genome_id:(" + StringUtils.join(listGenomeId, " OR ") + ")");
@@ -410,52 +363,6 @@ public class GenomeFinder extends GenericPortlet {
 				int end = Integer.parseInt(limit);
 				String sorts = request.getParameter("sort");
 
-/*				query = new SolrQuery();
-				query.setQuery(solr.KeywordReplace(key.get("keyword")));
-
-				query.addField("genome_id,genome_name,sequence_id,accession,length,sequence_type,gc_content,description");
-
-				query.setStart(start);
-				if (end != -1) {
-					query.setRows(end);
-				}
-
-				// sorting
-				if (request.getParameter("sort") != null) {
-					JSONArray sorter;
-					try {
-						sorter = (JSONArray) new JSONParser().parse(request.getParameter("sort"));
-						for (Object aSort : sorter) {
-							JSONObject jsonSort = (JSONObject) aSort;
-							query.addSort(SolrQuery.SortClause
-									.create(jsonSort.get("property").toString(), jsonSort.get("direction").toString().toLowerCase()));
-						}
-					}
-					catch (ParseException e) {
-						LOGGER.error(e.getMessage(), e);
-					}
-				}
-
-				if (key.containsKey("taxonId") && key.get("taxonId") != null) {
-					query.setFilterQueries(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + key.get("taxonId")));
-				}
-
-				// fetch
-				JSONArray docs = new JSONArray();
-				long numFound = 0l;
-				try {
-					QueryResponse qr = solr.getSolrServer(SolrCore.SEQUENCE).query(query, SolrRequest.METHOD.POST);
-					List<GenomeSequence> records = qr.getBeans(GenomeSequence.class);
-					numFound = qr.getResults().getNumFound();
-
-					for (GenomeSequence item : records) {
-						docs.add(item.toJSONObject());
-					}
-				}
-				catch (SolrServerException e) {
-					LOGGER.error(e.getMessage(), e);
-				}
-*/
 				Map<String, String> keySequence = new HashMap<>();
 				keySequence.put("keyword", key.get("keyword"));
 				keySequence.put("fields", StringUtils.join(DownloadHelper.getFieldsForGenomeSequence(), ","));
@@ -465,7 +372,7 @@ public class GenomeFinder extends GenericPortlet {
 				LOGGER.debug("genome sequence: {}", query.toString());
 				apiResponse = dataApi.solrQuery(SolrCore.SEQUENCE, query);
 
-				resp = jsonReaderFromMap.readValue(apiResponse);
+				resp = jsonReader.readValue(apiResponse);
 				respBody = (Map<String, Object>) resp.get("response");
 				List<GenomeSequence> sequences = dataApi.bindDocuments((List<Map>) respBody.get("docs"), GenomeSequence.class);
 
@@ -487,7 +394,7 @@ public class GenomeFinder extends GenericPortlet {
 			case "tree": {
 
 				pk = request.getParameter("pk");
-				key = jsonReaderFromMap.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
+				key = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
 
 				if (key.containsKey("state")) {
 					state = key.get("state");
@@ -498,14 +405,13 @@ public class GenomeFinder extends GenericPortlet {
 
 				key.put("state", state);
 
-				SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriterFromMap.writeValueAsString(key));
+				SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
 
 				JSONArray tree = new JSONArray();
 				try {
-					LOGGER.debug("key: {}", key);
-					if (key.containsKey("tree") && !key.get("facets").isEmpty()) {
+					if (key.containsKey("facets") && !key.get("facets").isEmpty()) {
 
-						JSONObject facet_fields = (JSONObject) new JSONParser().parse(key.get("facets"));
+						JSONObject facet_fields = (JSONObject) (new JSONParser()).parse(key.get("facets"));
 						SolrInterface solr = new SolrInterface();
 						solr.setCurrentInstance(SolrCore.GENOME);
 						tree = solr.processStateAndTree(key, need, facet_fields, key.get("facet"), state, key.get("join"), 4, false);
@@ -537,7 +443,7 @@ public class GenomeFinder extends GenericPortlet {
 				DataApiHandler dataApi = new DataApiHandler(request);
 				String apiResponse = dataApi.solrQuery(SolrCore.GENOME, query);
 
-				Map<String, Object> resp = jsonReaderFromMap.readValue(apiResponse);
+				Map<String, Object> resp = jsonReader.readValue(apiResponse);
 
 				JSONObject facet_fields = solr.formatFacetTree((Map) resp.get("facet_counts"));
 				JSONArray tree = solr.processStateAndTree(key, need, facet_fields, facet, "", null, 4, false);
@@ -551,7 +457,7 @@ public class GenomeFinder extends GenericPortlet {
 			case "getGenome": {
 				// This is called by Genome Overview page to display genome metadata.
 
-				DataApiHandler dataApi = new DataApiHandler();
+				DataApiHandler dataApi = new DataApiHandler(request);
 				Genome genome = dataApi.getGenome(request.getParameter("id"));
 
 				response.setContentType("application/json");

@@ -17,17 +17,11 @@ package edu.vt.vbi.patric.mashup;
 
 import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.beans.GenomeFeature;
-import edu.vt.vbi.patric.common.SolrCore;
-import edu.vt.vbi.patric.common.SolrInterface;
-import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
+import edu.vt.vbi.patric.beans.Taxonomy;
+import edu.vt.vbi.patric.common.DataApiHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -38,53 +32,23 @@ public class PubMedHelper {
 
 	public static String getTitleString(Map<String, String> key) {
 
-		SolrInterface solr = new SolrInterface();
+		DataApiHandler dataApi = new DataApiHandler();
+
 		String title = null;
 
 		if (key.get("context").equalsIgnoreCase("taxon")) {
 
-			try {
-				SolrQuery query = new SolrQuery("taxon_id:" + key.get("taxon_id"));
-				query.setFields("taxon_name");
-
-				QueryResponse qr = solr.getSolrServer(SolrCore.TAXONOMY).query(query);
-				SolrDocumentList sdl = qr.getResults();
-
-				for (SolrDocument doc : sdl) {
-					title = doc.get("taxon_name").toString();
-				}
-			}
-			catch (MalformedURLException | SolrServerException e) {
-				LOGGER.error(e.getMessage(), e);
-			}
+			Taxonomy taxonomy = dataApi.getTaxonomy(Integer.parseInt(key.get("taxon_id")));
+			title = taxonomy.getTaxonName();
 		}
 		else if (key.get("context").equalsIgnoreCase("genome")) {
 
-			String qScope = key.get("scope");
-
-			try {
-				SolrQuery query = new SolrQuery("genome_id:" + key.get("genome_id"));
-				query.setFields("genome_name,organism_name");
-
-				QueryResponse qr = solr.getSolrServer(SolrCore.GENOME).query(query);
-				List<Genome> result = qr.getBeans(Genome.class);
-
-				for (Genome genome : result) {
-					if (qScope != null && qScope.equals("o")) {
-						title = genome.getOrganismName();
-					}
-					else {
-						title = genome.getGenomeName();
-					}
-				}
-			}
-			catch (MalformedURLException | SolrServerException e) {
-				LOGGER.error(e.getMessage(), e);
-			}
+			Genome genome = dataApi.getGenome(key.get("genome_id"));
+			title = genome.getGenomeName();
 		}
 		else if (key.get("context").equalsIgnoreCase("feature")) {
 
-			GenomeFeature feature = solr.getFeature(key.get("feature_id"));
+			GenomeFeature feature = dataApi.getFeature(key.get("feature_id"));
 
 			String qScope = key.get("scope");
 

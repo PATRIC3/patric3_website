@@ -18,6 +18,7 @@
 package edu.vt.vbi.patric.portlets;
 
 import edu.vt.vbi.patric.beans.GenomeFeature;
+import edu.vt.vbi.patric.common.DataApiHandler;
 import edu.vt.vbi.patric.common.SolrInterface;
 import edu.vt.vbi.patric.dao.DBSummary;
 import org.slf4j.LoggerFactory;
@@ -41,9 +42,9 @@ public class FeatureCommentsPortlet extends GenericPortlet {
 		if (cType != null && cId != null && cType.equals("feature")) {
 
 			List<Map<String, Object>> listAnnotation = null;
-			SolrInterface solr = new SolrInterface();
+			DataApiHandler dataApi = new DataApiHandler(request);
 
-			GenomeFeature feature = solr.getPATRICFeature(cId);
+			GenomeFeature feature = dataApi.getPATRICFeature(cId);
 
 			if (feature != null) {
 
@@ -55,8 +56,6 @@ public class FeatureCommentsPortlet extends GenericPortlet {
 				}
 
 				if (listAnnotation != null && !listAnnotation.isEmpty()) {
-
-					LOGGER.trace("{}", listAnnotation);
 
 					request.setAttribute("listAnnotation", listAnnotation);
 

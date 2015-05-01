@@ -17,6 +17,7 @@
  */
 package edu.vt.vbi.patric.portlets;
 
+import edu.vt.vbi.patric.common.DataApiHandler;
 import edu.vt.vbi.patric.common.SolrCore;
 import edu.vt.vbi.patric.common.SolrInterface;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -42,8 +43,6 @@ public class GenomicFeatureSummaryPortlet extends GenericPortlet {
 		String cType = request.getParameter("context_type");
 		String cId = request.getParameter("context_id");
 
-		// TODO: implement redirection for p2_genome_id to new genome_id
-
 		if (cType != null && cId != null && (cType.equals("genome") || cType.equals("taxon"))) {
 			PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/overview/genomic_feature_summary_init.jsp");
 			prd.include(request, response);
@@ -63,8 +62,6 @@ public class GenomicFeatureSummaryPortlet extends GenericPortlet {
 
 		if (contextType != null && contextId != null) {
 
-			Map<String, Map<String, Long>> featureCounts = new HashMap<>();
-
 			String contextLink = null;
 			if (contextType.equals("genome")) {
 				contextLink = "cType=genome&amp;cId=" + contextId;
@@ -73,70 +70,30 @@ public class GenomicFeatureSummaryPortlet extends GenericPortlet {
 				contextLink = "cType=taxon&amp;cId=" + contextId;
 			}
 
-			SolrInterface solr = new SolrInterface();
-			LBHttpSolrServer lbHttpSolrServer = solr.getSolrServer(SolrCore.FEATURE);
+			DataApiHandler dataApi = new DataApiHandler(request);
 
-			List<String> annotations = Arrays.asList("PATRIC", "RefSeq");
-			int maxFeatureCount = -1;
-			Set<String> allFeatureTypes = null;
+			String queryParam, filterParam = null;
 
-			for (String annotation : annotations) {
-				Map<String, Long> featureSummary = new LinkedHashMap<>();
-				SolrQuery query = new SolrQuery();
-
-				if (contextType.equals("taxon")) {
-					if (!viewOption.equals("full")) {
-						query.setQuery("annotation:" + annotation + " AND feature_type:(CDS OR *RNA)");
-					}
-					else {
-						query.setQuery("annotation:" + annotation);
-					}
-					query.setFilterQueries(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + contextId));
+			if (contextType.equals("taxon")) {
+				if (!viewOption.equals("full")) {
+					queryParam = "feature_type:(CDS OR *RNA)";
 				}
 				else {
-					if (!viewOption.equals("full")) {
-						query.setQuery("annotation:" + annotation + " AND genome_id:" + contextId + " AND feature_type:(CDS OR *RNA)");
-					}
-					else {
-						query.setQuery("annotation:" + annotation + " AND genome_id:" + contextId);
-					}
+					queryParam = "*:*";
 				}
-
-				query.setRows(0).setFacet(true).setFacetMinCount(1).addFacetField("feature_type");
-
-				try {
-					QueryResponse qr = lbHttpSolrServer.query(query);
-
-					FacetField facetField = qr.getFacetField("feature_type");
-
-					for (FacetField.Count facetValue : facetField.getValues()) {
-						featureSummary.put(facetValue.getName(), facetValue.getCount());
-					}
-
-					featureCounts.put(annotation, featureSummary);
-					if (featureSummary.size() > maxFeatureCount) {
-						allFeatureTypes = featureSummary.keySet();
-						maxFeatureCount = featureCounts.size();
-					}
-
+				filterParam = SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + contextId);
+			}
+			else {
+				if (!viewOption.equals("full")) {
+					queryParam = "genome_id:" + contextId + " AND feature_type:(CDS OR *RNA)";
 				}
-				catch (SolrServerException e) {
-					LOGGER.error(e.getMessage(), e);
+				else {
+					queryParam = "genome_id:" + contextId;
 				}
 			}
 
-			// transpose arrays
-			Map<String, Map<String, Long>> summary = new LinkedHashMap<>();
-			assert allFeatureTypes != null;
-			for (String type : allFeatureTypes) {
-				Map<String, Long> sum = new HashMap<>();
-				for (String annotation : annotations) {
-					if (featureCounts.containsKey(annotation) && featureCounts.get(annotation).containsKey(type)) {
-						sum.put(annotation, featureCounts.get(annotation).get(type));
-					}
-				}
-				summary.put(type, sum);
-			}
+			Map facets = dataApi.getPivotFacets(SolrCore.FEATURE, queryParam, filterParam, "feature_type,annotation");
+			Map<String, Map<String, Integer>> summary = (Map) facets.get("feature_type,annotation");
 
 			response.setContentType("text/html");
 			request.setAttribute("summary", summary);

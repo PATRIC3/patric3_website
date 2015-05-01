@@ -18,6 +18,7 @@
 package edu.vt.vbi.patric.portlets;
 
 import edu.vt.vbi.patric.beans.Genome;
+import edu.vt.vbi.patric.common.DataApiHandler;
 import edu.vt.vbi.patric.common.SolrInterface;
 import edu.vt.vbi.patric.dao.DBPRC;
 import edu.vt.vbi.patric.dao.DBShared;
@@ -72,7 +73,7 @@ public class ExperimentSummaryPortlet extends GenericPortlet {
 		if (contextType != null) {
 
 			int taxonId = -1;
-			SolrInterface solr = new SolrInterface();
+			DataApiHandler dataApi = new DataApiHandler(request);
 
 			String species_name = "";
 			String psicquic_species_name = "";
@@ -83,8 +84,8 @@ public class ExperimentSummaryPortlet extends GenericPortlet {
 			DBPRC conn_prc = new DBPRC();
 
 			if (contextType.equals("taxon")) {
-				// tId = cId;
-				taxonId = solr.getTaxonomy(Integer.parseInt(contextId)).getId();
+
+				taxonId = dataApi.getTaxonomy(Integer.parseInt(contextId)).getId();
 
 				// TODO: re-implement?
 				List<ResultType> parents = conn_shared.getTaxonParentTree("" + taxonId);
@@ -97,7 +98,7 @@ public class ExperimentSummaryPortlet extends GenericPortlet {
 			}
 			else if (contextType.equals("genome")) {
 
-				Genome genome = solr.getGenome(contextId);
+				Genome genome = dataApi.getGenome(contextId);
 
 				species_name = genome.getGenomeName();
 				psicquic_species_name = "species:" + genome.getTaxonId();

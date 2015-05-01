@@ -636,8 +636,8 @@ configuration['Sequence'] = {
 };
 
 configuration['Feature'] = {
-	display_facets : ['annotation', 'feature_type'],
-	display_facets_texts : ['Annotation', 'Feature Type'],
+	display_facets : [],
+	display_facets_texts : [],
 	all_facets : ['Keyword', 'feature_type', 'annotation', 'genome_id', 'go', 'ec', 'pathway', 'figfam_id'],
 	search_fields : [{
 		value : 'Keyword',
@@ -660,6 +660,7 @@ configuration['SpecialtyGene'] = {
 	display_facets : ['genus', 'species', 'organism','classification'],
 	display_facets_texts : ['Genus', 'Species', 'Organism', 'Classification'],
 	all_facets : ['Keyword', 'source', 'genus', 'species', 'organism', 'classification'],
+	field_facets : ['genus', 'species', 'organism','classification'],
 	search_fields : [{
 		value : 'Keyword',
 		text : 'Keyword'
@@ -681,6 +682,7 @@ configuration['AntibioticResistanceGeneMapping'] = {
 	display_facets : ['source', 'evidence'],
 	display_facets_texts : ['Source', 'Evidence'],
 	all_facets : ['Keyword', 'property', 'source', 'evidence', 'classification', 'genome_id'],
+	field_facets : ['source', 'evidence'],
 	search_fields : [{
 		value : 'Keyword',
 		text : 'Keyword'
@@ -702,6 +704,7 @@ configuration['SpecialtyGeneMapping'] = {
 	display_facets : ['property', 'source', 'evidence'],
 	display_facets_texts : ['Property', 'Source', 'Evidence'],
 	all_facets : ['Keyword', 'property', 'source', 'evidence', 'genome_id'],
+	field_facets : ['property', 'source', 'evidence'],
 	search_fields : [{
 		value : 'Keyword',
 		text : 'Keyword'

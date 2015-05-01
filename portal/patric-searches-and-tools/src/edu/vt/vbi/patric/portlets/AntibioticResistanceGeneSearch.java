@@ -17,14 +17,14 @@
  */
 package edu.vt.vbi.patric.portlets;
 
-import com.google.gson.Gson;
 import edu.vt.vbi.patric.beans.Genome;
+import edu.vt.vbi.patric.beans.SpecialtyGene;
 import edu.vt.vbi.patric.beans.Taxonomy;
-import edu.vt.vbi.patric.common.SessionHandler;
-import edu.vt.vbi.patric.common.SiteHelper;
-import edu.vt.vbi.patric.common.SolrCore;
-import edu.vt.vbi.patric.common.SolrInterface;
-import edu.vt.vbi.patric.dao.ResultType;
+import edu.vt.vbi.patric.common.*;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectReader;
+import org.codehaus.jackson.map.ObjectWriter;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -36,6 +36,7 @@ import javax.portlet.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -43,12 +44,21 @@ public class AntibioticResistanceGeneSearch extends GenericPortlet {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(AntibioticResistanceGeneSearch.class);
 
-	SolrInterface solr = new SolrInterface();
+	ObjectReader jsonReader;
+
+	ObjectWriter jsonWriter;
+
+	@Override public void init() throws PortletException {
+		super.init();
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		jsonReader = objectMapper.reader(Map.class);
+		jsonWriter = objectMapper.writerWithType(Map.class);
+	}
 
 	JSONParser jsonParser = new JSONParser();
 
-	@Override
-	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
+	@Override protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 
 		response.setContentType("text/html");
 		String mode = request.getParameter("display_mode");
@@ -60,9 +70,8 @@ public class AntibioticResistanceGeneSearch extends GenericPortlet {
 			String contextType = request.getParameter("context_type");
 			String contextId = request.getParameter("context_id");
 			String pk = request.getParameter("param_key");
-			Gson gson = new Gson();
 
-			ResultType key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), ResultType.class);
+			Map<String, String> key = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
 
 			String taxonId = "";
 			String genomeId = "";
@@ -105,21 +114,19 @@ public class AntibioticResistanceGeneSearch extends GenericPortlet {
 			Taxonomy taxonomy = null;
 			String organismName = null;
 
-			// LOGGER.debug("AntibioticResistanceGeneSearch: {}", contextId);
-
 			if (contextId == null || contextId.equals("")) {
 				throw new PortletException("Important parameter (cId) is missing");
 			}
 
-			SolrInterface solr = new SolrInterface();
+			DataApiHandler dataApi = new DataApiHandler(request);
 
 			if (contextType.equals("taxon")) {
-				taxonomy = solr.getTaxonomy(Integer.parseInt(contextId));
+				taxonomy = dataApi.getTaxonomy(Integer.parseInt(contextId));
 				organismName = taxonomy.getTaxonName();
 			}
 			else if (contextType.equals("genome")) {
-				Genome genome = solr.getGenome(contextId);
-				taxonomy = solr.getTaxonomy(genome.getTaxonId());
+				Genome genome = dataApi.getGenome(contextId);
+				taxonomy = dataApi.getTaxonomy(genome.getTaxonId());
 				organismName = genome.getGenomeName();
 			}
 
@@ -133,14 +140,15 @@ public class AntibioticResistanceGeneSearch extends GenericPortlet {
 		prd.include(request, response);
 	}
 
-	@SuppressWarnings("unchecked")
-	public void serveResource(ResourceRequest request, ResourceResponse response) throws PortletException, IOException {
+	@SuppressWarnings("unchecked") public void serveResource(ResourceRequest request, ResourceResponse response)
+			throws PortletException, IOException {
 
 		String sraction = request.getParameter("sraction");
-		Gson gson = new Gson();
 
 		if (sraction != null && sraction.equals("save_params")) {
-			ResultType key = new ResultType();
+
+			Map<String, String> key = new HashMap<>();
+
 			String genomeId = request.getParameter("genomeId");
 			String taxonId = "";
 			String cType = request.getParameter("context_type");
@@ -178,7 +186,7 @@ public class AntibioticResistanceGeneSearch extends GenericPortlet {
 
 			long pk = (new Random()).nextLong();
 
-			SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
+			SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
 
 			PrintWriter writer = response.getWriter();
 			writer.write("" + pk);
@@ -190,7 +198,7 @@ public class AntibioticResistanceGeneSearch extends GenericPortlet {
 
 			String json = SessionHandler.getInstance().get(SessionHandler.PREFIX + pk);
 			if (json != null) {
-				ResultType key = gson.fromJson(json, ResultType.class);
+				Map<String, String> key = jsonReader.readValue(json);
 				ret = key.get("keyword");
 			}
 
@@ -199,20 +207,22 @@ public class AntibioticResistanceGeneSearch extends GenericPortlet {
 			writer.close();
 		}
 		else {
+
 			String need = request.getParameter("need");
-			String facet, keyword, pk, state, taxonId;
+			String facet, sort, keyword, pk, state, taxonId, genomeId;
 			boolean hl;
-			ResultType key = new ResultType();
+
+			Map<String, String> key = new HashMap<>();
 			JSONObject jsonResult = new JSONObject();
-			taxonId = request.getParameter("taxonId");
 
 			if (need.equals("0") || need.equals("specialtygenemapping")) {
-
-				solr.setCurrentInstance(SolrCore.SPECIALTY_GENE_MAPPING);
 
 				pk = request.getParameter("pk");
 				keyword = request.getParameter("keyword");
 				facet = request.getParameter("facet");
+				sort = request.getParameter("sort");
+				taxonId = request.getParameter("taxonId");
+				genomeId = request.getParameter("genomeId");
 
 				String highlight = request.getParameter("highlight");
 				hl = Boolean.parseBoolean(highlight);
@@ -222,12 +232,18 @@ public class AntibioticResistanceGeneSearch extends GenericPortlet {
 					key.put("facet", facet);
 					key.put("keyword", keyword);
 
-					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
+					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
 				}
 				else {
-					key = gson.fromJson(json, ResultType.class);
+					key = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
 					key.put("facet", facet);
-					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
+				}
+
+				if ((taxonId == null || taxonId.equals("")) && key.containsKey("taxonId") && !key.get("taxonId").equals("")) {
+					taxonId = key.get("taxonId");
+				}
+				if ((genomeId == null || genomeId.equals("")) && key.containsKey("genomeId") && !key.get("genomeId").equals("")) {
+					genomeId = key.get("genomeId");
 				}
 
 				String start_id = request.getParameter("start");
@@ -235,56 +251,42 @@ public class AntibioticResistanceGeneSearch extends GenericPortlet {
 				int start = Integer.parseInt(start_id);
 				int end = Integer.parseInt(limit);
 
-				Map<String, String> sort = null;
-				if (request.getParameter("sort") != null) {
-					// sorting
-					JSONArray sorter;
-					String sort_field = "";
-					String sort_dir = "";
-					try {
-						sorter = (JSONArray) jsonParser.parse(request.getParameter("sort"));
-						sort_field += ((JSONObject) sorter.get(0)).get("property").toString();
-						sort_dir += ((JSONObject) sorter.get(0)).get("direction").toString();
-						for (int i = 1; i < sorter.size(); i++) {
-							sort_field += "," + ((JSONObject) sorter.get(i)).get("property").toString();
-						}
-					}
-					catch (ParseException e) {
-						LOGGER.error(e.getMessage(), e);
-					}
-
-					sort = new HashMap<>();
-
-					if (!sort_field.equals("") && !sort_dir.equals("")) {
-						sort.put("field", sort_field);
-						sort.put("direction", sort_dir);
-					}
-				}
 				key.put("fields",
 						"genome_id,genome_name,taxon_id,feature_id,alt_locus_tag,refseq_locus_tag,gene,product,property,source,property_source,source_id,organism,function,classification,pmid,query_coverage,subject_coverage,identity,e_value,same_species,same_genus,same_genome,evidence");
+
 				// add join condition
 				if (taxonId != null && !taxonId.equals("")) {
-					key.put("taxonId", taxonId);
+					key.put("join", SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + taxonId));
 				}
-				if (key.containsKey("taxonId") && key.get("taxonId") != null) {
-					key.put("join", SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + key.get("taxonId")));
-				}
-
-				JSONObject object = solr.getData(key, sort, facet, start, end, facet != null, hl, false);
-
-				JSONObject obj = (JSONObject) object.get("response");
-				JSONArray obj1 = (JSONArray) obj.get("docs");
-
-				if (!key.containsKey("facets")) {
-					if (object.containsKey("facets")) {
-						JSONObject facets = (JSONObject) object.get("facets");
-						key.put("facets", facets.toJSONString());
-						SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
-					}
+				if (genomeId != null && !genomeId.equals("")) {
+					key.put("join", "genome_id:" + genomeId);
 				}
 
-				jsonResult.put("results", obj1);
-				jsonResult.put("total", obj.get("numFound"));
+				SolrInterface solr = new SolrInterface();
+				SolrQuery query = solr.buildSolrQuery(key, sort, facet, start, end, hl);
+
+				LOGGER.debug("query: {}", query.toString());
+				DataApiHandler dataApi = new DataApiHandler(request);
+				String apiResponse = dataApi.solrQuery(SolrCore.SPECIALTY_GENE_MAPPING, query);
+
+				Map<String, Object> resp = jsonReader.readValue(apiResponse);
+				Map<String, Object> respBody = (Map<String, Object>) resp.get("response");
+
+				int numFound = (Integer) respBody.get("numFound");
+				JSONArray docs = new JSONArray();
+				List<SpecialtyGene> records = dataApi.bindDocuments((List<Map>) respBody.get("docs"), SpecialtyGene.class);
+				for (SpecialtyGene item : records) {
+					docs.add(item.toJSONObject());
+				}
+
+				if (resp.containsKey("facet_counts")) {
+					JSONObject facets = solr.formatFacetTree((Map) resp.get("facet_counts"));
+					key.put("facets", facets.toJSONString());
+					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
+				}
+
+				jsonResult.put("results", docs);
+				jsonResult.put("total", numFound);
 
 				response.setContentType("application/json");
 				PrintWriter writer = response.getWriter();
@@ -294,10 +296,8 @@ public class AntibioticResistanceGeneSearch extends GenericPortlet {
 			}
 			else if (need.equals("tree")) {
 
-				solr.setCurrentInstance(SolrCore.SPECIALTY_GENE_MAPPING);
-
 				pk = request.getParameter("pk");
-				key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), ResultType.class);
+				key = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
 
 				if (key.containsKey("state")) {
 					state = key.get("state");
@@ -307,17 +307,17 @@ public class AntibioticResistanceGeneSearch extends GenericPortlet {
 				}
 
 				key.put("state", state);
-				SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
 
+				SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
+
+				JSONArray tree = new JSONArray();
 				try {
-					if (!key.containsKey("tree")) {
+					if (key.containsKey("facets") && !key.get("facets").isEmpty()) {
+
 						JSONObject facet_fields = (JSONObject) jsonParser.parse(key.get("facets"));
-						JSONArray arr1 = solr.processStateAndTree(key, need, facet_fields, key.get("facet"), state, key.get("join"), 10, false);
-						jsonResult.put("results", arr1);
-						key.put("tree", arr1);
-					}
-					else {
-						jsonResult.put("results", key.get("tree"));
+						SolrInterface solr = new SolrInterface();
+						solr.setCurrentInstance(SolrCore.SPECIALTY_GENE_MAPPING);
+						tree = solr.processStateAndTree(key, need, facet_fields, key.get("facet"), state, key.get("join"), 10, false);
 					}
 				}
 				catch (ParseException e) {
@@ -326,7 +326,7 @@ public class AntibioticResistanceGeneSearch extends GenericPortlet {
 
 				response.setContentType("application/json");
 				PrintWriter writer = response.getWriter();
-				writer.write(jsonResult.get("results").toString());
+				tree.writeJSONString(writer);
 				writer.close();
 			}
 		}

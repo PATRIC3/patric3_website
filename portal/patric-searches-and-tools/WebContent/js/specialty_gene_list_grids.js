@@ -240,7 +240,8 @@ function getExtraParams() {
 		keyword : constructKeyword((tree) ? tree.getSelectedTerms() : {}, name),
 		facet : JSON.stringify({
 			"facet" : configuration[name].display_facets.join(","),
-			"facet_text" : configuration[name].display_facets_texts.join(",")
+			"facet_text" : configuration[name].display_facets_texts.join(","),
+			'field_facets': configuration[name].field_facets.join(',')
 		})
 	};
 }
@@ -257,7 +258,8 @@ function CallBack() {
 			keyword : constructKeyword((tree != null) ? tree.getSelectedTerms() : {}, name),
 			facet : JSON.stringify({
 				"facet" : configuration[name].display_facets.join(","),
-				"facet_text" : configuration[name].display_facets_texts.join(",")
+				"facet_text" : configuration[name].display_facets_texts.join(","),
+				'field_facets': configuration[name].field_facets.join(',')
 			}),
 			state : JSON.stringify(tree.getState())
 		};

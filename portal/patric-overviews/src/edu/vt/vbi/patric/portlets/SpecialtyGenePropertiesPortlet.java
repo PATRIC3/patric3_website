@@ -17,27 +17,33 @@
  */
 package edu.vt.vbi.patric.portlets;
 
+import edu.vt.vbi.patric.beans.SpecialtyGene;
+import edu.vt.vbi.patric.common.DataApiHandler;
 import edu.vt.vbi.patric.common.SolrCore;
-import edu.vt.vbi.patric.common.SolrInterface;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectReader;
 import org.slf4j.LoggerFactory;
 
 import javax.portlet.*;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class SpecialtyGenePropertiesPortlet extends GenericPortlet {
 
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(SpecialtyGenePropertiesPortlet.class);
+
+	ObjectReader jsonReader;
+
+	@Override
+	public void init() throws PortletException {
+		super.init();
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		jsonReader = objectMapper.reader(Map.class);
+	}
 
 	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 
@@ -47,47 +53,21 @@ public class SpecialtyGenePropertiesPortlet extends GenericPortlet {
 
 		if (cType != null && cId != null && cType.equals("feature")) {
 
-			List<Map<String, Object>> listSpecialtyGenes = null;
+			DataApiHandler dataApi = new DataApiHandler(request);
 
-			try {
-				SolrInterface solr = new SolrInterface();
+			SolrQuery query = new SolrQuery("feature_id:" + cId);
+			query.setFields("evidence,property,source,source_id,organism,pmid,subject_coverage,query_coverage,identity,e_value");
+			query.addSort("evidence", SolrQuery.ORDER.desc);
+			query.addSort("property", SolrQuery.ORDER.asc);
+			query.addSort("source", SolrQuery.ORDER.asc);
 
-				SolrQuery query = new SolrQuery("feature_id:" + cId);
-				query.setFields("evidence,property,source,source_id,organism,pmid,subject_coverage,query_coverage,identity,e_value");
-				query.addSort("evidence", SolrQuery.ORDER.desc);
-				query.addSort("property", SolrQuery.ORDER.asc);
-				query.addSort("source", SolrQuery.ORDER.asc);
+			String apiResponse = dataApi.solrQuery(SolrCore.SPECIALTY_GENE_MAPPING, query);
+			Map<String, Object> resp = jsonReader.readValue(apiResponse);
+			Map<String, Object> respBody = (Map<String, Object>) resp.get("response");
 
-				QueryResponse qr = solr.getSolrServer(SolrCore.SPECIALTY_GENE_MAPPING).query(query);
-				SolrDocumentList sdl = qr.getResults();
+			List<SpecialtyGene> listSpecialtyGenes = dataApi.bindDocuments((List<Map>) respBody.get("docs"), SpecialtyGene.class);
 
-				if (sdl.getNumFound() > 0) {
-					listSpecialtyGenes = new ArrayList<>();
-				}
-
-				for (SolrDocument doc : sdl) {
-					Map<String, Object> gene = new HashMap<>();
-
-					gene.put("evidence", doc.get("evidence"));
-					gene.put("property", doc.get("property"));
-					gene.put("source", doc.get("source"));
-					gene.put("sourceId", doc.get("source_id"));
-					gene.put("organism", doc.get("organism"));
-					gene.put("pmid", doc.get("pmid"));
-					gene.put("subjectCoverage", doc.get("subject_coverage"));
-					gene.put("queryCoverage", doc.get("query_coverage"));
-					gene.put("identity", doc.get("identity"));
-					gene.put("eValue", doc.get("e_value"));
-
-					listSpecialtyGenes.add(gene);
-				}
-
-			}
-			catch (MalformedURLException | SolrServerException e) {
-				LOGGER.error(e.getMessage(), e);
-			}
-
-			if (listSpecialtyGenes != null) {
+			if (!listSpecialtyGenes.isEmpty()) {
 				request.setAttribute("listSpecialtyGenes", listSpecialtyGenes);
 
 				PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/overview/specialty_gene_properties.jsp");

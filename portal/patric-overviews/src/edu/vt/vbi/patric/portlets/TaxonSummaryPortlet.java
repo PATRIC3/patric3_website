@@ -17,6 +17,8 @@
  */
 package edu.vt.vbi.patric.portlets;
 
+import edu.vt.vbi.patric.beans.Taxonomy;
+import edu.vt.vbi.patric.common.DataApiHandler;
 import edu.vt.vbi.patric.common.SiteHelper;
 import edu.vt.vbi.patric.common.SolrCore;
 import edu.vt.vbi.patric.common.SolrInterface;
@@ -53,35 +55,26 @@ public class TaxonSummaryPortlet extends GenericPortlet {
 
 			List<Map<String, Object>> lineage = null;
 
-			SolrInterface solr = new SolrInterface();
+			DataApiHandler dataApi = new DataApiHandler(request);
 
-			try {
-				SolrQuery query = new SolrQuery("taxon_id:" + cId);
-				QueryResponse qr = solr.getSolrServer(SolrCore.TAXONOMY).query(query);
+			Taxonomy taxonomy = dataApi.getTaxonomy(Integer.parseInt(cId));
 
-				SolrDocumentList sdl = qr.getResults();
+			if (taxonomy != null) {
+				lineage = new ArrayList<>();
 
-				for (SolrDocument doc : sdl) {
-					lineage = new ArrayList<>();
+				List<Integer> txIds = taxonomy.getLineageIds();
+				List<String> txNames = taxonomy.getLineageNames();
+				List<String> txRanks = taxonomy.getLineageRanks();
 
-					List<Integer> txIds = (List<Integer>) doc.get("lineage_ids");
-					List<String> txNames = (List<String>) doc.get("lineage_names");
-					List<String> txRanks = (List<String>) doc.get("lineage_ranks");
+				for (Integer taxonId : txIds) {
+					int idx = txIds.indexOf(taxonId);
+					Map<String, Object> taxon = new HashMap<>();
+					taxon.put("taxonId", taxonId);
+					taxon.put("name", txNames.get(idx));
+					taxon.put("rank", txRanks.get(idx));
 
-					for (Integer taxonId : txIds) {
-						int idx = txIds.indexOf(taxonId);
-						Map<String, Object> taxon = new HashMap<>();
-						taxon.put("taxonId", taxonId);
-						taxon.put("name", txNames.get(idx));
-						taxon.put("rank", txRanks.get(idx));
-
-						lineage.add(taxon);
-					}
+					lineage.add(taxon);
 				}
-
-			}
-			catch (MalformedURLException | SolrServerException e) {
-				LOGGER.error(e.getMessage(), e);
 			}
 
 			request.setAttribute("lineage", lineage);

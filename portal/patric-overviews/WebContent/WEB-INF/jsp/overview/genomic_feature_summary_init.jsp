@@ -31,7 +31,7 @@ function showFullList() {
 	Ext.Ajax.request({
 		url: '<portlet:resourceURL />',
 		method: 'GET',
-		params: {cType:'<%=cType%>',cId:'<%=cId%>',view:'full'},
+		params: {context_type:'<%=cType%>',context_id:'<%=cId%>',view:'full'},
 		success: function(rs) {
 			Ext.getDom("gf_tbl").innerHTML = rs.responseText;
 		},

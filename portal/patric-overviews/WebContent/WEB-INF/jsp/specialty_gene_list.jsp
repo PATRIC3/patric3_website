@@ -1,7 +1,4 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" 
-%><%@ page import="java.util.*" 
-%><%@ page import="edu.vt.vbi.patric.dao.DBSearch"
-%><%@ page import="edu.vt.vbi.patric.dao.ResultType" 
 %><%
 	String cType = request.getParameter("context_type");
 	String cId = request.getParameter("context_id");
@@ -12,8 +9,6 @@
 	String pk = request.getParameter("param_key");
 	if (pk == null)
 		pk = "";
-
-	DBSearch db_search = new DBSearch();
 
 	String keyword = "(*)";
 	String gid = "NA";

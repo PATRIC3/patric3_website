@@ -1,13 +1,12 @@
 <%@ page import="java.util.*"
 %><%@ page import="edu.vt.vbi.patric.common.SiteHelper"
 %><%
+String contextType = (String) request.getAttribute("contextType");
+String contextId = (String) request.getAttribute("contextId");
 
-	String cType = request.getParameter("context_type");
-	String cId = request.getParameter("context_id");
+Map<String, Map<String, Integer>> summary = (Map<String, Map<String, Integer>>) request.getAttribute("summary");
 
-    Map<String, Map<String, Integer>> summary = (Map<String, Map<String, Integer>>) request.getAttribute("summary");
-
-    boolean alt = false;
+boolean alt = false;
 %>
 <table class="basic stripe far2x">
 <thead>
@@ -31,7 +30,7 @@
 	<tr <%=(alt)?"class=\"alt\"":"" %>>
 		<th scope="row"><%=property %></th>
 		<th scope="row" class="no-underline-links">
-		<% if (SiteHelper.getExternalLinks(source+"_HOME").equals("") == false) { %>
+		<% if (!SiteHelper.getExternalLinks(source + "_HOME").equals("")) { %>
 			<a class="arrow-slate-e" href="<%=SiteHelper.getExternalLinks(source+"_HOME") %>" target="_blank"><%=source %></a>
 		<% } else { %>
 			<%=source %>
@@ -39,7 +38,7 @@
 		</th>
 		<td class="right-align-text">
 		<% if (count != 0) { %>
-			<a href="SpecialtyGeneList?cType=<%=cType%>&amp;cId=<%=cId%>&kw=source:%22<%=source%>%22"><%=count%></a>
+			<a href="SpecialtyGeneList?cType=<%=contextType%>&amp;cId=<%=contextId%>&kw=source:%22<%=source%>%22"><%=count%></a>
 		<% } else { %>
 			0
 		<% } %>

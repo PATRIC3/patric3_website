@@ -29,6 +29,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.common.params.FacetParams;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.ObjectReader;
 import org.slf4j.Logger;
@@ -36,9 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.portlet.PortletRequest;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class DataApiHandler {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DataApiHandler.class);
@@ -48,6 +47,8 @@ public class DataApiHandler {
 	private String token;
 
 	private ObjectReader jsonParser;
+
+	private ObjectReader jsonListParser;
 
 	public DataApiHandler() {
 		this.token = null;
@@ -76,6 +77,7 @@ public class DataApiHandler {
 		baseUrl = System.getProperty("dataapi.url", "http://localhost:3001/");
 		ObjectMapper objectMapper = new ObjectMapper();
 		jsonParser = objectMapper.reader(Map.class);
+		jsonListParser = objectMapper.reader(List.class);
 	}
 
 	public String solrQuery(SolrCore core, SolrQuery query) {
@@ -198,7 +200,7 @@ public class DataApiHandler {
 		if (response != null) {
 			try {
 				Map<String, Object> resp = jsonParser.readValue(response);
-				feature = this.bindDocument((Map) resp.get("doc"), GenomeFeature.class);
+				feature = this.bindDocument(resp, GenomeFeature.class);
 			}
 			catch (IOException e) {
 				LOGGER.error(e.getMessage(), e);
@@ -215,7 +217,7 @@ public class DataApiHandler {
 		if (response != null) {
 			try {
 				Map<String, Object> resp = jsonParser.readValue(response);
-				taxonomy = this.bindDocument((Map) resp.get("doc"), Taxonomy.class);
+				taxonomy = this.bindDocument(resp, Taxonomy.class);
 			}
 			catch (IOException e) {
 				LOGGER.error(e.getMessage(), e);
@@ -233,7 +235,7 @@ public class DataApiHandler {
 		if (response != null) {
 			try {
 				Map<String, Object> resp = jsonParser.readValue(response);
-				genome = this.bindDocument((Map) resp.get("doc"), Genome.class);
+				genome = this.bindDocument(resp, Genome.class);
 			}
 			catch (IOException e) {
 				LOGGER.error(e.getMessage(), e);
@@ -256,7 +258,7 @@ public class DataApiHandler {
 		if (response != null) {
 			try {
 				Map<String, Object> resp = jsonParser.readValue(response);
-				genome = this.bindDocument((Map) resp.get("doc"), Genome.class);
+				genome = this.bindDocument(resp, Genome.class);
 			}
 			catch (IOException e) {
 				LOGGER.error(e.getMessage(), e);
@@ -279,7 +281,7 @@ public class DataApiHandler {
 		if (response != null) {
 			try {
 				Map<String, Object> resp = jsonParser.readValue(response);
-				GenomeFeature feature = this.bindDocument((Map) resp.get("doc"), GenomeFeature.class);
+				GenomeFeature feature = this.bindDocument(resp, GenomeFeature.class);
 
 				if (feature.getAnnotation().equals("PATRIC")) {
 					patricFeature = feature;
@@ -311,13 +313,15 @@ public class DataApiHandler {
 			patricFeature = feature;
 		}
 		else {
-			String response = this
-					.get(SolrCore.FEATURE.getSolrCoreName() + "/?eq(pos_group," + feature.getPosGroupInQuote() + ") AND feature_type:" + feature
-							.getFeatureType() + " AND annotation:PATRIC");
+			String query = "/?and(eq(pos_group," + feature.getPosGroupEncoded() + "),eq(feature_type," + feature.getFeatureType()
+					+ "),eq(annotation,PATRIC))";
+			String response = this.get(SolrCore.FEATURE.getSolrCoreName() + query);
 			if (response != null) {
 				try {
-					Map<String, Object> resp = jsonParser.readValue(response);
-					patricFeature = this.bindDocument((Map) resp.get("doc"), GenomeFeature.class);
+					List<Map> resp = jsonListParser.readValue(response);
+					if (!resp.isEmpty()) {
+						patricFeature = this.bindDocument(resp.get(0), GenomeFeature.class);
+					}
 				}
 				catch (IOException e) {
 					LOGGER.error(e.getMessage(), e);
@@ -326,5 +330,92 @@ public class DataApiHandler {
 		}
 
 		return patricFeature;
+	}
+
+	/**
+	 * wrapper function of field facet query
+	 *
+	 * @param core
+	 * @param queryParam
+	 * @param facetFields comma separated list of fields
+	 */
+	public Map getFieldFacets(SolrCore core, String queryParam, String filterParam, String facetFields) throws IOException {
+		Map res = new HashMap<>();
+		SolrQuery query = new SolrQuery();
+
+		query.setQuery(queryParam);
+		if (filterParam != null) {
+			query.addFilterQuery(filterParam);
+		}
+		query.setRows(0).setFacet(true).setFacetLimit(-1).setFacetMinCount(1).setFacetSort(FacetParams.FACET_SORT_COUNT);
+		query.addFacetField(facetFields);
+
+		List<String> fields = Arrays.asList(facetFields.split(","));
+
+		LOGGER.trace("{}", query.toString());
+		String response = this.solrQuery(core, query);
+		Map resp = jsonParser.readValue(response);
+		Map facet_fields = (Map) ((Map) resp.get("facet_counts")).get("facet_fields");
+
+		Map<String, Object> facets = new HashMap<>();
+		for (String field : fields) {
+			List values = (List) facet_fields.get(field);
+
+			Map<String, Integer> facetValues = new HashMap<>();
+
+			for (int i = 0; i < values.size(); i = i + 2) {
+				facetValues.put(values.get(i).toString(), (Integer) values.get(i + 1));
+			}
+
+			facets.put(field, facetValues);
+		}
+
+		res.put("total", ((Map) resp.get("response")).get("numFound"));
+		res.put("facets", facets);
+
+		return res;
+	}
+
+	/**
+	 * wrapper function of pivot facet query
+	 *
+	 * @param core
+	 * @param queryParam
+	 * @param facetFields comma separated list of fields
+	 */
+	public Map getPivotFacets(SolrCore core, String queryParam, String filterParam, String facetFields) throws IOException {
+		Map res = new HashMap<>();
+		SolrQuery query = new SolrQuery();
+
+		query.setQuery(queryParam);
+		if (filterParam != null) {
+			query.addFilterQuery(filterParam);
+		}
+		query.setRows(0).setFacet(true).setFacetLimit(-1).setFacetMinCount(1).setFacetSort(FacetParams.FACET_SORT_INDEX);
+		query.addFacetPivotField(facetFields);
+
+		LOGGER.trace("{}", query.toString());
+		String response = this.solrQuery(core, query);
+		Map<String, Object> resp = jsonParser.readValue(response);
+		Map facet_fields = (Map) ((Map) resp.get("facet_counts")).get("facet_pivot");
+		List<Map> values = (List<Map>) facet_fields.get(facetFields);
+
+		Map facet = new LinkedHashMap();
+
+		for (Map value : values) {
+			String localKey = value.get("value").toString();
+			List<Map> localValues = (List<Map>) value.get("pivot");
+
+			Map<String, Integer> pivotValues = new LinkedHashMap();
+			for (Map local : localValues) {
+				pivotValues.put(local.get("value").toString(), (Integer) local.get("count"));
+			}
+			facet.put(localKey, pivotValues);
+		}
+
+		res.put("total", ((Map) resp.get("response")).get("numFound"));
+		res.put(facetFields, facet);
+
+		return res;
 	}
 }

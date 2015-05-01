@@ -30,19 +30,19 @@ public class SiteHelper {
 
 	public static String getLinks(String target, String id) {
 		String link = "";
-		if (target.equals("taxon_overview")) {
+		switch (target) {
+		case "taxon_overview":
 			link = "<a href=\"Taxon?cType=taxon&amp;cId=" + id
 					+ "\"><img src=\"/patric/images/icon_taxon.gif\" alt=\"Taxonomy Overview\" title=\"Taxonomy Overview\" /></a>";
-		}
-		else if (target.equals("genome_list")) {
-			link = "<a href=\"GenomeList?cType=taxon&amp;cId="
-					+ id
+			break;
+		case "genome_list":
+			link = "<a href=\"GenomeList?cType=taxon&amp;cId=" + id
 					+ "&amp;dataSource=All&amp;displayMode=genome\"><img src=\"/patric/images/icon_sequence_list.gif\" alt=\"Genome List\" title=\"Genome List\" /></a>";
-		}
-		else if (target.equals("feature_table")) {
-			link = "<a href=\"FeatureTable?cType=taxon&amp;cId="
-					+ id
+			break;
+		case "feature_table":
+			link = "<a href=\"FeatureTable?cType=taxon&amp;cId=" + id
 					+ "&amp;featuretype=CDS&amp;annotation=All&amp;filtertype=\"><img src=\"/patric/images/icon_table.gif\" alt=\"Feature Table\" title=\"Feature Table\"/></a>";
+			break;
 		}
 		return link;
 	}
@@ -225,19 +225,19 @@ public class SiteHelper {
 	}
 
 	public static void setHtmlMetaElements(RenderRequest req, RenderResponse res, String context) {
-		StringBuffer sbTitle = new StringBuffer().append("PATRIC::");
-		StringBuffer sbKeyword = new StringBuffer();
+		StringBuilder sbTitle = new StringBuilder().append("PATRIC::");
+		StringBuilder sbKeyword = new StringBuilder();
 		String contextType = req.getParameter("context_type");
 		String contextId = req.getParameter("context_id");
 
 		if (contextType != null && contextId != null && !contextId.equals("")) {
 			// Get taxon/genome/feature info
-			SolrInterface solr = new SolrInterface();
+			DataApiHandler dataApi = new DataApiHandler(req);
 
 			switch (contextType) {
 			case "taxon":
 
-				Taxonomy taxonomy = solr.getTaxonomy(Integer.parseInt(contextId));
+				Taxonomy taxonomy = dataApi.getTaxonomy(Integer.parseInt(contextId));
 				if (taxonomy != null) {
 					sbTitle.append(taxonomy.getTaxonName()).append("::").append(context);
 					sbKeyword.append(context).append(", ").append(taxonomy.getTaxonName()).append(", PATRIC");
@@ -248,7 +248,7 @@ public class SiteHelper {
 				break;
 			case "genome":
 
-				Genome genome = solr.getGenome(contextId);
+				Genome genome = dataApi.getGenome(contextId);
 				if (genome != null) {
 					sbTitle.append(genome.getGenomeName()).append("::").append(context);
 					sbKeyword.append(context).append(", ").append(genome.getGenomeName()).append(", PATRIC");
@@ -256,7 +256,7 @@ public class SiteHelper {
 				break;
 			case "feature":
 
-				GenomeFeature feature = solr.getFeature(contextId);
+				GenomeFeature feature = dataApi.getFeature(contextId);
 				if (feature != null) {
 					if (feature.getSeedId() != null) {
 						sbTitle.append(feature.getSeedId()).append(":").append(feature.getProduct()).append("::").append(context);

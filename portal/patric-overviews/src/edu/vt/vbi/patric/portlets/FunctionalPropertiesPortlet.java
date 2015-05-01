@@ -19,23 +19,20 @@ package edu.vt.vbi.patric.portlets;
 
 import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.beans.GenomeFeature;
+import edu.vt.vbi.patric.common.DataApiHandler;
 import edu.vt.vbi.patric.common.SolrCore;
-import edu.vt.vbi.patric.common.SolrInterface;
 import edu.vt.vbi.patric.dao.DBShared;
 import edu.vt.vbi.patric.dao.DBSummary;
 import edu.vt.vbi.patric.dao.ResultType;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.portlet.*;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +40,16 @@ import java.util.Map;
 public class FunctionalPropertiesPortlet extends GenericPortlet {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(FeaturePropertiesPortlet.class);
+
+	ObjectReader jsonReader;
+
+	@Override
+	public void init() throws PortletException {
+		super.init();
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		jsonReader = objectMapper.reader(Map.class);
+	}
 
 	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 
@@ -57,10 +64,10 @@ public class FunctionalPropertiesPortlet extends GenericPortlet {
 
 		GenomeFeature feature = null;
 
-		SolrInterface solr = new SolrInterface();
+		DataApiHandler dataApi = new DataApiHandler(request);
 
 		if (cType != null && cId != null && cType.equals("feature")) {
-			feature = solr.getPATRICFeature(cId);
+			feature = dataApi.getPATRICFeature(cId);
 		}
 
 		if (feature != null) {
@@ -87,48 +94,30 @@ public class FunctionalPropertiesPortlet extends GenericPortlet {
 				}
 
 				// Structure Center related
-				List<Map<String, Object>> listStructure = null;
-				try {
-					SolrQuery query = new SolrQuery("gene_symbol_collection:\"PATRIC_ID:" + feature.getP2FeatureId() + "\"");
-					query.addField("target_id,target_status,has_clones,has_proteins,selection_criteria");
-					LOGGER.trace("structure center: {}", query.toString());
+				List<Map> listStructure = null;
 
-					QueryResponse qr = solr.getSolrServer(SolrCore.STRUCTURE).query(query);
-					SolrDocumentList sdl = qr.getResults();
+				SolrQuery query = new SolrQuery("gene_symbol_collection:\"PATRIC_ID:" + feature.getP2FeatureId() + "\"");
+				query.addField("target_id,target_status,has_clones,has_proteins,selection_criteria");
 
-					if (sdl.getNumFound() > 0) {
-						listStructure = new ArrayList<>();
+				String apiResponse = dataApi.solrQuery(SolrCore.STRUCTURE, query);
+
+				if (apiResponse != null && !apiResponse.equals("[]")) {
+					Map<String, Object> resp = jsonReader.readValue(apiResponse);
+					Map<String, Object> respBody = (Map<String, Object>) resp.get("response");
+
+					List<Map> docs = (List) respBody.get("docs");
+
+					if (!docs.isEmpty()) {
+						listStructure = docs;
 					}
-
-					for (SolrDocument doc : sdl) {
-						LOGGER.trace("{}", doc.getFieldValueMap());
-						listStructure.add(doc.getFieldValueMap());
-					}
-
-				}
-				catch (MalformedURLException | SolrServerException e) {
-					LOGGER.error(e.getMessage(), e);
 				}
 
 				// taxonomy genus name
 				String genusName = null;
-				try {
-					String genomeId = feature.getGenomeId();
-
-					SolrQuery query = new SolrQuery("genome_id:" + genomeId);
-					QueryResponse qr = solr.getSolrServer(SolrCore.GENOME).query(query);
-
-					List<Genome> listGenome = qr.getBeans(Genome.class);
-
-					for (Genome genome : listGenome) {
-						genusName = genome.getGenus();
-					}
-
+				Genome genome = dataApi.getGenome(feature.getGenomeId());
+				if (genome != null) {
+					genusName = genome.getGenus();
 				}
-				catch (MalformedURLException | SolrServerException e) {
-					LOGGER.error(e.getMessage(), e);
-				}
-				// //
 
 				request.setAttribute("feature", feature);
 				request.setAttribute("uniprotkbAccession", uniprotkbAccession);
@@ -136,7 +125,7 @@ public class FunctionalPropertiesPortlet extends GenericPortlet {
 				request.setAttribute("listStructure", listStructure);
 				request.setAttribute("genusName", genusName);
 
-				prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/funtional_properties/protein.jsp");
+				prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/functional_properties/protein.jsp");
 				prd.include(request, response);
 			}
 			else if (feature.getFeatureType().contains("RNA")) {
@@ -156,13 +145,13 @@ public class FunctionalPropertiesPortlet extends GenericPortlet {
 				}
 
 				request.setAttribute("rna", rnaInfo);
-				prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/funtional_properties/rna.jsp");
+				prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/functional_properties/rna.jsp");
 				prd.include(request, response);
 			}
 			else if (feature.getFeatureType().equals("misc_feature")) {
 				String comment = conn_shared.getNaFeatureComment("" + feature.getP2FeatureId());
 				request.setAttribute("comment", comment);
-				prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/funtional_properties/misc_feature.jsp");
+				prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/functional_properties/misc_feature.jsp");
 				prd.include(request, response);
 			}
 			else {

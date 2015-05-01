@@ -28,8 +28,11 @@ if (cType.equals("genome")) {
 <%
 } else if (cType.equals("taxon")) {
 
-	Map<String, Long> patric_counts = (Map<String, Long>) request.getAttribute("PATRIC");
-	Map<String, Long> refseq_counts = (Map<String, Long>) request.getAttribute("RefSeq");
+	Map patric_counts = (Map) request.getAttribute("PATRIC");
+	Map refseq_counts = (Map) request.getAttribute("RefSeq");
+
+	Map patric_status = (Map) ((Map) patric_counts.get("facets")).get("genome_status");
+	Map refseq_status = (Map) ((Map) refseq_counts.get("facets")).get("genome_status");
 	%>
 	<table class="basic stripe far2x">
 	<thead>
@@ -43,52 +46,52 @@ if (cType.equals("genome")) {
 	<tr class="alt">
 		<th scope="row">Number of genomes</th>
 		<td class="right-align-text">
-			<% if (patric_counts != null && patric_counts.containsKey("Total") && patric_counts.get("Total") > 0) { %>
-			<a href="GenomeList?cType=taxon&cId=<%=cId%>&displayMode=&dataSource=PATRIC&pk="><%=patric_counts.get("Total") %></a>
+			<% if (patric_counts != null && patric_counts.containsKey("total") && (Integer) patric_counts.get("total") > 0) { %>
+			<a href="GenomeList?cType=taxon&cId=<%=cId%>&displayMode=&dataSource=PATRIC&pk="><%=patric_counts.get("total") %></a>
 			<% } else { %> 0 <% } %>
 		</td>
 		<td class="right-align-text last">
-			<% if (refseq_counts != null && refseq_counts.containsKey("Total") && refseq_counts.get("Total") > 0) { %>
-				<a href="GenomeList?cType=taxon&cId=<%=cId%>&displayMode=&dataSource=RefSeq&pk="><%=refseq_counts.get("Total") %></a>
+			<% if (refseq_counts != null && refseq_counts.containsKey("total") && (Integer) refseq_counts.get("total") > 0) { %>
+				<a href="GenomeList?cType=taxon&cId=<%=cId%>&displayMode=&dataSource=RefSeq&pk="><%=refseq_counts.get("total") %></a>
 			<% } else { %> 0 <% } %>
 		</td>
 	</tr>
 	<tr>
 		<th scope="row">Number of Complete genomes</th>
 		<td class="right-align-text">
-			<% if (patric_counts != null && patric_counts.containsKey("Complete") && patric_counts.get("Complete") > 0) { %>
-				<a href="GenomeList?cType=taxon&cId=<%=cId%>&displayMode=Complete&dataSource=PATRIC&pk="><%=patric_counts.get("Complete") %></a>
+			<% if (patric_status != null && patric_status.containsKey("Complete") && (Integer) patric_status.get("Complete") > 0) { %>
+				<a href="GenomeList?cType=taxon&cId=<%=cId%>&displayMode=Complete&dataSource=PATRIC&pk="><%=patric_status.get("Complete") %></a>
 			<% } else { %> 0 <% } %>
 		</td>
 		<td class="right-align-text last">
-			<% if (refseq_counts != null && refseq_counts.containsKey("Complete") && refseq_counts.get("Complete") > 0) { %>
-				<a href="GenomeList?cType=taxon&cId=<%=cId%>&displayMode=Complete&dataSource=RefSeq&pk="><%=refseq_counts.get("Complete") %></a>
+			<% if (refseq_status != null && refseq_status.containsKey("Complete") && (Integer) refseq_status.get("Complete") > 0) { %>
+				<a href="GenomeList?cType=taxon&cId=<%=cId%>&displayMode=Complete&dataSource=RefSeq&pk="><%=refseq_status.get("Complete") %></a>
 			<% } else { %> 0 <% } %>
 		</td>
 	</tr>
 	<tr class="alt">
 		<th scope="row">Number of WGS genomes</th>
 		<td class="right-align-text">
-			<% if (patric_counts != null && patric_counts.containsKey("WGS") && patric_counts.get("WGS") > 0) { %>
-				<a href="GenomeList?cType=taxon&cId=<%=cId%>&displayMode=WGS&dataSource=PATRIC&pk="><%=patric_counts.get("WGS") %></a>
+			<% if (patric_status != null && patric_status.containsKey("WGS") && (Integer) patric_status.get("WGS") > 0) { %>
+				<a href="GenomeList?cType=taxon&cId=<%=cId%>&displayMode=WGS&dataSource=PATRIC&pk="><%=patric_status.get("WGS") %></a>
 			<% } else { %> 0 <% } %>
 		</td>
 		<td class="right-align-text last">
-			<% if (refseq_counts != null && refseq_counts.containsKey("WGS") && refseq_counts.get("WGS") > 0) { %>
-			<a href="GenomeList?cType=taxon&cId=<%=cId%>&displayMode=WGS&dataSource=RefSeq&pk="><%=refseq_counts.get("WGS") %></a>
+			<% if (refseq_status != null && refseq_status.containsKey("WGS") && (Integer) refseq_status.get("WGS") > 0) { %>
+			<a href="GenomeList?cType=taxon&cId=<%=cId%>&displayMode=WGS&dataSource=RefSeq&pk="><%=refseq_status.get("WGS") %></a>
 			<% } else { %> 0 <% } %>
 		</td>
 	</tr>
 	<tr>
 		<th scope="row">Number of Plasmid only genomes</th>
 		<td class="right-align-text">
-			<% if (patric_counts != null && patric_counts.containsKey("Plasmid") && patric_counts.get("Plasmid") > 0) { %>
-				<a href="GenomeList?cType=taxon&cId=<%=cId%>&displayMode=Plasmid&dataSource=PATRIC&pk="><%=patric_counts.get("Plasmid") %></a>
+			<% if (patric_status != null && patric_status.containsKey("Plasmid") && (Integer) patric_status.get("Plasmid") > 0) { %>
+				<a href="GenomeList?cType=taxon&cId=<%=cId%>&displayMode=Plasmid&dataSource=PATRIC&pk="><%=patric_status.get("Plasmid") %></a>
 			<% } else { %> 0 <% } %>
 		</td>
 		<td class="right-align-text last">
-			<% if (refseq_counts != null && refseq_counts.containsKey("Plasmid") && refseq_counts.get("Plasmid") > 0) { %>
-				<a href="GenomeList?cType=taxon&cId=<%=cId%>&displayMode=Plasmid&dataSource=RefSeq&pk="><%=refseq_counts.get("Plasmid") %></a>
+			<% if (refseq_status != null && refseq_status.containsKey("Plasmid") && (Integer) refseq_status.get("Plasmid") > 0) { %>
+				<a href="GenomeList?cType=taxon&cId=<%=cId%>&displayMode=Plasmid&dataSource=RefSeq&pk="><%=refseq_status.get("Plasmid") %></a>
 			<% } else { %> 0 <% } %>
 		</td>
 	</tr>

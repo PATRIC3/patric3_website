@@ -102,6 +102,7 @@ function CallBack() {
 
 	Ext.getDom("grid_result_summary").innerHTML = '<b>' + Page.getStore(which).getTotalCount() + ' features found</b>';
 
+/* facet is not used for feature finder
 	if (tree == null)
 		createTree(518);
 	else {
@@ -117,7 +118,7 @@ function CallBack() {
 		};
 
 		treeDS.load();
-	}
+	}*/
 }
 
 function renderECNumber(value, metadata, record, rowIndex, colIndex, store) {
