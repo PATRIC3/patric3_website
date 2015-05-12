@@ -18,7 +18,7 @@
 package edu.vt.vbi.patric.portlets;
 
 import edu.vt.vbi.patric.beans.Genome;
-import edu.vt.vbi.patric.common.SolrInterface;
+import edu.vt.vbi.patric.common.DataApiHandler;
 import edu.vt.vbi.patric.mashup.PSICQUICInterface;
 import org.json.simple.JSONObject;
 
@@ -68,14 +68,14 @@ public class IntActPortlet extends GenericPortlet {
 		String contextType = request.getParameter("cType");
 		String contextId = request.getParameter("cId");
 
-		SolrInterface solr = new SolrInterface();
 		String species_name = "";
 
 		if (contextType.equals("taxon")) {
 			species_name = "species:" + contextId;
 		}
 		else if (contextType.equals("genome")) {
-			Genome genome = solr.getGenome(contextId);
+			DataApiHandler dataApi = new DataApiHandler(request);
+			Genome genome = dataApi.getGenome(contextId);
 			species_name = "species:" + genome.getTaxonId();
 		}
 

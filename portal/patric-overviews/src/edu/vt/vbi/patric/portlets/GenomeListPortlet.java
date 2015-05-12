@@ -32,6 +32,45 @@ public class GenomeListPortlet extends GenericPortlet {
 		SiteHelper.setHtmlMetaElements(request, response, "Genome List");
 		response.setTitle("Genome List");
 
+		String contextType = request.getParameter("context_type");
+		String contextId = request.getParameter("context_id");
+		String algorithm = request.getParameter("data_source");
+		String status = request.getParameter("display_mode");
+		String kw = (request.getParameter("keyword") != null)?request.getParameter("keyword"):"";
+		if(kw != null && (kw.startsWith("/") || kw.startsWith("#"))){
+			kw = "";
+		}
+		String pk = request.getParameter("param_key");
+		if (pk == null)
+			pk = "";
+		if (status == null)
+			status = "";
+		if (algorithm == null)
+			algorithm = "";
+
+		String keyword = "(*)";
+		String genomeId = "NA";
+		String taxonId = "";
+
+		if (contextType.equals("taxon")) {
+			genomeId = "";
+			taxonId = contextId;
+		}
+		else if (contextType.equals("genome")) {
+			genomeId = contextId;
+		}
+
+		request.setAttribute("contextType", contextType);
+		request.setAttribute("contextId", contextId);
+		request.setAttribute("taxonId", taxonId);
+		request.setAttribute("genomeId", genomeId);
+
+		request.setAttribute("status", status);
+		request.setAttribute("algorithm", algorithm);
+		request.setAttribute("keyword", keyword);
+		request.setAttribute("pk", pk);
+		request.setAttribute("kw", kw);
+
 		PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/genome_list.jsp");
 		prd.include(request, response);
 	}

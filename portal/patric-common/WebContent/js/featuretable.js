@@ -73,13 +73,14 @@ function createLoadComboBoxes() {
 
 function FillComboBoxes(data) {
 
-	var d = {}, ds = [];
+	var d = {}, ds;
 	for (var i in data) {
 		ds = [];
-		for (var j = 0; j < data[i].attributes.length; j++) {
+		var keys = Object.keys(data[i]);
+		for (var j = 0; j < keys.length; j++) {
 			d = {};
-			d["name"] = data[i].attributes[j].value == "BRC" ? "Legacy BRC" : data[i].attributes[j].value;
-			d["value"] = data[i].attributes[j].value;
+			d["name"] = keys[j];
+			d["value"] = keys[j];
 			ds.push(d);
 		}
 
@@ -91,7 +92,6 @@ function FillComboBoxes(data) {
 
 		Ext.getCmp("cb_" + i).getStore().loadData(ds);
 	}
-
 }
 
 function sortRowsData(value) {
@@ -110,7 +110,6 @@ function filterFeatureTable() {
 	var Page = $Page, property = Page.getPageProperties(), hash = property.hash;
 
 	hash.aP[0] = 1, hash.fT = Ext.getCmp("cb_feature_type").getValue(), hash.alg = Ext.getCmp("cb_annotation").getValue(), hash.kW = Ext.getCmp("tb_keyword").getValue(),
-	//hash.key = Math.floor(Math.random()*1001);
 	hash.key = +Date.now();
 	property.reconfigure = true;
 
@@ -136,21 +135,6 @@ function loadFBCD() {
 	} else {
 		setInputs();
 	}
-
-//	for (var i = 1; i < scm[which].length; i++) {
-//		scm[which][i]["hidden"] = scm[which][i]["orig_hidden_value"];
-//		if (hiddenCols.indexOf(scm[which][i]["dataIndex"]) >= 0) {
-//			scm[which][i]["hidden"] = true;
-//		}
-//	}
-//
-//	for (var i = 1; i < scm[which].length; i++) {
-//		if (scm[which][i]["dataIndex"] == "annotation") {
-//			scm[which][i]["hidden"] = (hash.alg != "ALL");
-//		} else if (scm[which][i]["dataIndex"] == "feature_type") {
-//			scm[which][i]["hidden"] = (hash.fT != "ALL");
-//		}
-//	}
 
 	loadGrid();
 }
@@ -189,7 +173,7 @@ function getExtraParams() {
 	else
 		object["Keyword"] = !object["Keyword"] ? "!product:(hypothetical AND protein)" : object["Keyword"] + " AND !product:(hypothetical AND protein)";
 
-	Ext.getDom("download_keyword").value = constructKeyword(object, property.name);
+	//Ext.getDom("download_keyword").value = constructKeyword(object, property.name);
 
 	return {
 		pk : hash.key,

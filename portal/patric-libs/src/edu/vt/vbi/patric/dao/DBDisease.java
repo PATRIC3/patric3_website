@@ -17,6 +17,8 @@ package edu.vt.vbi.patric.dao;
 
 import java.util.*;
 
+import edu.vt.vbi.patric.beans.Taxonomy;
+import edu.vt.vbi.patric.common.DataApiHandler;
 import org.hibernate.Hibernate;
 import org.hibernate.ScrollableResults;
 import org.hibernate.SessionFactory;
@@ -61,11 +63,12 @@ public class DBDisease {
 		List<?> rset = q.list();
 		session.getTransaction().commit();
 
-		Object[] obj = null;
+		DataApiHandler dataApi = new DataApiHandler();
 
 		List<ResultType> results = new ArrayList<>();
-		for (Iterator<?> it = rset.iterator(); it.hasNext();) {
-			obj = (Object[]) it.next();
+		for (Object aRset : rset) {
+			Object[] obj = (Object[]) aRset;
+
 			ResultType row = new ResultType();
 			row.put("disease_name", obj[0]);
 			row.put("disease_id", obj[1]);
@@ -79,14 +82,9 @@ public class DBDisease {
 			row.put("ctd", obj[9]);
 
 			// for genome count
-			DBSummary conn_summary = new DBSummary();
-			Map<String,String> key = new HashMap<>();
-			key.put("ncbi_taxon_id", obj[3].toString());
-			key.put("data_source", "PATRIC");
-			ResultType genome_count = conn_summary.getGenomeCount(key);
-	
-			row.put("genome", genome_count.get("cnt_all"));
-			
+			Taxonomy taxonomy = dataApi.getTaxonomy(Integer.parseInt(obj[3].toString()));
+			row.put("genome", taxonomy.getGenomeCount());
+
 			results.add(row);
 		}
 		return results;
@@ -94,7 +92,7 @@ public class DBDisease {
 
 	public SQLQuery bindGraphGADSQLValues(SQLQuery q, Map<String, String> key) {
 
-		if (key.containsKey("name") && key.get("name") != null && key.get("name").equals("") == false) {
+		if (key.containsKey("name") && key.get("name") != null && !key.get("name").equals("")) {
 			q.setString("name", key.get("name").toLowerCase());
 		}
 
@@ -103,7 +101,7 @@ public class DBDisease {
 
 	public SQLQuery bindGraphCTDSQLValues(SQLQuery q, Map<String, String> key) {
 
-		if (key.containsKey("name") && key.get("name") != null && key.get("name").equals("") == false) {
+		if (key.containsKey("name") && key.get("name") != null && !key.get("name").equals("")) {
 			q.setString("name", key.get("name"));
 		}
 
@@ -112,7 +110,7 @@ public class DBDisease {
 
 	public SQLQuery bindSQLValues(SQLQuery q, Map<String, String> key) {
 
-		if (key.containsKey("name") && key.get("name") != null && key.get("name").equals("") == false) {
+		if (key.containsKey("name") && key.get("name") != null && !key.get("name").equals("")) {
 				q.setString("name", key.get("name").toLowerCase() + "%");
 		}
 
@@ -145,7 +143,7 @@ public class DBDisease {
 
 			String id = key.get("cId");
 
-			if (!id.equals("") && id != null) {
+			if (!id.equals("")) {
 
 				sql += " AND b.ncbi_tax_id in (select ncbi_tax_id " + "	from sres.taxon " + "	connect by prior taxon_id = parent_id "
 						+ "	start with ncbi_tax_id = :id )";
@@ -218,7 +216,7 @@ public class DBDisease {
 
 			String cId = (String) key.get("cId");
 
-			if (!cId.equals("") && cId != null) {
+			if (!cId.equals("")) {
 
 				q.setString("id", cId);
 
@@ -229,7 +227,7 @@ public class DBDisease {
 
 			String vfgId = (String) key.get("vfgId");
 
-			if (!vfgId.equals("") && vfgId != null) {
+			if (!vfgId.equals("")) {
 
 				q.setString("vfgId", vfgId);
 
@@ -242,7 +240,7 @@ public class DBDisease {
 	public SQLQuery bindVFDBFeatureSQLValues(SQLQuery q, Map<String, String> key) {
 
 		if (key.containsKey("vfgId")) {
-			String vfgId = (String) key.get("vfgId");
+			String vfgId = key.get("vfgId");
 			if (vfgId != null && !vfgId.equals("")) {
 				q.setString("vfgId", vfgId);
 			}
@@ -352,7 +350,6 @@ public class DBDisease {
 
 		ScrollableResults scr = q.scroll();
 		List<ResultType> results = new ArrayList<>();
-		Object[] obj = null;
 
 		if (start > 1) {
 			scr.setRowNumber(start - 1);
@@ -361,9 +358,9 @@ public class DBDisease {
 			scr.beforeFirst();
 		}
 
-		for (int i = start; (end > 0 && i < end && scr.next() == true) || (end == -1 && scr.next() == true); i++) {
+		for (int i = start; (end > 0 && i < end && scr.next()) || (end == -1 && scr.next()); i++) {
 
-			obj = scr.get();
+			Object[] obj = scr.get();
 			ResultType row = new ResultType();
 			row.put("vfg_id", obj[0]);
 			row.put("gene_name", obj[1]);
@@ -409,8 +406,7 @@ public class DBDisease {
 		}
 
 		ScrollableResults scr = q.scroll();
-		List<ResultType> results = new ArrayList<ResultType>();
-		Object[] obj = null;
+		List<ResultType> results = new ArrayList<>();
 
 		if (start > 1) {
 			scr.setRowNumber(start - 1);
@@ -419,8 +415,8 @@ public class DBDisease {
 			scr.beforeFirst();
 		}
 
-		for (int i = start; (end > 0 && i < end && scr.next() == true) || (end == -1 && scr.next() == true); i++) {
-			obj = scr.get();
+		for (int i = start; (end > 0 && i < end && scr.next()) || (end == -1 && scr.next()); i++) {
+			Object[] obj = scr.get();
 			ResultType row = new ResultType();
 			row.put("vf_id", obj[0]);
 			row.put("vf_name", obj[1]);
@@ -455,7 +451,7 @@ public class DBDisease {
 
 			String cId = key.get("cId");
 
-			if (!cId.equals("") && cId != null) {
+			if (!cId.equals("")) {
 
 				sql += "AND b.ncbi_tax_id in ( select ncbi_tax_id from sres.taxon  connect by "
 						+ "	prior taxon_id = parent_id  start with ncbi_tax_id = " + cId + ")";
@@ -467,7 +463,7 @@ public class DBDisease {
 
 			String vfgId = key.get("vfgId");
 
-			if (!vfgId.equals("") && vfgId != null) {
+			if (!vfgId.equals("")) {
 
 				sql += " AND vfg_id in (" + vfgId + ")";
 
@@ -484,8 +480,7 @@ public class DBDisease {
 			}
 		}
 
-		List<ResultType> results = new ArrayList<ResultType>();
-		Object obj = null;
+		List<ResultType> results = new ArrayList<>();
 
 		Session session = factory.getCurrentSession();
 		session.beginTransaction();
@@ -493,9 +488,7 @@ public class DBDisease {
 		List<?> rset = sqlQuery.list();
 		session.getTransaction().commit();
 
-		for (Iterator<?> iter = rset.iterator(); iter.hasNext();) {
-			obj = iter.next();
-			// HashMap<String,Object> row = new HashMap<String,Object>();
+		for (Object obj : rset) {
 			ResultType row = new ResultType();
 			row.put("genes", obj);
 
@@ -534,7 +527,7 @@ public class DBDisease {
 
 				String name = key.get("name");
 
-				if (!name.equals("") && name != null) {
+				if (!name.equals("")) {
 
 					sql += " start with lower(disease_name) like lower(:name)" + " connect by prior tree_node=parent_node) c ";
 
@@ -552,7 +545,7 @@ public class DBDisease {
 
 				String name = key.get("name");
 
-				if (!name.equals("") && name != null) {
+				if (!name.equals("")) {
 
 					sql += " where cs.disease_id = :name";
 
@@ -663,8 +656,7 @@ public class DBDisease {
 		}
 
 		ScrollableResults scr = q.scroll();
-		List<ResultType> results = new ArrayList<ResultType>();
-		Object[] obj = null;
+		List<ResultType> results = new ArrayList<>();
 
 		if (start > 1) {
 			scr.setRowNumber(start - 1);
@@ -673,9 +665,9 @@ public class DBDisease {
 			scr.beforeFirst();
 		}
 
-		for (int i = start; (end > 0 && i < end && scr.next() == true) || (end == -1 && scr.next() == true); i++) {
+		for (int i = start; (end > 0 && i < end && scr.next()) || (end == -1 && scr.next()); i++) {
 
-			obj = scr.get();
+			Object[] obj = scr.get();
 			ResultType row = new ResultType();
 			row.put("gene_sym", obj[0]);
 			row.put("gene_id", obj[1]);
@@ -720,8 +712,7 @@ public class DBDisease {
 		}
 
 		ScrollableResults scr = q.scroll();
-		List<ResultType> results = new ArrayList<ResultType>();
-		Object[] obj = null;
+		List<ResultType> results = new ArrayList<>();
 
 		if (start > 1) {
 			scr.setRowNumber(start - 1);
@@ -730,9 +721,9 @@ public class DBDisease {
 			scr.beforeFirst();
 		}
 
-		for (int i = start; (end > 0 && i < end && scr.next() == true) || (end == -1 && scr.next() == true); i++) {
+		for (int i = start; (end > 0 && i < end && scr.next()) || (end == -1 && scr.next()); i++) {
 
-			obj = scr.get();
+			Object[] obj = scr.get();
 			ResultType row = new ResultType();
 			row.put("gene_sym", obj[0]);
 			row.put("gene_id", obj[1]);
@@ -907,8 +898,7 @@ public class DBDisease {
 		}
 
 		ScrollableResults scr = q.scroll();
-		List<ResultType> results = new ArrayList<ResultType>();
-		Object[] obj = null;
+		List<ResultType> results = new ArrayList<>();
 
 		if (start > 1) {
 			scr.setRowNumber(start - 1);
@@ -917,9 +907,9 @@ public class DBDisease {
 			scr.beforeFirst();
 		}
 
-		for (int i = start; (end > 0 && i < end && scr.next() == true) || (end == -1 && scr.next() == true); i++) {
+		for (int i = start; (end > 0 && i < end && scr.next()) || (end == -1 && scr.next()); i++) {
 
-			obj = scr.get();
+			Object[] obj = scr.get();
 			ResultType row = new ResultType();
 			row.put("gene_sym", obj[0]);
 			row.put("gene_id", obj[1]);
@@ -964,8 +954,7 @@ public class DBDisease {
 		}
 
 		ScrollableResults scr = q.scroll();
-		List<ResultType> results = new ArrayList<ResultType>();
-		Object[] obj = null;
+		List<ResultType> results = new ArrayList<>();
 
 		if (start > 1) {
 			scr.setRowNumber(start - 1);
@@ -974,9 +963,9 @@ public class DBDisease {
 			scr.beforeFirst();
 		}
 
-		for (int i = start; (end > 0 && i < end && scr.next() == true) || (end == -1 && scr.next() == true); i++) {
+		for (int i = start; (end > 0 && i < end && scr.next()) || (end == -1 && scr.next()); i++) {
 
-			obj = scr.get();
+			Object[]  obj = scr.get();
 			ResultType row = new ResultType();
 			row.put("gene_sym", obj[0]);
 			row.put("gene_id", obj[1]);
@@ -997,9 +986,7 @@ public class DBDisease {
 
 	public List<ResultType> getMeshTermGraphData(String ncbi_taxon_id) {
 
-		String sql = "";
-
-		sql = "select distinct t.ncbi_tax_id taxon_id, replace(replace(tn.name, '['), ']') organism_name, t.rank organism_rank"
+		String sql = "select distinct t.ncbi_tax_id taxon_id, replace(replace(tn.name, '['), ']') organism_name, t.rank organism_rank"
 				+ "	from sres.taxon t, sres.taxonname tn" + "	where t.taxon_id = tn.taxon_id" + "	and t.ncbi_tax_id = ? "
 				+ "	and tn.name_class = 'scientific name'";
 
@@ -1010,11 +997,9 @@ public class DBDisease {
 		List<?> rset = q.list();
 		session.getTransaction().commit();
 
-		Object[] obj = null;
-
-		List<ResultType> results = new ArrayList<ResultType>();
-		for (Iterator<?> it = rset.iterator(); it.hasNext();) {
-			obj = (Object[]) it.next();
+		List<ResultType> results = new ArrayList<>();
+		for (Object aRset1 : rset) {
+			Object[] obj = (Object[]) aRset1;
 			ResultType row = new ResultType();
 			row.put("taxon_id", obj[0]);
 			row.put("organism_name", obj[1]);
@@ -1047,8 +1032,8 @@ public class DBDisease {
 		rset = q.list();
 		session.getTransaction().commit();
 
-		for (Iterator<?> it = rset.iterator(); it.hasNext();) {
-			obj = (Object[]) it.next();
+		for (Object aRset : rset) {
+			Object[]  obj = (Object[]) aRset;
 			ResultType row = new ResultType();
 			row.put("taxon_id", obj[0]);
 			row.put("organism_name", obj[1]);
@@ -1082,15 +1067,13 @@ public class DBDisease {
 		session.beginTransaction();
 		SQLQuery q = session.createSQLQuery(sql);
 		q.setString(0, ncbi_taxon_id);
-		List<?> rset = q.list();
+		List rset = q.list();
 		session.getTransaction().commit();
 
-		Object[] obj = null;
+		List<ResultType> results = new ArrayList<>();
 
-		List<ResultType> results = new ArrayList<ResultType>();
-
-		for (Iterator<?> it = rset.iterator(); it.hasNext();) {
-			obj = (Object[]) it.next();
+		for (Object aRset1 : rset) {
+			Object[] obj = (Object[]) aRset1;
 			ResultType row = new ResultType();
 			row.put("gene_sym", obj[0]);
 			row.put("gene_name", obj[1]);
@@ -1114,8 +1097,8 @@ public class DBDisease {
 		rset = q.list();
 		session.getTransaction().commit();
 
-		for (Iterator<?> it = rset.iterator(); it.hasNext();) {
-			obj = (Object[]) it.next();
+		for (Object aRset : rset) {
+			Object[] obj = (Object[]) aRset;
 			ResultType row = new ResultType();
 			row.put("gene_sym", obj[0]);
 			row.put("gene_name", obj[1]);
@@ -1148,15 +1131,13 @@ public class DBDisease {
 		session.beginTransaction();
 		SQLQuery q = session.createSQLQuery(sql);
 		q.setString(0, ncbi_taxon_id);
-		List<?> rset = q.list();
+		List rset = q.list();
 		session.getTransaction().commit();
 
-		Object[] obj = null;
+		List<ResultType> results = new ArrayList<>();
 
-		List<ResultType> results = new ArrayList<ResultType>();
-
-		for (Iterator<?> it = rset.iterator(); it.hasNext();) {
-			obj = (Object[]) it.next();
+		for (Object aRset : rset) {
+			Object[] obj = (Object[]) aRset;
 			ResultType row = new ResultType();
 			row.put("ncbi_tax_id", obj[0]);
 			row.put("rank", obj[1]);
@@ -1175,59 +1156,4 @@ public class DBDisease {
 
 		return results;
 	}
-
-	public List<ResultType> getGenusInTaxonomy(String tid) {
-
-		String sql = "select lng.ncbi_tax_id, lng.name, cls.rank, cls.node_level " + "	from ( "
-				+ "		select a.taxon_id, a.ncbi_tax_id, b.name, a.parent_id " + "		from sres.taxon a, sres.taxonname b "
-				+ "		where a.taxon_id = b.taxon_id and b.name_class = 'scientific name' " + "	) lng, cas.ncbiclassification cls "
-				+ "	where lng.ncbi_tax_id = cls.ncbi_taxon_id " + "		and cls.rank = 'genus' "
-				+ "		and cls.ncbi_taxon_id in (1386,773,138,234,32008,194,83553,1485,776,943,561,262,209,1637,1763,780,590,620,1279,1301,662,629) "
-				+ "	connect by prior parent_id = taxon_id " + "	start with ncbi_tax_id = ?";
-
-		Session session = factory.getCurrentSession();
-		session.beginTransaction();
-		SQLQuery q = session.createSQLQuery(sql);
-		q.setString(0, tid);
-
-		q.addScalar("ncbi_tax_id", Hibernate.INTEGER).addScalar("name", Hibernate.STRING).addScalar("rank", Hibernate.STRING);
-		q.addScalar("node_level", Hibernate.INTEGER);
-		q.setCacheable(true);
-
-		List<?> rset = q.list();
-		session.getTransaction().commit();
-
-		if (rset.size() == 0) {
-			sql = "select lng.ncbi_tax_id, lng.name, cls.rank, cls.node_level " + "	from ( "
-					+ "		select a.taxon_id, a.ncbi_tax_id, b.name, a.parent_id " + "		from sres.taxon a, sres.taxonname b "
-					+ "		where a.taxon_id = b.taxon_id and b.name_class = 'scientific name' " + "	) lng, cas.ncbiclassification cls "
-					+ "	where lng.ncbi_tax_id = cls.ncbi_taxon_id " + "		and cls.rank = 'genus' "
-					+ "		and ncbi_tax_id in (1386,773,138,234,32008,194,83553,1485,776,943,561,262,209,1637,1763,780,590,620,1279,1301,662,629) "
-					+ "	connect by prior taxon_id = parent_id " + "	start with ncbi_tax_id = ? " + "	order by name";
-			session = factory.getCurrentSession();
-			session.beginTransaction();
-			q = session.createSQLQuery(sql);
-			q.setString(0, tid);
-
-			q.addScalar("ncbi_tax_id", Hibernate.INTEGER).addScalar("name", Hibernate.STRING).addScalar("rank", Hibernate.STRING);
-			q.addScalar("node_level", Hibernate.INTEGER);
-			q.setCacheable(true);
-
-			rset = q.list();
-			session.getTransaction().commit();
-		}
-
-		List<ResultType> results = new ArrayList<ResultType>();
-		Object[] obj = null;
-		for (Iterator<?> iter = rset.iterator(); iter.hasNext();) {
-			obj = (Object[]) iter.next();
-			ResultType row = new ResultType();
-			row.put("ncbi_tax_id", obj[0]);
-			row.put("name", obj[1]);
-			row.put("rank", obj[2]);
-			results.add(row);
-		}
-		return results;
-	}
-
 }

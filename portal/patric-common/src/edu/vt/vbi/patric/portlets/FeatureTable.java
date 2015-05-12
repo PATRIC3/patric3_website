@@ -15,14 +15,10 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.portlets;
 
+import edu.vt.vbi.patric.common.DataApiHandler;
 import edu.vt.vbi.patric.common.FASTAHelper;
 import edu.vt.vbi.patric.common.SiteHelper;
 import edu.vt.vbi.patric.common.SolrCore;
-import edu.vt.vbi.patric.common.SolrInterface;
-import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.params.FacetParams;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,10 +26,10 @@ import org.slf4j.LoggerFactory;
 import javax.portlet.*;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class FeatureTable extends GenericPortlet {
 
@@ -78,30 +74,22 @@ public class FeatureTable extends GenericPortlet {
 		String taxonId = request.getParameter("taxonId");
 		String genomeId = request.getParameter("genomeId");
 
-		SolrInterface solr = new SolrInterface();
+		DataApiHandler dataApi = new DataApiHandler(request);
 
-		try {
-			SolrQuery query = new SolrQuery(keyword);
-			query.addFilterQuery("!annotation:BRC1"); // remove BRC1 from the filter
-			query.setRows(0).setFacet(true).setFacetMinCount(1).setFacetLimit(-1).setFacetSort(FacetParams.FACET_SORT_COUNT)
-					.addFacetField("annotation", "feature_type");
-
-			if (taxonId != null && !taxonId.equals("")) {
-				query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + taxonId));
-			}
-			if (genomeId != null && !genomeId.equals("")) {
-				query.addFilterQuery("genome_id:" + genomeId);
-			}
-			QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query);
-			JSONObject facets = solr.facetFieldstoJSONObject(qr);
-
-			JSONObject res = new JSONObject();
-			res.put("facets", facets);
-			res.writeJSONString(response.getWriter());
+		String queryParam = "!annotation:BRC1 " + keyword;
+		String filterParam = null;
+		if (taxonId != null && !taxonId.equals("")) {
+			filterParam =  SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + taxonId);
 		}
-		catch (MalformedURLException | SolrServerException e) {
-			LOGGER.error(e.getMessage(), e);
+		if (genomeId != null && !genomeId.equals("")) {
+			filterParam = "genome_id:" + genomeId;
 		}
+
+		Map facets = dataApi.getFieldFacets(SolrCore.FEATURE, queryParam, filterParam, "annotation,feature_type");
+
+		JSONObject res = new JSONObject();
+		res.putAll(facets);
+		res.writeJSONString(response.getWriter());
 	}
 
 	private void fastDownloadHandler(ResourceRequest request, ResourceResponse response) throws PortletException, IOException {

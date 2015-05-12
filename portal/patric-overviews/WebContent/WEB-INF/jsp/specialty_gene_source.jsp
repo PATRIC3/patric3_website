@@ -1,6 +1,4 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" 
-%><%@ page import="java.util.*" 
-%><%@ page import="edu.vt.vbi.patric.dao.ResultType" 
 %><%
 	String source = request.getParameter("sp_source");
 	String kw = (request.getParameter("keyword") != null)?request.getParameter("keyword"):"";
@@ -34,7 +32,7 @@
 <input type="hidden" name="keyword" id="keyword" value="<%=keyword%>" />
 <input type="hidden" id="aT" name="aT" value="" />
 <input type="hidden" id="sort" name="sort" value="" />
-<input type="hidden" id="dir" name="dir" value="" />
+<input type="hidden" id="pk" name="pk" value="<%=pk%>" />
 
 <!-- fasta download specific param -->
 <input type="hidden" id="fileformat" name="fileformat" value=""/>

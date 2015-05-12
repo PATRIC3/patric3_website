@@ -17,7 +17,7 @@
  */
 package edu.vt.vbi.patric.portlets;
 
-import edu.vt.vbi.patric.common.SolrInterface;
+import edu.vt.vbi.patric.common.DataApiHandler;
 import edu.vt.vbi.patric.mashup.EutilInterface;
 import org.json.simple.JSONObject;
 
@@ -67,7 +67,7 @@ public class StructurePortlet extends GenericPortlet {
 		if (request.getParameter("limit") != null) {
 			limit = Integer.parseInt(request.getParameter("limit"));
 		}
-		SolrInterface solr = new SolrInterface();
+
 		int taxonId = -1;
 		String contextType = request.getParameter("cType");
 		String contextId = request.getParameter("cId");
@@ -75,7 +75,8 @@ public class StructurePortlet extends GenericPortlet {
 			taxonId = Integer.parseInt(contextId);
 		}
 		else if (contextType.equals("genome")) {
-			taxonId = solr.getGenome(contextId).getTaxonId();
+			DataApiHandler dataApi = new DataApiHandler(request);
+			taxonId = dataApi.getGenome(contextId).getTaxonId();
 		}
 
 		String strQueryTerm = "txid" + taxonId + "[Organism:exp]";

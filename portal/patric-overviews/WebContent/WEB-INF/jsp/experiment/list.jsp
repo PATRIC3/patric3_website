@@ -20,7 +20,7 @@ String filter = (String) request.getAttribute("filter");
 
 <input type="hidden" id="aT" name="aT" value="" />
 <input type="hidden" id="sort" name="sort" value="" />
-<input type="hidden" id="dir" name="dir" value="" />
+<input type="hidden" id="pk" name="pk" value="" />
 
 <!-- fasta download specific param -->
 <input type="hidden" id="fileformat" name="fileformat" value=""/>

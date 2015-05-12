@@ -18,7 +18,7 @@
 package edu.vt.vbi.patric.portlets;
 
 import edu.vt.vbi.patric.beans.GenomeFeature;
-import edu.vt.vbi.patric.common.SolrInterface;
+import edu.vt.vbi.patric.common.DataApiHandler;
 
 import javax.portlet.*;
 import java.io.IOException;
@@ -34,8 +34,8 @@ public class FeatureToolsPortlet extends GenericPortlet {
 
 		if (cType != null && cId != null && cType.equals("feature")) {
 
-			SolrInterface solr = new SolrInterface();
-			GenomeFeature feature = solr.getPATRICFeature(cId);
+			DataApiHandler dataApi = new DataApiHandler(request);
+			GenomeFeature feature = dataApi.getPATRICFeature(cId);
 
 			if (feature != null) {
 				String dispRefseqLocusTag = null, dispSeedId = null, dispProteinSequence = null;

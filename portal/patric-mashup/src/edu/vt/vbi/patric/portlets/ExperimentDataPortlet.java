@@ -17,8 +17,8 @@
  */
 package edu.vt.vbi.patric.portlets;
 
+import edu.vt.vbi.patric.common.DataApiHandler;
 import edu.vt.vbi.patric.common.SiteHelper;
-import edu.vt.vbi.patric.common.SolrInterface;
 
 import javax.portlet.*;
 import java.io.IOException;
@@ -28,14 +28,14 @@ public class ExperimentDataPortlet extends GenericPortlet {
 
 	public static String getSpeciesName(String contextType, String contextId) {
 
-		SolrInterface solr = new SolrInterface();
+		DataApiHandler dataApi = new DataApiHandler();
 		String speciesName = "";
 
 		if (contextType.equals("taxon")) {
-			speciesName = solr.getTaxonomy(Integer.parseInt(contextId)).getTaxonName();
+			speciesName = dataApi.getTaxonomy(Integer.parseInt(contextId)).getTaxonName();
 		}
 		else if (contextType.equals("genome")) {
-			speciesName = solr.getGenome(contextId).getGenomeName();
+			speciesName = dataApi.getGenome(contextId).getGenomeName();
 		}
 
 		return speciesName;

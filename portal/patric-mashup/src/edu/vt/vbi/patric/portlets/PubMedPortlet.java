@@ -19,8 +19,8 @@ package edu.vt.vbi.patric.portlets;
 
 import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.beans.GenomeFeature;
+import edu.vt.vbi.patric.common.DataApiHandler;
 import edu.vt.vbi.patric.common.SiteHelper;
-import edu.vt.vbi.patric.common.SolrInterface;
 import edu.vt.vbi.patric.mashup.EutilInterface;
 import edu.vt.vbi.patric.mashup.PubMedHelper;
 import org.json.simple.JSONObject;
@@ -72,7 +72,7 @@ public class PubMedPortlet extends GenericPortlet {
 
 			Map<String, List<String>> hashKeyword = PubMedHelper.getKeywordHash();
 
-			SolrInterface solr = new SolrInterface();
+			DataApiHandler dataApi = new DataApiHandler(request);
 			String genome_name = "";
 			String feature_name = "";
 
@@ -80,7 +80,7 @@ public class PubMedPortlet extends GenericPortlet {
 				if (qScope == null) {
 					qScope = "g";
 				}
-				Genome genome = solr.getGenome(cId);
+				Genome genome = dataApi.getGenome(cId);
 				genome_name = genome.getGenomeName();
 
 			}
@@ -89,7 +89,7 @@ public class PubMedPortlet extends GenericPortlet {
 					qScope = "f";
 				}
 
-				GenomeFeature feature = solr.getFeature(cId);
+				GenomeFeature feature = dataApi.getFeature(cId);
 				if (feature != null) {
 					genome_name = feature.getGenomeName();
 

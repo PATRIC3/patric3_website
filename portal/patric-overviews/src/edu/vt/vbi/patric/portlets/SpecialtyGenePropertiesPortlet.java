@@ -62,8 +62,8 @@ public class SpecialtyGenePropertiesPortlet extends GenericPortlet {
 			query.addSort("source", SolrQuery.ORDER.asc);
 
 			String apiResponse = dataApi.solrQuery(SolrCore.SPECIALTY_GENE_MAPPING, query);
-			Map<String, Object> resp = jsonReader.readValue(apiResponse);
-			Map<String, Object> respBody = (Map<String, Object>) resp.get("response");
+			Map resp = jsonReader.readValue(apiResponse);
+			Map respBody = (Map) resp.get("response");
 
 			List<SpecialtyGene> listSpecialtyGenes = dataApi.bindDocuments((List<Map>) respBody.get("docs"), SpecialtyGene.class);
 

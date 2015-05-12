@@ -19,7 +19,7 @@ package edu.vt.vbi.patric.portlets;
 
 import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.beans.Taxonomy;
-import edu.vt.vbi.patric.common.SolrInterface;
+import edu.vt.vbi.patric.common.DataApiHandler;
 import edu.vt.vbi.patric.mashup.EutilInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,16 +63,16 @@ public class StructureSummary extends GenericPortlet {
 			String contextId = request.getParameter("cId");
 			String speciesName = "";
 			String errorMsg = "Data is not available temporarily";
-			SolrInterface solr = new SolrInterface();
+			DataApiHandler dataApi = new DataApiHandler(request);
 			int taxonId = -1;
 
 			if (contextType.equals("taxon")) {
-				Taxonomy taxonomy = solr.getTaxonomy(Integer.parseInt(contextId));
+				Taxonomy taxonomy = dataApi.getTaxonomy(Integer.parseInt(contextId));
 				speciesName = taxonomy.getTaxonName();
 				taxonId = taxonomy.getId();
 			}
 			else if (contextType.equals("genome")) {
-				Genome genome = solr.getGenome(contextId);
+				Genome genome = dataApi.getGenome(contextId);
 				speciesName = genome.getGenomeName();
 				taxonId = genome.getTaxonId();
 			}

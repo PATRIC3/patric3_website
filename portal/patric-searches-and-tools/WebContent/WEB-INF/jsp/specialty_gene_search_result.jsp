@@ -12,15 +12,16 @@ String exactSearchTerm = (String) request.getAttribute("exactSearchTerm");
 <form id="fTableForm" action="#" method="post">
 	<input type="hidden" id="tablesource" name="tablesource" value="SpecialtyGeneMapping" />
 	<input type="hidden" name="keyword" id="keyword" value="<%=keyword %>" />
+	<input type="hidden" id="taxonId" name="taxonId" value="<%=taxonId %>" />
+	<input type="hidden" id="genomeId" name="genomeId" value="<%=genomeId %>" />
+	<input type="hidden" id="pk" name="pk" value="<%=pk%>" />
 	<input type="hidden" id="sort" name="sort" value="" />
-	<input type="hidden" id="dir" name="dir" value="" />
-		
+
 	<!-- fasta download specific param -->
 	<input type="hidden" id="fastaaction" name="fastaaction" value="" />
 	<input type="hidden" id="fastatype" name="fastatype" value="" />
 	<input type="hidden" id="fastascope" name="fastascope" value="" />
 	<input type="hidden" id="fids" name="fids" value="" />
-	<input type="hidden" id="download_keyword" name="download_keyword" value="" />
 	<input type="hidden" id="fileformat" name="fileformat" value=""/>
 
     <input type="hidden" id="cId" name="cId" value="<%=contextId %>" />

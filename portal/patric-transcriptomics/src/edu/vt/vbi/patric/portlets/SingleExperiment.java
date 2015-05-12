@@ -17,10 +17,12 @@
  */
 package edu.vt.vbi.patric.portlets;
 
-import edu.vt.vbi.patric.common.SiteHelper;
-import edu.vt.vbi.patric.common.SolrCore;
-import edu.vt.vbi.patric.common.SolrInterface;
+import edu.vt.vbi.patric.common.*;
 import edu.vt.vbi.patric.dao.ResultType;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectReader;
+import org.codehaus.jackson.map.ObjectWriter;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -29,13 +31,27 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.portlet.*;
+import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class SingleExperiment extends GenericPortlet {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SingleExperiment.class);
+
+	private ObjectReader jsonReader;
+
+	@Override
+	public void init() throws PortletException {
+		super.init();
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		jsonReader = objectMapper.reader(Map.class);
+	}
 
 	@Override
 	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
@@ -50,71 +66,143 @@ public class SingleExperiment extends GenericPortlet {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void serveResource(ResourceRequest req, ResourceResponse resp) throws PortletException, IOException {
+	public void serveResource(ResourceRequest request, ResourceResponse response) throws PortletException, IOException {
 
-		resp.setContentType("text/html");
+		String callType = request.getParameter("callType");
 
-		JSONObject jsonResult = new JSONObject();
-		SolrInterface solr = new SolrInterface();
-		String eid = req.getParameter("eid");
-		String callType = req.getParameter("callType");
+		switch(callType) {
+		case "getTable": {
 
-		if (callType.equals("getTable")) {
-			String start_id = req.getParameter("start");
-			String limit = req.getParameter("limit");
-			int start = Integer.parseInt(start_id);
-			int end = Integer.parseInt(limit);
+			Map data = processComparisonTab(request);
+			int numFound = (Integer) data.get("numFound");
+			List<Map> comparisons = (List<Map>) data.get("comparisons");
 
-			HashMap<String, String> sort = null;
-
-			if (req.getParameter("sort") != null) {
-				// sorting
-				JSONParser a = new JSONParser();
-				JSONArray sorter;
-				String sort_field = "";
-				String sort_dir = "";
-				try {
-					sorter = (JSONArray) a.parse(req.getParameter("sort"));
-					sort_field += ((JSONObject) sorter.get(0)).get("property").toString();
-					sort_dir += ((JSONObject) sorter.get(0)).get("direction").toString();
-					for (int i = 1; i < sorter.size(); i++) {
-						sort_field += "," + ((JSONObject) sorter.get(i)).get("property").toString();
-					}
-				}
-				catch (ParseException e) {
-					LOGGER.error(e.getMessage(), e);
-				}
-
-				sort = new HashMap<>();
-
-				if (!sort_field.equals("") && !sort_dir.equals("")) {
-					sort.put("field", sort_field);
-					sort.put("direction", sort_dir);
-				}
+			JSONArray docs = new JSONArray();
+			for (Map item : comparisons) {
+				JSONObject doc = new JSONObject();
+				doc.putAll(item);
+				docs.add(doc);
 			}
 
-			JSONObject jsonObject = solr.getTranscriptomicsSamples(null, eid, "", start, end, sort);
+			JSONObject jsonResult = new JSONObject();
+			jsonResult.put("results", docs);
+			jsonResult.put("total", numFound);
 
-			jsonResult.put("results", jsonObject.get("data"));
-			jsonResult.put("total", jsonObject.get("total"));
-
+			response.setContentType("text/html");
+			PrintWriter writer = response.getWriter();
+			jsonResult.writeJSONString(writer);
+			writer.close();
+			break;
 		}
-		else if (callType.equals("getSummary")) {
-
-			ResultType key = new ResultType();
+		case "getSummary": {
+			String eid = request.getParameter("eid");
+			Map<String, String> key = new HashMap<>();
 			key.put("keyword", "eid:(" + eid + ")");
 			key.put("fields", "description,condition,pi,title,institution,release_date,accession,organism,strain,timeseries");
-			solr.setCurrentInstance(SolrCore.TRANSCRIPTOMICS_EXPERIMENT);
-			JSONObject object = solr.getData(key, null, null, 0, 1, false, false, false);
 
-			JSONObject obj = (JSONObject) object.get("response");
-			JSONArray obj1 = (JSONArray) obj.get("docs");
+			DataApiHandler dataApi = new DataApiHandler(request);
+			SolrInterface solr = new SolrInterface();
+			SolrQuery query = solr.buildSolrQuery(key, null, null, 0, 1, false);
+			String apiResponse = dataApi.solrQuery(SolrCore.TRANSCRIPTOMICS_EXPERIMENT, query);
 
-			jsonResult.put("summary", obj1.get(0));
+			Map resp = jsonReader.readValue(apiResponse);
+			Map respBody = (Map) resp.get("response");
+			List<Map> experiments = (List<Map>) respBody.get("docs");
+			JSONObject experiment = new JSONObject();
+			experiment.putAll(experiments.get(0));
+
+			JSONObject jsonResult = new JSONObject();
+			jsonResult.put("summary", experiment);
+
+			PrintWriter writer = response.getWriter();
+			jsonResult.writeJSONString(writer);
+			writer.close();
+			break;
+		}
+		case "download": {
+
+			List<String> tableHeader = new ArrayList<>();
+			List<String> tableField = new ArrayList<>();
+			JSONArray tableSource = new JSONArray();
+
+			String fileName = "SingleExperiment";
+			String fileFormat = request.getParameter("fileformat");
+
+			Map data = processComparisonTab(request);
+			List<Map> comparisons = (List<Map>) data.get("comparisons");
+
+			for (Map item : comparisons) {
+				JSONObject doc = new JSONObject();
+				doc.putAll(item);
+				tableSource.add(doc);
+			}
+
+			tableHeader.addAll(DownloadHelper.getHeaderForTranscriptomicsComparison());
+			tableField.addAll(DownloadHelper.getFieldsForTranscriptomicsComparison());
+
+			ExcelHelper excel = new ExcelHelper("xssf", tableHeader, tableField, tableSource);
+			excel.buildSpreadsheet();
+
+			if (fileFormat.equalsIgnoreCase("xlsx")) {
+				response.setContentType("application/octetstream");
+				response.addProperty("Content-Disposition", "attachment; filename=\"" + fileName + "." + fileFormat + "\"");
+
+				excel.writeSpreadsheettoBrowser(response.getPortletOutputStream());
+			}
+			else if (fileFormat.equalsIgnoreCase("txt")) {
+
+				response.setContentType("application/octetstream");
+				response.addProperty("Content-Disposition", "attachment; filename=\"" + fileName + "." + fileFormat + "\"");
+
+				response.getPortletOutputStream().write(excel.writeToTextFile().getBytes());
+			}
+
+			break;
+		}
+		}
+	}
+
+	private Map processComparisonTab(ResourceRequest request) throws IOException {
+
+		SolrInterface solr = new SolrInterface();
+		DataApiHandler dataApi = new DataApiHandler(request);
+
+		String eid = request.getParameter("eid");
+		String sort = request.getParameter("sort");
+
+		Map<String, String> key = new HashMap<>();
+		key.put("keyword", "eid:(" + eid + ")");
+		key.put("fields",
+				"eid,expid,accession,pid,samples,expname,release_date,pmid,organism,strain,mutant,timepoint,condition,genes,sig_log_ratio,sig_z_score");
+
+		String start_id = request.getParameter("start");
+		String limit = request.getParameter("limit");
+		int start = 0;
+		int end = -1;
+		if (start_id != null) {
+			start = Integer.parseInt(start_id);
+		}
+		if (limit != null) {
+			end = Integer.parseInt(limit);
 		}
 
-		PrintWriter writer = resp.getWriter();
-		jsonResult.writeJSONString(writer);
-		writer.close();
+		SolrQuery query = solr.buildSolrQuery(key, sort, null, start, end, false);
+
+		LOGGER.debug("getTable: [{}] {}", SolrCore.TRANSCRIPTOMICS_COMPARISON.getSolrCoreName(), query.toString());
+
+		String apiResponse = dataApi.solrQuery(SolrCore.TRANSCRIPTOMICS_COMPARISON, query);
+		Map resp = jsonReader.readValue(apiResponse);
+		Map respBody = (Map) resp.get("response");
+
+		int numFound = (Integer) respBody.get("numFound");
+		List<Map> comparisons = (List<Map>) respBody.get("docs");
+
+		Map response = new HashMap();
+		response.put("key", key);
+		response.put("numFound", numFound);
+		response.put("comparisons", comparisons);
+
+		return response;
+
 	}
 }

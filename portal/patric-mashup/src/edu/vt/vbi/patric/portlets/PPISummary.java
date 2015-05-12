@@ -19,7 +19,7 @@ package edu.vt.vbi.patric.portlets;
 
 import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.beans.Taxonomy;
-import edu.vt.vbi.patric.common.SolrInterface;
+import edu.vt.vbi.patric.common.DataApiHandler;
 import edu.vt.vbi.patric.dao.DBPRC;
 import edu.vt.vbi.patric.mashup.PSICQUICInterface;
 
@@ -63,17 +63,17 @@ public class PPISummary extends GenericPortlet {
 			String contextId = request.getParameter("cId");
 
 			DBPRC conn_prc = new DBPRC();
-			SolrInterface solr = new SolrInterface();
+			DataApiHandler dataApi = new DataApiHandler(request);
 
 			switch (contextType) {
 			case "taxon":
-				Taxonomy taxonomy = solr.getTaxonomy(Integer.parseInt(contextId));
+				Taxonomy taxonomy = dataApi.getTaxonomy(Integer.parseInt(contextId));
 				speciesName = taxonomy.getTaxonName();
 				taxonId = taxonomy.getId();
 				psicquicSpeciesName = "species:" + taxonId;
 				break;
 			case "genome":
-				Genome genome = solr.getGenome(contextId);
+				Genome genome = dataApi.getGenome(contextId);
 				speciesName = genome.getGenomeName();
 				taxonId = genome.getTaxonId();
 				psicquicSpeciesName = "species:" + taxonId;

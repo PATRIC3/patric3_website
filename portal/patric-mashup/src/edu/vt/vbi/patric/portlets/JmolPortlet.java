@@ -18,23 +18,20 @@
 package edu.vt.vbi.patric.portlets;
 
 import edu.vt.vbi.patric.beans.GenomeFeature;
+import edu.vt.vbi.patric.common.DataApiHandler;
 import edu.vt.vbi.patric.common.SiteHelper;
 import edu.vt.vbi.patric.common.SolrCore;
-import edu.vt.vbi.patric.common.SolrInterface;
 import edu.vt.vbi.patric.mashup.PDBInterface;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.portlet.*;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +39,16 @@ import java.util.Map;
 public class JmolPortlet extends GenericPortlet {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ExperimentSummaryPortlet.class);
+
+	ObjectReader jsonReader;
+
+	@Override
+	public void init() throws PortletException {
+		super.init();
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		jsonReader = objectMapper.reader(Map.class);
+	}
 
 	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 
@@ -71,62 +78,59 @@ public class JmolPortlet extends GenericPortlet {
 
 			if (description != null) {
 
-				SolrInterface solr = new SolrInterface();
+				DataApiHandler dataApi = new DataApiHandler(request);
 				List<GenomeFeature> features = new ArrayList<>();
 				List<String> targetIDs = new ArrayList<>();
 
 				// 1. read associated features for given PDB ID
 				// 1.1 read uniprotkb_accession
 				List<String> uniprotKbAccessions = new ArrayList<>();
-				try {
-					SolrQuery query = new SolrQuery("id_type:PDB AND id_value:" + pdbID);
-					QueryResponse qr = solr.getSolrServer(SolrCore.ID_REF).query(query);
-					SolrDocumentList sdl = qr.getResults();
+				SolrQuery query = new SolrQuery("id_type:PDB AND id_value:" + pdbID);
 
-					for (SolrDocument doc : sdl) {
-						uniprotKbAccessions.add(doc.get("uniprotkb_accession").toString());
+				LOGGER.trace("[{}] {}", SolrCore.ID_REF.getSolrCoreName(), query.toString());
+				String apiResponse = dataApi.solrQuery(SolrCore.ID_REF, query);
+
+				Map resp = jsonReader.readValue(apiResponse);
+				Map respBody = (Map<String, Object>) resp.get("response");
+
+				int numFound = (Integer) respBody.get("numFound");
+				if (numFound > 0) {
+					List<Map> records = (List<Map>) respBody.get("docs");
+					for (Map item : records) {
+						uniprotKbAccessions.add(item.get("uniprotkb_accession").toString());
 					}
-				}
-				catch (MalformedURLException | SolrServerException e) {
-					LOGGER.error(e.getMessage(), e);
 				}
 
 				// 1.2 read features with uniprotkb_accession
 				if (!uniprotKbAccessions.isEmpty()) {
-					try {
-						SolrQuery query = new SolrQuery("uniprotkb_accession:(" + StringUtils.join(uniprotKbAccessions, " OR ") + ")");
+					query = new SolrQuery("uniprotkb_accession:(" + StringUtils.join(uniprotKbAccessions, " OR ") + ")");
 
-						LOGGER.debug(query.toString());
-						QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query);
+					LOGGER.trace("[{}] {}", SolrCore.FEATURE.getSolrCoreName(), query.toString());
+					apiResponse = dataApi.solrQuery(SolrCore.FEATURE, query);
+					resp = jsonReader.readValue(apiResponse);
+					respBody = (Map<String, Object>) resp.get("response");
 
-						features = qr.getBeans(GenomeFeature.class);
-					}
-					catch (MalformedURLException | SolrServerException e) {
-						LOGGER.error(e.getMessage(), e);
-					}
+					features = dataApi.bindDocuments((List<Map>) respBody.get("docs"), GenomeFeature.class);
 				}
 
 				// 2. retrieve structural meta data
 				if (!uniprotKbAccessions.isEmpty()) {
-					try {
-						List<String> ids = new ArrayList<>();
-						for (String uniprotkbAccession : uniprotKbAccessions) {
-							ids.add("\"UniProt:" + uniprotkbAccession + "\"");
-						}
-
-						SolrQuery query = new SolrQuery("gene_symbol_collection:(" + StringUtils.join(ids, " OR ") + ")");
-						query.setRows(uniprotKbAccessions.size());
-
-						LOGGER.debug(query.toString());
-						QueryResponse qr = solr.getSolrServer(SolrCore.STRUCTURE).query(query);
-						SolrDocumentList sdl = qr.getResults();
-
-						for (SolrDocument doc : sdl) {
-							targetIDs.add(doc.get("target_id").toString());
-						}
+					List<String> ids = new ArrayList<>();
+					for (String uniprotkbAccession : uniprotKbAccessions) {
+						ids.add("\"UniProt:" + uniprotkbAccession + "\"");
 					}
-					catch (MalformedURLException | SolrServerException e) {
-						LOGGER.error(e.getMessage(), e);
+
+					query = new SolrQuery("gene_symbol_collection:(" + StringUtils.join(ids, " OR ") + ")");
+					query.setRows(uniprotKbAccessions.size());
+
+					LOGGER.trace("[{}] {}", SolrCore.STRUCTURE.getSolrCoreName(), query.toString());
+					apiResponse = dataApi.solrQuery(SolrCore.STRUCTURE, query);
+					resp = jsonReader.readValue(apiResponse);
+					respBody = (Map<String, Object>) resp.get("response");
+
+					List<Map> sdl = (List<Map>) respBody.get("docs");
+					for (Map doc : sdl) {
+						targetIDs.add(doc.get("target_id").toString());
 					}
 				}
 

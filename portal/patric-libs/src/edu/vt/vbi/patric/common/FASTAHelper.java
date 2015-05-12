@@ -18,95 +18,94 @@ package edu.vt.vbi.patric.common;
 import edu.vt.vbi.patric.beans.GenomeFeature;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrRequest;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.QueryResponse;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.MalformedURLException;
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 public class FASTAHelper {
 
-	static SolrInterface solr = new SolrInterface();
-
 	private static final Logger LOGGER = LoggerFactory.getLogger(FASTAHelper.class);
 
-	public static String getFASTASequence(List<String> featureIds, String type) {
+	private static ObjectReader jsonReader = (new ObjectMapper()).reader(Map.class);
+
+	public static String getFASTASequence(List<String> featureIds, String type) throws IOException {
 		StringBuilder fasta = new StringBuilder();
 
-		try {
-			SolrQuery query = new SolrQuery("feature_id:(" + StringUtils.join(featureIds, " OR ") + ")");
-			query.setFields("feature_id,seed_id,alt_locus_tag,refseq_locus_tag,annotation,gi,product,genome_id,genome_name,na_sequence,aa_sequence");
-			query.setRows(featureIds.size());
+		SolrQuery query = new SolrQuery("feature_id:(" + StringUtils.join(featureIds, " OR ") + ")");
+		query.setFields("feature_id,seed_id,alt_locus_tag,refseq_locus_tag,annotation,gi,product,genome_id,genome_name,na_sequence,aa_sequence");
+		query.setRows(featureIds.size());
 
-			QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query, SolrRequest.METHOD.POST);
-			List<GenomeFeature> features = qr.getBeans(GenomeFeature.class);
+		DataApiHandler dataApi = new DataApiHandler();
+		String apiResponse = dataApi.solrQuery(SolrCore.TAXONOMY, query);
+		Map resp = jsonReader.readValue(apiResponse);
+		Map respBody = (Map) resp.get("response");
 
-			for (GenomeFeature feature: features) {
+		List<GenomeFeature> features = dataApi.bindDocuments((List<Map>) respBody.get("docs"), GenomeFeature.class);
 
-				if (type.equals("dna") || type.equals("both")) {
-					fasta.append(">");
-					if (feature.getAnnotation().equals("PATRIC")) {
-						if (feature.hasSeedId()) {
-							fasta.append(feature.getSeedId()).append("|");
-						}
-					} else if (feature.getAnnotation().equals("RefSeq")) {
-						if (feature.getGi() > 0) {
-							fasta.append("gi|").append(feature.getGi()).append("|");
-						}
+		for (GenomeFeature feature: features) {
+
+			if (type.equals("dna") || type.equals("both")) {
+				fasta.append(">");
+				if (feature.getAnnotation().equals("PATRIC")) {
+					if (feature.hasSeedId()) {
+						fasta.append(feature.getSeedId()).append("|");
 					}
-
-					if (feature.hasRefseqLocusTag()) {
-						fasta.append(feature.getRefseqLocusTag()).append("|");
-					}
-					if (feature.hasAltLocusTag()) {
-						fasta.append(feature.getAltLocusTag()).append("|");
-					}
-					if (feature.hasProduct()) {
-						fasta.append("   ").append(feature.getProduct());
-					}
-					fasta.append("   [").append(feature.getGenomeName()).append(" | ").append(feature.getGenomeId()).append("]");
-
-					fasta.append("\n");
-					if (feature.hasNaSequence()) {
-						fasta.append(StringHelper.chunk_split(feature.getNaSequence(), 60, "\n"));
+				} else if (feature.getAnnotation().equals("RefSeq")) {
+					if (feature.getGi() > 0) {
+						fasta.append("gi|").append(feature.getGi()).append("|");
 					}
 				}
 
-				if (type.equals("protein") || type.equals("both")) {
-					fasta.append(">");
-					if (feature.getAnnotation().equals("PATRIC")) {
-						if (feature.hasSeedId()) {
-							fasta.append(feature.getSeedId()).append("|");
-						}
-					} else if (feature.getAnnotation().equals("RefSeq")) {
-						if (feature.getGi() > 0) {
-							fasta.append("gi|").append(feature.getGi()).append("|");
-						}
-					}
+				if (feature.hasRefseqLocusTag()) {
+					fasta.append(feature.getRefseqLocusTag()).append("|");
+				}
+				if (feature.hasAltLocusTag()) {
+					fasta.append(feature.getAltLocusTag()).append("|");
+				}
+				if (feature.hasProduct()) {
+					fasta.append("   ").append(feature.getProduct());
+				}
+				fasta.append("   [").append(feature.getGenomeName()).append(" | ").append(feature.getGenomeId()).append("]");
 
-					if (feature.hasRefseqLocusTag()) {
-						fasta.append(feature.getRefseqLocusTag()).append("|");
-					}
-					if (feature.hasAltLocusTag()) {
-						fasta.append(feature.getAltLocusTag()).append("|");
-					}
-					if (feature.hasProduct()) {
-						fasta.append("   ").append(feature.getProduct());
-					}
-					fasta.append("   [").append(feature.getGenomeName()).append(" | ").append(feature.getGenomeId()).append("]");
-
-					fasta.append("\n");
-					if (feature.hasAaSequence()) {
-						fasta.append(StringHelper.chunk_split(feature.getAaSequence(), 60, "\n"));
-					}
+				fasta.append("\n");
+				if (feature.hasNaSequence()) {
+					fasta.append(StringHelper.chunk_split(feature.getNaSequence(), 60, "\n"));
 				}
 			}
 
-		} catch (MalformedURLException | SolrServerException e) {
-			LOGGER.error(e.getMessage(), e);
+			if (type.equals("protein") || type.equals("both")) {
+				fasta.append(">");
+				if (feature.getAnnotation().equals("PATRIC")) {
+					if (feature.hasSeedId()) {
+						fasta.append(feature.getSeedId()).append("|");
+					}
+				} else if (feature.getAnnotation().equals("RefSeq")) {
+					if (feature.getGi() > 0) {
+						fasta.append("gi|").append(feature.getGi()).append("|");
+					}
+				}
+
+				if (feature.hasRefseqLocusTag()) {
+					fasta.append(feature.getRefseqLocusTag()).append("|");
+				}
+				if (feature.hasAltLocusTag()) {
+					fasta.append(feature.getAltLocusTag()).append("|");
+				}
+				if (feature.hasProduct()) {
+					fasta.append("   ").append(feature.getProduct());
+				}
+				fasta.append("   [").append(feature.getGenomeName()).append(" | ").append(feature.getGenomeId()).append("]");
+
+				fasta.append("\n");
+				if (feature.hasAaSequence()) {
+					fasta.append(StringHelper.chunk_split(feature.getAaSequence(), 60, "\n"));
+				}
+			}
 		}
 
 		return fasta.toString();

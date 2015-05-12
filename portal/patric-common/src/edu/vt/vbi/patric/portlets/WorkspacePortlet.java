@@ -18,14 +18,13 @@ package edu.vt.vbi.patric.portlets;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import edu.vt.vbi.patric.beans.Genome;
-import edu.vt.vbi.patric.common.SessionHandler;
-import edu.vt.vbi.patric.common.SolrCore;
-import edu.vt.vbi.patric.common.SolrInterface;
-import edu.vt.vbi.patric.common.UIPreference;
+import edu.vt.vbi.patric.common.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectReader;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -35,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.portlet.*;
+import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
@@ -47,11 +47,17 @@ public class WorkspacePortlet extends GenericPortlet {
 
 	private String DEFAULT_WORKSPACE_NAME;
 
+	private ObjectReader jsonReader;
+
 	@Override
 	public void init() throws PortletException {
 
 		WORKSPACE_API_URL = System.getProperty("workspaceServiceURL", "http://p3.theseed.org/services/Workspace");
 		DEFAULT_WORKSPACE_NAME = "/home"; // for Mar 2015 release
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		jsonReader = objectMapper.reader(Map.class);
+
 		super.init();
 	}
 
@@ -59,8 +65,6 @@ public class WorkspacePortlet extends GenericPortlet {
 	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 		// do nothing
 	}
-
-
 
 	private UIPreference getValidUIPreference(ResourceRequest request) {
 
@@ -156,7 +160,8 @@ public class WorkspacePortlet extends GenericPortlet {
 
 			if (action_type.equals("WSSupport")) {
 
-				if (action.equals("inlinestatus")) {
+				switch (action) {
+				case "inlinestatus": {
 
 					String linkWorkspace = "";
 					if (isLoggedIn(request)) {
@@ -167,8 +172,9 @@ public class WorkspacePortlet extends GenericPortlet {
 					PrintWriter writer = response.getWriter();
 					writer.write(linkWorkspace);
 					writer.close();
+					break;
 				}
-				else if (action.equals("getGenomeGroupList")) {
+				case "getGenomeGroupList": {
 					JSONArray res = new JSONArray();
 
 					if (isLoggedIn(request)) {
@@ -176,7 +182,7 @@ public class WorkspacePortlet extends GenericPortlet {
 						String pathGenomeGroup = getUserWorkspacePath(request, DEFAULT_WORKSPACE_NAME) + "/Genome Groups";
 
 						try {
-							SolrInterface solr = new SolrInterface();
+							DataApiHandler dataApi = new DataApiHandler(request);
 							Workspace serviceWS = new Workspace(WORKSPACE_API_URL, token);
 							list_params params = new list_params();
 							params.paths = Arrays.asList(pathGenomeGroup);
@@ -187,7 +193,8 @@ public class WorkspacePortlet extends GenericPortlet {
 							JSONParser jsonParser = new JSONParser();
 
 							for (ObjectMeta group : groupList) {
-								LOGGER.trace("reading: {},{},{},{},{},{},{}", group.e_1, group.e_2, group.e_3, group.e_5, group.e_7, group.e_8, group.e_9);
+								LOGGER.trace("reading: {},{},{},{},{},{},{}", group.e_1, group.e_2, group.e_3, group.e_5, group.e_7, group.e_8,
+										group.e_9);
 
 								if ("genome_group".equals(group.e_2)) {
 									JSONObject grp = new JSONObject();
@@ -218,8 +225,13 @@ public class WorkspacePortlet extends GenericPortlet {
 											SolrQuery query = new SolrQuery("genome_id:(" + StringUtils.join(genomeIdSet, " OR ") + ")");
 											query.setRows(10000).addField("genome_id,genome_name,taxon_id");
 
-											QueryResponse qr = solr.getSolrServer(SolrCore.GENOME).query(query, SolrRequest.METHOD.POST);
-											List<Genome> genomes = qr.getBeans(Genome.class);
+											String apiResponse = dataApi.solrQuery(SolrCore.GENOME, query);
+											Map respApi = jsonReader.readValue(apiResponse);
+											Map respBody = (Map) respApi.get("response");
+											List<Genome> genomes = dataApi.bindDocuments((List<Map>) respBody.get("docs"), Genome.class);
+
+//											QueryResponse qr = solr.getSolrServer(SolrCore.GENOME).query(query, SolrRequest.METHOD.POST);
+//											List<Genome> genomes = qr.getBeans(Genome.class);
 											Map<String, Genome> genomeHash = new LinkedHashMap<>();
 											for (Genome g : genomes) {
 												genomeHash.put(g.getId(), g);
@@ -255,8 +267,9 @@ public class WorkspacePortlet extends GenericPortlet {
 					PrintWriter writer = response.getWriter();
 					res.writeJSONString(writer);
 					writer.close();
+					break;
 				}
-				else if (action.equals("getGroupList")) {
+				case "getGroupList": {
 					String grp_type = request.getParameter("group_type");
 					JSONArray res = new JSONArray();
 
@@ -313,11 +326,13 @@ public class WorkspacePortlet extends GenericPortlet {
 					PrintWriter writer = response.getWriter();
 					res.writeJSONString(writer);
 					writer.close();
+					break;
 				}
-				else {
+				default:
 					response.setContentType("application/json");
 					response.getWriter().write("sorry");
 					response.getWriter().close();
+					break;
 				}
 			}
 			else if (action_type.equals("GSESupport")) {

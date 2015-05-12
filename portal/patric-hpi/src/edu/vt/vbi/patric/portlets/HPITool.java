@@ -17,6 +17,8 @@
  */
 package edu.vt.vbi.patric.portlets;
 
+import edu.vt.vbi.patric.beans.Genome;
+import edu.vt.vbi.patric.common.DataApiHandler;
 import edu.vt.vbi.patric.common.SiteHelper;
 
 import javax.portlet.*;
@@ -35,6 +37,52 @@ public class HPITool extends GenericPortlet {
 		String mode = request.getParameter("display_mode");
 
 		if (mode != null && mode.equals("tab")) {
+
+			String contextType = request.getParameter("context_type");
+			String contextId = request.getParameter("context_id");
+			String taxon_id;
+			String hpi_only = request.getParameter("hpi_only");
+
+			String myUrl = "/patric/pig/viewer/index.html?";
+			String hp_ppi_checked;
+			String ppi_checked;
+
+			if (hpi_only == null) {
+				hpi_only = "false";
+			}
+
+			if (hpi_only.equals("true")) {
+				hp_ppi_checked = "checked";
+				ppi_checked = "";
+			}
+			else {
+				hp_ppi_checked = "";
+				ppi_checked = "checked";
+			}
+
+			switch (contextType) {
+			case "genome":
+				DataApiHandler dataApi = new DataApiHandler(request);
+				Genome context = dataApi.getGenome(contextId);
+				taxon_id = "" + context.getTaxonId();
+
+				myUrl += "taxids=" + taxon_id + "&hpisOnly=" + hpi_only + "&btwnOnly=false&page=1&w=1100&h=800";
+				break;
+			case "taxon":
+				taxon_id = contextId;
+				myUrl += "taxids=" + taxon_id + "&hpisOnly=" + hpi_only + "&btwnOnly=false&page=1&w=1100&h=800";
+				break;
+			default:
+				myUrl += "keywds=" + contextId + "&hpisOnly=" + hpi_only + "&btwnOnly=false&page=1&w=1100&h=800";
+				break;
+			}
+
+			request.setAttribute("contextType", contextType);
+			request.setAttribute("contextId", contextId);
+			request.setAttribute("myUrl", myUrl);
+			request.setAttribute("hp_ppi_checked", hp_ppi_checked);
+			request.setAttribute("ppi_checked", ppi_checked);
+
 			prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/hpi_finder_tab.jsp");
 		}
 		else {

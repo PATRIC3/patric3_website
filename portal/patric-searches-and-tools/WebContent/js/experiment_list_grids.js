@@ -142,7 +142,9 @@ function getExtraParams() {
 		keyword : constructKeyword((tree) ? tree.getSelectedTerms() : {}, name),
 		facet : JSON.stringify({
 			"facet" : configuration[name].display_facets.join(","),
-			"facet_text" : configuration[name].display_facets_texts.join(",")
+			"facet_text" : configuration[name].display_facets_texts.join(","),
+			'field_facets': configuration[name].field_facets.join(','),
+			'date_range_facets': configuration[name].date_range_facets.join(',')
 		})
 	};
 }
@@ -162,7 +164,9 @@ function CallBack() {
 			pk : hash.key,
 			facet : JSON.stringify({
 				"facet" : configuration[name].display_facets.join(","),
-				"facet_text" : configuration[name].display_facets_texts.join(",")
+				"facet_text" : configuration[name].display_facets_texts.join(","),
+				'field_facets': configuration[name].field_facets.join(','),
+				'date_range_facets': configuration[name].date_range_facets.join(',')
 			}),
 			state : JSON.stringify(tree.getState())
 		};
@@ -274,7 +278,7 @@ function getSelectedFeatures() {
 
 function DownloadFile() {"use strict";
 
-	var Page = $Page, property = Page.getPageProperties(), form = Ext.getDom("fTableForm"), name = property.name, tree = property.tree;
+	var Page = $Page, property = Page.getPageProperties(), hash = property.hash, form = Ext.getDom("fTableForm"), name = property.name, tree = property.tree;
 
 	if (isOverDownloadLimit()) {
 		return false;
@@ -283,11 +287,18 @@ function DownloadFile() {"use strict";
 		tree.selectedTerm["Keyword"] = Ext.getDom("keyword").value;
 	}
 
-	form.action = "/patric-searches-and-tools/jsp/grid_download_handler.jsp";
-	form.download_keyword.value = constructKeyword(tree.getSelectedTerms(), name);
+	// form.action = "/patric-searches-and-tools/jsp/grid_download_handler.jsp";
+	form.action = "/portal/portal/patric/ExperimentList/ExperimentListWindow?action=b&cacheability=PAGE&need=download";
+//	form.download_keyword.value = constructKeyword(tree.getSelectedTerms(), name);
+	form.pk.value = hash.key;
 	form.fileformat.value = arguments[0];
 	form.target = "";
 	getHashFieldsToDownload(form);
+
+	var grid = Page.getGrid();
+	var sort = [];
+	sort.push(getSortersInText(grid.store));
+	form.sort.value = JSON.stringify(sort);
 	form.submit();
 
 }

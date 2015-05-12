@@ -17,9 +17,17 @@
  */
 package edu.vt.vbi.patric.portlets;
 
+import edu.vt.vbi.patric.beans.Genome;
+import edu.vt.vbi.patric.beans.Taxonomy;
+import edu.vt.vbi.patric.common.DataApiHandler;
 import edu.vt.vbi.patric.common.SiteHelper;
+import edu.vt.vbi.patric.common.SolrCore;
 import edu.vt.vbi.patric.dao.DBDisease;
 import edu.vt.vbi.patric.dao.ResultType;
+import org.apache.commons.lang.StringUtils;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectReader;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
@@ -28,11 +36,24 @@ import org.slf4j.LoggerFactory;
 import javax.portlet.*;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 public class DiseaseOverview extends GenericPortlet {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DiseaseOverview.class);
+
+	private ObjectReader jsonReader;
+
+	@Override
+	public void init() throws PortletException {
+		super.init();
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		jsonReader = objectMapper.reader(Map.class);
+	}
 
 	@Override
 	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
@@ -41,6 +62,53 @@ public class DiseaseOverview extends GenericPortlet {
 
 		response.setContentType("text/html");
 		response.setTitle("Disease Overview");
+
+		String contextType = request.getParameter("context_type");
+		String contextId = request.getParameter("context_id");
+		int taxonId;
+		List<Integer> targetGenusList = Arrays
+				.asList(1386,773,138,234,32008,194,83553,1485,776,943,561,262,209,1637,1763,780,590,620,1279,1301,662,629);
+
+		DataApiHandler dataApi = new DataApiHandler();
+
+		if (contextType.equals("genome")) {
+			Genome genome = dataApi.getGenome(contextId);
+			taxonId = genome.getTaxonId();
+		} else {
+			taxonId = Integer.parseInt(contextId);
+		}
+
+		Taxonomy taxonomy = dataApi.getTaxonomy(taxonId);
+		List<String> taxonLineageNames = taxonomy.getLineageNames();
+		List<String> taxonLineageRanks = taxonomy.getLineageRanks();
+		List<Integer> taxonLineageIds = taxonomy.getLineageIds();
+
+		List<Taxonomy> genusList = new LinkedList<>();
+
+		for (int i = 0; i < taxonLineageIds.size(); i++) {
+			if (taxonLineageRanks.get(i).equals("genus") && targetGenusList.contains(taxonLineageIds.get(i))) {
+				Taxonomy genus = new Taxonomy();
+				genus.setId(taxonLineageIds.get(i));
+				genus.setTaxonName(taxonLineageNames.get(i));
+
+				genusList.add(genus);
+			}
+		}
+
+		if (genusList.isEmpty()) {
+			SolrQuery query = new SolrQuery("lineage_ids:" + taxonId + " AND taxon_rank:genus AND taxon_id:(" + StringUtils.join(targetGenusList, " OR ") + ")");
+
+			String apiResponse = dataApi.solrQuery(SolrCore.TAXONOMY, query);
+
+			Map resp = jsonReader.readValue(apiResponse);
+			Map respBody = (Map) resp.get("response");
+
+			genusList = dataApi.bindDocuments((List<Map>) respBody.get("docs"), Taxonomy.class);
+		}
+
+		request.setAttribute("contextType", contextType);
+		request.setAttribute("contextId", contextId);
+		request.setAttribute("genusList", genusList);
 
 		PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/disease_overview.jsp");
 		prd.include(request, response);

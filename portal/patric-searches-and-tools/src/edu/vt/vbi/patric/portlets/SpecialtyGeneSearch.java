@@ -35,10 +35,7 @@ import org.slf4j.LoggerFactory;
 import javax.portlet.*;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class SpecialtyGeneSearch extends GenericPortlet {
 
@@ -211,78 +208,27 @@ public class SpecialtyGeneSearch extends GenericPortlet {
 		else {
 
 			String need = request.getParameter("need");
-			String facet, sort, keyword, pk, state, taxonId, genomeId;
-			boolean hl;
-
-			Map<String, String> key = new HashMap<>();
 			JSONObject jsonResult = new JSONObject();
 
-			if (need.equals("0") || need.equals("specialtygenemapping")) {
+			switch (need) {
+			case "0":
+			case "specialtygenemapping": {
 
-				pk = request.getParameter("pk");
-				keyword = request.getParameter("keyword");
-				facet = request.getParameter("facet");
-				sort = request.getParameter("sort");
-				taxonId = request.getParameter("taxonId");
-				genomeId = request.getParameter("genomeId");
+				String pk = request.getParameter("pk");
+				Map data = processSpecialtyGeneTab(request);
 
-				String highlight = request.getParameter("highlight");
-				hl = Boolean.parseBoolean(highlight);
+				Map<String, String> key = (Map) data.get("key");
+				int numFound = (Integer) data.get("numFound");
+				List<SpecialtyGene> records = (List<SpecialtyGene>) data.get("specialtyGenes");
 
-				String json = SessionHandler.getInstance().get(SessionHandler.PREFIX + pk);
-				if (json == null) {
-					key.put("facet", facet);
-					key.put("keyword", keyword);
-
-					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
-				}
-				else {
-					key = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
-					key.put("facet", facet);
-				}
-
-				if ((taxonId == null || taxonId.equals("")) && key.containsKey("taxonId") && !key.get("taxonId").equals("")) {
-					taxonId = key.get("taxonId");
-				}
-				if ((genomeId == null || genomeId.equals("")) && key.containsKey("genomeId") && !key.get("genomeId").equals("")) {
-					genomeId = key.get("genomeId");
-				}
-
-				String start_id = request.getParameter("start");
-				String limit = request.getParameter("limit");
-				int start = Integer.parseInt(start_id);
-				int end = Integer.parseInt(limit);
-
-				key.put("fields",
-						"genome_id,genome_name,taxon_id,feature_id,seed_id,alt_locus_tag,refseq_locus_tag,gene,product,property,source,property_source,source_id,organism,function,classification,pmid,query_coverage,subject_coverage,identity,e_value,same_species,same_genus,same_genome,evidence");
-
-				// add join condition
-				if (taxonId != null && !taxonId.equals("")) {
-					key.put("join", SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + taxonId));
-				}
-				if (genomeId != null && !genomeId.equals("")) {
-					key.put("join", "genome_id:" + genomeId);
-				}
-
-				SolrInterface solr = new SolrInterface();
-				SolrQuery query = solr.buildSolrQuery(key, sort, facet, start, end, hl);
-
-				LOGGER.debug("query: {}", query.toString());
-				DataApiHandler dataApi = new DataApiHandler(request);
-				String apiResponse = dataApi.solrQuery(SolrCore.SPECIALTY_GENE_MAPPING, query);
-
-				Map<String, Object> resp = jsonReader.readValue(apiResponse);
-				Map<String, Object> respBody = (Map<String, Object>) resp.get("response");
-
-				int numFound = (Integer) respBody.get("numFound");
 				JSONArray docs = new JSONArray();
-				List<SpecialtyGene> records = dataApi.bindDocuments((List<Map>) respBody.get("docs"), SpecialtyGene.class);
 				for (SpecialtyGene item : records) {
 					docs.add(item.toJSONObject());
 				}
 
-				if (resp.containsKey("facet_counts")) {
-					JSONObject facets = solr.formatFacetTree((Map) resp.get("facet_counts"));
+				if (data.containsKey("facets")) {
+					SolrInterface solr = new SolrInterface();
+					JSONObject facets = solr.formatFacetTree((Map) data.get("facets"));
 					key.put("facets", facets.toJSONString());
 					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
 				}
@@ -294,12 +240,13 @@ public class SpecialtyGeneSearch extends GenericPortlet {
 				PrintWriter writer = response.getWriter();
 				jsonResult.writeJSONString(writer);
 				writer.close();
-
+				break;
 			}
-			else if (need.equals("tree")) {
+			case "tree": {
 
-				pk = request.getParameter("pk");
-				key = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
+				String pk = request.getParameter("pk");
+				String state;
+				Map<String, String> key = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
 
 				if (key.containsKey("state")) {
 					state = key.get("state");
@@ -330,7 +277,121 @@ public class SpecialtyGeneSearch extends GenericPortlet {
 				PrintWriter writer = response.getWriter();
 				tree.writeJSONString(writer);
 				writer.close();
+				break;
+			}
+			case "download": {
+				List<String> tableHeader = new ArrayList<>();
+				List<String> tableField = new ArrayList<>();
+				JSONArray tableSource = new JSONArray();
+
+				String fileName = "SpecialtyGene";
+				String fileFormat = request.getParameter("fileformat");
+
+				Map data = processSpecialtyGeneTab(request);
+				List<SpecialtyGene> specialtygenes = (List<SpecialtyGene>) data.get("specialtyGenes");
+
+				for (SpecialtyGene gene : specialtygenes) {
+					tableSource.add(gene.toJSONObject());
+				}
+
+				tableHeader.addAll(DownloadHelper.getHeaderForSpecialtyGeneMapping());
+				tableField.addAll(DownloadHelper.getFieldsForSpecialtyGeneMapping());
+
+				ExcelHelper excel = new ExcelHelper("xssf", tableHeader, tableField, tableSource);
+				excel.buildSpreadsheet();
+
+				if (fileFormat.equalsIgnoreCase("xlsx")) {
+					response.setContentType("application/octetstream");
+					response.addProperty("Content-Disposition", "attachment; filename=\"" + fileName + "." + fileFormat + "\"");
+
+					excel.writeSpreadsheettoBrowser(response.getPortletOutputStream());
+				}
+				else if (fileFormat.equalsIgnoreCase("txt")) {
+
+					response.setContentType("application/octetstream");
+					response.addProperty("Content-Disposition", "attachment; filename=\"" + fileName + "." + fileFormat + "\"");
+
+					response.getPortletOutputStream().write(excel.writeToTextFile().getBytes());
+				}
+			}
 			}
 		}
+	}
+
+	private Map processSpecialtyGeneTab(ResourceRequest request) throws IOException {
+		String pk = request.getParameter("pk");
+		String keyword = request.getParameter("keyword");
+		String facet = request.getParameter("facet");
+		String sort = request.getParameter("sort");
+		String taxonId = request.getParameter("taxonId");
+		String genomeId = request.getParameter("genomeId");
+
+		String highlight = request.getParameter("highlight");
+		boolean hl = Boolean.parseBoolean(highlight);
+		Map<String, String> key = new HashMap<>();
+
+		String json = SessionHandler.getInstance().get(SessionHandler.PREFIX + pk);
+		if (json == null) {
+			key.put("facet", facet);
+			key.put("keyword", keyword);
+
+			SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
+		}
+		else {
+			key = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
+			key.put("facet", facet);
+		}
+
+		if ((taxonId == null || taxonId.equals("")) && key.containsKey("taxonId") && !key.get("taxonId").equals("")) {
+			taxonId = key.get("taxonId");
+		}
+		if ((genomeId == null || genomeId.equals("")) && key.containsKey("genomeId") && !key.get("genomeId").equals("")) {
+			genomeId = key.get("genomeId");
+		}
+
+		String start_id = request.getParameter("start");
+		String limit = request.getParameter("limit");
+		int start = 0;
+		int end = -1;
+		if (start_id != null) {
+			start = Integer.parseInt(start_id);
+		}
+		if (limit != null) {
+			end = Integer.parseInt(limit);
+		}
+
+		key.put("fields",
+				"genome_id,genome_name,taxon_id,feature_id,seed_id,alt_locus_tag,refseq_locus_tag,gene,product,property,source,property_source,source_id,organism,function,classification,pmid,query_coverage,subject_coverage,identity,e_value,same_species,same_genus,same_genome,evidence");
+
+		// add join condition
+		if (taxonId != null && !taxonId.equals("")) {
+			key.put("join", SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + taxonId));
+		}
+		if (genomeId != null && !genomeId.equals("")) {
+			key.put("join", "genome_id:" + genomeId);
+		}
+
+		SolrInterface solr = new SolrInterface();
+		SolrQuery query = solr.buildSolrQuery(key, sort, facet, start, end, hl);
+
+		LOGGER.debug("query: {}", query.toString());
+		DataApiHandler dataApi = new DataApiHandler(request);
+		String apiResponse = dataApi.solrQuery(SolrCore.SPECIALTY_GENE_MAPPING, query);
+
+		Map resp = jsonReader.readValue(apiResponse);
+		Map respBody = (Map) resp.get("response");
+
+		int numFound = (Integer) respBody.get("numFound");
+		List<SpecialtyGene> specialtyGenes = dataApi.bindDocuments((List<Map>) respBody.get("docs"), SpecialtyGene.class);
+
+		Map response = new HashMap();
+		response.put("key", key);
+		response.put("numFound", numFound);
+		response.put("specialtyGenes", specialtyGenes);
+		if (resp.containsKey("facet_counts")) {
+			response.put("facets", resp.get("facet_counts"));
+		}
+
+		return response;
 	}
 }

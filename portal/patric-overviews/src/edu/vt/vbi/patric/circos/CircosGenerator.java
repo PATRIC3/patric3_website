@@ -33,12 +33,9 @@ public class CircosGenerator {
 
 	private Template tmplCircosConf;
 
-	CircosData circosData;
-
 	public CircosGenerator(String appPath, String outputPath) {
 		appDir = appPath;
 		outputDir = outputPath;
-		circosData = new CircosData();
 		try {
 			tmplPlotConf = Mustache.compiler().compile(new BufferedReader(new FileReader(appDir + "/conf_templates/plots.mu")));
 			tmplImageConf = Mustache.compiler().compile(new BufferedReader(new FileReader(appDir + "/conf_templates/image.mu")));
@@ -49,7 +46,7 @@ public class CircosGenerator {
 		}
 	}
 
-	public Circos createCircosImage(Map<String, Object> parameters) {
+	public Circos createCircosImage(CircosData circosData, Map<String, Object> parameters) throws IOException {
 		if (parameters.isEmpty()) {
 			LOGGER.error("Circos image could not be created");
 			return null;
@@ -84,7 +81,7 @@ public class CircosGenerator {
 
 			// Collect genome data using Solr API for PATRIC
 			// circos.setGenomeData(this.getGenomeData(parameters));
-			circos = this.getGenomeData(circos, parameters);
+			circos = this.getGenomeData(circos, circosData, parameters);
 
 			// Create temp directory for this image's data
 			String tmpFolderName = circos.getTmpDir();
@@ -97,7 +94,7 @@ public class CircosGenerator {
 			}
 
 			// Create data and config files for Circos
-			circos = createCircosDataFiles(circos, parameters);
+			circos = createCircosDataFiles(circos, circosData, parameters);
 			circos = createCircosConfigFiles(circos);
 
 			// Run Circos script to generate final image
@@ -117,7 +114,7 @@ public class CircosGenerator {
 		}
 	}
 
-	private Circos getGenomeData(Circos circosConf, Map<String, Object> parameters) {
+	private Circos getGenomeData(Circos circosConf, CircosData circosData, Map<String, Object> parameters) throws IOException {
 		String genomeId = parameters.get("genome_id").toString();
 		List<String> defaultDataTracks = new ArrayList<>();
 		List<String> defaultTrackNames = new ArrayList<>();
@@ -194,7 +191,7 @@ public class CircosGenerator {
 		return circosConf;
 	}
 
-	private Circos createCircosDataFiles(Circos circos, Map<String, Object> parameters) {
+	private Circos createCircosDataFiles(Circos circos, CircosData circosData, Map<String, Object> parameters) throws IOException {
 		Map<String, String> trackNames = circos.getTrackNames();
 		// Create folder for all data files
 		String dirData = circos.getTmpDir() + DIR_DATA;
@@ -251,8 +248,8 @@ public class CircosGenerator {
 			float maxGCContent = 0.0f;
 
 			for (Map<String, Object> accession : accessions) {
-				String accessionID = accession.get("accession").toString();
-				String sequence = accession.get("sequence").toString();
+				String accessionID = (String) accession.get("accession");
+				String sequence = (String) accession.get("sequence");
 				int totalSeqLength = sequence.length();
 
 				// Iterate over each window_size-sized block and calculate its GC content.

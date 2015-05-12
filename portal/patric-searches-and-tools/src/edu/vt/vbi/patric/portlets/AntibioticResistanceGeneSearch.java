@@ -269,8 +269,8 @@ public class AntibioticResistanceGeneSearch extends GenericPortlet {
 				DataApiHandler dataApi = new DataApiHandler(request);
 				String apiResponse = dataApi.solrQuery(SolrCore.SPECIALTY_GENE_MAPPING, query);
 
-				Map<String, Object> resp = jsonReader.readValue(apiResponse);
-				Map<String, Object> respBody = (Map<String, Object>) resp.get("response");
+				Map resp = jsonReader.readValue(apiResponse);
+				Map respBody = (Map) resp.get("response");
 
 				int numFound = (Integer) respBody.get("numFound");
 				JSONArray docs = new JSONArray();

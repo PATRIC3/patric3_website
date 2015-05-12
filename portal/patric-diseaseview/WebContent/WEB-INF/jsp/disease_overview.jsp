@@ -1,11 +1,11 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet"%>
 <%@ page import="java.util.List" %>
-<%@ page import="edu.vt.vbi.patric.dao.DBShared" %>
-<%@ page import="edu.vt.vbi.patric.dao.DBDisease" %>
-<%@ page import="edu.vt.vbi.patric.dao.ResultType" %>
+<%@ page import="edu.vt.vbi.patric.beans.Taxonomy" %>
 <%
-String cType = request.getParameter("context_type");
-String cId = request.getParameter("context_id");
+	String contextType = (String) request.getAttribute("contextType");
+	String contextId = (String) request.getAttribute("contextId");
+
+	List<Taxonomy> genusList = (List<Taxonomy>) request.getAttribute("genusList");
 %>
 <div id="SearchSummary">
 <p>The Disease Overview presents infectious disease, virulence, and  
@@ -114,28 +114,21 @@ information, see our <a href="http://enews.patricbrc.org/virulence-and-disease-f
 
 <div id="healthmap_container">
 <% 
-if ((cType.equals("taxon") || cType.equals("genome")) && cId!=null) 
-{
-	String taxonId = "";
-	
-	if (cType.equals("genome")) {
-		DBShared conn_shared = new DBShared();
-		ResultType names = conn_shared.getNamesFromGenomeInfoId(cId);
-		taxonId = names.get("ncbi_taxon_id");
-	} else {
-		taxonId = cId;
-	}
-	
-	DBDisease conn_disease = new DBDisease();
-	List<ResultType> items = conn_disease.getGenusInTaxonomy(taxonId);
+if (!genusList.isEmpty()) {
+
 %>
 <div id="tree_select_div" style="visibility:hidden">
 	<p>The map below integrates outbreak data of varying reliability, ranging from news sources (such as Google News) to curated personal accounts (such as ProMED) to validated official alerts (such as World Health Organization). It is made available through a collaboration between PATRIC and <a href="http://healthmap.org/en/" target="_blank">HealthMap</a>.</p>
 	<p>Select Genus 
 		<select id="tree_select_list" onchange="selectChange()" >
-		<% for (int i=0; i<items.size(); i++) { %>
-			<option value="<%=items.get(i).get("ncbi_tax_id")%>" <%=(i==0)?"selected='selected'":"" %>><%=items.get(i).get("name")%></option>
-		<% }} %>
+		<%
+			boolean isFirst = true;
+			for (Taxonomy genus : genusList) { %>
+				<option value="<%=genus.getId()%>" <%=(isFirst)?"selected='selected'":"" %>><%=genus.getTaxonName()%></option>
+		<%
+				isFirst = false;
+			}
+} %>
 		</select>
 	</p>	
 </div>
@@ -143,8 +136,8 @@ if ((cType.equals("taxon") || cType.equals("genome")) && cId!=null)
 
 
 <form action="#">
-<input type="hidden" id="cType" name="cType" value="<%=cType %>" />
-<input type="hidden" id="cId" name="cId" value="<%=cId %>" />
+<input type="hidden" id="cType" name="cType" value="<%=contextType %>" />
+<input type="hidden" id="cId" name="cId" value="<%=contextId %>" />
 <input type="hidden" id="aT" name="aT" value="0" />
 </form>
 <script type="text/javascript" src="/patric-diseaseview/js/idv-shared.js"></script>
@@ -404,7 +397,7 @@ function loadPubMed(){
 				root:'results',
 				totalProperty:'total'
 			},
-			extraParams: {keyword:'Disease', date:'a', 'context_type':Ext.getDom('cType').value, 'context_id':Ext.getDom('cId').value}
+			extraParams: {keyword:'Disease', date:'a', 'cType':Ext.getDom('cType').value, 'cId':Ext.getDom('cId').value}
 		},
 		autoLoad: false,
 		pageSize: 6

@@ -19,7 +19,7 @@ package edu.vt.vbi.patric.portlets;
 
 import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.beans.Taxonomy;
-import edu.vt.vbi.patric.common.SolrInterface;
+import edu.vt.vbi.patric.common.DataApiHandler;
 import edu.vt.vbi.patric.dao.DBPRC;
 import edu.vt.vbi.patric.mashup.PRIDEInterface;
 import org.json.simple.JSONObject;
@@ -63,15 +63,15 @@ public class ProteomicsSummary extends GenericPortlet {
 			String errorMsg = "Data is not available temporarily";
 
 			DBPRC conn_prc = new DBPRC();
-			SolrInterface solr = new SolrInterface();
+			DataApiHandler dataApi = new DataApiHandler(request);
 
 			if (contextType.equals("taxon")) {
-				Taxonomy taxonomy = solr.getTaxonomy(Integer.parseInt(contextId));
+				Taxonomy taxonomy = dataApi.getTaxonomy(Integer.parseInt(contextId));
 				speciesName = taxonomy.getTaxonName();
 				taxonId = taxonomy.getId();
 			}
 			else if (contextType.equals("genome")) {
-				Genome genome = solr.getGenome(contextId);
+				Genome genome = dataApi.getGenome(contextId);
 				speciesName = genome.getGenomeName();
 				taxonId = genome.getTaxonId();
 			}

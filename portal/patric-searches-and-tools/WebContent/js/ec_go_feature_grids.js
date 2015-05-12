@@ -147,21 +147,27 @@ function getSelectedFeatures() {"use strict";
 
 function DownloadFile() {"use strict";
 
-	var Page = $Page, property = Page.getPageProperties(), tree = property.tree, form = Ext.getDom("fTableForm");
+	var Page = $Page, property = Page.getPageProperties(), hash = property.hash, tree = property.tree, form = Ext.getDom("fTableForm");
 
 	if (isOverDownloadLimit()) {
 		return false;
 	}
 
-	if (tree.getSelectedTerms()["Keyword"] == null) {
-		tree.selectedTerm["Keyword"] = Ext.getDom("keyword").value;
-	}
+	//if (tree.getSelectedTerms()["Keyword"] == null) {
+	//	tree.selectedTerm["Keyword"] = Ext.getDom("keyword").value;
+	//}
 
-	form.action = "/patric-searches-and-tools/jsp/grid_download_handler.jsp";
+	// form.action = "/patric-searches-and-tools/jsp/grid_download_handler.jsp";
+	form.action = "/portal/portal/patric/GenomicFeature/GenomicFeatureWindow?action=b&cacheability=PAGE&need=download";
 	form.fileformat.value = arguments[0];
-	form.download_keyword.value = constructKeyword(tree.getSelectedTerms(), property.name);
+	//form.download_keyword.value = constructKeyword(tree.getSelectedTerms(), property.name);
+	form.pk.value = hash.key;
 	form.target = "";
 	getHashFieldsToDownload(form);
 
+	var grid = Page.getGrid();
+	var sort = [];
+	sort.push(getSortersInText(grid.store));
+	form.sort.value = JSON.stringify(sort);
 	form.submit();
 }

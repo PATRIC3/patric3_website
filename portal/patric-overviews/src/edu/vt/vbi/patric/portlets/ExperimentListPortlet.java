@@ -17,18 +17,12 @@
  */
 package edu.vt.vbi.patric.portlets;
 
-import com.google.gson.Gson;
-import edu.vt.vbi.patric.common.SessionHandler;
-import edu.vt.vbi.patric.common.SiteHelper;
-import edu.vt.vbi.patric.common.SolrCore;
-import edu.vt.vbi.patric.common.SolrInterface;
-import edu.vt.vbi.patric.dao.ResultType;
+import edu.vt.vbi.patric.common.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectReader;
+import org.codehaus.jackson.map.ObjectWriter;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -39,14 +33,24 @@ import org.slf4j.LoggerFactory;
 import javax.portlet.*;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.MalformedURLException;
 import java.util.*;
 
 public class ExperimentListPortlet extends GenericPortlet {
 
-	SolrInterface solr = new SolrInterface();
-
 	private static final Logger LOGGER = LoggerFactory.getLogger(ExperimentListPortlet.class);
+
+	private ObjectReader jsonReader;
+
+	private ObjectWriter jsonWriter;
+
+	@Override
+	public void init() throws PortletException {
+		super.init();
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		jsonReader = objectMapper.reader(Map.class);
+		jsonWriter = objectMapper.writerWithType(Map.class);
+	}
 
 	@Override
 	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
@@ -60,12 +64,11 @@ public class ExperimentListPortlet extends GenericPortlet {
 		String cId = request.getParameter("context_id");
 
 		if (cType != null && cId != null) {
+
 			String kw = (request.getParameter("keyword") != null) ? request.getParameter("keyword") : "";
 			if (kw != null && (kw.startsWith("/") || kw.startsWith("#"))) {
 				kw = "";
 			}
-
-			SolrInterface solr = new SolrInterface();
 
 			String keyword = "(*)";
 			String filter;
@@ -76,44 +79,28 @@ public class ExperimentListPortlet extends GenericPortlet {
 				eid = "";
 			}
 			else {
+				DataApiHandler dataApi = new DataApiHandler(request);
 				List<String> items = new ArrayList<>();
+
+				SolrQuery query = new SolrQuery();
+
 				if (cType.equals("taxon")) {
-
-					try {
-						SolrQuery query = new SolrQuery("*:*");
-						query.setRows(10000);
-						query.setFields("eid");
-						query.setFilterQueries(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_ids", "taxon_lineage_ids:" + cId));
-
-						QueryResponse qr = solr.getSolrServer(SolrCore.TRANSCRIPTOMICS_EXPERIMENT).query(query);
-						SolrDocumentList sdl = qr.getResults();
-
-						for (SolrDocument doc : sdl) {
-							items.add(doc.get("eid").toString());
-						}
-
-					}
-					catch (MalformedURLException | SolrServerException e) {
-						LOGGER.error(e.getMessage(), e);
-					}
+					query.setQuery("*:*");
+					query.setFilterQueries(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_ids", "taxon_lineage_ids:" + cId));
 				}
 				else if (cType.equals("genome")) {
+					query = new SolrQuery("genome_ids:" + cId);
+				}
 
-					try {
-						SolrQuery query = new SolrQuery("genome_ids:" + cId);
-						query.setRows(10000);
-						query.setFields("eid");
+				query.setRows(10000).setFields("eid");
+				String apiResponse = dataApi.solrQuery(SolrCore.TRANSCRIPTOMICS_EXPERIMENT, query);
 
-						QueryResponse qr = solr.getSolrServer(SolrCore.TRANSCRIPTOMICS_EXPERIMENT).query(query);
-						SolrDocumentList sdl = qr.getResults();
+				Map resp = jsonReader.readValue(apiResponse);
+				Map respBody = (Map) resp.get("response");
+				List<Map> sdl = (List<Map>) respBody.get("docs");
 
-						for (SolrDocument doc : sdl) {
-							items.add(doc.get("eid").toString());
-						}
-					}
-					catch (MalformedURLException | SolrServerException e) {
-						LOGGER.error(e.getMessage(), e);
-					}
+				for (Map doc : sdl) {
+					items.add(doc.get("eid").toString());
 				}
 
 				if (items.size() > 0) {
@@ -136,14 +123,14 @@ public class ExperimentListPortlet extends GenericPortlet {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void serveResource(ResourceRequest request, ResourceResponse response) throws PortletException, IOException {
+	public void serveResource(ResourceRequest request, ResourceResponse response)
+			throws PortletException, IOException {
 
 		String sraction = request.getParameter("sraction");
-		Gson gson = new Gson();
 
 		if (sraction != null && sraction.equals("save_params")) {
 
-			ResultType key = new ResultType();
+			Map<String, String> key = new HashMap<>();
 
 			String genomeId = request.getParameter("genomeId");
 			String taxonId = "";
@@ -173,7 +160,7 @@ public class ExperimentListPortlet extends GenericPortlet {
 			}
 			long pk = (new Random()).nextLong();
 
-			SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
+			SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
 
 			PrintWriter writer = response.getWriter();
 			writer.write("" + pk);
@@ -183,81 +170,34 @@ public class ExperimentListPortlet extends GenericPortlet {
 		else {
 
 			String need = request.getParameter("need");
-			ResultType key = new ResultType();
 			JSONObject jsonResult = new JSONObject();
 
 			switch (need) {
 			case "0": {
 				// Experiments
-				solr.setCurrentInstance(SolrCore.TRANSCRIPTOMICS_EXPERIMENT);
-
 				String pk = request.getParameter("pk");
-				String keyword = request.getParameter("keyword");
-				String facet = request.getParameter("facet");
-				String highlight = request.getParameter("highlight");
+				Map data = processExperimentTab(request);
 
-				boolean hl = Boolean.parseBoolean(highlight);
+				Map<String, String> key = (Map) data.get("key");
+				int numFound = (Integer) data.get("numFound");
+				List<Map> experiments = (List<Map>) data.get("experiments");
 
-				String json = SessionHandler.getInstance().get(SessionHandler.PREFIX + pk);
-				if (json == null) {
-					key.put("facet", facet);
-					key.put("keyword", keyword);
-
-					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
-				}
-				else {
-					key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), ResultType.class);
-					key.put("facet", facet);
+				JSONArray docs = new JSONArray();
+				for (Map item : experiments) {
+					JSONObject doc = new JSONObject();
+					doc.putAll(item);
+					docs.add(doc);
 				}
 
-				String start_id = request.getParameter("start");
-				String limit = request.getParameter("limit");
-				int start = Integer.parseInt(start_id);
-				int end = Integer.parseInt(limit);
-
-				Map<String, String> sort = null;
-				if (request.getParameter("sort") != null) {
-					// sorting
-					JSONParser a = new JSONParser();
-					JSONArray sorter;
-					String sort_field = "";
-					String sort_dir = "";
-					try {
-						sorter = (JSONArray) a.parse(request.getParameter("sort"));
-						sort_field += ((JSONObject) sorter.get(0)).get("property").toString();
-						sort_dir += ((JSONObject) sorter.get(0)).get("direction").toString();
-						for (int i = 1; i < sorter.size(); i++) {
-							sort_field += "," + ((JSONObject) sorter.get(i)).get("property").toString();
-						}
-					}
-					catch (ParseException e) {
-						LOGGER.error(e.getMessage(), e);
-					}
-
-					sort = new HashMap<>();
-
-					if (!sort_field.equals("") && !sort_dir.equals("")) {
-						sort.put("field", sort_field);
-						sort.put("direction", sort_dir);
-					}
-				}
-				key.put("fields",
-						"eid,expid,accession,institution,pi,author,pmid,release_date,title,organism,strain,mutant,timeseries,condition,samples,platform,genes");
-				JSONObject object = solr.getData(key, sort, facet, start, end, true, hl, false);
-
-				JSONObject obj = (JSONObject) object.get("response");
-				JSONArray obj1 = (JSONArray) obj.get("docs");
-
-				if (!key.containsKey("facets")) {
-					if (object.containsKey("facets")) {
-						JSONObject facets = (JSONObject) object.get("facets");
-						key.put("facets", facets.toString());
-						SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
-					}
+				if (data.containsKey("facets")) {
+					SolrInterface solr = new SolrInterface();
+					JSONObject facets = solr.formatFacetTree((Map) data.get("facets"));
+					key.put("facets", facets.toJSONString());
+					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
 				}
 
-				jsonResult.put("results", obj1);
-				jsonResult.put("total", obj.get("numFound"));
+				jsonResult.put("results", docs);
+				jsonResult.put("total", numFound);
 
 				response.setContentType("application/json");
 				PrintWriter writer = response.getWriter();
@@ -268,113 +208,34 @@ public class ExperimentListPortlet extends GenericPortlet {
 			}
 			case "1": {
 				// Comparisons
-				String pk = request.getParameter("pk");
+				Map data = processComparisonTab(request);
 
-				String keyword = request.getParameter("keyword");
-				String eId = request.getParameter("eId");
-				String facet = request.getParameter("facet");
+				int numFound = (Integer) data.get("numFound");
+				List<Map> comparisons = (List<Map>) data.get("comparisons");
 
-				String json = SessionHandler.getInstance().get(SessionHandler.PREFIX + pk);
-				if (json == null) {
-					key.put("facet", facet);
-					key.put("keyword", keyword);
-					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
-				}
-				else {
-					key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), ResultType.class);
-					key.put("facet", facet);
+				JSONArray docs = new JSONArray();
+				for (Map item : comparisons) {
+					JSONObject doc = new JSONObject();
+					doc.putAll(item);
+					docs.add(doc);
 				}
 
-				String orig_keyword = key.get("keyword");
+//				key.put("keyword", orig_keyword);
 
-				if (eId != null && !eId.equals("")) {
-					key.put("keyword", solr.ConstructKeyword("eid", eId));
-
-				}
-				else if (eId != null && eId.equals("")) {
-
-					List<String> eIdList = new ArrayList<>();
-					solr.setCurrentInstance(SolrCore.TRANSCRIPTOMICS_EXPERIMENT);
-					JSONObject object = solr.getData(key, null, facet, 0, 10000, true, false, false);
-
-					JSONObject obj = (JSONObject) object.get("response");
-					JSONArray obj1 = (JSONArray) obj.get("docs");
-
-					for (Object ob : obj1) {
-						JSONObject doc = (JSONObject) ob;
-						eIdList.add(doc.get("eid").toString());
-					}
-
-					key.put("keyword", solr.ConstructKeyword("eid", StringUtils.join(eIdList, ",")));
-
-					JSONObject facets = (JSONObject) object.get("facets");
-					if (facets != null) {
-						key.put("facets", facets.toString());
-						SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
-					}
-				}
-
-				String start_id = request.getParameter("start");
-				String limit = request.getParameter("limit");
-				int start = Integer.parseInt(start_id);
-				int end = Integer.parseInt(limit);
-
-				// sorting
-				JSONParser a = new JSONParser();
-				JSONArray sorter;
-				String sort_field = "";
-				String sort_dir = "";
-				try {
-					sorter = (JSONArray) a.parse(request.getParameter("sort"));
-					sort_field += ((JSONObject) sorter.get(0)).get("property").toString();
-					sort_dir += ((JSONObject) sorter.get(0)).get("direction").toString();
-					for (int i = 1; i < sorter.size(); i++) {
-						sort_field += "," + ((JSONObject) sorter.get(i)).get("property").toString();
-					}
-				}
-				catch (ParseException e) {
-					LOGGER.error(e.getMessage(), e);
-				}
-
-				Map<String, String> sort = new HashMap<>();
-
-				if (!sort_field.equals("") && !sort_dir.equals("")) {
-					sort.put("field", sort_field);
-					sort.put("direction", sort_dir);
-				}
-				solr.setCurrentInstance(SolrCore.TRANSCRIPTOMICS_COMPARISON);
-				key.put("fields",
-						"eid,expid,accession,pid,samples,expname,release_date,pmid,organism,strain,mutant,timepoint,condition,genes,sig_log_ratio,sig_z_score");
-
-				JSONObject object = solr.getData(key, sort, facet, start, end, false, false, false);
-
-				JSONObject obj = (JSONObject) object.get("response");
-				JSONArray obj1 = (JSONArray) obj.get("docs");
-
-				if (!key.containsKey("facets")) {
-					JSONObject facets = (JSONObject) object.get("facets");
-					key.put("facets", facets.toString());
-					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
-				}
-
-				key.put("keyword", orig_keyword);
-
-				jsonResult.put("results", obj1);
-				jsonResult.put("total", obj.get("numFound"));
+				jsonResult.put("results", docs);
+				jsonResult.put("total", numFound);
 
 				response.setContentType("application/json");
 				PrintWriter writer = response.getWriter();
-				writer.write(jsonResult.toString());
+				jsonResult.writeJSONString(writer);
 				writer.close();
 
 				break;
 			}
 			case "tree": {
 
-				solr.setCurrentInstance(SolrCore.TRANSCRIPTOMICS_EXPERIMENT);
-
 				String pk = request.getParameter("pk");
-				key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), ResultType.class);
+				Map<String, String> key = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
 				String state;
 
 				if (key.containsKey("state")) {
@@ -385,17 +246,17 @@ public class ExperimentListPortlet extends GenericPortlet {
 				}
 
 				key.put("state", state);
-				SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
 
+				SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
+
+				JSONArray tree = new JSONArray();
 				try {
-					if (!key.containsKey("tree")) {
+					if (key.containsKey("facets") && !key.get("facets").equals("{}")) {
+
 						JSONObject facet_fields = (JSONObject) new JSONParser().parse(key.get("facets"));
-						JSONArray arr1 = solr.processStateAndTree(key, need, facet_fields, key.get("facet"), state, null, 4, false);
-						jsonResult.put("results", arr1);
-						key.put("tree", arr1);
-					}
-					else {
-						jsonResult.put("results", key.get("tree"));
+						SolrInterface solr = new SolrInterface();
+						solr.setCurrentInstance(SolrCore.TRANSCRIPTOMICS_EXPERIMENT);
+						tree = solr.processStateAndTree(key, need, facet_fields, key.get("facet"), state, null, 4, false);
 					}
 				}
 				catch (ParseException e) {
@@ -404,11 +265,218 @@ public class ExperimentListPortlet extends GenericPortlet {
 
 				response.setContentType("application/json");
 				PrintWriter writer = response.getWriter();
-				writer.write(jsonResult.get("results").toString());
+				tree.writeJSONString(writer);
 				writer.close();
+				break;
+			}
+			case "download": {
+				List<String> tableHeader = new ArrayList<>();
+				List<String> tableField = new ArrayList<>();
+				JSONArray tableSource = new JSONArray();
+
+				String fileName = "Transcriptomics";
+				String fileFormat = request.getParameter("fileformat");
+
+				String aT = request.getParameter("aT");
+
+				switch (aT) {
+				case "0": {
+					// experiments
+					Map data = processExperimentTab(request);
+					List<Map> experiments = (List<Map>) data.get("experiments");
+
+					for (Map item : experiments) {
+						JSONObject doc = new JSONObject();
+						doc.putAll(item);
+						tableSource.add(doc);
+					}
+
+					tableHeader.addAll(DownloadHelper.getHeaderForTranscriptomicsExperiment());
+					tableField.addAll(DownloadHelper.getFieldsForTranscriptomicsExperiment());
+					break;
+				}
+				case "1": {
+					// comparisons
+					Map data = processComparisonTab(request);
+					List<Map> comparisons = (List<Map>) data.get("comparisons");
+
+					for (Map item : comparisons) {
+						JSONObject doc = new JSONObject();
+						doc.putAll(item);
+						tableSource.add(doc);
+					}
+
+					tableHeader.addAll(DownloadHelper.getHeaderForTranscriptomicsComparison());
+					tableField.addAll(DownloadHelper.getFieldsForTranscriptomicsComparison());
+					break;
+				}
+				}
+
+				ExcelHelper excel = new ExcelHelper("xssf", tableHeader, tableField, tableSource);
+				excel.buildSpreadsheet();
+
+				if (fileFormat.equalsIgnoreCase("xlsx")) {
+					response.setContentType("application/octetstream");
+					response.addProperty("Content-Disposition", "attachment; filename=\"" + fileName + "." + fileFormat + "\"");
+
+					excel.writeSpreadsheettoBrowser(response.getPortletOutputStream());
+				}
+				else if (fileFormat.equalsIgnoreCase("txt")) {
+
+					response.setContentType("application/octetstream");
+					response.addProperty("Content-Disposition", "attachment; filename=\"" + fileName + "." + fileFormat + "\"");
+
+					response.getPortletOutputStream().write(excel.writeToTextFile().getBytes());
+				}
 				break;
 			}
 			}
 		}
+	}
+
+	private Map processExperimentTab(ResourceRequest request) throws IOException {
+
+		String pk = request.getParameter("pk");
+		String keyword = request.getParameter("keyword");
+		String facet = request.getParameter("facet");
+		String sort = request.getParameter("sort");
+		String highlight = request.getParameter("highlight");
+
+		boolean hl = Boolean.parseBoolean(highlight);
+		Map<String, String> key = new HashMap<>();
+
+		String json = SessionHandler.getInstance().get(SessionHandler.PREFIX + pk);
+		if (json == null) {
+			key.put("facet", facet);
+			key.put("keyword", keyword);
+
+			SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
+		}
+		else {
+			key = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
+			key.put("facet", facet);
+		}
+
+		String start_id = request.getParameter("start");
+		String limit = request.getParameter("limit");
+		int start = 0;
+		int end = -1;
+		if (start_id != null) {
+			start = Integer.parseInt(start_id);
+		}
+		if (limit != null) {
+			end = Integer.parseInt(limit);
+		}
+
+		key.put("fields",
+				"eid,expid,accession,institution,pi,author,pmid,release_date,title,organism,strain,mutant,timeseries,condition,samples,platform,genes");
+
+		SolrInterface solr = new SolrInterface();
+		SolrQuery query = solr.buildSolrQuery(key, sort, facet, start, end, hl);
+
+		LOGGER.debug("[{}] {}", SolrCore.TRANSCRIPTOMICS_EXPERIMENT.getSolrCoreName(), query.toString());
+		DataApiHandler dataApi = new DataApiHandler(request);
+		String apiResponse = dataApi.solrQuery(SolrCore.TRANSCRIPTOMICS_EXPERIMENT, query);
+
+		Map resp = jsonReader.readValue(apiResponse);
+		Map respBody = (Map) resp.get("response");
+
+		int numFound = (Integer) respBody.get("numFound");
+		List<Map> experiments = (List<Map>) respBody.get("docs");
+
+		Map response = new HashMap();
+		response.put("key", key);
+		response.put("numFound", numFound);
+		response.put("experiments", experiments);
+		if (resp.containsKey("facet_counts")) {
+			response.put("facets", resp.get("facet_counts"));
+		}
+
+		return response;
+	}
+
+	private Map processComparisonTab(ResourceRequest request) throws IOException {
+
+		String pk = request.getParameter("pk");
+		String keyword = request.getParameter("keyword");
+		String eId = request.getParameter("eId");
+		String facet = request.getParameter("facet");
+		Map<String, String> key = new HashMap<>();
+
+		String json = SessionHandler.getInstance().get(SessionHandler.PREFIX + pk);
+		if (json == null) {
+			key.put("facet", facet);
+			key.put("keyword", keyword);
+			SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
+		}
+		else {
+			key = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
+			key.put("facet", facet);
+		}
+
+//		String orig_keyword = key.get("keyword");
+		SolrInterface solr = new SolrInterface();
+		DataApiHandler dataApi = new DataApiHandler(request);
+
+		if (eId != null && !eId.equals("")) {
+			key.put("keyword", solr.ConstructKeyword("eid", eId));
+
+		}
+		else if (eId != null && eId.equals("")) {
+
+			List<String> eIdList = new ArrayList<>();
+
+			SolrQuery query = solr.buildSolrQuery(key, null, facet, 0, 10000, false);
+			String apiResponse = dataApi.solrQuery(SolrCore.TRANSCRIPTOMICS_EXPERIMENT, query);
+
+			Map resp = jsonReader.readValue(apiResponse);
+			Map respBody = (Map) resp.get("response");
+
+			List<Map> sdl = (List<Map>) respBody.get("docs");
+			for (Map doc : sdl) {
+				eIdList.add(doc.get("eid").toString());
+			}
+
+			key.put("keyword", solr.ConstructKeyword("eid", StringUtils.join(eIdList, ",")));
+
+			if (resp.containsKey("facet_counts")) {
+				JSONObject facets = solr.formatFacetTree((Map) resp.get("facet_counts"));
+				key.put("facets", facets.toJSONString());
+				SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
+			}
+		}
+
+		String start_id = request.getParameter("start");
+		String limit = request.getParameter("limit");
+		int start = 0;
+		int end = -1;
+		if (start_id != null) {
+			start = Integer.parseInt(start_id);
+		}
+		if (limit != null) {
+			end = Integer.parseInt(limit);
+		}
+
+		String sort = request.getParameter("sort");
+
+		key.put("fields",
+				"eid,expid,accession,pid,samples,expname,release_date,pmid,organism,strain,mutant,timepoint,condition,genes,sig_log_ratio,sig_z_score");
+
+		SolrQuery query = solr.buildSolrQuery(key, sort, null, start, end, false);
+
+		String apiResponse = dataApi.solrQuery(SolrCore.TRANSCRIPTOMICS_COMPARISON, query);
+
+		Map resp = jsonReader.readValue(apiResponse);
+		Map respBody = (Map) resp.get("response");
+		List<Map> comparisons = (List<Map>) respBody.get("docs");
+
+		int numFound = (Integer) respBody.get("numFound");
+
+		Map response = new HashMap();
+		response.put("key", key);
+		response.put("numFound", numFound);
+		response.put("comparisons", comparisons);
+
+		return response;
 	}
 }

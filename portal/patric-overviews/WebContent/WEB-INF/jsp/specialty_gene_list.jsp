@@ -33,17 +33,17 @@
 	<input type="hidden" name="keyword" id="keyword" value="<%=keyword%>" />
 	<input type="hidden" name="cType" id="cType" value="<%=cType %>" />
 	<input type="hidden" name="cId" id="cId" value="<%=cId %>" />
-	<input type="hidden" name="gId" id="gId" value="" />
+	<input type="hidden" id="taxonId" name="taxonId" value="<%=taxonId %>" />
+	<input type="hidden" id="genomeId" name="genomeId" value="<%=gid %>" />
 	<input type="hidden" id="aT" name="aT" value="" />
 	<input type="hidden" id="sort" name="sort" value="" />
-	<input type="hidden" id="dir" name="dir" value="" />
+	<input type="hidden" id="pk" name="pk" value="<%=pk%>" />
 
 	<!-- fasta download specific param -->
 	<input type="hidden" id="fastaaction" name="fastaaction" value="" />
 	<input type="hidden" id="fastatype" name="fastatype" value="" />
 	<input type="hidden" id="fastascope" name="fastascope" value="" />
 	<input type="hidden" id="fids" name="fids" value="" />
-	<input type="hidden" id="download_keyword" name="download_keyword" value="" />
 	<input type="hidden" id="fileformat" name="fileformat" value=""/>
 </form>
 <div id="copy-button" class="x-hidden"></div>

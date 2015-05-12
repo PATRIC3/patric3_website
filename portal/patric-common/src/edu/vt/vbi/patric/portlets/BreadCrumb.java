@@ -73,8 +73,9 @@ public class BreadCrumb extends GenericPortlet {
 		// create cache for Genome Selector (all bacteria level)
 		if (initCache) {
 
+			DataApiHandler dataApi = new DataApiHandler();
 			try (BufferedWriter out = new BufferedWriter(new FileWriter(getPortletContext().getRealPath("txtree-bacteria.js")))) {
-				JSONArray list = OrganismTreeBuilder.buildGenomeTree(131567);
+				JSONArray list = OrganismTreeBuilder.buildGenomeTree(dataApi, 131567);
 				list.writeJSONString(out);
 			}
 			catch (IOException e) {
@@ -82,7 +83,7 @@ public class BreadCrumb extends GenericPortlet {
 			}
 
 			try (BufferedWriter out = new BufferedWriter(new FileWriter(getPortletContext().getRealPath("azlist-bacteria.js")))) {
-				JSONArray list = OrganismTreeBuilder.buildGenomeList(131567);
+				JSONArray list = OrganismTreeBuilder.buildGenomeList(dataApi, 131567);
 				list.writeJSONString(out);
 			}
 			catch (IOException e) {
@@ -90,7 +91,7 @@ public class BreadCrumb extends GenericPortlet {
 			}
 
 			try (BufferedWriter out = new BufferedWriter(new FileWriter(getPortletContext().getRealPath("tgm-bacteria.js")))) {
-				JSONArray list = OrganismTreeBuilder.buildTaxonGenomeMapping(131567);
+				JSONArray list = OrganismTreeBuilder.buildTaxonGenomeMapping(dataApi, 131567);
 				list.writeJSONString(out);
 			}
 			catch (IOException e) {

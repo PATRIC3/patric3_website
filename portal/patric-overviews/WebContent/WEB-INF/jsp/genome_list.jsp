@@ -1,50 +1,32 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" 
-%><%@ page import="java.util.*"
 %><%
-	String cType = request.getParameter("context_type");
-	String cId = request.getParameter("context_id");
-	String algorithm = request.getParameter("data_source");
-	String status = request.getParameter("display_mode");
-	String kw = (request.getParameter("keyword") != null)?request.getParameter("keyword"):"";
-	if(kw != null && (kw.startsWith("/") || kw.startsWith("#"))){
-		kw = "";
-	}
-	String pk = request.getParameter("param_key");
-	if (pk == null)
-		pk = "";
-	if (status == null)
-		status = "";
-	if (algorithm == null)
-		algorithm = "";
-	
-	String keyword = "(*)";
-	String gid = "NA";	
-	String taxonId = "";
 
-    if (cType.equals("taxon")) {
-        gid = "";
-        taxonId = cId;
-    }
-    else if (cType.equals("genome")) {
-        gid = cId;
-    }
+	String contextType = (String) request.getAttribute("contextType");
+	String contextId = (String) request.getAttribute("contextId");
+	String taxonId = (String) request.getAttribute("taxonId");
+	String genomeId = (String) request.getAttribute("genomeId");
 
+	String status = (String) request.getAttribute("status");
+	String algorithm = (String) request.getAttribute("algorithm");
+	String keyword = (String) request.getAttribute("keyword");
+	String pk = (String) request.getAttribute("pk");
+	String kw = (String) request.getAttribute("kw");
 %>
 <div style="display:none">
 	<form id="fTableForm" action="#" method="post">
 	<input type="hidden" id="tablesource" name="tablesource" value="Genome" />
 	<input type="hidden" name="keyword" id="keyword" value="<%=keyword%>" />
-	<input type="hidden" name="cType" id="cType" value="<%=cType %>" />
-	<input type="hidden" name="cId" id="cId" value="<%=cId %>" />
-	<input type="hidden" name="gId" id="gId" value="" />
+	<input type="hidden" name="cType" id="cType" value="<%=contextType %>" />
+	<input type="hidden" name="cId" id="cId" value="<%=contextId %>" />
+	<input type="hidden" name="taxonId" id="taxonId" value="<%=taxonId%>" />
+	<input type="hidden" name="genomeId" id="genomeId" value="<%=genomeId%>" />
+	<input type="hidden" name="pk" id="pk" value="<%=pk%>" />
 	<input type="hidden" id="aT" name="aT" value="" />
 	<input type="hidden" id="sort" name="sort" value="" />
-	<input type="hidden" id="dir" name="dir" value="" />
-	
+
 	<!-- fasta download specific param -->
 	<input type="hidden" id="fileformat" name="fileformat" value=""/>
 	<input type="hidden" id="fids" name="fids" value="" />
-	<input type="hidden" id="download_keyword" name="download_keyword" value="" />
 	</form>
 </div>
 <div id="copy-button" class="x-hidden"></div>
@@ -356,7 +338,7 @@ Ext.onReady(function () {
 		maxPageSize: 500
 	};
 	
-	if('<%=gid%>' == 'NA'){
+	if('<%=genomeId%>' == 'NA'){
 		Ext.getDom("grid_result_summary").innerHTML = "<b>No genomes found.</b>";
 	}
 	else {
@@ -374,8 +356,8 @@ Ext.onReady(function () {
 			Ext.Ajax.request({
 				url: pageProperties.url[0],
 				method: 'POST',
-				params: {cType: '<%=cType%>',
-					cId: '<%=cId%>',
+				params: {cType: '<%=contextType%>',
+					cId: '<%=contextId%>',
 					sraction: "save_params",
 					keyword: Ext.getDom("keyword").value.trim() + (pageProperties.hash.kW?" AND "+pageProperties.hash.kW:""),
 					exact_search_term: Ext.getDom("keyword").value.trim(),
@@ -402,8 +384,8 @@ Ext.onReady(function () {
 function getOriginalKeyword(hash){
 	var genome_list_object = {};
 	
-	if('<%=gid%>' != 'NA' && '<%=gid%>' != '')
-		genome_list_object["gid"] =  '<%=gid%>';
+	if('<%=genomeId%>' != 'NA' && '<%=genomeId%>' != '')
+		genome_list_object["gid"] =  '<%=genomeId%>';
 	if('<%=status%>' != '')
 		genome_list_object["genome_status"] =  '<%=status%>';
 	if('<%=algorithm%>' != '')

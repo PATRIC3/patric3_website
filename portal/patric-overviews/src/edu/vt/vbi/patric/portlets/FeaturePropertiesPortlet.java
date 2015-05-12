@@ -18,22 +18,19 @@
 package edu.vt.vbi.patric.portlets;
 
 import edu.vt.vbi.patric.beans.GenomeFeature;
+import edu.vt.vbi.patric.common.DataApiHandler;
 import edu.vt.vbi.patric.common.SiteHelper;
 import edu.vt.vbi.patric.common.SolrCore;
-import edu.vt.vbi.patric.common.SolrInterface;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.portlet.*;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -42,6 +39,16 @@ import java.util.Map;
 public class FeaturePropertiesPortlet extends GenericPortlet {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(FeaturePropertiesPortlet.class);
+
+	private ObjectReader jsonReader;
+
+	@Override
+	public void init() throws PortletException {
+		super.init();
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		jsonReader = objectMapper.reader(Map.class);
+	}
 
 	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 
@@ -53,9 +60,8 @@ public class FeaturePropertiesPortlet extends GenericPortlet {
 
 		if (cType != null && cId != null && cType.equals("feature")) {
 
-			SolrInterface solr = new SolrInterface();
-
-			GenomeFeature feature = solr.getPATRICFeature(cId);
+			DataApiHandler dataApi = new DataApiHandler(request);
+			GenomeFeature feature = dataApi.getPATRICFeature(cId);
 
 			if (feature != null) {
 				List<GenomeFeature> listReleateFeatures = null;
@@ -65,44 +71,40 @@ public class FeaturePropertiesPortlet extends GenericPortlet {
 				String refseqLocusTag = null;
 				Map<String, String> virulenceFactor = null;
 
-				try {
-					SolrQuery query = new SolrQuery("pos_group:" + feature.getPosGroupInQuote());
-					query.setSort("annotation_sort", SolrQuery.ORDER.asc);
-					QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query);
+				SolrQuery query = new SolrQuery("pos_group:" + feature.getPosGroupInQuote());
+				query.setSort("annotation_sort", SolrQuery.ORDER.asc);
 
-					listReleateFeatures = qr.getBeans(GenomeFeature.class);
+				String apiResponse = dataApi.solrQuery(SolrCore.FEATURE, query);
 
-				}
-				catch (SolrServerException e) {
-					LOGGER.error(e.getMessage(), e);
-				}
+				Map resp = jsonReader.readValue(apiResponse);
+				Map respBody = (Map) resp.get("response");
+
+				listReleateFeatures = dataApi.bindDocuments((List<Map>) respBody.get("docs"), GenomeFeature.class);
 
 				if (listUniprotkbAccessions != null) {
-					try {
-						SolrQuery query = new SolrQuery("uniprotkb_accession:(" + StringUtils.join(listUniprotkbAccessions, " OR ") + ")");
-						query.setFields("uniprotkb_accession,id_type,id_value");
-						query.setRows(1000);
+					query = new SolrQuery("uniprotkb_accession:(" + StringUtils.join(listUniprotkbAccessions, " OR ") + ")");
+					query.setFields("uniprotkb_accession,id_type,id_value");
+					query.setRows(1000);
 
-						QueryResponse qr = solr.getSolrServer(SolrCore.ID_REF).query(query);
+					apiResponse = dataApi.solrQuery(SolrCore.ID_REF, query);
 
-						SolrDocumentList sdl = qr.getResults();
+					resp = jsonReader.readValue(apiResponse);
+					respBody = (Map) resp.get("response");
 
-						if (!sdl.isEmpty()) {
-							listUniprotIds = new ArrayList<>();
-						}
+					List<Map> sdl = (List<Map>) respBody.get("docs");
 
-						for (SolrDocument doc : sdl) {
-							Map<String, String> uniprot = new HashMap<>();
-
-							uniprot.put("Accession", doc.get("uniprotkb_accession").toString());
-							uniprot.put("idType", doc.get("id_type").toString());
-							uniprot.put("idValue", doc.get("id_value").toString());
-
-							listUniprotIds.add(uniprot);
-						}
+					if (!sdl.isEmpty()) {
+						listUniprotIds = new ArrayList<>();
 					}
-					catch (MalformedURLException | SolrServerException e) {
-						LOGGER.error(e.getMessage(), e);
+
+					for (Map doc : sdl) {
+						Map<String, String> uniprot = new HashMap<>();
+
+						uniprot.put("Accession", doc.get("uniprotkb_accession").toString());
+						uniprot.put("idType", doc.get("id_type").toString());
+						uniprot.put("idValue", doc.get("id_value").toString());
+
+						listUniprotIds.add(uniprot);
 					}
 				}
 
@@ -117,26 +119,23 @@ public class FeaturePropertiesPortlet extends GenericPortlet {
 					refseqLocusTag = feature.getAltLocusTag();
 				}
 
-				try {
-					SolrQuery query = new SolrQuery("(locus_tag:" + feature.getAltLocusTag()
+				query = new SolrQuery("(locus_tag:" + feature.getAltLocusTag()
 							+ (feature.hasRefseqLocusTag() ? " OR locus_tag: " + feature.getRefseqLocusTag() : "") + ")");
-					query.setFilterQueries("source:PATRIC_VF");
-					query.setFields("source,source_id");
+				query.setFilterQueries("source:PATRIC_VF");
+				query.setFields("source,source_id");
 
-					QueryResponse qr = solr.getSolrServer(SolrCore.SPECIALTY_GENE).query(query);
+				apiResponse = dataApi.solrQuery(SolrCore.SPECIALTY_GENE, query);
 
-					SolrDocumentList sdl = qr.getResults();
+				resp = jsonReader.readValue(apiResponse);
+				respBody = (Map) resp.get("response");
 
-					for (SolrDocument doc : sdl) {
-						virulenceFactor = new HashMap<>();
+				List<Map> sdl = (List<Map>) respBody.get("docs");
 
-						virulenceFactor.put("source", doc.get("source").toString());
-						virulenceFactor.put("sourceId", doc.get("source_id").toString());
-					}
+				for (Map doc : sdl) {
+					virulenceFactor = new HashMap<>();
 
-				}
-				catch (MalformedURLException | SolrServerException e) {
-					LOGGER.error(e.getMessage(), e);
+					virulenceFactor.put("source", doc.get("source").toString());
+					virulenceFactor.put("sourceId", doc.get("source_id").toString());
 				}
 
 				request.setAttribute("feature", feature);

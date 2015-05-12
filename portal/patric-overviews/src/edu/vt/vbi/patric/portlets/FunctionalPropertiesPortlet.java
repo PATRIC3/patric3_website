@@ -101,15 +101,13 @@ public class FunctionalPropertiesPortlet extends GenericPortlet {
 
 				String apiResponse = dataApi.solrQuery(SolrCore.STRUCTURE, query);
 
-				if (apiResponse != null && !apiResponse.equals("[]")) {
-					Map<String, Object> resp = jsonReader.readValue(apiResponse);
-					Map<String, Object> respBody = (Map<String, Object>) resp.get("response");
+				Map resp = jsonReader.readValue(apiResponse);
+				Map respBody = (Map) resp.get("response");
 
-					List<Map> docs = (List) respBody.get("docs");
+				List<Map> docs = (List) respBody.get("docs");
 
-					if (!docs.isEmpty()) {
-						listStructure = docs;
-					}
+				if (!docs.isEmpty()) {
+					listStructure = docs;
 				}
 
 				// taxonomy genus name

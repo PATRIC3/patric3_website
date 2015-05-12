@@ -24,12 +24,11 @@ String featureType = (String) request.getAttribute("featureType");
 	<input type="hidden" id="fastatype" name="fastatype" value="" />
 	<input type="hidden" id="fastascope" name="fastascope" value="" />
 	<input type="hidden" id="fids" name="fids" value="" />
-	<input type="hidden" id="download_keyword" name="download_keyword" value="" />
 	
 	<input type="hidden" id="cId" name="cId" value="<%=contextId %>" />
 	<input type="hidden" id="cType" name="cType" value="<%=contextType %>" />
+	<input type="hidden" id="pk" name="pk" value="<%=pk%>" />
 	<input type="hidden" id="sort" name="sort" value="" />
-	<input type="hidden" id="dir" name="dir" value="" />
 </form>
 
 <div id="copy-button" style="display:none;"></div>

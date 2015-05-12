@@ -348,7 +348,7 @@ public class DataApiHandler {
 			query.addFilterQuery(filterParam);
 		}
 		query.setRows(0).setFacet(true).setFacetLimit(-1).setFacetMinCount(1).setFacetSort(FacetParams.FACET_SORT_COUNT);
-		query.addFacetField(facetFields);
+		query.addFacetField(facetFields.split(","));
 
 		List<String> fields = Arrays.asList(facetFields.split(","));
 

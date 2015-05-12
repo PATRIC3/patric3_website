@@ -17,8 +17,6 @@
  */
 package edu.vt.vbi.patric.portlets;
 
-import edu.vt.vbi.patric.dao.DBShared;
-import edu.vt.vbi.patric.dao.ResultType;
 import edu.vt.vbi.patric.mashup.ArrayExpressInterface;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -26,7 +24,6 @@ import org.json.simple.JSONObject;
 import javax.portlet.*;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 
 @SuppressWarnings("unchecked")
 public class ArrayExpressPortlet extends GenericPortlet {
@@ -69,19 +66,7 @@ public class ArrayExpressPortlet extends GenericPortlet {
 		int start = Integer.parseInt(start_id);
 		int end = Integer.parseInt(limit);
 
-		DBShared conn_shared = new DBShared();
-		String species_name = "";
-
-		if (cType.equals("taxon")) {
-			ArrayList<ResultType> parents = conn_shared.getTaxonParentTree(cId);
-			if (parents.size() > 0) {
-				species_name = parents.get(0).get("name");
-			}
-		}
-		else if (cType.equals("genome")) {
-			ResultType names = conn_shared.getNamesFromGenomeInfoId(cId);
-			species_name = names.get("genome_name");
-		}
+		String species_name = ExperimentDataPortlet.getSpeciesName(cType, cId);
 
 		ArrayExpressInterface api = new ArrayExpressInterface();
 

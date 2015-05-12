@@ -17,20 +17,11 @@
  */
 package edu.vt.vbi.patric.portlets;
 
-import com.google.gson.Gson;
-import edu.vt.vbi.patric.common.SessionHandler;
-import edu.vt.vbi.patric.common.SiteHelper;
-import edu.vt.vbi.patric.common.SolrCore;
-import edu.vt.vbi.patric.common.SolrInterface;
-import edu.vt.vbi.patric.dao.ResultType;
+import edu.vt.vbi.patric.common.*;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.FacetField;
-import org.apache.solr.client.solrj.response.FacetField.Count;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
-import org.apache.solr.common.params.FacetParams;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectReader;
+import org.codehaus.jackson.map.ObjectWriter;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -41,16 +32,24 @@ import org.slf4j.LoggerFactory;
 import javax.portlet.*;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class SpecialtyGeneSourcePortlet extends GenericPortlet {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SpecialtyGeneSourcePortlet.class);
 
-	SolrInterface solr = new SolrInterface();
+	private ObjectReader jsonReader;
+
+	private ObjectWriter jsonWriter;
+
+	@Override
+	public void init() throws PortletException {
+		super.init();
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		jsonReader = objectMapper.reader(Map.class);
+		jsonWriter = objectMapper.writerWithType(Map.class);
+	}
 
 	@Override
 	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
@@ -69,10 +68,9 @@ public class SpecialtyGeneSourcePortlet extends GenericPortlet {
 	public void serveResource(ResourceRequest request, ResourceResponse response) throws PortletException, IOException {
 
 		String sraction = request.getParameter("sraction");
-		Gson gson = new Gson();
 
 		if (sraction != null && sraction.equals("save_params")) {
-			ResultType key = new ResultType();
+			Map<String, String> key = new HashMap<>();
 			String source = request.getParameter("source");
 			String keyword = request.getParameter("keyword");
 			String state = request.getParameter("state");
@@ -97,7 +95,7 @@ public class SpecialtyGeneSourcePortlet extends GenericPortlet {
 
 			long pk = (new Random()).nextLong();
 
-			SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
+			SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
 
 			PrintWriter writer = response.getWriter();
 			writer.write("" + pk);
@@ -110,7 +108,7 @@ public class SpecialtyGeneSourcePortlet extends GenericPortlet {
 
 				String json = SessionHandler.getInstance().get(SessionHandler.PREFIX + pk);
 				if (json != null) {
-					ResultType key = gson.fromJson(json, ResultType.class);
+					Map<String, String> key = jsonReader.readValue(json);
 					ret = key.get("keyword");
 				}
 
@@ -119,122 +117,42 @@ public class SpecialtyGeneSourcePortlet extends GenericPortlet {
 				writer.close();
 			}
 			else {
+
 				String need = request.getParameter("need");
-				String facet, keyword, pk, state, source;
-				//				boolean hl = false;
-				ResultType key = new ResultType();
 				JSONObject jsonResult = new JSONObject();
 
-				if (need.equals("0")) {
+				switch (need) {
+				case "0": {
 
-					pk = request.getParameter("pk");
-					keyword = request.getParameter("keyword");
-					facet = request.getParameter("facet");
-					source = request.getParameter("source");
+					String pk = request.getParameter("pk");
+					Map data = processSpecialtyGeneSourceTab(request);
 
-					// homolog counts
-					Map<String, Long> hmCounts = new HashMap<>();
+					Map<String, String> key = (Map) data.get("key");
+					int numFound = (Integer) data.get("numFound");
+					JSONArray docs = (JSONArray) data.get("specialtyGeneSources");
 
-					try {
-						SolrQuery query = new SolrQuery("*:*");
-						query.setFilterQueries("source:" + source);
-						query.setRows(0).setFacet(true).setFacetMinCount(1).setFacetLimit(-1).addFacetField("source_id");
+					jsonResult.put("results", docs);
+					jsonResult.put("total", numFound);
 
-						QueryResponse res = solr.getSolrServer(SolrCore.SPECIALTY_GENE_MAPPING).query(query);
-						FacetField ff = res.getFacetField("source_id");
-						List<Count> ffSourceId = ff.getValues();
-
-						for (Count sourceId : ffSourceId) {
-							hmCounts.put(sourceId.getName(), sourceId.getCount());
-						}
-					}
-					catch (SolrServerException e) {
-						LOGGER.error(e.getMessage(), e);
-					}
-
-					// sp_genes
-					try {
-						//&sort=source_id+asc,+locus_tag+asc&facet.sort=count&start=0
-						//&facet.field=genus&facet.field=species&facet.field=organism&facet.field=classification&wt=&fq=source:PATRIC_VF
-						SolrQuery query = new SolrQuery(keyword);
-						query.setFilterQueries("source:" + source);
-						query.setFacet(true).setFacetMinCount(1).setFacetLimit(-1).setFacetSort(FacetParams.FACET_SORT_COUNT)
-								.addFacetField("genus", "species", "organism",
-										"classification");
-						query.setFields(
-								"property,source,source_id,gene_name,locus_tag,gene_id,gi,genus,species,organism,product,function,classification,pmid");
-
-						// paging params
-						String start_id = request.getParameter("start");
-						String limit = request.getParameter("limit");
-						int start = Integer.parseInt(start_id);
-						int end = Integer.parseInt(limit);
-
-						query.setStart(start);
-						if (end != -1) {
-							query.setRows(end);
-						}
-
-						// sorting params
-						if (request.getParameter("sort") != null) {
-							JSONArray sorter;
-							try {
-								sorter = (JSONArray) new JSONParser().parse(request.getParameter("sort"));
-								for (Object aSort : sorter) {
-									JSONObject jsonSort = (JSONObject) aSort;
-									query.addSort(SolrQuery.SortClause
-											.create(jsonSort.get("property").toString(), jsonSort.get("direction").toString().toLowerCase()));
-								}
-							}
-							catch (ParseException e) {
-								LOGGER.error(e.getMessage(), e);
-							}
-						}
-
-						QueryResponse qr = solr.getSolrServer(SolrCore.SPECIALTY_GENE).query(query);
-						SolrDocumentList sdl = qr.getResults();
-						long numFound = sdl.getNumFound();
-						JSONArray results = new JSONArray();
-
-						for (SolrDocument doc : sdl) {
-							JSONObject row = new JSONObject();
-							row.putAll(doc);
-							if (hmCounts.containsKey(row.get("source_id").toString())) {
-								row.put("homologs", hmCounts.get(row.get("source_id").toString()));
-							}
-							else {
-								row.put("homologs", 0);
-							}
-							results.add(row);
-						}
-
-						jsonResult.put("results", results);
-						jsonResult.put("total", (int) numFound);
-
-						// process facets
-						if (facet != null) {
-							JSONObject facets = solr.facetFieldstoJSONObject(qr);
-							key.put("facets", facets.toString());
-						}
-						key.put("facet", facet);
-						key.put("keyword", keyword);
-						key.put("source", source);
-						SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
-					}
-					catch (SolrServerException e) {
-						LOGGER.error(e.getMessage(), e);
+					// process facets
+					if (data.containsKey("facets")) {
+						SolrInterface solr = new SolrInterface();
+						JSONObject facets = solr.formatFacetTree((Map) data.get("facets"));
+						key.put("facets", facets.toJSONString());
+						SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
 					}
 
 					response.setContentType("application/json");
 					PrintWriter writer = response.getWriter();
 					jsonResult.writeJSONString(writer);
 					writer.close();
-
+					break;
 				}
-				else if (need.equals("tree")) {
+				case "tree": {
 
-					pk = request.getParameter("pk");
-					key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), ResultType.class);
+					String pk = request.getParameter("pk");
+					String state;
+					Map<String, String> key = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
 
 					if (key.containsKey("state")) {
 						state = key.get("state");
@@ -245,18 +163,16 @@ public class SpecialtyGeneSourcePortlet extends GenericPortlet {
 
 					key.put("state", state);
 
-					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
+					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
 
+					JSONArray tree = new JSONArray();
 					try {
-						if (!key.containsKey("tree")) {
+						if (key.containsKey("facets") && !key.get("facets").isEmpty()) {
+
+							JSONObject facet_fields = (JSONObject) (new JSONParser()).parse(key.get("facets"));
+							SolrInterface solr = new SolrInterface();
 							solr.setCurrentInstance(SolrCore.SPECIALTY_GENE);
-							JSONObject facet_fields = (JSONObject) new JSONParser().parse(key.get("facets"));
-							JSONArray arr1 = solr.processStateAndTree(key, need, facet_fields, key.get("facet"), state, null, 4, false);
-							jsonResult.put("results", arr1);
-							key.put("tree", arr1);
-						}
-						else {
-							jsonResult.put("results", key.get("tree"));
+							tree = solr.processStateAndTree(key, need, facet_fields, key.get("facet"), state, null, 4, false);
 						}
 					}
 					catch (ParseException e) {
@@ -265,10 +181,128 @@ public class SpecialtyGeneSourcePortlet extends GenericPortlet {
 
 					response.setContentType("application/json");
 					PrintWriter writer = response.getWriter();
-					writer.write(jsonResult.get("results").toString());
+					tree.writeJSONString(writer);
 					writer.close();
+					break;
+				}
+				case "download": {
+					List<String> tableHeader = new ArrayList<>();
+					List<String> tableField = new ArrayList<>();
+//					JSONArray tableSource = new JSONArray();
+
+					String fileName = "SpecialtyGeneSource";
+					String fileFormat = request.getParameter("fileformat");
+
+					Map data = processSpecialtyGeneSourceTab(request);
+					JSONArray tableSource = (JSONArray) data.get("specialtyGeneSources");
+
+					tableHeader.addAll(DownloadHelper.getHeaderForSpecialtyGeneSource());
+					tableField.addAll(DownloadHelper.getFieldsForSpecialtyGeneSource());
+
+					ExcelHelper excel = new ExcelHelper("xssf", tableHeader, tableField, tableSource);
+					excel.buildSpreadsheet();
+
+					if (fileFormat.equalsIgnoreCase("xlsx")) {
+						response.setContentType("application/octetstream");
+						response.addProperty("Content-Disposition", "attachment; filename=\"" + fileName + "." + fileFormat + "\"");
+
+						excel.writeSpreadsheettoBrowser(response.getPortletOutputStream());
+					}
+					else if (fileFormat.equalsIgnoreCase("txt")) {
+
+						response.setContentType("application/octetstream");
+						response.addProperty("Content-Disposition", "attachment; filename=\"" + fileName + "." + fileFormat + "\"");
+
+						response.getPortletOutputStream().write(excel.writeToTextFile().getBytes());
+					}
+				}
 				}
 			}
 		}
+	}
+
+	private Map processSpecialtyGeneSourceTab(ResourceRequest request) throws IOException {
+
+		String pk = request.getParameter("pk");
+		String keyword = request.getParameter("keyword");
+		String facet = request.getParameter("facet");
+		String source = request.getParameter("source");
+
+		DataApiHandler dataApi = new DataApiHandler(request);
+
+		// homolog counts
+		Map facets = dataApi.getFieldFacets(SolrCore.SPECIALTY_GENE_MAPPING, "source:" + source, null, "source_id");
+		Map<String, Integer> hmCounts = (Map) ((Map) facets.get("facets")).get("source_id");
+
+		// sp_genes
+		//&sort=source_id+asc,+locus_tag+asc&facet.sort=count&start=0
+		//&facet.field=genus&facet.field=species&facet.field=organism&facet.field=classification&wt=&fq=source:PATRIC_VF
+
+		SolrInterface solr = new SolrInterface();
+		Map<String, String> key = new HashMap<>();
+		key.put("keyword", keyword);
+		key.put("join", "source:" + source);
+		key.put("fields", "property,source,source_id,gene_name,locus_tag,gene_id,gi,genus,species,organism,product,function,classification,pmid");
+
+		// paging params
+		String start_id = request.getParameter("start");
+		String limit = request.getParameter("limit");
+		int start = 0;
+		int end = -1;
+		if (start_id != null) {
+			start = Integer.parseInt(start_id);
+		}
+		if (limit != null) {
+			end = Integer.parseInt(limit);
+		}
+
+		String json = SessionHandler.getInstance().get(SessionHandler.PREFIX + pk);
+		if (json == null) {
+			key.put("facet", facet);
+			key.put("keyword", keyword);
+
+			SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
+		}
+		else {
+			key = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
+			key.put("facet", facet);
+		}
+
+		SolrQuery query = solr.buildSolrQuery(key, null, facet, start, end, false);
+
+		LOGGER.trace("processSpecialtyGeneSourceTab: [{}] {}", SolrCore.SPECIALTY_GENE.getSolrCoreName(), query.toString());
+
+		String apiResponse = dataApi.solrQuery(SolrCore.SPECIALTY_GENE, query);
+
+		Map resp = jsonReader.readValue(apiResponse);
+		Map respBody = (Map) resp.get("response");
+
+		int numFound = (Integer) respBody.get("numFound");
+		JSONArray docs = new JSONArray();
+		List<Map> sdl = (List<Map>) respBody.get("docs");
+
+		for (Map doc : sdl) {
+			JSONObject row = new JSONObject();
+			row.putAll(doc);
+			String k = row.get("source_id").toString();
+
+			if (hmCounts.containsKey(k)) {
+				row.put("homologs", hmCounts.get(k));
+			}
+			else {
+				row.put("homologs", 0);
+			}
+			docs.add(row);
+		}
+
+		Map response = new HashMap();
+		response.put("key", key);
+		response.put("numFound", numFound);
+		response.put("specialtyGeneSources", docs);
+		if (resp.containsKey("facet_counts")) {
+			response.put("facets", resp.get("facet_counts"));
+		}
+
+		return response;
 	}
 }

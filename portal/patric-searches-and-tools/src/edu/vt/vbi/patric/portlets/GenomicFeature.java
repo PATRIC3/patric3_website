@@ -217,68 +217,18 @@ public class GenomicFeature extends GenericPortlet {
 		else {
 
 			String need = request.getParameter("need");
-			String facet, sort, keyword, pk, state, taxonId, genomeId;
-
-			Map<String, String> key = new HashMap<>();
 			JSONObject jsonResult = new JSONObject();
 
 			switch (need) {
 			case "feature":
 			case "featurewofacet": {
+				// Getting Feature List
+				Map data = processFeatureTab(request);
 
-				pk = request.getParameter("pk");
-				keyword = request.getParameter("keyword");
-				sort = request.getParameter("sort");
-				taxonId = request.getParameter("taxonId");
-				genomeId = request.getParameter("genomeId");
+				int numFound = (Integer) data.get("numFound");
+				List<GenomeFeature> records = (List<GenomeFeature>) data.get("features");
 
-				if (pk != null) {
-					String json = SessionHandler.getInstance().get(SessionHandler.PREFIX + pk);
-					if (json == null) {
-						key.put("keyword", keyword);
-
-						SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
-					}
-					else {
-						key = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
-					}
-				}
-
-				if ((taxonId == null || taxonId.equals("")) && key.containsKey("taxonId") && !key.get("taxonId").equals("")) {
-					taxonId = key.get("taxonId");
-				}
-				if ((genomeId == null || genomeId.equals("")) && key.containsKey("genomeId") && !key.get("genomeId").equals("")) {
-					genomeId = key.get("genomeId");
-				}
-
-				String start_id = request.getParameter("start");
-				String limit = request.getParameter("limit");
-				int start = Integer.parseInt(start_id);
-				int end = Integer.parseInt(limit);
-
-				key.put("fields", StringUtils.join(DownloadHelper.getFieldsForFeatures(), ","));
-
-				// add join condition
-				if (taxonId != null && !taxonId.equals("")) {
-					key.put("join", SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + taxonId));
-				}
-				if (genomeId != null && !genomeId.equals("")) {
-					key.put("join", "genome_id:" + genomeId);
-				}
-
-				SolrInterface solr = new SolrInterface();
-				SolrQuery query = solr.buildSolrQuery(key, sort, null, start, end, false);
-
-				LOGGER.debug("query: {}", query.toString());
-				DataApiHandler dataApi = new DataApiHandler(request);
-				String apiResponse = dataApi.solrQuery(SolrCore.FEATURE, query);
-
-				Map<String, Object> resp = jsonReader.readValue(apiResponse);
-				Map<String, Object> respBody = (Map<String, Object>) resp.get("response");
-
-				int numFound = (Integer) respBody.get("numFound");
 				JSONArray docs = new JSONArray();
-				List<GenomeFeature> records = dataApi.bindDocuments((List<Map>) respBody.get("docs"), GenomeFeature.class);
 				for (GenomeFeature item : records) {
 					docs.add(item.toJSONObject());
 				}
@@ -293,7 +243,116 @@ public class GenomicFeature extends GenericPortlet {
 
 				break;
 			}
+			case "download": {
+				List<String> tableHeader = new ArrayList<>();
+				List<String> tableField = new ArrayList<>();
+				JSONArray tableSource = new JSONArray();
+
+				String fileName = "FeatureTable";
+				String fileFormat = request.getParameter("fileformat");
+
+				// features
+				Map data = processFeatureTab(request);
+				List<GenomeFeature> features = (List<GenomeFeature>) data.get("features");
+
+				for (GenomeFeature feature : features) {
+					tableSource.add(feature.toJSONObject());
+				}
+
+				tableHeader.addAll(DownloadHelper.getHeaderForFeatures());
+				tableField.addAll(DownloadHelper.getFieldsForFeatures());
+
+				ExcelHelper excel = new ExcelHelper("xssf", tableHeader, tableField, tableSource);
+				excel.buildSpreadsheet();
+
+				if (fileFormat.equalsIgnoreCase("xlsx")) {
+					response.setContentType("application/octetstream");
+					response.addProperty("Content-Disposition", "attachment; filename=\"" + fileName + "." + fileFormat + "\"");
+
+					excel.writeSpreadsheettoBrowser(response.getPortletOutputStream());
+				}
+				else if (fileFormat.equalsIgnoreCase("txt")) {
+
+					response.setContentType("application/octetstream");
+					response.addProperty("Content-Disposition", "attachment; filename=\"" + fileName + "." + fileFormat + "\"");
+
+					response.getPortletOutputStream().write(excel.writeToTextFile().getBytes());
+				}
+
+				break;
+			}
 			}
 		}
+	}
+
+	private Map processFeatureTab(ResourceRequest request) throws IOException {
+
+		String pk = request.getParameter("pk");
+		String keyword = request.getParameter("keyword");
+		String sort = request.getParameter("sort");
+		String taxonId = request.getParameter("taxonId");
+		String genomeId = request.getParameter("genomeId");
+
+		Map<String, String> key = new HashMap<>();
+
+		if (pk != null) {
+			String json = SessionHandler.getInstance().get(SessionHandler.PREFIX + pk);
+			if (json == null) {
+				key.put("keyword", keyword);
+
+				SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
+			}
+			else {
+				key = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
+			}
+		}
+
+		if ((taxonId == null || taxonId.equals("")) && key.containsKey("taxonId") && !key.get("taxonId").equals("")) {
+			taxonId = key.get("taxonId");
+		}
+		if ((genomeId == null || genomeId.equals("")) && key.containsKey("genomeId") && !key.get("genomeId").equals("")) {
+			genomeId = key.get("genomeId");
+		}
+
+		String start_id = request.getParameter("start");
+		String limit = request.getParameter("limit");
+		int start = 0;
+		int end = -1;
+		if (start_id != null) {
+			start = Integer.parseInt(start_id);
+		}
+		if (limit != null) {
+			end = Integer.parseInt(limit);
+		}
+
+		key.put("fields", StringUtils.join(DownloadHelper.getFieldsForFeatures(), ","));
+
+		// add join condition
+		if (taxonId != null && !taxonId.equals("")) {
+			key.put("join", SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + taxonId));
+		}
+		if (genomeId != null && !genomeId.equals("")) {
+			key.put("join", "genome_id:" + genomeId);
+		}
+
+		SolrInterface solr = new SolrInterface();
+		SolrQuery query = solr.buildSolrQuery(key, sort, null, start, end, false);
+
+		LOGGER.debug("query: {}", query.toString());
+		DataApiHandler dataApi = new DataApiHandler(request);
+		String apiResponse = dataApi.solrQuery(SolrCore.FEATURE, query);
+
+		Map resp = jsonReader.readValue(apiResponse);
+		Map respBody = (Map) resp.get("response");
+
+		int numFound = (Integer) respBody.get("numFound");
+		List<GenomeFeature> features = dataApi.bindDocuments((List<Map>) respBody.get("docs"), GenomeFeature.class);
+
+		Map response = new HashMap();
+		response.put("key", key);
+		response.put("numFound", numFound);
+		response.put("features", features);
+
+		return response;
 	}
 }

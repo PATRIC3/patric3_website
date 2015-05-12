@@ -26,8 +26,8 @@ public class DownloadHelper {
 	}
 
 	public static List<String> getFieldsForFeatures() {
-		return Arrays.asList("genome_name", "accession", "seed_id", "refseq_locus_tag", "alt_locus_tag", "feature_id",
-				"annotation", "feature_type", "start", "end", "na_length", "strand", "protein_id", "aa_length", "gene", "product");
+		return Arrays.asList("genome_name", "accession", "seed_id", "refseq_locus_tag", "alt_locus_tag", "feature_id", "annotation", "feature_type",
+				"start", "end", "na_length", "strand", "protein_id", "aa_length", "gene", "product");
 	}
 
 	public static List<String> getHeaderForGenomes() {
@@ -76,5 +76,48 @@ public class DownloadHelper {
 	public static List<String> getFieldsForGenomeSequence() {
 		return Arrays.asList("genome_id", "genome_name", "sequence_id", "gi", "accession", "sequence_type", "topology", "description",
 				"gc_content", "length", "release_date", "version");
+	}
+
+	public static List<String> getHeaderForSpecialtyGeneMapping() {
+		return Arrays.asList("Evidence", "Property", "Source", "Genome Name", "PATRIC ID", "RefSeq Locus Tag", "Alt Locus Tag", "Source ID",
+				"Source Organism", "Gene", "Product", "Function", "Classification", "PubMed", "Subject Coverage", "Query Coverage",
+				"Identity", "E-value");
+	}
+
+	public static List<String> getFieldsForSpecialtyGeneMapping() {
+		return Arrays.asList("evidence", "property", "source", "genome_name", "seed_id", "refseq_locus_tag", "alt_locus_tag", "source_id",
+				"organism", "gene", "product", "function", "classification", "pmid", "subject_coverage", "query_coverage", "identity",
+				"e_value");
+	}
+
+	public static List<String> getHeaderForSpecialtyGeneSource() {
+		return Arrays.asList("Property", "Source", "Source ID", "Gene", "Organism", "Locus Tag", "Gene ID", "GI", "Product",
+				"Function", "Classification", "PubMed");
+	}
+
+	public static List<String> getFieldsForSpecialtyGeneSource() {
+		return Arrays.asList("property", "source", "source_id", "gene_name", "organism", "locus_tag", "gene_id", "gi", "product",
+				"function", "classification", "pmid");
+	}
+
+	public static List<String> getHeaderForTranscriptomicsExperiment() {
+		return Arrays.asList("Experiment ID", "Title", "Comparisons", "Genes", "PubMed", "Accession", "Organism", "Strain",
+				"Gene Modification", "Experimental Condition", "Time Series", "Release Date", "Author", "PI", "Institution");
+	}
+
+	public static List<String> getFieldsForTranscriptomicsExperiment() {
+		return Arrays.asList("eid", "title", "samples", "genes", "pmid", "accession", "organism", "strain", "mutant",
+				"condition", "timeseries", "release_date", "author", "pi", "institution");
+	}
+
+	public static List<String> getHeaderForTranscriptomicsComparison() {
+		return Arrays.asList("Experiment ID", "Comparison ID", "Title", "Genes", "Significant genes(Log Ratio)",
+				"Significant genes(Z Score)", "PubMed", "Accession", "Organism", "Strain", "Gene Modification", "Experiment Condition",
+				"Time Point", "Release Date");
+	}
+
+	public static List<String> getFieldsForTranscriptomicsComparison() {
+		return Arrays.asList("eid", "pid", "expname", "genes", "sig_log_ratio", "sig_z_score", "pmid", "accession",
+				"organism", "strain", "mutant", "condition", "timepoint", "release_date");
 	}
 }

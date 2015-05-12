@@ -19,6 +19,7 @@ package edu.vt.vbi.patric.cache;
 
 import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.beans.Taxonomy;
+import edu.vt.vbi.patric.common.DataApiHandler;
 import edu.vt.vbi.patric.common.SolrCore;
 import edu.vt.vbi.patric.common.SolrInterface;
 import edu.vt.vbi.patric.dao.ResultType;
@@ -88,6 +89,12 @@ public class DataLandingGenerator {
 	final String URL_PATHWAY_GENE_TAB = "CompPathwayTable?cType=genome&cId={cId}&algorithm=PATRIC&ec_number=#aP0=1&aP1=1&aP2=1&aT=2&alg=PATRIC&cwEC=false&cwP=true&pId={pId}&pClass=&ecN=";
 
 	final String URL_SPECIALTY_GENE_TAB = "SpecialtyGeneList?cType=genome&cId={cId}&kw=source:{source}";
+
+	DataApiHandler dataApi;
+
+	public DataLandingGenerator() {
+		dataApi = new DataApiHandler();
+	}
 
 	public boolean createCacheFileGenomes(String filePath) {
 		boolean isSuccess = false;
@@ -530,12 +537,10 @@ public class DataLandingGenerator {
 		JSONObject jsonData;
 		JSONArray series = new JSONArray();
 
-		SolrInterface solr = new SolrInterface();
-
 		for (Integer txId : GENUS_TAXON_IDS) {
 			Map<String, Integer> stat = getFIGFamStat(txId);
 
-			Taxonomy taxonomy = solr.getTaxonomy(txId);
+			Taxonomy taxonomy = dataApi.getTaxonomy(txId);
 
 			JSONObject item = new JSONObject();
 			item.put("pathogen", taxonomy.getTaxonName());
@@ -560,10 +565,9 @@ public class DataLandingGenerator {
 	private JSONObject getPopularGeneraFigfam() {
 		JSONObject jsonData;
 		JSONArray list = new JSONArray();
-		SolrInterface solr = new SolrInterface();
 
 		for (Integer txId : GENUS_TAXON_IDS) {
-			Taxonomy taxonomy = solr.getTaxonomy(txId);
+			Taxonomy taxonomy = dataApi.getTaxonomy(txId);
 
 			JSONArray data = getFIGFamConservationDistribution(txId);
 
@@ -584,28 +588,27 @@ public class DataLandingGenerator {
 	private JSONObject getGenomeStatus() {
 		JSONObject jsonData = null;
 
-		SolrInterface solr = new SolrInterface();
 		try {
-			solr.setCurrentInstance(SolrCore.GENOME);
-			JSONObject status = solr.queryFacet("*:*", "genome_status");
+			Map status = dataApi.getFieldFacets(SolrCore.GENOME, "*:*", null, "genome_status");
+			LOGGER.debug("{}", status);
 
 			if (status != null) {
-				long total = (long) status.get("total");
-				JSONArray facet = (JSONArray) status.get("facet");
+				int total = (Integer) status.get("total");
+				Map facets = (Map) status.get("facets");
+				Map<String, Integer> genomeStatus = (Map) facets.get("genome_status");
 
 				JSONArray data = new JSONArray();
-				for (Object _f : facet) {
-					JSONObject f = (JSONObject) _f;
+				for (String key : genomeStatus.keySet()) {
 					JSONObject item = new JSONObject();
-					if (f.get("value").equals("WGS")) {
+					if (key.equals("WGS")) {
 						item.put("label", "Whole Genome Shotgun");
 						item.put("m_label", "gsc_shotgun_sequence");
 					}
-					else if (f.get("value").equals("Complete") || f.get("value").equals("Plasmid")) {
-						item.put("label", f.get("value"));
-						item.put("m_label", "gsc_" + f.get("value").toString().toLowerCase());
+					else if (key.equals("Complete") || key.equals("Plasmid")) {
+						item.put("label", key);
+						item.put("m_label", "gsc_" + key.toLowerCase());
 					}
-					float percentage = ((long) f.get("count")) * 100.00f / total;
+					float percentage = genomeStatus.get(key).floatValue() * 100.00f / total;
 					item.put("value", Math.round(percentage));
 					item.put("reported", Math.round(percentage) + "%");
 
@@ -616,7 +619,7 @@ public class DataLandingGenerator {
 				jsonData.put("data", data);
 			}
 		}
-		catch (MalformedURLException e) {
+		catch (IOException e) {
 			LOGGER.error(e.getMessage(), e);
 		}
 
@@ -1013,7 +1016,7 @@ public class DataLandingGenerator {
 
 		for (String genomeId : REFERENCE_GENOME_IDS) {
 
-			Genome genome = solr.getGenome(genomeId);
+			Genome genome = dataApi.getGenome(genomeId);
 
 			JSONObject hypotheticalProteins = new JSONObject();
 			JSONObject functionalProteins = new JSONObject();
@@ -1263,7 +1266,7 @@ public class DataLandingGenerator {
 
 		for (String genomeId : REFERENCE_GENOME_IDS) {
 
-			Genome genome = solr.getGenome(genomeId);
+			Genome genome = dataApi.getGenome(genomeId);
 
 			// construct genome
 			JSONObject popGenome = new JSONObject();
@@ -1361,7 +1364,7 @@ public class DataLandingGenerator {
 
 		for (String genomeId : REFERENCE_GENOME_IDS) {
 
-			Genome genome = solr.getGenome(genomeId);
+			Genome genome = dataApi.getGenome(genomeId);
 
 			// construct genome
 			JSONObject popGenome = new JSONObject();
@@ -1445,7 +1448,7 @@ public class DataLandingGenerator {
 		SolrInterface solr = new SolrInterface();
 
 		for (String genomeId : REFERENCE_GENOME_IDS) {
-			Genome genome = solr.getGenome(genomeId);
+			Genome genome = dataApi.getGenome(genomeId);
 
 			// construct genome
 			JSONObject popGenome = new JSONObject();
@@ -1531,7 +1534,7 @@ public class DataLandingGenerator {
 			// construct genome node
 			JSONObject popGenome = new JSONObject();
 
-			Genome genome = solr.getGenome(genomeId);
+			Genome genome = dataApi.getGenome(genomeId);
 
 			popGenome.put("popularName", genome.getGenomeName());
 			popGenome.put("link", URL_TRANSCRIPTOMICS_TAB.replace("{cType}", "genome").replace("{cId}", genomeId).replace("{kw}", ""));
@@ -1680,7 +1683,7 @@ public class DataLandingGenerator {
 				LOGGER.error(e.getMessage(), e);
 			}
 
-			Taxonomy taxonomy = solr.getTaxonomy(txId);
+			Taxonomy taxonomy = dataApi.getTaxonomy(txId);
 
 			JSONObject item = new JSONObject();
 			item.put("pathogen", taxonomy.getTaxonName());

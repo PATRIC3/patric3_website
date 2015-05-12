@@ -18,20 +18,17 @@
 package edu.vt.vbi.patric.portlets;
 
 import edu.vt.vbi.patric.beans.GenomeFeature;
+import edu.vt.vbi.patric.common.DataApiHandler;
 import edu.vt.vbi.patric.common.SiteHelper;
 import edu.vt.vbi.patric.common.SolrCore;
-import edu.vt.vbi.patric.common.SolrInterface;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.portlet.*;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -40,6 +37,16 @@ import java.util.Map;
 public class SpecialtyGeneEvidencePortlet extends GenericPortlet {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SpecialtyGeneEvidencePortlet.class);
+
+	private ObjectReader jsonReader;
+
+	@Override
+	public void init() throws PortletException {
+		super.init();
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		jsonReader = objectMapper.reader(Map.class);
+	}
 
 	@Override
 	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
@@ -57,77 +64,79 @@ public class SpecialtyGeneEvidencePortlet extends GenericPortlet {
 			List<String> properties = Arrays.asList("property", "source", "source_id", "gene_name", "organism", "product", "gi", "gene_id");
 			List<String> headers = Arrays.asList("Property", "Source", "Source ID", "Gene", "Organism", "Product", "GI Number", "Gene ID");
 
-			SolrInterface solr = new SolrInterface();
-
 			// get properties of gene
 			Map<String, Object> gene = null;
-			try {
-				SolrQuery query = new SolrQuery("source:" + source + " AND source_id:" + sourceId);
+			SolrQuery query = new SolrQuery("source:" + source + " AND source_id:" + sourceId);
 
-				QueryResponse qr = solr.getSolrServer(SolrCore.SPECIALTY_GENE).query(query);
-				SolrDocumentList sdl = qr.getResults();
-				if (!sdl.isEmpty()) {
-					gene = sdl.get(0).getFieldValueMap();
-				}
-			}
-			catch (MalformedURLException | SolrServerException e) {
-				LOGGER.error(e.getMessage(), e);
+			DataApiHandler dataApi = new DataApiHandler(request);
+			String apiResponse = dataApi.solrQuery(SolrCore.SPECIALTY_GENE, query);
+
+			Map resp = jsonReader.readValue(apiResponse);
+			Map respBody = (Map) resp.get("response");
+
+			List<Map> sdl = (List<Map>) respBody.get("docs");
+
+			if (!sdl.isEmpty()) {
+				gene = sdl.get(0);
 			}
 
 			// get PATRIC feature
 			GenomeFeature feature = null;
-			try {
-				SolrQuery query = new SolrQuery("source:" + source + " AND source_id:" + sourceId + " AND evidence:Literature");
-				query.setFields("feature_id");
+			query = new SolrQuery("source:" + source + " AND source_id:" + sourceId + " AND evidence:Literature");
+			query.setFields("feature_id");
 
-				QueryResponse qr = solr.getSolrServer(SolrCore.SPECIALTY_GENE_MAPPING).query(query);
-				SolrDocumentList sdl = qr.getResults();
-				if (!sdl.isEmpty()) {
-					SolrDocument doc = sdl.get(0);
-					feature = solr.getFeature(doc.get("feature_id").toString());
-				}
-				else {
-					query = new SolrQuery("alt_locus_tag:" + sourceId);
-					qr = solr.getSolrServer(SolrCore.FEATURE).query(query);
-					List<GenomeFeature> features = qr.getBeans(GenomeFeature.class);
+			apiResponse = dataApi.solrQuery(SolrCore.SPECIALTY_GENE_MAPPING, query);
 
-					if (!features.isEmpty()) {
-						feature = features.get(0);
-					}
-				}
+			resp = jsonReader.readValue(apiResponse);
+			respBody = (Map) resp.get("response");
+
+			sdl = (List<Map>) respBody.get("docs");
+
+			if (!sdl.isEmpty()) {
+				Map doc = sdl.get(0);
+				feature = dataApi.getFeature(doc.get("feature_id").toString());
 			}
-			catch (MalformedURLException | SolrServerException e) {
-				LOGGER.error(e.getMessage(), e);
+			else {
+				query = new SolrQuery("alt_locus_tag:" + sourceId);
+
+				apiResponse = dataApi.solrQuery(SolrCore.FEATURE, query);
+
+				resp = jsonReader.readValue(apiResponse);
+				respBody = (Map) resp.get("response");
+
+				List<GenomeFeature> features  = dataApi.bindDocuments((List<Map>) respBody.get("docs"), GenomeFeature.class);
+
+				if (!features.isEmpty()) {
+					feature = features.get(0);
+				}
 			}
 
 			// get Homolog count
 			int cntHomolog = 0;
-			try {
-				SolrQuery query = new SolrQuery("source:" + source + " AND source_id:" + sourceId);
+			query = new SolrQuery("source:" + source + " AND source_id:" + sourceId);
 
-				QueryResponse qr = solr.getSolrServer(SolrCore.SPECIALTY_GENE_MAPPING).query(query);
-				cntHomolog = (int) qr.getResults().getNumFound();
-			}
-			catch (MalformedURLException | SolrServerException e) {
-				LOGGER.error(e.getMessage(), e);
-			}
+			apiResponse = dataApi.solrQuery(SolrCore.SPECIALTY_GENE_MAPPING, query);
+
+			resp = jsonReader.readValue(apiResponse);
+			respBody = (Map) resp.get("response");
+
+			cntHomolog = (Integer) respBody.get("numFound");
 
 			// get list of evidence
 			List<Map<String, Object>> specialtyGeneEvidence = new ArrayList<>();
-			try {
-				SolrQuery query = new SolrQuery("source:" + source + " AND source_id:" + sourceId);
-				query.addSort("specific_organism", SolrQuery.ORDER.asc);
-				query.addSort("specific_host", SolrQuery.ORDER.asc);
-				query.addSort("classification", SolrQuery.ORDER.asc);
+			query = new SolrQuery("source:" + source + " AND source_id:" + sourceId);
+			query.addSort("specific_organism", SolrQuery.ORDER.asc);
+			query.addSort("specific_host", SolrQuery.ORDER.asc);
+			query.addSort("classification", SolrQuery.ORDER.asc);
 
-				QueryResponse qr = solr.getSolrServer(SolrCore.SPECIALTY_GENE_EVIDENCE).query(query);
-				SolrDocumentList evidence = qr.getResults();
-				for (SolrDocument doc : evidence) {
-					specialtyGeneEvidence.add(doc.getFieldValueMap());
-				}
-			}
-			catch (MalformedURLException | SolrServerException e) {
-				LOGGER.error(e.getMessage(), e);
+			apiResponse = dataApi.solrQuery(SolrCore.SPECIALTY_GENE_EVIDENCE, query);
+
+			resp = jsonReader.readValue(apiResponse);
+			respBody = (Map) resp.get("response");
+
+			List<Map> evidence = (List<Map>) respBody.get("docs");
+			for (Map doc : evidence) {
+				specialtyGeneEvidence.add(doc);
 			}
 
 			request.setAttribute("source", source);

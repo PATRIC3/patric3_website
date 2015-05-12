@@ -30,15 +30,14 @@ long pk = (new Random()).nextLong();
 	<input type="hidden" id="fileformat" name="fileformat" value="" />
 	<input type="hidden" id="taxonId" name="taxonId" value="<%=taxonId%>" />
 	<input type="hidden" id="genomeId" name="genomeId" value="<%=genomeId%>" />
+	<input type="hidden" id="pk" name="pk" value="<%=pk%>" />
 	<input type="hidden" id="sort" name="sort" value="" />
-	<input type="hidden" id="dir" name="dir" value="" />
-	
+
 	<!-- fasta download specific param -->
 	<input type="hidden" id="fastaaction" name="fastaaction" value="" />
 	<input type="hidden" id="fastatype" name="fastatype" value="" />
 	<input type="hidden" id="fastascope" name="fastascope" value="" />
 	<input type="hidden" id="fids" name="fids" value="" />
-	<input type="hidden" id="download_keyword" name="download_keyword" value="" />
 </form>
 
 <div id="copy-button" class="x-hidden"></div>

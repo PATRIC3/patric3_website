@@ -1,21 +1,9 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet"%>
-<%@ page import="edu.vt.vbi.patric.common.SolrInterface" %>
-<%@ page import="edu.vt.vbi.patric.common.SolrCore" %>
-<%@ page import="edu.vt.vbi.patric.dao.ResultType" %>
-<%@ page import="javax.portlet.PortletSession" %>
-<%@ page import="org.json.simple.JSONObject" %>
 <%
 
 String cType = request.getParameter("context_type");
 String cId = request.getParameter("context_id");
 String eid = request.getParameter("eid");
-
-ResultType key = new ResultType();
-key.put("keyword", "eid:("+eid+")");
-
-SolrInterface solr = new SolrInterface();
-solr.setCurrentInstance(SolrCore.TRANSCRIPTOMICS_EXPERIMENT);
-JSONObject obj = solr.getData((ResultType)key, null, null, 0, -1, false, false, false);
 
 %>
 <h3 class="section-title normal-case close2x" style="width: 900px; margin-left: auto; margin-right: auto;"><span class="wrap">Single Experiment</span></h3>
@@ -32,7 +20,6 @@ JSONObject obj = solr.getData((ResultType)key, null, null, 0, -1, false, false, 
 <input type="hidden" id="fastascope" name="fastascope" value="" />
 <input type="hidden" id="fids" name="fids" value="" />
 <input type="hidden" id="sort" name="sort" value="" />
-<input type="hidden" id="dir" name="dir" value="" />
 </form>
 
 <div id="copy-button" style="display:none"></div>
@@ -77,8 +64,8 @@ Ext.onReady(function () {
 		extraParams:getExtraParams,
 		callBackFn:CallBack,
 		sort:[[{
-			property: '',
-			direction: ''
+			property: 'expname',
+			direction: 'asc'
 		}]],
 		hash:{
 			aP: [1]

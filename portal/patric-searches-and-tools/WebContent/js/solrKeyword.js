@@ -737,6 +737,8 @@ configuration['GENEXP_Experiment'] = {
 	display_facets : ['organism', 'strain', 'mutant', 'condition', 'timeseries', 'release_date'],
 	display_facets_texts : ['Organism', 'Strain', 'Gene Modification', 'Experimental Condition', 'Time Series', 'Release Date'],
 	all_facets : ['Keyword', 'organism', 'strain', 'mutant', 'condition', 'timeseries', 'release_date', 'eid'],
+	field_facets: ['organism', 'strain', 'mutant', 'condition', 'timeseries'],
+	date_range_facets : ['release_date'],
 	search_fields : [{
 		value : 'Keyword',
 		text : 'Keyword'

@@ -1,15 +1,12 @@
 <%@ page import="edu.vt.vbi.patric.common.ExcelHelper"%><%@ page 
 	import="edu.vt.vbi.patric.common.SolrInterface"%><%@ page
 	import="edu.vt.vbi.patric.common.SolrCore"%><%@ page 
-	import="edu.vt.vbi.patric.common.SQLHelper"%><%@ page 
-	import="edu.vt.vbi.patric.common.StringHelper"%><%@ page 
 	import="edu.vt.vbi.patric.common.DownloadHelper"%><%@ page
 	import="edu.vt.vbi.patric.dao.*"%><%@ page
 	import="edu.vt.vbi.patric.beans.*"%><%@ page
 	import="org.json.simple.JSONArray"%><%@ page 
 	import="org.json.simple.JSONObject"%><%@ page 
 	import="org.json.simple.parser.JSONParser"%><%@ page 
-	import="org.json.simple.parser.ParseException"%><%@ page 
 	import="java.util.*"%><%@ page
 	import="org.apache.solr.common.*"%><%@ page
 	import="org.apache.solr.client.solrj.*"%><%@ page
@@ -22,7 +19,6 @@
 	import="org.apache.commons.lang.StringUtils"%><%
 
 	final Logger LOGGER = LoggerFactory.getLogger("GRID_DOWNLOAD_HANDLER.JSP");
-	DBSearch conn_search = new DBSearch();
 
 	String _filename = "";
 
@@ -45,129 +41,7 @@
 
 	ExcelHelper excel = null;
 
-	if (_tablesource.equalsIgnoreCase("Genome")) {
-
-		SolrInterface solr = new SolrInterface();
-		String keyword = request.getParameter("download_keyword");
-		String genomeId = request.getParameter("gId");
-		String taxonId = request.getParameter("cId");
-		String cType = request.getParameter("cType");
-
-		if (keyword != null) {
-			key.put("keyword", keyword.trim());
-		}
-		if (cType != null && cType.equals("taxon") && taxonId != null && taxonId.equals("") == false) {
-			key.put("taxonId", taxonId);
-			key.put("join", SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + key.get("taxonId")));
-		}
-
-		
-		if (request.getParameter("aT") != null && request.getParameter("aT").equals("0")) {
-
-			sort_field = request.getParameter("gsort");
-			sort_dir = request.getParameter("gdir");
-
-			if (sort_field != null && sort_dir != null) {
-				sort = new HashMap<String, String>();
-				sort.put("field", sort_field);
-				sort.put("direction", sort_dir);
-			}
-
-			solr.setCurrentInstance(SolrCore.GENOME);
-			JSONObject object = solr.getData(key, sort, null, 0, -1, false, false, false);
-
-			JSONObject obj = (JSONObject) object.get("response");
-			_tbl_source = (JSONArray) obj.get("docs");
-
-			// read array of header name and fields from a static class
-			_tbl_header.addAll(DownloadHelper.getHeaderForGenomes());
-			_tbl_field.addAll(DownloadHelper.getFieldsForGenomes());
-		}
-		else if (request.getParameter("aT") != null && request.getParameter("aT").equals("1")) {
-
-			SolrQuery query = new SolrQuery();
-
-			query.setQuery(key.get("keyword"));
-			query.setFilterQueries("taxon_lineage_ids:" + taxonId);
-			query.addField("genome_id");
-			query.setRows(500000);
-
-			JSONObject gObject = solr.ConverttoJSON(solr.getSolrServer(SolrCore.GENOME), query, false, false);
-			List<String> listGenomeId = new ArrayList<String>();
-			JSONArray ret = (JSONArray) ((JSONObject) gObject.get("response")).get("docs");
-			for (Object row : ret) {
-				JSONObject gid = (JSONObject) row;
-				listGenomeId.add(gid.get("genome_id").toString());
-			}
-			if (listGenomeId.size() > 0) {
-				key.put("keyword", "genome_id: (" + StringUtils.join(listGenomeId, " OR ") + ")");
-			}
-
-			solr.setCurrentInstance(SolrCore.SEQUENCE);
-            key.put("fields", StringUtils.join(DownloadHelper.getFieldsForGenomeSequence(), ","));
-			JSONObject object = solr.getData(key, sort, null, 0, -1, false, false, false);
-
-			JSONObject obj = (JSONObject) object.get("response");
-			_tbl_source = (JSONArray) obj.get("docs");
-
-			sort_field = request.getParameter("sort");
-			sort_dir = request.getParameter("dir");
-
-			if (sort_field != null && sort_dir != null) {
-				sort = new HashMap<String, String>();
-				sort.put("field", sort_field);
-				sort.put("direction", sort_dir);
-			}
-
-			_tbl_header.addAll(DownloadHelper.getHeaderForGenomeSequence());
-			_tbl_field.addAll(DownloadHelper.getFieldsForGenomeSequence());
-		}
-
-		_filename = "GenomeFinder";
-	}
-	else if (_tablesource.equalsIgnoreCase("Feature")) {
-
-		SolrInterface solr = new SolrInterface();
-		String keyword = request.getParameter("download_keyword");
-		String taxonId = request.getParameter("taxonId");
-		String genomeId = request.getParameter("genomeId");
-
-		key.put("keyword", keyword);
-		if (taxonId != null && !taxonId.equals("")) {
-			key.put("taxonId", taxonId);
-			key.put("join", SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + key.get("taxonId")));
-		}
-		if (genomeId != null && !genomeId.equals("")) {
-			key.put("join", "genome_id:" + genomeId);
-		}
-		key.put("fields", StringUtils.join(DownloadHelper.getFieldsForFeatures(), ","));
-
-		sort_field = request.getParameter("sort");
-		sort_dir = request.getParameter("dir");
-
-		if (sort_field != null && sort_dir != null) {
-			sort = new HashMap<String, String>();
-			sort.put("field", sort_field);
-			sort.put("direction", sort_dir);
-		}
-		solr.setCurrentInstance(SolrCore.FEATURE);
-		// TODO: change later, set max rows to 20,000
-		JSONObject object = solr.getData(key, sort, null, 0, 20000, false, false, false);
-
-		JSONObject obj = (JSONObject) object.get("response");
-		_tbl_source = (JSONArray) obj.get("docs");
-
-		if (request.getParameter("subtablesource") != null && request.getParameter("subtablesource").toString().equals("FigFam")) {
-			_tbl_header.addAll(Arrays.asList("ID"));
-			_tbl_field.addAll(Arrays.asList("figfam_id"));
-		}
-
-		_tbl_header.addAll(DownloadHelper.getHeaderForFeatures());
-		_tbl_field.addAll(DownloadHelper.getFieldsForFeatures());
-
-		_filename = "FeatureTable";
-	}
-	else if (_tablesource.equalsIgnoreCase("GlobalSearch")) {
+	if (_tablesource.equalsIgnoreCase("GlobalSearch")) {
 
 		SolrInterface solr = new SolrInterface();
 		String keyword = request.getParameter("download_keyword");
@@ -205,74 +79,6 @@
 		_tbl_field.addAll(Arrays.asList(new String[] {}));
 
 		_filename = "GlobalSearch";
-	}
-	else if (_tablesource.equalsIgnoreCase("GENEXP_Experiment")) {
-
-		SolrInterface solr = new SolrInterface();
-		String keyword = request.getParameter("download_keyword");
-
-		sort_field = request.getParameter("sort");
-		sort_dir = request.getParameter("dir");
-
-		if (sort_field != null && sort_dir != null) {
-			sort = new HashMap<String, String>();
-			sort.put("field", sort_field);
-			sort.put("direction", sort_dir);
-		}
-
-		if (keyword != null) {
-			key.put("keyword", keyword.trim());
-		}
-
-		if (request.getParameter("aT").equals("0")) {
-
-			solr.setCurrentInstance(SolrCore.TRANSCRIPTOMICS_EXPERIMENT);
-			JSONObject object = solr.getData(key, sort, null, 0, -1, false, false, false);
-			JSONObject obj = (JSONObject) object.get("response");
-			_tbl_source = (JSONArray) obj.get("docs");
-			_tbl_header.addAll(Arrays.asList("Experiment ID", "Title", "Comparisons", "Genes", "PubMed", "Accession", "Organism", "Strain",
-					"Gene Modification", "Experimental Condition", "Time Series", "Release Date", "Author", "PI", "Institution"));
-
-			_tbl_field.addAll(Arrays.asList("eid", "title", "samples", "genes", "pmid", "accession", "organism", "strain", "mutant",
-					"condition", "timeseries", "release_date", "author", "pi", "institution"));
-		}
-		else if (request.getParameter("aT").equals("1")) {
-
-			String solrId = "";
-			solr.setCurrentInstance(SolrCore.TRANSCRIPTOMICS_EXPERIMENT);
-
-			JSONObject object_t = solr.getData(key, null, null, 0, 10000, false, false, false);
-			JSONObject obj_t = (JSONObject) object_t.get("response");
-			JSONArray obj1 = (JSONArray) obj_t.get("docs");
-
-			for (Object ob : obj1) {
-				JSONObject doc = (JSONObject) ob;
-				if (solrId.length() == 0) {
-					solrId += doc.get("accession").toString();
-				}
-				else {
-					solrId += "," + doc.get("accession").toString();
-				}
-			}
-
-			key.put("keyword", solr.ConstructKeyword("accession", solrId));
-
-			////////////////////////
-
-			solr.setCurrentInstance(SolrCore.TRANSCRIPTOMICS_COMPARISON);
-
-			JSONObject object = solr.getData(key, sort, null, 0, -1, false, false, false);
-			JSONObject obj = (JSONObject) object.get("response");
-			_tbl_source = (JSONArray) obj.get("docs");
-			_tbl_header.addAll(Arrays.asList("Experiment ID", "Comparison ID", "Title", "Genes", "Significant genes(Log Ratio)",
-					"Significant genes(Z Score)", "PubMed", "Accession", "Organism", "Strain", "Gene Modification", "Experiment Condition",
-					"Time Point", "Release Date"));
-
-			_tbl_field.addAll(Arrays.asList("eid", "pid", "expname", "genes", "sig_log_ratio", "sig_z_score", "pmid", "accession",
-					"organism", "strain", "mutant", "condition", "timepoint", "release_date"));
-		}
-
-		_filename = "Transcriptomics";
 	}
 	else if (_tablesource.equalsIgnoreCase("Proteomics_Experiment")) {
 
@@ -505,104 +311,6 @@
 				"start", "end", "na_length", "strand", "protein_id", "aa_length", "product", "correlation", "count"));
 
 		_filename = "Correlated Genes";
-	}
-	else if (_tablesource.equalsIgnoreCase("SingleExperiment")) {
-
-		HashMap<String, String> k = new HashMap<String, String>();
-
-		String cId = request.getParameter("cId");
-		String cType = request.getParameter("cType");
-		String eid = request.getParameter("eid");
-
-		k.put("cId", cId);
-		k.put("cType", cType);
-		k.put("eid", eid);
-
-		sort_field = request.getParameter("sort");
-		sort_dir = request.getParameter("dir");
-
-		if (sort_field != null && sort_dir != null) {
-			sort = new HashMap<String, String>();
-			sort.put("field", sort_field);
-			sort.put("direction", sort_dir);
-		}
-
-		SolrInterface solr = new SolrInterface();
-		_tbl_source = (JSONArray) ((JSONObject) solr.getTranscriptomicsSamples(null, eid, "", 0, -1, sort)).get("data");
-
-		_tbl_header.addAll(Arrays.asList("Experiment ID", "Comparison ID", "Title", "Genes", "Significant genes(Log Ratio)",
-				"Significant genes(Z Score)", "PubMed", "Accession", "Organism", "Strain", "Gene Modification", "Experiment Condition",
-				"Time Point", "Release Date"));
-
-		_tbl_field.addAll(Arrays.asList("eid", "pid", "expname", "genes", "sig_log_ratio", "sig_z_score", "pmid", "accession", "organism",
-				"strain", "mutant", "condition", "timepoint", "release_date"));
-
-		_filename = "SingleExperiment";
-	}
-	else if (_tablesource.equalsIgnoreCase("SpecialtyGeneMapping")) {
-
-		String keyword = request.getParameter("download_keyword");
-		String taxonId = request.getParameter("cId");
-		String cType = request.getParameter("cType");
-
-		key.put("keyword", keyword);
-		if (cType != null && cType.equals("taxon") && taxonId != null && taxonId.equals("") == false) {
-			key.put("taxonId", taxonId);
-			key.put("join", SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + key.get("taxonId")));
-		}
-
-		sort_field = request.getParameter("sort");
-		sort_dir = request.getParameter("dir");
-
-		if (sort_field != null && sort_dir != null) {
-			sort = new HashMap<String, String>();
-			sort.put("field", sort_field);
-			sort.put("direction", sort_dir);
-		}
-
-		SolrInterface solr = new SolrInterface();
-		solr.setCurrentInstance(SolrCore.SPECIALTY_GENE_MAPPING);
-		JSONObject object_t = solr.getData(key, sort, null, 0, -1, false, false, false);
-		JSONObject obj_t = (JSONObject) object_t.get("response");
-		_tbl_source = (JSONArray) obj_t.get("docs");
-
-		_tbl_header.addAll(Arrays.asList("Evidence", "Property", "Source", "Genome Name", "PATRIC ID", "RefSeq Locus Tag", "Alt Locus Tag", "Source ID",
-				"Source Organism", "Gene", "Product", "Function", "Classification", "PubMed", "Subject Coverage", "Query Coverage",
-				"Identity", "E-value"));
-
-		_tbl_field.addAll(Arrays.asList("evidence", "property", "source", "genome_name", "seed_id", "refseq_locus_tag", "alt_locus_tag", "source_id",
-				"organism", "gene", "product", "function", "classification", "pmid", "subject_coverage", "query_coverage", "identity",
-				"e_value"));
-
-		_filename = "SpecialtyGene";
-	}
-	else if (_tablesource.equalsIgnoreCase("SpecialtyGene")) {
-
-		String keyword = request.getParameter("download_keyword");
-		key.put("keyword", keyword);
-
-		sort_field = request.getParameter("sort");
-		sort_dir = request.getParameter("dir");
-
-		if (sort_field != null && sort_dir != null) {
-			sort = new HashMap<String, String>();
-			sort.put("field", sort_field);
-			sort.put("direction", sort_dir);
-		}
-
-		SolrInterface solr = new SolrInterface();
-		solr.setCurrentInstance(SolrCore.SPECIALTY_GENE);
-		JSONObject object_t = solr.getData(key, sort, null, 0, -1, false, false, false);
-		JSONObject obj_t = (JSONObject) object_t.get("response");
-		_tbl_source = (JSONArray) obj_t.get("docs");
-
-		_tbl_header.addAll(Arrays.asList("Property", "Source", "Source ID", "Gene", "Organism", "Locus Tag", "Gene ID", "GI", "Product",
-				"Function", "Classification", "PubMed"));
-
-		_tbl_field.addAll(Arrays.asList("property", "source", "source_id", "gene_name", "organism", "locus_tag", "gene_id", "gi", "product",
-				"function", "classification", "pmid"));
-
-		_filename = "SpecialtyGeneSource";
 	}
 
 	excel = new ExcelHelper("xssf", _tbl_header, _tbl_field, _tbl_source);

@@ -17,15 +17,15 @@ String exactSearchTerm = (String) request.getAttribute("exactSearchTerm");
 	<input type="hidden" name="search_on" value="<%=searchOn %>" />
 	<input type="hidden" name="cType" id="cType" value="<%=contextType %>" />
 	<input type="hidden" name="cId" id="cId" value="<%=contextId %>" />
-	<input type="hidden" name="gId" id="gId" value="" />
+	<input type="hidden" name="taxonId" id="taxonId" value="<%=taxonId%>" />
+	<input type="hidden" name="genomeId" id="genomeId" value="<%=genomeId%>" />
+	<input type="hidden" name="pk" id="pk" value="<%=pk%>" />
 	<input type="hidden" id="aT" name="aT" value="" />
 	<input type="hidden" id="sort" name="sort" value="" />
-	<input type="hidden" id="dir" name="dir" value="" />
-	
+
 	<!-- fasta download specific param -->
 	<input type="hidden" id="fileformat" name="fileformat" value=""/>
 	<input type="hidden" id="fids" name="fids" value="" />
-	<input type="hidden" id="download_keyword" name="download_keyword" value="" />
 </form>
 <div id="copy-button"style="display:none;"></div>
 <div style="padding:3px;">

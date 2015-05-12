@@ -192,9 +192,17 @@ function showExpDetail() {
 
 function DownloadFile() {"use strict";
 
-	var form = Ext.getDom("fTableForm");
+	var Page = $Page, form = Ext.getDom("fTableForm");
 
-	form.action = "/patric-searches-and-tools/jsp/grid_download_handler.jsp", form.target = "", form.fileformat.value = arguments[0];
+// 	form.action = "/patric-searches-and-tools/jsp/grid_download_handler.jsp";
+	form.action = "/portal/portal/patric/SingleExperiment/SingleExperimentWindow?action=b&cacheability=PAGE&callType=download";
+	form.target = "";
+	form.fileformat.value = arguments[0];
 	getHashFieldsToDownload(form);
+
+	var grid = Page.getGrid();
+	var sort = [];
+	sort.push(getSortersInText(grid.store));
+	form.sort.value = JSON.stringify(sort);
 	form.submit();
 }

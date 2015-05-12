@@ -35,7 +35,6 @@ public class PRIDEPortlet extends GenericPortlet {
 		if (contextType != null) {
 
 			String contextId = request.getParameter("context_id");
-			// String qKeyword = request.getParameter("keyword");
 			String organismName = ExperimentDataPortlet.getSpeciesName(contextType, contextId);
 
 			request.setAttribute("contextType", contextType);

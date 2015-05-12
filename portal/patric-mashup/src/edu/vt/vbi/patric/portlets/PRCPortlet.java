@@ -17,7 +17,7 @@
  */
 package edu.vt.vbi.patric.portlets;
 
-import edu.vt.vbi.patric.common.SolrInterface;
+import edu.vt.vbi.patric.common.DataApiHandler;
 import edu.vt.vbi.patric.dao.DBPRC;
 import edu.vt.vbi.patric.dao.ResultType;
 import org.json.simple.JSONArray;
@@ -69,14 +69,14 @@ public class PRCPortlet extends GenericPortlet {
 		int start = Integer.parseInt(start_id);
 		int end = start + Integer.parseInt(limit);
 
-		SolrInterface solr = new SolrInterface();
+		DataApiHandler dataApi = new DataApiHandler(request);
 		int taxonId = -1;
 
 		if (contextType.equals("taxon")) {
 			taxonId = Integer.parseInt(contextId);
 		}
 		else if (contextType.equals("genome")) {
-			taxonId = solr.getGenome(contextId).getTaxonId();
+			taxonId = dataApi.getGenome(contextId).getTaxonId();
 		}
 
 		if (filter == null) {

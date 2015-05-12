@@ -42,11 +42,12 @@ public class GenomeFinder extends GenericPortlet {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(GenomeFinder.class);
 
-	ObjectReader jsonReader;
+	private ObjectReader jsonReader;
 
-	ObjectWriter jsonWriter;
+	private ObjectWriter jsonWriter;
 
-	@Override public void init() throws PortletException {
+	@Override
+	public void init() throws PortletException {
 		super.init();
 
 		ObjectMapper objectMapper = new ObjectMapper();
@@ -54,7 +55,8 @@ public class GenomeFinder extends GenericPortlet {
 		jsonWriter = objectMapper.writerWithType(Map.class);
 	}
 
-	@Override protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
+	@Override
+	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 
 		response.setContentType("text/html");
 		String mode = request.getParameter("display_mode");
@@ -143,152 +145,100 @@ public class GenomeFinder extends GenericPortlet {
 		prd.include(request, response);
 	}
 
-	@SuppressWarnings("unchecked") public void serveResource(ResourceRequest request, ResourceResponse response)
-			throws PortletException, IOException {
+	@SuppressWarnings("unchecked")
+	public void serveResource(ResourceRequest request, ResourceResponse response) throws PortletException, IOException {
 
 		String sraction = request.getParameter("sraction");
 
-		if (sraction != null && sraction.equals("save_params")) {
+		if (sraction != null) {
+			if (sraction.equals("save_params")) {
 
-			Map<String, String> key = new HashMap<>();
+				Map<String, String> key = new HashMap<>();
 
-			String genomeId = request.getParameter("genomeId");
-			String taxonId = request.getParameter("taxonId");
-			String cType = request.getParameter("cType");
-			String cId = request.getParameter("cId");
-			if (cType != null && cId != null && cType.equals("taxon") && !cId.equals("")) {
-				taxonId = cId;
-			}
-			String keyword = request.getParameter("keyword");
-			String state = request.getParameter("state");
-			String exact_search_term = request.getParameter("exact_search_term");
-			String search_on = request.getParameter("search_on");
+				String genomeId = request.getParameter("genomeId");
+				String taxonId = request.getParameter("taxonId");
+				String cType = request.getParameter("cType");
+				String cId = request.getParameter("cId");
+				if (cType != null && cId != null && cType.equals("taxon") && !cId.equals("")) {
+					taxonId = cId;
+				}
+				String keyword = request.getParameter("keyword");
+				String state = request.getParameter("state");
+				String exact_search_term = request.getParameter("exact_search_term");
+				String search_on = request.getParameter("search_on");
 
-			if (genomeId != null && !genomeId.equals("")) {
-				key.put("genomeId", genomeId);
-			}
-			if (taxonId != null && !taxonId.equals("")) {
-				key.put("taxonId", taxonId);
-			}
-			if (keyword != null) {
-				key.put("keyword", keyword.trim());
-			}
-			if (state != null) {
-				key.put("state", state);
-			}
-			if (exact_search_term != null) {
-				key.put("exact_search_term", exact_search_term);
-			}
-			if (search_on != null) {
-				key.put("search_on", search_on);
-			}
+				if (genomeId != null && !genomeId.equals("")) {
+					key.put("genomeId", genomeId);
+				}
+				if (taxonId != null && !taxonId.equals("")) {
+					key.put("taxonId", taxonId);
+				}
+				if (keyword != null) {
+					key.put("keyword", keyword.trim());
+				}
+				if (state != null) {
+					key.put("state", state);
+				}
+				if (exact_search_term != null) {
+					key.put("exact_search_term", exact_search_term);
+				}
+				if (search_on != null) {
+					key.put("search_on", search_on);
+				}
 
-			if (!key.containsKey("genomeId") && cType != null && cType.equals("genome") && cId != null && !cId.equals("")) {
-				key.put("genomeId", cId);
+				if (!key.containsKey("genomeId") && cType != null && cType.equals("genome") && cId != null && !cId.equals("")) {
+					key.put("genomeId", cId);
+				}
+				if (!key.containsKey("taxonId") && cType != null && cType.equals("taxon") && cId != null && !cId.equals("")) {
+					key.put("taxonId", cId);
+				}
+
+				long pk = (new Random()).nextLong();
+
+				SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
+
+				PrintWriter writer = response.getWriter();
+				writer.write("" + pk);
+				writer.close();
 			}
-			if (!key.containsKey("taxonId") && cType != null && cType.equals("taxon") && cId != null && !cId.equals("")) {
-				key.put("taxonId", cId);
+			else if (sraction.equals("get_params")) {
+
+				String ret = "";
+				String pk = request.getParameter("pk");
+				String json = SessionHandler.getInstance().get(SessionHandler.PREFIX + pk);
+				if (json != null) {
+					Map<String, String> key = jsonReader.readValue(json);
+					ret = key.get("keyword");
+				}
+
+				PrintWriter writer = response.getWriter();
+				writer.write("" + ret);
+				writer.close();
 			}
-			LOGGER.debug("param:{}", request.getParameterMap());
-			LOGGER.debug("key:{}", key.toString());
-
-			long pk = (new Random()).nextLong();
-
-			SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
-
-			PrintWriter writer = response.getWriter();
-			writer.write("" + pk);
-			writer.close();
-		}
-		else if (sraction != null && sraction.equals("get_params")) {
-
-			String ret = "";
-			String pk = request.getParameter("pk");
-			String json = SessionHandler.getInstance().get(SessionHandler.PREFIX + pk);
-			if (json != null) {
-				Map<String, String> key = jsonReader.readValue(json);
-				ret = key.get("keyword");
-			}
-
-			PrintWriter writer = response.getWriter();
-			writer.write("" + ret);
-			writer.close();
 		}
 		else {
 
 			String need = request.getParameter("need");
-			String facet, sort, keyword, pk, state, taxonId, genomeId;
-			boolean hl;
-
-			Map<String, String> key = new HashMap<>();
 			JSONObject jsonResult = new JSONObject();
 
 			switch (need) {
 			case "0": {
 				// Getting Genome List
-				pk = request.getParameter("pk");
-				keyword = request.getParameter("keyword");
-				facet = request.getParameter("facet");
-				sort = request.getParameter("sort");
-				taxonId = request.getParameter("taxonId");
-				genomeId = request.getParameter("genomeId");
+				String pk = request.getParameter("pk");
+				Map data = processGenomeTab(request);
 
-				String highlight = request.getParameter("highlight");
-				hl = Boolean.parseBoolean(highlight);
+				Map<String, String> key = (Map) data.get("key");
+				int numFound = (Integer) data.get("numFound");
+				List<Genome> records = (List<Genome>) data.get("genomes");
 
-				String json = SessionHandler.getInstance().get(SessionHandler.PREFIX + pk);
-				if (json == null) {
-					key.put("facet", facet);
-					key.put("keyword", keyword);
-
-					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
-				}
-				else {
-					key = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
-					key.put("facet", facet);
-				}
-
-				if ((taxonId == null || taxonId.equals("")) && key.containsKey("taxonId") && !key.get("taxonId").equals("")) {
-					taxonId = key.get("taxonId");
-				}
-				if ((genomeId == null || genomeId.equals("")) && key.containsKey("genomeId") && !key.get("genomeId").equals("")) {
-					genomeId = key.get("genomeId");
-				}
-
-				String start_id = request.getParameter("start");
-				String limit = request.getParameter("limit");
-				int start = Integer.parseInt(start_id);
-				int end = Integer.parseInt(limit);
-
-				key.put("fields", StringUtils.join(DownloadHelper.getFieldsForGenomes(), ","));
-
-				// add join condition
-				if (taxonId != null && !taxonId.equals("")) {
-					key.put("join", "taxon_lineage_ids:" + taxonId);
-				}
-				if (genomeId != null && !genomeId.equals("")) {
-					key.put("join", "genome_id:(" + genomeId.replaceAll(",", " OR ") + ")");
-				}
-
-				SolrInterface solr = new SolrInterface();
-				SolrQuery query = solr.buildSolrQuery(key, sort, facet, start, end, hl);
-
-				LOGGER.debug("query: {}", query.toString());
-				DataApiHandler dataApi = new DataApiHandler(request);
-				String apiResponse = dataApi.solrQuery(SolrCore.GENOME, query);
-
-				Map<String, Object> resp = jsonReader.readValue(apiResponse);
-				Map<String, Object> respBody = (Map<String, Object>) resp.get("response");
-
-				int numFound = (Integer) respBody.get("numFound");
 				JSONArray docs = new JSONArray();
-				List<Genome> records = dataApi.bindDocuments((List<Map>) respBody.get("docs"), Genome.class);
 				for (Genome item : records) {
 					docs.add(item.toJSONObject());
 				}
 
-				if (resp.containsKey("facet_counts")) {
-					JSONObject facets = solr.formatFacetTree((Map) resp.get("facet_counts"));
+				if (data.containsKey("facets")) {
+					SolrInterface solr = new SolrInterface();
+					JSONObject facets = solr.formatFacetTree((Map) data.get("facets"));
 					key.put("facets", facets.toJSONString());
 					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
 				}
@@ -304,80 +254,12 @@ public class GenomeFinder extends GenericPortlet {
 			}
 			case "1": {
 				// getting Genome Sequence List
-				pk = request.getParameter("pk");
-				keyword = request.getParameter("keyword");
-				facet = request.getParameter("facet");
-				taxonId = request.getParameter("taxonId");
+				Map data = processSequenceTab(request);
 
-				String json = SessionHandler.getInstance().get(SessionHandler.PREFIX + pk);
-				if (json == null) {
-					key.put("facet", facet);
-					key.put("keyword", keyword);
-
-					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
-				}
-				else {
-					key = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
-					key.put("facet", facet);
-				}
-
-				if ((!key.containsKey("taxonId") || key.get("taxonId") == null) && taxonId != null) {
-					key.put("taxonId", taxonId);
-				}
-
-				// Pre-processing. Query genome core and get facets and genome_ids for next query on sequence core
-				key.put("fields", "genome_id");
-				key.put("join", "taxon_lineage_ids:" + key.get("taxonId"));
-
-				SolrInterface solr = new SolrInterface();
-				SolrQuery query = solr.buildSolrQuery(key, null, facet, 0, -1, false);
-				LOGGER.trace(query.toString());
-
-				List<String> listGenomeId = new ArrayList<>();
-
-				DataApiHandler dataApi = new DataApiHandler(request);
-				String apiResponse = dataApi.solrQuery(SolrCore.GENOME, query);
-
-				Map<String, Object> resp = jsonReader.readValue(apiResponse);
-				Map<String, Object> respBody = (Map<String, Object>) resp.get("response");
-				List<Genome> records = dataApi.bindDocuments((List<Map>) respBody.get("docs"), Genome.class);
-				for (Genome item : records) {
-					listGenomeId.add(item.getId());
-				}
-
-				// save facet tree
-				if (resp.containsKey("facet_counts")) {
-					JSONObject facets = solr.formatFacetTree((Map) resp.get("facet_counts"));
-					key.put("facets", facets.toJSONString());
-					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
-				}
-
-				if (listGenomeId.size() > 0) {
-					key.put("keyword", "genome_id:(" + StringUtils.join(listGenomeId, " OR ") + ")");
-				}
-
-				//
-				String start_id = request.getParameter("start");
-				String limit = request.getParameter("limit");
-				int start = Integer.parseInt(start_id);
-				int end = Integer.parseInt(limit);
-				String sorts = request.getParameter("sort");
-
-				Map<String, String> keySequence = new HashMap<>();
-				keySequence.put("keyword", key.get("keyword"));
-				keySequence.put("fields", StringUtils.join(DownloadHelper.getFieldsForGenomeSequence(), ","));
-				keySequence.put("join", SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + key.get("taxonId")));
-
-				query = solr.buildSolrQuery(keySequence, sorts, null, start, end, false);
-				LOGGER.debug("genome sequence: {}", query.toString());
-				apiResponse = dataApi.solrQuery(SolrCore.SEQUENCE, query);
-
-				resp = jsonReader.readValue(apiResponse);
-				respBody = (Map<String, Object>) resp.get("response");
-				List<GenomeSequence> sequences = dataApi.bindDocuments((List<Map>) respBody.get("docs"), GenomeSequence.class);
+				int numFound = (Integer) data.get("numFound");
+				List<GenomeSequence> sequences = (List<GenomeSequence>) data.get("sequences");
 
 				JSONArray docs = new JSONArray();
-				int numFound = (Integer) respBody.get("numFound");
 				for (GenomeSequence item : sequences) {
 					docs.add(item.toJSONObject());
 				}
@@ -393,8 +275,9 @@ public class GenomeFinder extends GenericPortlet {
 			}
 			case "tree": {
 
-				pk = request.getParameter("pk");
-				key = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
+				String pk = request.getParameter("pk");
+				String state;
+				Map<String, String> key = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
 
 				if (key.containsKey("state")) {
 					state = key.get("state");
@@ -430,20 +313,21 @@ public class GenomeFinder extends GenericPortlet {
 			case "tree_for_taxon": {
 				// This is called by Taxon Overview page to faceted summary of genome under a specific taxa.
 
-				facet = request.getParameter("facet");
-				keyword = request.getParameter("keyword");
+				String facet = request.getParameter("facet");
+				String keyword = request.getParameter("keyword");
 
+				Map<String, String> key = new HashMap<>();
 				key.put("keyword", keyword);
 
 				SolrInterface solr = new SolrInterface();
 				SolrQuery query = solr.buildSolrQuery(key, null, facet, 0, 0, false); // build solr query
 
-				LOGGER.debug("tree_for_taxon: {}", query.toString());
+				LOGGER.debug("tree_for_taxon: [{}] {}", SolrCore.GENOME.getSolrCoreName(), query.toString());
 
 				DataApiHandler dataApi = new DataApiHandler(request);
 				String apiResponse = dataApi.solrQuery(SolrCore.GENOME, query);
 
-				Map<String, Object> resp = jsonReader.readValue(apiResponse);
+				Map resp = jsonReader.readValue(apiResponse);
 
 				JSONObject facet_fields = solr.formatFacetTree((Map) resp.get("facet_counts"));
 				JSONArray tree = solr.processStateAndTree(key, need, facet_fields, facet, "", null, 4, false);
@@ -468,7 +352,232 @@ public class GenomeFinder extends GenericPortlet {
 				writer.close();
 				break;
 			}
+			case "download": {
+				List<String> tableHeader = new ArrayList<>();
+				List<String> tableField = new ArrayList<>();
+				JSONArray tableSource = new JSONArray();
+
+				String fileName = "GenomeFinder";
+				String fileFormat = request.getParameter("fileformat");
+//				String _tablesource = request.getParameter("tablesource");
+
+				String aT = request.getParameter("aT");
+
+				switch (aT) {
+				case "0": {
+					// genome
+					Map data = processGenomeTab(request);
+					List<Genome> genomes = (List<Genome>) data.get("genomes");
+
+					for (Genome genome : genomes) {
+						tableSource.add(genome.toJSONObject());
+					}
+
+					tableHeader.addAll(DownloadHelper.getHeaderForGenomes());
+					tableField.addAll(DownloadHelper.getFieldsForGenomes());
+					break;
+				}
+				case "1": {
+					// sequence
+					Map data = processSequenceTab(request);
+					List<GenomeSequence> sequences = (List<GenomeSequence>) data.get("sequences");
+
+					for (GenomeSequence sequence : sequences) {
+						tableSource.add(sequence.toJSONObject());
+					}
+
+					tableHeader.addAll(DownloadHelper.getHeaderForGenomeSequence());
+					tableField.addAll(DownloadHelper.getFieldsForGenomeSequence());
+					break;
+				}
+				}
+
+				ExcelHelper excel = new ExcelHelper("xssf", tableHeader, tableField, tableSource);
+				excel.buildSpreadsheet();
+
+				if (fileFormat.equalsIgnoreCase("xlsx")) {
+					response.setContentType("application/octetstream");
+					response.addProperty("Content-Disposition", "attachment; filename=\"" + fileName + "." + fileFormat + "\"");
+
+					excel.writeSpreadsheettoBrowser(response.getPortletOutputStream());
+				}
+				else if (fileFormat.equalsIgnoreCase("txt")) {
+
+					response.setContentType("application/octetstream");
+					response.addProperty("Content-Disposition", "attachment; filename=\"" + fileName + "." + fileFormat + "\"");
+
+					response.getPortletOutputStream().write(excel.writeToTextFile().getBytes());
+				}
+			}
 			}
 		}
+	}
+
+	private Map processGenomeTab(ResourceRequest request) throws IOException {
+
+		String pk = request.getParameter("pk");
+		String keyword = request.getParameter("keyword");
+		String facet = request.getParameter("facet");
+		String sort = request.getParameter("sort");
+		String taxonId = request.getParameter("taxonId");
+		String genomeId = request.getParameter("genomeId");
+
+		String highlight = request.getParameter("highlight");
+		boolean hl = Boolean.parseBoolean(highlight);
+		Map<String, String> key = new HashMap<>();
+
+		String json = SessionHandler.getInstance().get(SessionHandler.PREFIX + pk);
+		if (json == null) {
+			key.put("facet", facet);
+			key.put("keyword", keyword);
+
+			SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
+		}
+		else {
+			key = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
+			key.put("facet", facet);
+		}
+
+		if ((taxonId == null || taxonId.equals("")) && key.containsKey("taxonId") && !key.get("taxonId").equals("")) {
+			taxonId = key.get("taxonId");
+		}
+		if ((genomeId == null || genomeId.equals("")) && key.containsKey("genomeId") && !key.get("genomeId").equals("")) {
+			genomeId = key.get("genomeId");
+		}
+
+		String start_id = request.getParameter("start");
+		String limit = request.getParameter("limit");
+		int start = 0;
+		int end = -1;
+		if (start_id != null) {
+			start = Integer.parseInt(start_id);
+		}
+		if (limit != null) {
+			end = Integer.parseInt(limit);
+		}
+
+		key.put("fields", StringUtils.join(DownloadHelper.getFieldsForGenomes(), ","));
+
+		// add join condition
+		if (taxonId != null && !taxonId.equals("")) {
+			key.put("join", "taxon_lineage_ids:" + taxonId);
+		}
+		if (genomeId != null && !genomeId.equals("")) {
+			key.put("join", "genome_id:(" + genomeId.replaceAll(",", " OR ") + ")");
+		}
+
+		SolrInterface solr = new SolrInterface();
+		SolrQuery query = solr.buildSolrQuery(key, sort, facet, start, end, hl);
+
+		LOGGER.debug("processGenomeTab: [{}] {}", SolrCore.GENOME.getSolrCoreName(), query.toString());
+		DataApiHandler dataApi = new DataApiHandler(request);
+		String apiResponse = dataApi.solrQuery(SolrCore.GENOME, query);
+
+		Map resp = jsonReader.readValue(apiResponse);
+		Map respBody = (Map) resp.get("response");
+
+		int numFound = (Integer) respBody.get("numFound");
+		List<Genome> genomes = dataApi.bindDocuments((List<Map>) respBody.get("docs"), Genome.class);
+
+		Map response = new HashMap();
+		response.put("key", key);
+		response.put("numFound", numFound);
+		response.put("genomes", genomes);
+		if (resp.containsKey("facet_counts")) {
+			response.put("facets", resp.get("facet_counts"));
+		}
+
+		return response;
+	}
+
+	private Map processSequenceTab(ResourceRequest request) throws IOException {
+
+		String pk = request.getParameter("pk");
+		String keyword = request.getParameter("keyword");
+		String facet = request.getParameter("facet");
+		String taxonId = request.getParameter("taxonId");
+
+		Map<String, String> key = new HashMap<>();
+
+		String json = SessionHandler.getInstance().get(SessionHandler.PREFIX + pk);
+		if (json == null) {
+			key.put("facet", facet);
+			key.put("keyword", keyword);
+
+			SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
+		}
+		else {
+			key = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
+			key.put("facet", facet);
+		}
+
+		if ((!key.containsKey("taxonId") || key.get("taxonId") == null) && taxonId != null) {
+			key.put("taxonId", taxonId);
+		}
+
+		// Pre-processing. Query genome core and get facets and genome_ids for next query on sequence core
+		key.put("fields", "genome_id");
+		key.put("join", "taxon_lineage_ids:" + key.get("taxonId"));
+
+		SolrInterface solr = new SolrInterface();
+		SolrQuery query = solr.buildSolrQuery(key, null, facet, 0, -1, false);
+		LOGGER.trace("processSequenceTab: [{}] {}", SolrCore.GENOME.getSolrCoreName(), query.toString());
+
+		List<String> listGenomeId = new ArrayList<>();
+
+		DataApiHandler dataApi = new DataApiHandler(request);
+		String apiResponse = dataApi.solrQuery(SolrCore.GENOME, query);
+
+		Map resp = jsonReader.readValue(apiResponse);
+		Map respBody = (Map) resp.get("response");
+		List<Genome> records = dataApi.bindDocuments((List<Map>) respBody.get("docs"), Genome.class);
+		for (Genome item : records) {
+			listGenomeId.add(item.getId());
+		}
+
+		// save facet tree
+		if (resp.containsKey("facet_counts")) {
+			JSONObject facets = solr.formatFacetTree((Map) resp.get("facet_counts"));
+			key.put("facets", facets.toJSONString());
+			SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
+		}
+
+		if (listGenomeId.size() > 0) {
+			key.put("keyword", "genome_id:(" + StringUtils.join(listGenomeId, " OR ") + ")");
+		}
+
+		//
+		String start_id = request.getParameter("start");
+		String limit = request.getParameter("limit");
+		int start = 0;
+		int end = -1;
+		if (start_id != null) {
+			start = Integer.parseInt(start_id);
+		}
+		if (limit != null) {
+			end = Integer.parseInt(limit);
+		}
+		String sorts = request.getParameter("sort");
+
+		Map<String, String> keySequence = new HashMap<>();
+		keySequence.put("keyword", key.get("keyword"));
+		keySequence.put("fields", StringUtils.join(DownloadHelper.getFieldsForGenomeSequence(), ","));
+		keySequence.put("join", SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + key.get("taxonId")));
+
+		query = solr.buildSolrQuery(keySequence, sorts, null, start, end, false);
+		LOGGER.trace("processSequenceTab: [{}] {}", SolrCore.SEQUENCE.getSolrCoreName(), query.toString());
+		apiResponse = dataApi.solrQuery(SolrCore.SEQUENCE, query);
+
+		resp = jsonReader.readValue(apiResponse);
+		respBody = (Map) resp.get("response");
+
+		int numFound = (Integer) respBody.get("numFound");
+		List<GenomeSequence> sequences = dataApi.bindDocuments((List<Map>) respBody.get("docs"), GenomeSequence.class);
+
+		Map response = new HashMap();
+		response.put("numFound", numFound);
+		response.put("sequences", sequences);
+
+		return response;
 	}
 }

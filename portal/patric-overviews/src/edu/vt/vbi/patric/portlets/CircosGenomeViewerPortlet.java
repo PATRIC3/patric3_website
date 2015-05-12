@@ -19,9 +19,10 @@ package edu.vt.vbi.patric.portlets;
 
 import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.circos.Circos;
+import edu.vt.vbi.patric.circos.CircosData;
 import edu.vt.vbi.patric.circos.CircosGenerator;
+import edu.vt.vbi.patric.common.DataApiHandler;
 import edu.vt.vbi.patric.common.SiteHelper;
-import edu.vt.vbi.patric.common.SolrInterface;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
@@ -61,12 +62,12 @@ public class CircosGenomeViewerPortlet extends GenericPortlet {
 		SiteHelper.setHtmlMetaElements(request, response, "Circos Genome Viewer");
 		response.setTitle("Circos Genome Viewer");
 
-		SolrInterface solr = new SolrInterface();
+		DataApiHandler dataApi = new DataApiHandler(request);
 
 		String actionUrl = "/portal/portal/patric/CircosGenomeViewer/CircosGenomeViewerWindow?action=1";
 		String polyomicUrl = System.getProperty("polyomic.baseUrl", "https://www.patricbrc.org/oldapi/");
 		String genomeId = request.getParameter("context_id");
-		Genome genome = solr.getGenome(genomeId);
+		Genome genome = dataApi.getGenome(genomeId);
 
 		request.setAttribute("actionUrl", actionUrl);
 		request.setAttribute("polyomicUrl", polyomicUrl);
@@ -117,10 +118,11 @@ public class CircosGenomeViewerPortlet extends GenericPortlet {
 		LOGGER.debug(parameters.toString());
 
 		// Generate Circo Image
-		Circos circosConf = circosGenerator.createCircosImage(parameters);
+		CircosData circosData = new CircosData(request);
+		Circos circosConf = circosGenerator.createCircosImage(circosData, parameters);
 
 		if (circosConf != null) {
-			String baseUrl = "https://" + request.getServerName();
+			String baseUrl = "http://" + request.getServerName();
 			String redirectUrl = baseUrl + "/portal/portal/patric/CircosGenomeViewer/CircosGenomeViewerWindow?action=b&cacheability=PAGE&imageId="
 					+ circosConf.getUuid() + "&trackList=" + StringUtils.join(circosConf.getTrackList(), ",");
 

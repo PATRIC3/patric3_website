@@ -21,15 +21,14 @@ import com.google.gson.Gson;
 import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.beans.GenomeFeature;
 import edu.vt.vbi.patric.common.*;
-import edu.vt.vbi.patric.dao.DBSummary;
 import edu.vt.vbi.patric.dao.ResultType;
 import edu.vt.vbi.patric.jbrowse.CRFeature;
 import edu.vt.vbi.patric.jbrowse.CRResultSet;
 import edu.vt.vbi.patric.jbrowse.CRTrack;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.QueryResponse;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectReader;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
@@ -39,12 +38,21 @@ import org.theseed.servers.SAPserver;
 import javax.portlet.*;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.MalformedURLException;
 import java.util.*;
 
 public class CompareRegionViewer extends GenericPortlet {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(CompareRegionViewer.class);
+
+	private ObjectReader jsonReader;
+
+	@Override
+	public void init() throws PortletException {
+		super.init();
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		jsonReader = objectMapper.reader(Map.class);
+	}
 
 	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 
@@ -89,8 +97,8 @@ public class CompareRegionViewer extends GenericPortlet {
 		// if pin feature is not given, retrieve from the database based on na_feature_id
 		if (pinFeatureSeedId == null && (contextType != null && contextType.equals("feature") && contextId != null)) {
 
-			SolrInterface solr = new SolrInterface();
-			GenomeFeature feature = solr.getFeature(contextId);
+			DataApiHandler dataApi = new DataApiHandler(request);
+			GenomeFeature feature = dataApi.getFeature(contextId);
 			pinFeatureSeedId = feature.getSeedId();
 		}
 
@@ -129,13 +137,12 @@ public class CompareRegionViewer extends GenericPortlet {
 		// which was retrieved from API
 		String _key = "";
 
-		// DBSummary conn_summary = new DBSummary();
-		SolrInterface solr = new SolrInterface();
+		DataApiHandler dataApi = new DataApiHandler(request);
 
 		// if pin feature is not given, retrieve from the database based on na_feature_id
 		if (pinFeatureSeedId == null && (contextType != null && contextType.equals("feature") && contextId != null)) {
 
-			GenomeFeature feature = solr.getFeature(contextId);
+			GenomeFeature feature = dataApi.getFeature(contextId);
 			pinFeatureSeedId = feature.getSeedId();
 		}
 
@@ -166,24 +173,19 @@ public class CompareRegionViewer extends GenericPortlet {
 			trStyle.put("showLabels", false);
 			trStyle.put("label", "function( feature ) { return feature.get('seed_id'); }");
 			JSONObject trHooks = new JSONObject();
-			trHooks.put(
-					"modify",
+			trHooks.put("modify",
 					"function(track, feature, div) { div.style.backgroundColor = ['red','#1F497D','#938953','#4F81BD','#9BBB59','#806482','#4BACC6','#F79646'][feature.get('phase')];}");
 
 			// query genome metadata
-			List<Genome> patricGenomes = null;
-			try {
-				SolrQuery query = new SolrQuery("genome_id:(" + StringUtils.join(crRS.getGenomeIds(), " OR ") + ")");
-				query.setFields("genome_id,genome_name,isolation_country,host_name,disease,collection_date,completion_date");
-				query.setRows(_numRegion + _numRegion_buffer);
+			SolrQuery query = new SolrQuery("genome_id:(" + StringUtils.join(crRS.getGenomeIds(), " OR ") + ")");
+			query.setFields("genome_id,genome_name,isolation_country,host_name,disease,collection_date,completion_date");
+			query.setRows(_numRegion + _numRegion_buffer);
 
-				QueryResponse qr = solr.getSolrServer(SolrCore.GENOME).query(query);
-				patricGenomes = qr.getBeans(Genome.class);
+			String apiResponse = dataApi.solrQuery(SolrCore.GENOME, query);
+			Map resp = jsonReader.readValue(apiResponse);
+			Map respBody = (Map) resp.get("response");
 
-			}
-			catch (MalformedURLException | SolrServerException e) {
-				LOGGER.error(e.getMessage(), e);
-			}
+			List<Genome> patricGenomes = dataApi.bindDocuments((List<Map>) respBody.get("docs"), Genome.class);
 
 			int count_genomes = 1;
 			if (crRS.getGenomeNames().size() > 0) {
@@ -207,8 +209,9 @@ public class CompareRegionViewer extends GenericPortlet {
 						tr.put("type", "FeatureTrack");
 						tr.put("tooltip",
 								"<div style='line-height:1.7em'><b>{seed_id}</b> | {refseq_locus_tag} | {alt_locus_tag} | {gene}<br>{product}<br>{type}:{start}...{end} ({strand_str})<br> <i>Click for detail information</i></div>");
-						tr.put("urlTemplate", "/portal/portal/patric/CompareRegionViewer/CRWindow?action=b&cacheability=PAGE&mode=getTrackInfo&key="
-								+ _key + "&rowId=" + crTrack.getRowID() + "&format=.json");
+						tr.put("urlTemplate",
+								"/portal/portal/patric/CompareRegionViewer/CRWindow?action=b&cacheability=PAGE&mode=getTrackInfo&key=" + _key
+										+ "&rowId=" + crTrack.getRowID() + "&format=.json");
 						tr.put("key", crTrack.getGenomeName());
 						tr.put("label", "CR" + idx);
 						tr.put("dataKey", _key);
@@ -294,13 +297,12 @@ public class CompareRegionViewer extends GenericPortlet {
 			LOGGER.error(ex.getMessage(), ex);
 		}
 
-		DBSummary conn_summary = new DBSummary();
-		Map<String, ResultType> pseedMap = conn_summary.getPSeedMapping("seed", pseed_ids);
+		Map<String, GenomeFeature> pseedMap = getPSeedMapping(request, pseed_ids);
 
 		// formatting
 		JSONArray nclist = new JSONArray();
 		CRFeature feature;
-		ResultType feature_patric;
+		GenomeFeature feature_patric;
 		for (int i = 0; i < features_count; i++) {
 
 			feature = crTrack.getFeatureList().get(i);
@@ -310,26 +312,13 @@ public class CompareRegionViewer extends GenericPortlet {
 
 				JSONArray alist = new JSONArray();
 
-				alist.addAll(Arrays.asList(0,
-						feature.getStartPosition(),
-						feature.getStartString(),
-						feature.getEndPosition(),
-						(feature.getStrand().equals("+") ? 1 : -1),
-						feature.getStrand(),
+				alist.addAll(Arrays.asList(0, feature.getStartPosition(), feature.getStartString(), feature.getEndPosition(),
+						(feature.getStrand().equals("+") ? 1 : -1), feature.getStrand(),
 
-						feature_patric.get("feature_id"),
-						feature_patric.get("seed_id"),
-						feature_patric.get("refseq_locus_tag"),
-						feature_patric.get("alt_locus_tag"),
-						"PATRIC",
-						feature_patric.get("feature_type"),
-						feature_patric.get("product"),
+						feature_patric.getId(), feature_patric.getSeedId(), feature_patric.getRefseqLocusTag(),
+						feature_patric.getAltLocusTag(), "PATRIC", feature_patric.getFeatureType(), feature_patric.getProduct(),
 
-						feature_patric.get("gene"),
-						feature_patric.get("genome_name"),
-						feature_patric.get("accession"),
-						feature.getPhase()
-				));
+						feature_patric.getGene(), feature_patric.getGenomeName(), feature_patric.getAccession(), feature.getPhase()));
 
 				nclist.add(alist);
 			}
@@ -346,8 +335,7 @@ public class CompareRegionViewer extends GenericPortlet {
 		JSONObject _cls = new JSONObject();
 		_cls.put("attributes",
 				Arrays.asList("Start", "Start_str", "End", "Strand", "strand_str", "id", "seed_id", "refseq_locus_tag", "alt_locus_tag", "source",
-						"type", "product",
-						"gene", "genome_name", "accession", "phase"));
+						"type", "product", "gene", "genome_name", "accession", "phase"));
 		_cls.put("isArrayAttr", new JSONObject());
 		_clses.add(_cls);
 		intervals.put("classes", _clses);
@@ -407,5 +395,34 @@ public class CompareRegionViewer extends GenericPortlet {
 		ExcelHelper excel = new ExcelHelper("xssf", _tbl_header, _tbl_field, _tbl_source);
 		excel.buildSpreadsheet();
 		excel.writeSpreadsheettoBrowser(outs);
+	}
+
+	/**
+	 * Retrieves features that can be mapped by PSEED peg ID. This is used for CompareRegionViewer to map
+	 * features each other.
+	 *
+	 * @param IDs IDs
+	 * @return list of features (na_feature_id, pseed_id, source_id, start, end, strand, na_length, aa_length, product, genome_name, accession)
+	 */
+	private Map<String, GenomeFeature> getPSeedMapping(ResourceRequest request, String IDs) throws IOException {
+
+		Map<String, GenomeFeature> result = new HashMap<>();
+
+		DataApiHandler dataApi = new DataApiHandler(request);
+
+		SolrQuery query = new SolrQuery("seed_id:(" + IDs + ")");
+		query.setFields("feature_id,seed_id,alt_locus_tag,start,end,strand,feature_type,product,gene,refseq_locus_tag,genome_name,accession");
+		query.setRows(1000);
+
+		String apiResponse = dataApi.solrQuery(SolrCore.FEATURE, query);
+		Map resp = jsonReader.readValue(apiResponse);
+		Map respBody = (Map) resp.get("response");
+
+		List<GenomeFeature> features = dataApi.bindDocuments((List<Map>) respBody.get("docs"), GenomeFeature.class);
+
+		for (GenomeFeature feature : features) {
+			result.put(feature.getSeedId(), feature);
+		}
+		return result;
 	}
 }

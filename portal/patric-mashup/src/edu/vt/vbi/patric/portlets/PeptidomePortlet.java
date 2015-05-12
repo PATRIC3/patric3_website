@@ -17,8 +17,8 @@
  */
 package edu.vt.vbi.patric.portlets;
 
-import edu.vt.vbi.patric.dao.DBShared;
-import edu.vt.vbi.patric.dao.ResultType;
+import edu.vt.vbi.patric.beans.Genome;
+import edu.vt.vbi.patric.common.DataApiHandler;
 import edu.vt.vbi.patric.mashup.EutilInterface;
 import org.json.simple.JSONObject;
 
@@ -56,9 +56,9 @@ public class PeptidomePortlet extends GenericPortlet {
 			tId = cId;
 		}
 		else if (cType.equals("genome")) {
-			DBShared conn_shared = new DBShared();
-			ResultType names = conn_shared.getNamesFromGenomeInfoId(cId);
-			tId = names.get("ncbi_taxon_id");
+			DataApiHandler dataApi = new DataApiHandler(request);
+			Genome genome = dataApi.getGenome(cId);
+			tId = "" + genome.getTaxonId();
 		}
 
 		String strQueryTerm = "txid" + tId + "[Organism:exp]";
