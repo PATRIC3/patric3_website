@@ -22,6 +22,8 @@ import edu.vt.vbi.patric.cache.ENewsGenerator;
 import edu.vt.vbi.patric.common.DataApiHandler;
 import edu.vt.vbi.patric.common.OrganismTreeBuilder;
 import edu.vt.vbi.patric.dao.*;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectReader;
 import org.hibernate.jmx.StatisticsService;
 import org.json.simple.JSONArray;
 import org.slf4j.Logger;
@@ -35,6 +37,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -46,9 +49,14 @@ public class BreadCrumb extends GenericPortlet {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(BreadCrumb.class);
 
+	private ObjectReader jsonListParser;
+
 	@Override
 	public void init() throws PortletException {
 		super.init();
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		jsonListParser = objectMapper.reader(List.class);
 
 		String k = "PATRIC_DB.cfg.xml";
 		HibernateHelper.buildSessionFactory(k, k);
@@ -173,6 +181,27 @@ public class BreadCrumb extends GenericPortlet {
 						return;
 					}
 					catch (NumberFormatException nfe) {
+					}
+
+					// check whether ID is PATRIC ID (fig|xxx.peg.xxx)
+					if (cId.contains("fig|")) {
+						String encodedContextId = URLEncoder.encode(cId, "UTF-8");
+						String apiResponse = dataApi.get("/genome_feature/?eq(seed_id," + encodedContextId + ")");
+
+						List<Map> features = jsonListParser.readValue(apiResponse);
+						GenomeFeature feature = dataApi.bindDocument(features.get(0), GenomeFeature.class);
+
+						if (feature != null) {
+							String origUrl = response.createRenderURL().toString();
+							String newUrl = origUrl.replace("/BreadCrumbWindow", "").replace("&action=2", "")
+									.replace("context_id=" + encodedContextId, "cId=" + feature.getId()).replace("context_type", "cType");
+							LOGGER.debug("{} redirects to {}", origUrl, newUrl);
+
+							response.getWriter().write("<meta http-equiv=\"refresh\" content=\"0;url=" + newUrl + "\">");
+							response.getWriter().close();
+
+							return;
+						}
 					}
 				}
 				else if (cType.equals("genome")) {

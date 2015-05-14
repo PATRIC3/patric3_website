@@ -1,41 +1,11 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <%@ page import="edu.vt.vbi.patric.common.OrganismTreeBuilder" %>
-<%@ page import="edu.vt.vbi.patric.common.SolrInterface" %>
-<%@ page import="edu.vt.vbi.patric.beans.Taxonomy" %>
-<%@ page import="edu.vt.vbi.patric.beans.Genome" %>
-<%@ page import="java.util.*" %>
 <portlet:defineObjects />
 <%
 String resourceURL = (renderResponse.createResourceURL()).toString();
-
-SolrInterface solr = new SolrInterface();
-// TODO: if genomeId is given, set key attribute to that it is selected.
-
-String cType = request.getParameter("context_type");
-String cId = request.getParameter("context_id");
-
-String expander = "";
-String taxonName = "";
-int taxonId = -1;
-
-if(cId == null || cId.equals("")) {
-	taxonId = 131567;
-	taxonName = "cellular organism";
-}
-else {
-	if(cType.equals("taxon")) {
-		Taxonomy taxonomy = solr.getTaxonomy(Integer.parseInt(cId));
-		taxonId = taxonomy.getId();
-		taxonName = taxonomy.getTaxonName();
-
-	} else if (cType.equals("genome")) {
-		Genome genome = solr.getGenome(cId);
-		taxonId = genome.getTaxonId();
-		taxonName = genome.getGenomeName();
-	}
-}
-
-expander = ((taxonId != 131567)?"<div style='float:right'><div class='searchtool-inside'><h2 align='center'>Want to make comparisons not limited to " + taxonName + "?</h2><br />Use PATRIC's <a href='FIGfam?cType=taxon&cId=131567&dm='>Protein Family Sorter</a> located in Searches & Tools.<br/><b><br/>* Any genome selections you have made will be discarded!<b/></div></div>":"");
+String taxonName = (String) request.getAttribute("taxonName");
+int taxonId = (Integer) request.getAttribute("taxonId");
+String expander = ((taxonId != 131567)?"<div style='float:right'><div class='searchtool-inside'><h2 align='center'>Want to make comparisons not limited to " + taxonName + "?</h2><br />Use PATRIC's <a href='FIGfam?cType=taxon&cId=131567&dm='>Protein Family Sorter</a> located in Searches & Tools.<br/><b><br/>* Any genome selections you have made will be discarded!<b/></div></div>":"");
 
 boolean isLoggedIn = (Boolean) request.getAttribute("isLoggedIn");
 %>
@@ -115,7 +85,6 @@ function checkGenomes() {
 				taxonId : '<%=taxonId %>'
 			},
 			success : function(rs) {
-				//idList = Ext.JSON.decode(rs.responseText);
 				idList = rs.responseText;
 				
 				var idCounter = idList.split(",");
@@ -150,10 +119,7 @@ function submitToFigFamSorter(idList) {
 	for(var i=0; i<value.length; i++){
 		value[i] = value[i].trim();
 	}
-	
-	/*for (var i=0; i<keyword.length; i++) {
-		keyword[i] = "\""+keyword[i]+"\"";
-	}*/
+
 	Ext.Ajax.request({
 		url: '<%=resourceURL%>',
 		method: 'POST',

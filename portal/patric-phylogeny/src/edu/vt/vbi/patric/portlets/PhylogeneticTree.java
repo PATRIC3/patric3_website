@@ -18,15 +18,14 @@
 package edu.vt.vbi.patric.portlets;
 
 import edu.vt.vbi.patric.beans.Genome;
+import edu.vt.vbi.patric.beans.Taxonomy;
+import edu.vt.vbi.patric.common.DataApiHandler;
 import edu.vt.vbi.patric.common.SiteHelper;
 import edu.vt.vbi.patric.common.SolrCore;
-import edu.vt.vbi.patric.common.SolrInterface;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,23 +40,27 @@ public class PhylogeneticTree extends GenericPortlet {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(PhylogeneticTree.class);
 
-	SolrInterface solr;
+	private ObjectReader jsonReader;
 
 	@Override
 	public void init() throws PortletException {
 		super.init();
 
+		ObjectMapper objectMapper = new ObjectMapper();
+		jsonReader = objectMapper.reader(Map.class);
+
 		// update genome-id mapping cache
 		try {
-			solr = new SolrInterface();
+			DataApiHandler dataApi = new DataApiHandler();
 
 			SolrQuery query = new SolrQuery("*:*");
-			query.setFields("genome_name,genome_id");
-			long countGenome = solr.getSolrServer(SolrCore.GENOME).query(query).getResults().getNumFound();
+			query.setFields("genome_name,genome_id").setRows(dataApi.MAX_ROWS);
 
-			query.setRows((int) countGenome);
-			QueryResponse qr = solr.getSolrServer(SolrCore.GENOME).query(query);
-			List<Genome> genomes = qr.getBeans(Genome.class);
+			String apiResponse = dataApi.solrQuery(SolrCore.GENOME, query);
+
+			Map resp = jsonReader.readValue(apiResponse);
+			Map respBody = (Map) resp.get("response");
+			List<Genome> genomes = dataApi.bindDocuments((List<Map>) respBody.get("docs"), Genome.class);
 
 			StringBuilder sb = new StringBuilder();
 			sb.append("var genomeMap = new Array();\n");
@@ -71,7 +74,7 @@ public class PhylogeneticTree extends GenericPortlet {
 			out.println(sb.toString());
 			out.close();
 		}
-		catch (SolrServerException | IOException e) {
+		catch (IOException e) {
 			LOGGER.error(e.getMessage(), e);
 		}
 	}
@@ -89,65 +92,61 @@ public class PhylogeneticTree extends GenericPortlet {
 
 		if (contextType != null && contextId != null) {
 
+			DataApiHandler dataApi = new DataApiHandler(request);
+
 			List<Map<String, Object>> orderList = new ArrayList<>();
 			int taxonId = 0;
 
 			try {
 				if (contextType.equals("genome")) {
 
-					SolrQuery query = new SolrQuery("genome_id:" + contextId);
-					query.setFields("taxon_id");
-
-					QueryResponse qr = solr.getSolrServer(SolrCore.GENOME).query(query);
-					List<Genome> genomes = qr.getBeans(Genome.class);
-
-					for (Genome genome : genomes) {
-						taxonId = genome.getTaxonId();
-					}
+					Genome genome = dataApi.getGenome(contextId);
+					taxonId = genome.getTaxonId();
 				}
 				else {
 					taxonId = Integer.parseInt(contextId);
 				}
 
 				// Step1. has Order in lineage?
-				SolrQuery query = new SolrQuery("taxon_id:" + taxonId + " AND lineage_ranks:order");
-				query.setFields("lineage_ids,lineage_names,lineage_ranks");
-				QueryResponse qr = solr.getSolrServer(SolrCore.TAXONOMY).query(query);
+				Taxonomy taxonomy = dataApi.getTaxonomy(taxonId);
 
-				SolrDocumentList sdl = qr.getResults();
-				for (SolrDocument doc : sdl) {
-					List<Integer> txIds = (List<Integer>) doc.get("lineage_ids");
-					List<String> txNames = (List<String>) doc.get("lineage_names");
-					List<String> txRanks = (List<String>) doc.get("lineage_ranks");
+				List<String> lineageRanks = taxonomy.getLineageRanks();
 
-					for (Integer txId : txIds) {
-						int idx = txIds.indexOf(txId);
+				if (lineageRanks.contains("order")) {
+					List<Integer> lineageIds = taxonomy.getLineageIds();
+					List<String> lineageNames = taxonomy.getLineageNames();
 
-						if (txRanks.get(idx).equals("order")) {
-							Map<String, Object> node = new HashMap<>();
-							node.put("taxonId", txId);
-							node.put("name", txNames.get(idx));
+					int index = lineageRanks.indexOf("order");
+					int orderTaxonId = lineageIds.get(index);
 
-							orderList.add(node);
-						}
+					if (phylogenyOrderIds.contains(orderTaxonId)) {
+						Map order = new HashMap();
+						order.put("name", lineageNames.get(index));
+						order.put("taxonId", lineageIds.get(index));
+
+						orderList.add(order);
 					}
 				}
 
 				if (orderList.isEmpty()) {
 					// no rank Order found in lineage, then,
 					// Step2. has Order rank in descendants
-					query = new SolrQuery(
+					SolrQuery query = new SolrQuery(
 							"lineage_ids:" + taxonId + " AND taxon_rank:order AND taxon_id:(" + StringUtils.join(phylogenyOrderIds, " OR ") + ")");
 					query.setFields("taxon_id,taxon_name,taxon_rank");
 					query.setRows(100);
-					qr = solr.getSolrServer(SolrCore.TAXONOMY).query(query);
 
-					sdl = qr.getResults();
-					for (SolrDocument doc : sdl) {
+					LOGGER.trace("[{}] {}", SolrCore.TAXONOMY.getSolrCoreName(), query.toString());
+					String apiResponse = dataApi.solrQuery(SolrCore.TAXONOMY, query);
 
+					Map resp = jsonReader.readValue(apiResponse);
+					Map respBody = (Map) resp.get("response");
+
+					List<Map> sdl = (List<Map>) respBody.get("docs");
+					for (Map doc : sdl) {
 						if (doc.get("taxon_rank").equals("order")) {
-							Map<String, Object> node = new HashMap<>();
-							node.put("taxonId", (Integer) doc.get("taxon_id"));
+							Map node = new HashMap<>();
+							node.put("taxonId", doc.get("taxon_id"));
 							node.put("name", doc.get("taxon_name").toString());
 
 							orderList.add(node);
@@ -155,11 +154,9 @@ public class PhylogeneticTree extends GenericPortlet {
 					}
 				}
 			}
-			catch (MalformedURLException | SolrServerException e) {
+			catch (MalformedURLException e) {
 				LOGGER.error(e.getMessage(), e);
 			}
-
-			LOGGER.trace("{}", orderList);
 
 			request.setAttribute("orderList", orderList);
 			request.setAttribute("taxonId", taxonId);

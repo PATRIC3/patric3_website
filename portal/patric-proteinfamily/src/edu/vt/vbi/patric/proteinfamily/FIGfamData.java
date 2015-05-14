@@ -255,18 +255,6 @@ public class FIGfamData {
 		return StringUtils.join(gIds, ",");
 	}
 
-	public String getTaxonName(String taxon) {
-
-		Taxonomy taxonomy = solr.getTaxonomy(Integer.parseInt(taxon));
-
-		if (taxonomy != null) {
-			return taxonomy.getTaxonName();
-		}
-		else {
-			return null;
-		}
-	}
-
 	private SequenceData[] getFeatureSequences(String[] featureIds) {
 		List<SequenceData> collect = new ArrayList<>();
 

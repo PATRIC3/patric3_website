@@ -21,6 +21,9 @@ import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import edu.vt.vbi.ci.util.CommandResults;
 import edu.vt.vbi.ci.util.ExecUtilities;
+import edu.vt.vbi.patric.beans.Genome;
+import edu.vt.vbi.patric.beans.Taxonomy;
+import edu.vt.vbi.patric.common.DataApiHandler;
 import edu.vt.vbi.patric.common.SessionHandler;
 import edu.vt.vbi.patric.common.SiteHelper;
 import edu.vt.vbi.patric.dao.ResultType;
@@ -31,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.portlet.*;
+import javax.xml.crypto.Data;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -103,7 +107,34 @@ public class FIGfam extends GenericPortlet {
 		else {
 
 			boolean isLoggedIn = isLoggedIn(request);
+
+			String cType = request.getParameter("context_type");
+			String cId = request.getParameter("context_id");
+
+			String taxonName = "";
+			int taxonId = -1;
+
+			if(cId == null || cId.equals("")) {
+				taxonId = 131567;
+				taxonName = "cellular organism";
+			}
+			else {
+				DataApiHandler dataApi = new DataApiHandler(request);
+				if(cType.equals("taxon")) {
+					Taxonomy taxonomy = dataApi.getTaxonomy(Integer.parseInt(cId));
+					taxonId = taxonomy.getId();
+					taxonName = taxonomy.getTaxonName();
+
+				} else if (cType.equals("genome")) {
+					Genome genome = dataApi.getGenome(cId);
+					taxonId = genome.getTaxonId();
+					taxonName = genome.getGenomeName();
+				}
+			}
+
 			request.setAttribute("isLoggedIn", isLoggedIn);
+			request.setAttribute("taxonName", taxonName);
+			request.setAttribute("taxonId", taxonId);
 
 			// Protein Family Sorter Tool Landing Page
 			prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/proteinfamily_tool.jsp");
@@ -125,7 +156,10 @@ public class FIGfam extends GenericPortlet {
 					cId = "2";
 				}
 				result = access.getGenomeIdsForTaxon(cId);
-				key.put("genera", access.getTaxonName(cId));
+				DataApiHandler dataApi = new DataApiHandler(req);
+				Taxonomy taxonomy = dataApi.getTaxonomy(Integer.parseInt(cId));
+				key.put("genera", taxonomy.getTaxonName());
+				// key.put("genera", access.getTaxonName(cId));
 			}
 			key.put("genomeIds", result);
 		}

@@ -156,12 +156,12 @@ function DownloadFile(type){
 	
 	var form = Ext.getDom("fTableForm");
 	
-	form.action = "/patric-searches-and-tools/jsp/grid_download_handler.jsp",
-	form.target = "",
+	form.action = "/portal/portal/patric/TranscriptomicsGeneExp/TranscriptomicsGeneExpWindow?action=b&cacheability=PAGE&storeType=correlation_download";
+	form.target = "";
 	form.fileformat.value = arguments[0];
 	getHashFieldsToDownload(form);
 	form.submit();
-};
+}
 
 function getSelectedFeatures() {
 	"use strict";

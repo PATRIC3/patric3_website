@@ -1,6 +1,4 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet"%>
-<%@ page import="java.util.HashMap" %>
-<%@ page import="javax.portlet.PortletSession" %>
 <portlet:defineObjects/>
 <%
 String contextType = (String) request.getAttribute("contextType");
@@ -12,7 +10,7 @@ String featureIds = (String) request.getAttribute("featureIds");
 <input type="hidden" id="cType" name="cType" value="<%=contextType %>" />
 <input type="hidden" id="cId" name="cId" value="<%=contextId %>" />
 <input type="hidden" id="_tablesource" name="_tablesource" value="TranscriptomicsGeneFeature" />
-<input type="hidden" id="_fileformat" name="_fileformat" value="" />
+<input type="hidden" id="fileFormat" name="fileFormat" value="" />
 
 <!-- fasta download specific param -->
 <input type="hidden" id="fastaaction" name="fastaaction" value="" />
@@ -20,7 +18,7 @@ String featureIds = (String) request.getAttribute("featureIds");
 <input type="hidden" id="fastascope" name="fastascope" value="" />
 <input type="hidden" id="fids" name="fids" value="" />
 <input type="hidden" id="featureIds" name="featureIds" value="<%=featureIds %>" />
-<input type="hidden" id="key" name="key" value="<%=pk%>" />
+<input type="hidden" id="pk" name="pk" value="<%=pk%>" />
 <input type="hidden" id="sort" name="sort" value="" />
 <input type="hidden" id="dir" name="dir" value="" />
 </form>
@@ -133,7 +131,7 @@ Ext.onReady(function()
 
 function getExtraParams(){	
 	return {
-		pk:Ext.getDom("key").value
+		pk:Ext.getDom("pk").value
 		,callType:'getFeatureTable'
 	};
 }
@@ -155,14 +153,19 @@ function CallBack(){
 function DownloadFile(type){
 	"use strict";
 	
-	var form = Ext.getDom("fTableForm");
+	var form = Ext.getDom("fTableForm"), Page = $Page;
 	
-	form.action = "/patric-transcriptomics/jsp/GetDetailTable.jsp",
-	form.target = "",
-	form._fileformat.value = arguments[0];
+	form.action = "/portal/portal/patric/TranscriptomicsGeneFeature/TranscriptomicsGeneFeatureWindow?action=b&cacheability=PAGE&callType=download";
+	form.target = "";
+	form.fileFormat.value = arguments[0];
 	getHashFieldsToDownload(form);
+
+	var grid = Page.getGrid();
+	var sort = [];
+	sort.push(getSortersInText(grid.store));
+	form.sort.value = JSON.stringify(sort);
 	form.submit();
-};
+}
 
 function getSelectedFeatures() {
 	"use strict";
@@ -176,6 +179,6 @@ function getSelectedFeatures() {
 	for (i=0; i<sl.length;i++) {
 		fids.push(sl[i].data.feature_id);
 	}
-};
+}
 // ]]
 </script>

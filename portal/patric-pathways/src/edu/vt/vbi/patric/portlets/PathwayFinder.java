@@ -135,7 +135,7 @@ public class PathwayFinder extends GenericPortlet {
 		}
 		else {
 
-			SolrInterface solr = new SolrInterface();
+			DataApiHandler dataApi = new DataApiHandler(request);
 			String taxonId;
 			String genomeId = "";
 			String contextType = request.getParameter("context_type");
@@ -153,13 +153,13 @@ public class PathwayFinder extends GenericPortlet {
 			String taxonName;
 			if (contextType.equals("genome")) {
 				genomeId = contextId;
-				Genome genome = solr.getGenome(genomeId);
+				Genome genome = dataApi.getGenome(genomeId);
 				taxonId = "" + genome.getTaxonId();
-				taxonName = solr.getTaxonomy(genome.getTaxonId()).getTaxonName();
+				taxonName = dataApi.getTaxonomy(genome.getTaxonId()).getTaxonName();
 			}
 			else {
 				taxonId = contextId;
-				taxonName = solr.getTaxonomy(Integer.parseInt(taxonId)).getTaxonName();
+				taxonName = dataApi.getTaxonomy(Integer.parseInt(taxonId)).getTaxonName();
 			}
 
 			boolean isLoggedIn = isLoggedIn(request);

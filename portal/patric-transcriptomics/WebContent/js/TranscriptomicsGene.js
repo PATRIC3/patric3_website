@@ -111,22 +111,8 @@ function createMainPanel(windowID, stateObject) {"use strict";
 
 function scanURL(stateObject, sampleId, expId, wsExperimentId, wsSampleId, log_ratio, zscore) {"use strict";
 
-//	var colIds = colId.split(","), colsampleIds, subIds, i, j, collectionId = [], collectionSampleId = [],
     var l = log_ratio, z = zscore;
-/*
-	for ( i = 0; i < colIds.length; i++) {
-		subIds = colIds[i].split(":");
-		collectionId.push(subIds[0]);
-		if (subIds[1]) {
-			colsampleIds = subIds[1].split(" ");
-			for ( j = 0; j < colsampleIds.length; j++) {
-				collectionSampleId.push(subIds[0] + colsampleIds[j]);
-			}
-		}
-	}
-*/
-//	stateObject.colId = collectionId.join(",");
-//	stateObject.colsampleId = collectionSampleId.join(",");
+
     stateObject.wsExperimentId = wsExperimentId;
     stateObject.wsSampleId = wsSampleId;
 	stateObject.upZscore = z || 0;
@@ -135,7 +121,6 @@ function scanURL(stateObject, sampleId, expId, wsExperimentId, wsSampleId, log_r
 	stateObject.downFold = 0 - stateObject.upFold;
 	stateObject.sampleId = sampleId;
 	stateObject.expId = expId;
-
 }
 
 function SetWindowLayout(windowID) {"use strict";
@@ -347,7 +332,7 @@ function createSampleGrid(windowID) {"use strict";
 		id : windowID + '_sample_grid',
 		renderTo : windowID + "_4sample_grid",
 		columns : [{
-			header : '<img src="/patric/images/expression_data_up.png"></img>',
+			header : '<img src="/patric/images/expression_data_up.png"/>',
 			hideable : false,
 			menuDisabled : true,
 			resizable : false,
@@ -356,7 +341,7 @@ function createSampleGrid(windowID) {"use strict";
 			width : 30,
 			renderer : UpRRenderer
 		}, {
-			header : '<img src="/patric/images/expression_data_down.png"></img>',
+			header : '<img src="/patric/images/expression_data_down.png"/>',
 			hideable : false,
 			menuDisabled : true,
 			resizable : false,
@@ -365,7 +350,7 @@ function createSampleGrid(windowID) {"use strict";
 			width : 40,
 			renderer : DownRRenderer
 		}, {
-			header : '<img src="/patric/images/expression_data_up_down.png"></img>',
+			header : '<img src="/patric/images/expression_data_up_down.png"/>',
 			hideable : false,
 			menuDisabled : true,
 			resizable : false,

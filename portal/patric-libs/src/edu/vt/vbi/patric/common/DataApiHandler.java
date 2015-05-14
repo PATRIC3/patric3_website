@@ -46,6 +46,8 @@ public class DataApiHandler {
 
 	private String token;
 
+	public final int MAX_ROWS = 100000;
+
 	private ObjectReader jsonParser;
 
 	private ObjectReader jsonListParser;

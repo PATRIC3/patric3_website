@@ -1,18 +1,12 @@
 <%@ page
-	import="edu.vt.vbi.patric.common.DownloadHelper" %><%@ page
 	import="edu.vt.vbi.patric.common.ExcelHelper" %><%@ page
-	import="java.util.ArrayList" %><%@ page 
-	import="java.util.List" %><%@ page 
-	import="java.util.Map" %><%@ page 
-	import="java.util.HashMap" %><%@ page 
-	import="java.util.Arrays" %><%@ page 
 	import="edu.vt.vbi.patric.dao.ResultType" %><%@ page
-	import="edu.vt.vbi.patric.common.SolrInterface" %><%@ page
-	import="org.json.simple.JSONArray" %><%@ page
-	import="org.json.simple.JSONObject" %><%@ page
-	import="java.io.OutputStream" %><%@ page
 	import="java.io.BufferedReader" %><%@ page
-	import="java.io.StringReader" %>
+	import="java.io.OutputStream" %><%@ page
+	import="java.io.StringReader" %><%@ page
+	import="java.util.ArrayList" %><%@ page
+	import="java.util.Arrays" %><%@ page 
+	import="java.util.List" %>
 <%
 	String data = request.getParameter("_data");
 	List<String> _tbl_header = new ArrayList<String>();
@@ -62,48 +56,6 @@
 			response.setHeader("Content-Disposition", "attachment; filename=\"" + _filename + "." + _fileformat + "\"");
 
 			response.getWriter().write(data);
-		}
-	}
-	else {
-
-		String _fileformat = request.getParameter("_fileformat");
-		String _filename = "Table_Gene";
-		JSONArray sort = new JSONArray();
-		Map<String, Object> condition = new HashMap<String, Object>();
-
-		String sort_field = request.getParameter("sort");
-		String sort_dir = request.getParameter("dir");
-
-		if (sort_field != null && sort_dir != null) {
-			JSONObject x = new JSONObject();
-			x.put("property", sort_field);
-			x.put("direction", sort_dir);
-			sort.add(x);
-			condition.put("sortParam", sort.toString());
-		}
-		condition.put("feature_ids", request.getParameter("featureIds"));
-		SolrInterface solr = new SolrInterface();
-		JSONObject object = solr.getFeaturesByID(condition);
-		JSONArray _tbl_source = (JSONArray) object.get("results");
-
-		_tbl_header.addAll(DownloadHelper.getHeaderForFeatures());
-		_tbl_field.addAll(DownloadHelper.getFieldsForFeatures());
-
-		ExcelHelper excel = new ExcelHelper("xssf", _tbl_header, _tbl_field, _tbl_source);
-		excel.buildSpreadsheet();
-
-		if (_fileformat.equalsIgnoreCase("xlsx")) {
-			response.setContentType("application/octetstream");
-			response.setHeader("Content-Disposition", "attachment; filename=\"" + _filename + "." + _fileformat + "\"");
-
-			OutputStream outs = response.getOutputStream();
-			excel.writeSpreadsheettoBrowser(outs);
-		}
-		else {
-			response.setContentType("application/octetstream");
-			response.setHeader("Content-Disposition", "attachment; filename=\"" + _filename + "." + _fileformat + "\"");
-
-			response.getWriter().write(excel.writeToTextFile());
 		}
 	}
 %>

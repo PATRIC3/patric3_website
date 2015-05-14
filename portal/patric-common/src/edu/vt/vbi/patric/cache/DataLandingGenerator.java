@@ -896,10 +896,11 @@ public class DataLandingGenerator {
 		JSONArray list = new JSONArray();
 
 		SolrInterface solr = new SolrInterface();
+		DataApiHandler dataApi = new DataApiHandler();
 
 		for (String genomeId : REFERENCE_GENOME_IDS) {
 
-			Genome genome = solr.getGenome(genomeId);
+			Genome genome = dataApi.getGenome(genomeId);
 
 			// construct genome
 			JSONObject popGenome = new JSONObject();

@@ -15,9 +15,6 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.common;
 
-import edu.vt.vbi.patric.beans.Genome;
-import edu.vt.vbi.patric.beans.GenomeFeature;
-import edu.vt.vbi.patric.beans.Taxonomy;
 import edu.vt.vbi.patric.dao.ResultType;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -822,228 +819,6 @@ public class SolrInterface {
 	}
 
 	/**
-	 * Retrieve transcriptomics comparison table from Solr with given experiment id(s) and sample id(s)
-	 * @author Oral Dalay
-	 * param experiment Ids or/and Comparison Ids
-	 * @return JSONObject
-	 * @throws MalformedURLException
-	 */
-
-	public JSONObject getTranscriptomicsSamples(String sampleId, String expId, String fields, int start, int end, HashMap<String, String> sort)
-			throws MalformedURLException {
-		JSONObject res = new JSONObject();
-		String query = "";
-
-		if (expId != null && !expId.equals("")) {
-			query += "eid:(" + expId.replaceAll(",", " OR ") + ")";
-		}
-
-		if (sampleId != null && !sampleId.equals("")) {
-			if (query.length() > 0) {
-				query += " AND ";
-			}
-			query += "pid:(" + sampleId.replaceAll(",", " OR ") + ")";
-		}
-
-		ResultType key = new ResultType();
-		key.put("keyword", query);
-		if (!fields.equals(""))
-			key.put("fields", fields);
-
-		try {
-			this.setCurrentInstance(SolrCore.TRANSCRIPTOMICS_COMPARISON);
-			key.put("fields",
-					"eid,expid,accession,pid,samples,expname,release_date,pmid,organism,strain,mutant,timepoint,condition,genes,sig_log_ratio,sig_z_score");
-			res = this.getData(key, sort, null, start, end, false, false, false);
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-		JSONObject ret = new JSONObject();
-		ret.put("data", ((JSONObject) res.get("response")).get("docs"));
-		ret.put("total", ((JSONObject) res.get("response")).get("numFound"));
-
-		return ret;
-	}
-
-	/**
-	 * Retrieve transcriptomics comparison ids from Solr with given keyword
-	 * @author Oral Dalay
-	 * @param keyword (locus tags or free text)
-	 * @return String
-	 */
-	public String getTranscriptomicsSamplePIds(String keyword) {
-
-		String ret = "";
-
-		JSONObject res = new JSONObject();
-
-		ResultType key = new ResultType();
-		key.put("keyword", "locus_tag:(" + keyword + ") OR refseq_locus_tag:(" + keyword + ") ");
-		key.put("fields", "pid");
-
-		try {
-			this.setCurrentInstance(SolrCore.TRANSCRIPTOMICS_GENE);
-			res = this.getData(key, null, null, 0, -1, false, false, false);
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		JSONArray arr = (JSONArray) ((JSONObject) res.get("response")).get("docs");
-
-		for (int i = 0; i < arr.size(); i++) {
-			JSONObject obj = (JSONObject) arr.get(i);
-
-			if (obj.get("pid") != null && !ret.contains(String.valueOf(obj.get("pid")))) {
-				ret += String.valueOf(obj.get("pid")) + ",";
-			}
-
-		}
-
-		return ret.length() > 0 ? ret.substring(0, ret.length() - 1) : ret;
-
-	}
-
-	/**
-	 * Retrieve transcriptomics genes from Solr with given experiment id(s) and sample id(s)
-	 * @author Oral Dalay
-	 * param experiment Ids or/and Comparison Ids
-	 * @return JSONObject
-	 * @throws MalformedURLException
-	 */
-
-	public JSONArray getTranscriptomicsGenes(String sampleId, String expId, String keyword) throws MalformedURLException {
-		JSONObject res = new JSONObject();
-		String query = "";
-
-		if (keyword != null && !keyword.equals("")) {
-			query += "(alt_locus_tag:(" + keyword + ") OR refseq_locus_tag:(" + keyword + ")) ";
-		}
-
-		if (expId != null && !expId.equals("")) {
-			if (query.length() > 0) {
-				query += " AND ";
-			}
-			query += "eid:(" + expId.replaceAll(",", " OR ") + ")";
-		}
-
-		if (sampleId != null && !sampleId.equals("")) {
-			if (query.length() > 0) {
-				query += " AND ";
-			}
-			query += "pid:(" + sampleId.replaceAll(",", " OR ") + ")";
-		}
-
-		ResultType key = new ResultType();
-		key.put("keyword", query);
-		key.put("fields", "pid,refseq_locus_tag,feature_id,log_ratio,z_score");
-
-		try {
-			this.setCurrentInstance(SolrCore.TRANSCRIPTOMICS_GENE);
-			res = this.getData(key, null, null, 0, -1, false, false, false);
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-		return (JSONArray) ((JSONObject) res.get("response")).get("docs");
-	}
-
-	/**
-	 * Retrieve genomic features from Solr with given na_feature_id(s)
-	 * @author Harry Yoo
-	 * @param key HashMap of search keys.
-	 * @return JSONObject
-	 * @throws MalformedURLException
-	 */
-	public JSONObject getFeaturesByID(Map<String, Object> key) {
-
-		JSONObject res = new JSONObject();
-		int featureCount = -1;
-		boolean hasLimitParam = false;
-		SolrQuery query = new SolrQuery();
-
-		if (key.containsKey("startParam") && key.get("startParam") != null) {
-			query.setStart(Integer.parseInt(key.get("startParam").toString()));
-		}
-		if (key.containsKey("limitParam") && key.get("limitParam") != null) {
-			featureCount = Integer.parseInt(key.get("limitParam").toString());
-			query.setRows(featureCount);
-			hasLimitParam = true;
-		}
-		if (key.containsKey("sortParam") && key.get("sortParam") != null) {
-			try {
-				JSONArray sortConditions = (JSONArray) new JSONParser().parse(key.get("sortParam").toString());
-
-				for (Object aSortCondition : sortConditions) {
-					JSONObject jsonSort = (JSONObject) aSortCondition;
-					query.addSort(jsonSort.get("property").toString(), SolrQuery.ORDER.valueOf(jsonSort.get("direction").toString().toLowerCase()));
-				}
-			}
-			catch (Exception ex) {
-				ex.printStackTrace();
-			}
-		}
-		else {
-			query.setSort("seed_id", SolrQuery.ORDER.asc);
-		}
-		query.addField(
-				"genome_id,genome_name,sequence_id,accession,seed_id,alt_locus_tag,refseq_locus_tag,gene,annotation,feature_type,feature_id,start,end,na_length,strand,protein_id,aa_length,product,figfam_id");
-
-		// feature ID(s)
-		if (key.containsKey("tracks")) {
-			JSONArray tracks = (JSONArray) key.get("tracks");
-			if (tracks.size() > 0) {
-				List<String> listFeatureId = new ArrayList<>();
-
-				for (Object track : tracks) {
-					JSONObject tr = (JSONObject) track;
-					if (tr.get("trackType").toString().equals("Feature") && !tr.get("internalId").toString().equals("")) {
-						listFeatureId.add(tr.get("internalId").toString());
-					}
-				}
-				query.setQuery("feature_id:(" + StringUtils.join(listFeatureId, " OR ") + ")");
-				featureCount = listFeatureId.size();
-			}
-		}
-		else if (key.containsKey("feature_id")) {
-			query.setQuery("feature_id:" + key.get("na_feature_id").toString());
-			featureCount = 1;
-		}
-		else if (key.containsKey("feature_ids")) {
-			List<String> listFeatureId = new ArrayList<>();
-			for (String fid : key.get("feature_ids").toString().split(",")) {
-				if (!fid.equals("")) {
-					listFeatureId.add(fid);
-				}
-			}
-			query.setQuery("feature_id:(" + StringUtils.join(listFeatureId, " OR ") + ")");
-			featureCount = listFeatureId.size();
-		}
-		if (!hasLimitParam && featureCount > 0) {
-			query.setRows(featureCount);
-		}
-
-		try {
-			QueryResponse qr = this.getSolrServer(SolrCore.FEATURE).query(query, SolrRequest.METHOD.POST);
-
-			List<GenomeFeature> listFeature = qr.getBeans(GenomeFeature.class);
-			JSONArray docs = new JSONArray();
-			for (GenomeFeature feature : listFeature) {
-				docs.add(feature.toJSONObject());
-			}
-			res.put("total", (int) qr.getResults().getNumFound());
-			res.put("results", docs);
-		}
-		catch (MalformedURLException | SolrServerException e) {
-			LOGGER.error(e.getMessage(), e);
-		}
-
-		return res;
-	}
-
-
-	/**
 	 * used at
 	 *
 	 * - patric-common/src/edu/vt/vbi/patric/cache/DataLandingGenerator.java
@@ -1100,67 +875,46 @@ public class SolrInterface {
 		}
 	}
 
-	public GenomeFeature getFeature(String feature_id) {
-		GenomeFeature feature = null;
 
-		try {
-			SolrQuery query = new SolrQuery();
-			query.setQuery("feature_id:" + feature_id);
-
-			QueryResponse qr = this.getSolrServer(SolrCore.FEATURE).query(query);
-			List<GenomeFeature> features = qr.getBeans(GenomeFeature.class);
-
-			if (!features.isEmpty()) {
-				feature = features.get(0);
-			}
-		}
-		catch (MalformedURLException | SolrServerException e) {
-			e.printStackTrace();
-		}
-
-
-		return feature;
-	}
-
-	public Taxonomy getTaxonomy(int taxonId) {
-		Taxonomy taxonomy = null;
-
-		try {
-			SolrQuery query = new SolrQuery("taxon_id:" + taxonId);
-
-			QueryResponse qr = this.getSolrServer(SolrCore.TAXONOMY).query(query);
-			List<Taxonomy> taxonomies = qr.getBeans(Taxonomy.class);
-
-			if (!taxonomies.isEmpty()) {
-				taxonomy = taxonomies.get(0);
-			}
-		}
-		catch (MalformedURLException | SolrServerException e) {
-			LOGGER.error(e.getMessage(), e);
-		}
-
-		return taxonomy;
-	}
-
-	public Genome getGenome(String genomeId) {
-		Genome genome = null;
-
-		try {
-			SolrQuery query = new SolrQuery("genome_id:" + genomeId);
-
-			QueryResponse qr = this.getSolrServer(SolrCore.GENOME).query(query);
-			List<Genome> genomes = qr.getBeans(Genome.class);
-
-			if (!genomes.isEmpty()) {
-				genome = genomes.get(0);
-			}
-		}
-		catch (MalformedURLException | SolrServerException e) {
-			LOGGER.error(e.getMessage(), e);
-		}
-
-		return genome;
-	}
+//	public Taxonomy getTaxonomy(int taxonId) {
+//		Taxonomy taxonomy = null;
+//
+//		try {
+//			SolrQuery query = new SolrQuery("taxon_id:" + taxonId);
+//
+//			QueryResponse qr = this.getSolrServer(SolrCore.TAXONOMY).query(query);
+//			List<Taxonomy> taxonomies = qr.getBeans(Taxonomy.class);
+//
+//			if (!taxonomies.isEmpty()) {
+//				taxonomy = taxonomies.get(0);
+//			}
+//		}
+//		catch (MalformedURLException | SolrServerException e) {
+//			LOGGER.error(e.getMessage(), e);
+//		}
+//
+//		return taxonomy;
+//	}
+//
+//	public Genome getGenome(String genomeId) {
+//		Genome genome = null;
+//
+//		try {
+//			SolrQuery query = new SolrQuery("genome_id:" + genomeId);
+//
+//			QueryResponse qr = this.getSolrServer(SolrCore.GENOME).query(query);
+//			List<Genome> genomes = qr.getBeans(Genome.class);
+//
+//			if (!genomes.isEmpty()) {
+//				genome = genomes.get(0);
+//			}
+//		}
+//		catch (MalformedURLException | SolrServerException e) {
+//			LOGGER.error(e.getMessage(), e);
+//		}
+//
+//		return genome;
+//	}
 
 
 	public String getProteomicsTaxonIdFromFeatureId(String id) {
@@ -1287,77 +1041,4 @@ public class SolrInterface {
 		return result;
 	}
 
-	public JSONObject facetFieldstoJSONObject(QueryResponse qr) {
-		JSONObject result = new JSONObject();
-
-		List<FacetField> facets = qr.getFacetFields();
-		for (FacetField facet : facets) {
-			JSONObject facet_json = new JSONObject();
-			long count = 0;
-			JSONArray attributes = new JSONArray();
-			List<FacetField.Count> facetEntries = facet.getValues();
-
-			if (facet.getValues() != null) {
-				for (FacetField.Count entry : facetEntries) {
-					JSONObject attribute = new JSONObject();
-					// attribute_json.put("text", facetEntry.getName() + " <span style=\"color: #888;\"> (" + facetEntry.getCount() + ") </span>");
-					attribute.put("text", entry.getName() + " <span>(" + entry.getCount() + ")</span>");
-					attribute.put("value", entry.getName());
-					attribute.put("count", entry.getCount());
-					attributes.add(attribute);
-
-					count += entry.getCount();
-				}
-			}
-
-			facet_json.put("value", facet.getName());
-			facet_json.put("count", count);
-			// facet_json.put("text", facet.getName() + " <span style=\"color: #888;\"> (" + count + ") </span>");
-			facet_json.put("text", facet.getName() + " <span>(" + count + ")</span>");
-			facet_json.put("attributes", attributes);
-			result.put(facet.getName(), facet_json);
-		}
-
-		List<RangeFacet> ranges = qr.getFacetRanges();
-		for (RangeFacet range : ranges) {
-			JSONObject facet_json = new JSONObject();
-			int count = 0;
-			JSONArray attributes = new JSONArray();
-			List<RangeFacet.Count> rangeEntries = range.getCounts();
-
-			if (rangeEntries != null) {
-				for (RangeFacet.Count entry : rangeEntries) {
-					if (entry.getCount() > 0) {
-						JSONObject attribute_json = new JSONObject();
-						String rangeValue = entry.getValue().split("-")[0];
-						attribute_json.put("text", rangeValue + " <span>(" + entry.getCount() + ")</span>");
-						attribute_json.put("value", rangeValue);
-						attribute_json.put("count", entry.getCount());
-						attributes.add(attribute_json);
-
-						count += (int)(long)entry.getCount();
-					}
-				}
-			}
-			// range facet sort is not working correctly. need to sort results
-			for (int i = 0; i < attributes.size(); i++) {
-				for (int j = 0; j < attributes.size(); j++) {
-					JSONObject a = (JSONObject) attributes.get(i);
-					JSONObject b = (JSONObject) attributes.get(j);
-					if (Integer.parseInt(a.get("count").toString()) > Integer.parseInt(b.get("count").toString())) {
-						attributes.set(i, b);
-						attributes.set(j, a);
-					}
-				}
-			}
-
-			facet_json.put("value", range.getName());
-			facet_json.put("count", count);
-			// facet_json.put("text", range.getName() + " <span style=\"color: #888;\"> (" + count + ") </span>");
-			facet_json.put("text", range.getName() + " <span>(" + count + ")</span>");
-			facet_json.put("attributes", attributes);
-			result.put(range.getName(), facet_json);
-		}
-		return result;
-	}
 }

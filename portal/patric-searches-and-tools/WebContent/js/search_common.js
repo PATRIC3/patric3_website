@@ -88,17 +88,7 @@ function searchbykeyword(cId, cType) {
 		if (selectedProperties.length > 0) {
 			object["property"] = selectedProperties.join("##");
 		}
-		
-		/* var selectedSources = [], i;
-		for (i=0; i < checkboxes.length; i++) {
-			if (checkboxes[i].checked) {
-				selectedSources.push(checkboxes[i].value);
-			}
-		}
-		if (selectedSources.length > 0) {
-			object["source"] = selectedSources.join("##");
-		}*/
-		
+
 		checkboxes = document.getElementsByName("evidence");
 		var selectedEvidence = [];
 		for (i = 0; i < checkboxes.length; i++) {
@@ -120,7 +110,6 @@ function searchbykeyword(cId, cType) {
 	if (cType == "genome") {
 		if (cId != "") {
 			object["gid"] = cId;
-//			need_genome_info_id = false;
 			search_(constructKeyword(object, name, ""), cId, cType);
 		}
 	} else if (cType == "taxon") {
@@ -146,33 +135,6 @@ function searchbykeyword(cId, cType) {
 			}
 		}
 	}
-
-//	if (need_genome_info_id) {
-//		Ext.Ajax.request({
-//			url : "/patric-searches-and-tools/jsp/get_taxon_ids.json.jsp",
-//			method : 'GET',
-//			params : {
-//				cType : cType,
-//				cId : cId,
-//				genomeId : genomeId,
-//				algorithm : "",
-//				status : ""
-//			},
-//			success : function(response, opts) {
-//				genomes = Ext.JSON.decode(response.responseText);
-//				var ids = "";
-//				if (genomes.ids.length >= 1) {
-//					ids += genomes.ids[0].id;
-//				}
-//				for (var i = 1; i < genomes.ids.length; i++)
-//					ids += "##" + genomes.ids[i].id;
-//				object["gid"] = ids;
-//				object["genome_info_id"] = ids;
-//				search_(constructKeyword(object, name), cId, cType);
-//			}
-//		});
-//	}
-
 }
 
 function search_(keyword, cId, cType) {

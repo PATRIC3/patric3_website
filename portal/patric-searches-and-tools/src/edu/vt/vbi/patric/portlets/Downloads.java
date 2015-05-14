@@ -24,23 +24,28 @@ import edu.vt.vbi.patric.beans.Taxonomy;
 import edu.vt.vbi.patric.common.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrRequest;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.QueryResponse;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.portlet.*;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class Downloads extends GenericPortlet {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Downloads.class);
+
+	private ObjectReader jsonReader;
+
+	@Override
+	public void init() throws PortletException {
+		super.init();
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		jsonReader = objectMapper.reader(Map.class);
+	}
 
 	public static boolean isLoggedIn(PortletRequest request) {
 
@@ -71,18 +76,19 @@ public class Downloads extends GenericPortlet {
 			throw new PortletException("Important parameter (cId) is missing");
 		}
 
-		SolrInterface solr = new SolrInterface();
+		DataApiHandler dataApi = new DataApiHandler(request);
 
 		if (contextType.equals("taxon")) {
-			taxonomy = solr.getTaxonomy(Integer.parseInt(contextId));
+			taxonomy = dataApi.getTaxonomy(Integer.parseInt(contextId));
 			organismName = taxonomy.getTaxonName();
 		}
 		else if (contextType.equals("genome")) {
-			Genome genome = solr.getGenome(contextId);
-			taxonomy = solr.getTaxonomy(genome.getTaxonId());
+			Genome genome = dataApi.getGenome(contextId);
+			taxonomy = dataApi.getTaxonomy(genome.getTaxonId());
 			organismName = genome.getGenomeName();
 		}
 
+		assert taxonomy != null;
 		request.setAttribute("taxonId", taxonomy.getId());
 		request.setAttribute("organismName", organismName);
 
@@ -100,45 +106,45 @@ public class Downloads extends GenericPortlet {
 			String taxonId = request.getParameter("taxonId");
 			String dataSource = request.getParameter("data_source");
 
-			try {
-				SolrInterface solr = new SolrInterface();
+			DataApiHandler dataApi = new DataApiHandler(request);
 
-				SolrQuery query = new SolrQuery();
+			SolrQuery query = new SolrQuery();
 
-				if (taxonId != null) {
-					query.setQuery("taxon_lineage_ids:" + taxonId);
-				}
-				else {
-					query.setQuery("*:*");
-				}
+			if (taxonId != null) {
+				query.setQuery("taxon_lineage_ids:" + taxonId);
+			}
+			else {
+				query.setQuery("*:*");
+			}
 
-				if (dataSource != null) {
-					String[] sources = dataSource.split(",");
-					List<String> conditions = new ArrayList<>();
+			if (dataSource != null) {
+				String[] sources = dataSource.split(",");
+				List<String> conditions = new ArrayList<>();
 
-					for (String source : sources) {
-						switch (source) {
-						case ".PATRIC":
-							conditions.add("patric_cds:[1 TO *]");
-							break;
-						case ".RefSeq":
-							conditions.add("refseq_cds:[1 TO *]");
-							break;
-						}
+				for (String source : sources) {
+					switch (source) {
+					case ".PATRIC":
+						conditions.add("patric_cds:[1 TO *]");
+						break;
+					case ".RefSeq":
+						conditions.add("refseq_cds:[1 TO *]");
+						break;
 					}
-
-					query.setFilterQueries(StringUtils.join(conditions, " OR "));
 				}
 
-				QueryResponse qr = solr.getSolrServer(SolrCore.GENOME).query(query);
-				long numFound = qr.getResults().getNumFound();
-
-				response.getWriter().write("" + numFound);
-
+				query.setFilterQueries(StringUtils.join(conditions, " OR "));
 			}
-			catch (MalformedURLException | SolrServerException e) {
-				LOGGER.error(e.getMessage(), e);
-			}
+			query.setRows(0);
+
+			LOGGER.debug("[{}] {}", SolrCore.GENOME, query.toString());
+			String apiResponse = dataApi.solrQuery(SolrCore.GENOME, query);
+
+			Map resp = jsonReader.readValue(apiResponse);
+			Map respBody = (Map) resp.get("response");
+
+			int numFound = (Integer) respBody.get("numFound");
+
+			response.getWriter().write("" + numFound);
 		}
 		else if (mode.equals("download")) {
 
@@ -151,28 +157,28 @@ public class Downloads extends GenericPortlet {
 
 			List<String> genomeIdList = new LinkedList<>();
 
-			SolrInterface solr = new SolrInterface();
-			try {
-				SolrQuery query = new SolrQuery("*:*");
+			DataApiHandler dataApi = new DataApiHandler(request);
 
-				if (genomeId != null && !genomeId.equals("")) {
-					query.addFilterQuery("genome_id:(" + genomeId.replaceAll(",", " OR ") + ")");
-				}
-				if (taxonId != null && !taxonId.equals("")) {
-					query.addFilterQuery("taxon_lineage_ids:" + taxonId);
-				}
-				query.setRows(10000).addField("genome_id");
+			SolrQuery query = new SolrQuery("*:*");
 
-				LOGGER.debug("{}", query.toString());
-				QueryResponse qr = solr.getSolrServer(SolrCore.GENOME).query(query, SolrRequest.METHOD.POST);
-				List<Genome> genomeList = qr.getBeans(Genome.class);
-
-				for (Genome genome : genomeList) {
-					genomeIdList.add(genome.getId());
-				}
+			if (genomeId != null && !genomeId.equals("")) {
+				query.addFilterQuery("genome_id:(" + genomeId.replaceAll(",", " OR ") + ")");
 			}
-			catch (MalformedURLException | SolrServerException e) {
-				LOGGER.error(e.getMessage(), e);
+			if (taxonId != null && !taxonId.equals("")) {
+				query.addFilterQuery("taxon_lineage_ids:" + taxonId);
+			}
+			query.setRows(dataApi.MAX_ROWS).addField("genome_id");
+
+			LOGGER.debug("[{}] {}", SolrCore.GENOME, query.toString());
+
+			String apiResponse = dataApi.solrQuery(SolrCore.GENOME, query);
+			Map resp = jsonReader.readValue(apiResponse);
+			Map respBody = (Map) resp.get("response");
+
+			List<Genome> genomeList = dataApi.bindDocuments((List<Map>) respBody.get("docs"), Genome.class);
+
+			for (Genome genome : genomeList) {
+				genomeIdList.add(genome.getId());
 			}
 
 			CreateZip zip = new CreateZip();

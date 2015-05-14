@@ -18,17 +18,16 @@
 package edu.vt.vbi.patric.portlets;
 
 import edu.vt.vbi.patric.beans.Taxonomy;
+import edu.vt.vbi.patric.common.DataApiHandler;
 import edu.vt.vbi.patric.common.SolrCore;
-import edu.vt.vbi.patric.common.SolrInterface;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.QueryResponse;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.portlet.*;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,43 +36,54 @@ public class TB extends GenericPortlet {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(TB.class);
 
+	private ObjectReader jsonReader;
+
+	@Override
+	public void init() throws PortletException {
+		super.init();
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		jsonReader = objectMapper.reader(Map.class);
+	}
+
 	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 		response.setContentType("text/html");
 		response.setTitle("TB");
 
 		int mtbTaxon = 77643;
-		SolrInterface solr = new SolrInterface();
+		DataApiHandler dataApi = new DataApiHandler(request);
 
 		Map<Integer, Integer> genomes = new HashMap<>();
 		int cntExperiments = -1;
 
 		// getting genome count
-		try {
+		{
 			SolrQuery query = new SolrQuery("taxon_id:(1773 OR 77643)");
 			query.setRows(2).addField("taxon_id,genomes");
 
-			QueryResponse qr = solr.getSolrServer(SolrCore.TAXONOMY).query(query);
-			List<Taxonomy> taxonomyList = qr.getBeans(Taxonomy.class);
+			String apiResponse = dataApi.solrQuery(SolrCore.TAXONOMY, query);
+
+			Map resp = jsonReader.readValue(apiResponse);
+			Map respBody = (Map) resp.get("response");
+
+			List<Taxonomy> taxonomyList = dataApi.bindDocuments((List<Map>) respBody.get("docs"), Taxonomy.class);
 
 			for (Taxonomy taxonomy : taxonomyList) {
 				genomes.put(taxonomy.getId(), taxonomy.getGenomeCount());
 			}
 		}
-		catch (MalformedURLException | SolrServerException e) {
-			LOGGER.error(e.getMessage(), e);
-		}
 
 		// getting expression data count
-		try {
+		{
 			SolrQuery query = new SolrQuery("*:*");
-			query.setRows(0);
-			query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_ids", "taxon_lineage_ids:1763"));
+			query.setRows(0).addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_ids", "taxon_lineage_ids:1763"));
 
-			QueryResponse qr = solr.getSolrServer(SolrCore.TRANSCRIPTOMICS_EXPERIMENT).query(query);
-			cntExperiments = (int) qr.getResults().getNumFound();
-		}
-		catch (MalformedURLException | SolrServerException e) {
-			LOGGER.error(e.getMessage(), e);
+			String apiResponse = dataApi.solrQuery(SolrCore.TRANSCRIPTOMICS_EXPERIMENT, query);
+
+			Map resp = jsonReader.readValue(apiResponse);
+			Map respBody = (Map) resp.get("response");
+
+			cntExperiments = (Integer) respBody.get("numFound");
 		}
 		request.setAttribute("genomes", genomes);
 		request.setAttribute("cntExperiments", cntExperiments);

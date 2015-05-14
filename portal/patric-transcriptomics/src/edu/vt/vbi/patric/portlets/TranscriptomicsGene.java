@@ -25,9 +25,9 @@ import edu.vt.vbi.patric.beans.GenomeFeature;
 import edu.vt.vbi.patric.common.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrRequest;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.QueryResponse;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectReader;
+import org.codehaus.jackson.map.ObjectWriter;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
@@ -41,6 +41,19 @@ import java.util.*;
 public class TranscriptomicsGene extends GenericPortlet {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(TranscriptomicsGene.class);
+
+	ObjectReader jsonReader;
+
+	ObjectWriter jsonWriter;
+
+	@Override
+	public void init() throws PortletException {
+		super.init();
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		jsonReader = objectMapper.reader(Map.class);
+		jsonWriter = objectMapper.writerWithType(Map.class);
+	}
 
 	@Override
 	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
@@ -76,8 +89,8 @@ public class TranscriptomicsGene extends GenericPortlet {
 
 			if (pk != null && !pk.equals("")) {
 				pk = pk.split("/")[0];
-				Gson gson = new Gson();
-				Map<String, String> key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), Map.class);
+
+				Map<String, String> key = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
 				if (key != null && key.get("keyword") != null) {
 					keyword = key.get("keyword");
 					sampleId = key.get("sampleId");
@@ -104,20 +117,43 @@ public class TranscriptomicsGene extends GenericPortlet {
 
 	}
 
-	public void serveResource(ResourceRequest req, ResourceResponse resp) throws PortletException, IOException {
-		resp.setContentType("text/html");
-		String callType = req.getParameter("callType");
-		PrintWriter writer = resp.getWriter();
+	public void serveResource(ResourceRequest request, ResourceResponse response) throws PortletException, IOException {
+		response.setContentType("text/html");
+		String callType = request.getParameter("callType");
+		PrintWriter writer = response.getWriter();
 		JSONObject jsonResult = new JSONObject();
 
 		if (callType != null) {
-			if (callType.equals("saveParams")) {
+			switch (callType) {
+			case "saveParams": {
+
+				String keyword = request.getParameter("keyword");
+				SolrInterface solr = new SolrInterface();
 
 				Map<String, String> key = new HashMap<>();
-				String keyword = req.getParameter("keyword");
-				SolrInterface solr = new SolrInterface();
-				String sId = solr.getTranscriptomicsSamplePIds(keyword);
+				key.put("keyword", "locus_tag:(" + keyword + ") OR refseq_locus_tag:(" + keyword + ") ");
+				key.put("fields", "pid");
 
+				SolrQuery query = solr.buildSolrQuery(key, null, null, 0, -1, false);
+
+				DataApiHandler dataApi = new DataApiHandler(request);
+
+				String apiResponse = dataApi.solrQuery(SolrCore.TRANSCRIPTOMICS_GENE, query);
+
+				Map resp = jsonReader.readValue(apiResponse);
+				Map respBody = (Map) resp.get("response");
+
+				List<Map> sdl = (List<Map>) respBody.get("docs");
+
+				Set<String> sampleIds = new HashSet<>();
+
+				for (Map doc : sdl) {
+					sampleIds.add(doc.get("pid").toString());
+				}
+
+				String sId = StringUtils.join(sampleIds, ",");
+
+				key = new HashMap();
 				if (!keyword.equals("")) {
 					key.put("keyword", keyword);
 				}
@@ -125,9 +161,8 @@ public class TranscriptomicsGene extends GenericPortlet {
 				if (!sId.equals("")) {
 					key.put("sampleId", sId);
 					long pk = (new Random()).nextLong();
-					Gson gson = new Gson();
 
-					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, Map.class));
+					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
 
 					writer.write("" + pk);
 				}
@@ -136,29 +171,60 @@ public class TranscriptomicsGene extends GenericPortlet {
 				}
 				writer.close();
 
+				break;
 			}
-			else if (callType.equals("getTables")) {
+			case "getTables": {
 
-				String expId = req.getParameter("expId");
-				String sampleId = req.getParameter("sampleId");
-				String wsExperimentId = req.getParameter("wsExperimentId");
-				String wsSampleId = req.getParameter("wsSampleId");
-				String keyword = req.getParameter("keyword");
+				String expId = request.getParameter("expId");
+				String sampleId = request.getParameter("sampleId");
+				String wsExperimentId = request.getParameter("wsExperimentId");
+				String wsSampleId = request.getParameter("wsSampleId");
+				String keyword = request.getParameter("keyword");
 				SolrInterface solr = new SolrInterface();
+				DataApiHandler dataApi = new DataApiHandler(request);
 
-				JSONObject sample_obj;
 				JSONArray sample = new JSONArray();
 
 				if ((sampleId != null && !sampleId.equals("")) || (expId != null && !expId.equals(""))) {
-					sample_obj = solr
-							.getTranscriptomicsSamples(sampleId, expId, "pid,expname,expmean,timepoint,mutant,strain,condition", 0, -1, null);
-					sample = (JSONArray) sample_obj.get("data");
+
+					String query_keyword = "";
+
+					if (expId != null && !expId.equals("")) {
+						query_keyword += "eid:(" + expId.replaceAll(",", " OR ") + ")";
+					}
+
+					if (sampleId != null && !sampleId.equals("")) {
+						if (query_keyword.length() > 0) {
+							query_keyword += " AND ";
+						}
+						query_keyword += "pid:(" + sampleId.replaceAll(",", " OR ") + ")";
+					}
+
+					Map<String, String> key = new HashMap<>();
+					key.put("keyword", query_keyword);
+					key.put("fields", "pid,expname,expmean,timepoint,mutant,strain,condition");
+
+					SolrQuery query = solr.buildSolrQuery(key, null, null, 0, -1, false);
+
+					String apiResponse = dataApi.solrQuery(SolrCore.TRANSCRIPTOMICS_COMPARISON, query);
+
+					Map resp = jsonReader.readValue(apiResponse);
+					Map respBody = (Map) resp.get("response");
+
+					List<Map> sdl = (List<Map>) respBody.get("docs");
+
+					for (Map doc : sdl) {
+						JSONObject item = new JSONObject();
+						item.putAll(doc);
+
+						sample.add(item);
+					}
 				}
 
 				// Read from JSON if collection parameter is there
 				ExpressionDataCollection parser = null;
 				if (wsExperimentId != null && !wsExperimentId.equals("")) {
-					String token = getAuthorizationToken(req);
+					String token = getAuthorizationToken(request);
 
 					parser = new ExpressionDataCollection(wsExperimentId, token);
 					parser.read(ExpressionDataCollection.CONTENT_SAMPLE);
@@ -181,7 +247,44 @@ public class TranscriptomicsGene extends GenericPortlet {
 				JSONArray expression = new JSONArray();
 
 				if ((sampleId != null && !sampleId.equals("")) || (expId != null && !expId.equals(""))) {
-					expression = solr.getTranscriptomicsGenes(sampleId, expId, keyword);
+
+					String query_keyword = "";
+
+					if (keyword != null && !keyword.equals("")) {
+						query_keyword += "(alt_locus_tag:(" + keyword + ") OR refseq_locus_tag:(" + keyword + ")) ";
+					}
+
+					if (expId != null && !expId.equals("")) {
+						if (query_keyword.length() > 0) {
+							query_keyword += " AND ";
+						}
+						query_keyword += "eid:(" + expId.replaceAll(",", " OR ") + ")";
+					}
+
+					if (sampleId != null && !sampleId.equals("")) {
+						if (query_keyword.length() > 0) {
+							query_keyword += " AND ";
+						}
+						query_keyword += "pid:(" + sampleId.replaceAll(",", " OR ") + ")";
+					}
+
+					Map<String, String> key = new HashMap<>();
+					key.put("keyword", query_keyword);
+					key.put("fields", "pid,refseq_locus_tag,feature_id,log_ratio,z_score");
+
+					SolrQuery query = solr.buildSolrQuery(key, null, null, 0, -1, false);
+					String apiResponse = dataApi.solrQuery(SolrCore.TRANSCRIPTOMICS_GENE, query);
+
+					Map resp = jsonReader.readValue(apiResponse);
+					Map respBody = (Map) resp.get("response");
+
+					List<Map> sdl = (List<Map>) respBody.get("docs");
+
+					for (Map doc : sdl) {
+						JSONObject item = new JSONObject();
+						item.putAll(doc);
+						expression.add(item);
+					}
 				}
 
 				if (wsExperimentId != null && !wsExperimentId.equals("")) {
@@ -194,24 +297,25 @@ public class TranscriptomicsGene extends GenericPortlet {
 					expression = parser.append(expression, ExpressionDataCollection.CONTENT_EXPRESSION);
 				}
 
-				JSONArray stats = getExperimentStats(expression, sampleList, sample);
+				JSONArray stats = getExperimentStats(dataApi, expression, sampleList, sample);
 				jsonResult.put(ExpressionDataCollection.CONTENT_EXPRESSION + "Total", stats.size());
 				jsonResult.put(ExpressionDataCollection.CONTENT_EXPRESSION, stats);
 
-				resp.setContentType("application/json");
+				response.setContentType("application/json");
 				jsonResult.writeJSONString(writer);
 				writer.close();
 
+				break;
 			}
-			else if (callType.equals("doClustering")) {
+			case "doClustering": {
 
-				String data = req.getParameter("data");
-				String g = req.getParameter("g");
-				String e = req.getParameter("e");
-				String m = req.getParameter("m");
-				String ge = req.getParameter("ge");
-				String pk = req.getParameter("pk");
-				String action = req.getParameter("action");
+				String data = request.getParameter("data");
+				String g = request.getParameter("g");
+				String e = request.getParameter("e");
+				String m = request.getParameter("m");
+				String ge = request.getParameter("ge");
+				String pk = request.getParameter("pk");
+				String action = request.getParameter("action");
 
 				String folder = "/tmp/";
 				String filename = folder + "tmp_" + pk + ".txt";
@@ -232,25 +336,26 @@ public class TranscriptomicsGene extends GenericPortlet {
 
 				writer.close();
 
+				break;
 			}
-			else if (callType.equals("saveState")) {
+			case "saveState": {
 
-				String keyType = req.getParameter("keyType");
-				String pageAt = req.getParameter("pageAt");
-				String sampleFilter = req.getParameter("sampleFilter");
-				String regex = req.getParameter("regex");
-				String regexGN = req.getParameter("regexGN");
-				String upFold = req.getParameter("upFold");
-				String downFold = req.getParameter("downFold");
-				String upZscore = req.getParameter("upZscore");
-				String downZscore = req.getParameter("downZscore");
-				String significantGenes = req.getParameter("significantGenes");
-				String ClusterColumnOrder = req.getParameter("ClusterColumnOrder");
-				String ClusterRowOrder = req.getParameter("ClusterRowOrder");
-				String heatmapState = req.getParameter("heatmapState");
-				String heatmapAxis = req.getParameter("heatmapAxis");
-				String colorScheme = req.getParameter("colorScheme");
-				String filterOffset = req.getParameter("filterOffset");
+				String keyType = request.getParameter("keyType");
+				String pageAt = request.getParameter("pageAt");
+				String sampleFilter = request.getParameter("sampleFilter");
+				String regex = request.getParameter("regex");
+				String regexGN = request.getParameter("regexGN");
+				String upFold = request.getParameter("upFold");
+				String downFold = request.getParameter("downFold");
+				String upZscore = request.getParameter("upZscore");
+				String downZscore = request.getParameter("downZscore");
+				String significantGenes = request.getParameter("significantGenes");
+				String ClusterColumnOrder = request.getParameter("ClusterColumnOrder");
+				String ClusterRowOrder = request.getParameter("ClusterRowOrder");
+				String heatmapState = request.getParameter("heatmapState");
+				String heatmapAxis = request.getParameter("heatmapAxis");
+				String colorScheme = request.getParameter("colorScheme");
+				String filterOffset = request.getParameter("filterOffset");
 
 				Map<String, String> key = new HashMap<>();
 				key.put("sampleFilter", (sampleFilter == null) ? "" : sampleFilter);
@@ -270,23 +375,22 @@ public class TranscriptomicsGene extends GenericPortlet {
 				key.put("filterOffset", (filterOffset == null) ? "" : filterOffset);
 
 				long pk = (new Random()).nextLong();
-				Gson gson = new Gson();
-				SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, Map.class));
+				SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
 
 				writer.write("" + pk);
 				writer.close();
 
+				break;
 			}
-			else if (callType.equals("getState")) {
+			case "getState": {
 
-				Gson gson = new Gson();
-				String keyType = req.getParameter("keyType");
-				String pk = req.getParameter("random");
+				String keyType = request.getParameter("keyType");
+				String pk = request.getParameter("random");
 
 				if ((pk != null) && (keyType != null)) {
 					JSONArray results = new JSONArray();
 					JSONObject a = new JSONObject();
-					Map<String, String> key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), Map.class);
+					Map<String, String> key = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
 					if (key != null) {
 						a.put("sampleFilter", key.get("sampleFilter"));
 						a.put("pageAt", key.get("pageAt"));
@@ -305,10 +409,12 @@ public class TranscriptomicsGene extends GenericPortlet {
 						a.put("filterOffset", key.get("filterOffset"));
 					}
 					results.add(a);
-					resp.setContentType("application/json");
+					response.setContentType("application/json");
 					results.writeJSONString(writer);
 					writer.close();
 				}
+				break;
+			}
 			}
 		}
 	}
@@ -359,7 +465,7 @@ public class TranscriptomicsGene extends GenericPortlet {
 		return output;
 	}
 
-	public JSONArray getExperimentStats(JSONArray data, String samples, JSONArray sample_data) throws IOException {
+	private JSONArray getExperimentStats(DataApiHandler dataApi, JSONArray data, String samples, JSONArray sample_data) throws IOException {
 
 		JSONArray results = new JSONArray();
 
@@ -431,8 +537,6 @@ public class TranscriptomicsGene extends GenericPortlet {
 
 		LOGGER.trace("featureIdList[{}]: {}, p2FeatureIdList[{}]: {}", featureIdList.size(), featureIdList, p2FeatureIdList.size(), p2FeatureIdList);
 
-		SolrInterface solr = new SolrInterface();
-
 		SolrQuery query = new SolrQuery("*:*");
 		if (!featureIdList.isEmpty() && !p2FeatureIdList.isEmpty()) {
 			query.addFilterQuery(
@@ -454,34 +558,33 @@ public class TranscriptomicsGene extends GenericPortlet {
 
 		LOGGER.trace("getExperimentStats:{}", query.toString());
 
-		try {
-			QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query, SolrRequest.METHOD.POST);
-			List<GenomeFeature> features = qr.getBeans(GenomeFeature.class);
+		String apiResponse = dataApi.solrQuery(SolrCore.FEATURE, query);
 
-			for (GenomeFeature feature : features) {
-				JSONObject json;
+		Map resp = jsonReader.readValue(apiResponse);
+		Map respBody = (Map) resp.get("response");
 
-				json = (JSONObject) temp.get(feature.getId());
-				if (json == null) {
-					json = (JSONObject) temp.get("" + feature.getP2FeatureId());
-				}
+		List<GenomeFeature> features = dataApi.bindDocuments((List<Map>) respBody.get("docs"), GenomeFeature.class);
 
-				json.put("feature_id", feature.getId());
-				json.put("strand", feature.getStrand());
-				json.put("patric_product", feature.getProduct());
-				json.put("patric_accession", feature.getAccession());
-				json.put("start", feature.getStart());
-				json.put("end", feature.getEnd());
-				json.put("alt_locus_tag", feature.getAltLocusTag());
-				json.put("seed_id", feature.getSeedId());
-				json.put("genome_name", feature.getGenomeName());
-				json.put("gene", feature.getGene());
+		for (GenomeFeature feature : features) {
+			JSONObject json;
 
-				results.add(json);
+			json = (JSONObject) temp.get(feature.getId());
+			if (json == null) {
+				json = (JSONObject) temp.get("" + feature.getP2FeatureId());
 			}
-		}
-		catch (SolrServerException e) {
-			e.printStackTrace();
+
+			json.put("feature_id", feature.getId());
+			json.put("strand", feature.getStrand());
+			json.put("patric_product", feature.getProduct());
+			json.put("patric_accession", feature.getAccession());
+			json.put("start", feature.getStart());
+			json.put("end", feature.getEnd());
+			json.put("alt_locus_tag", feature.getAltLocusTag());
+			json.put("seed_id", feature.getSeedId());
+			json.put("genome_name", feature.getGenomeName());
+			json.put("gene", feature.getGene());
+
+			results.add(json);
 		}
 
 		return results;

@@ -1,12 +1,4 @@
-<%@ page import="edu.vt.vbi.patric.common.SolrInterface" %>
-<%@ page import="edu.vt.vbi.patric.common.SolrCore" %>
-<%@ page import="edu.vt.vbi.patric.dao.ResultType" %>
 <%@ page import="java.util.Map" %>
-<%@ page import="java.util.List" %>
-<%@ page import="java.util.HashMap" %>
-<%@ page import="java.util.ArrayList" %>
-<%@ page import="org.json.simple.JSONObject" %>
-<%@ page import="org.json.simple.JSONArray" %>
 <%
 
 Map<Integer, Integer> genomes = (Map<Integer, Integer>) request.getAttribute("genomes");
@@ -18,8 +10,29 @@ int mtbTaxon = (Integer) request.getAttribute("mtbTaxon");
 //<![CDATA[
 var name,url,cId,cType,genomeId,keyword;
 
+function getGenomeByTaxon(taxonId, callback) {
+
+	Ext.Ajax.request({
+		disableCaching: false,
+		headers: {
+			'Accept': 'application/json'
+		},
+		url: '/api/genome/?eq(taxon_lineage_ids,' + taxonId + ')&limit(10000)',
+		method: 'GET',
+		success: function(response) {
+			var genomes = Ext.JSON.decode(response.responseText);
+			var genomeIds = [];
+			for (var i = 0; i < genomes.length; i++) {
+				genomeIds.push(genomes[i].genome_id);
+			}
+
+			callback(genomeIds);
+		}
+	});
+}
+
 function searchGenome() {
-	var taxonId = <%=mtbTaxon %>; //Mtb genomes
+	var taxonId = '<%=mtbTaxon %>'; //Mtb genomes
 	
 	name = "Genome";
 	url = "/portal/portal/patric/GenomeFinder/GenomeFinderWindow?action=b&cacheability=PAGE";
@@ -35,23 +48,12 @@ function searchGenome() {
 		object["Keyword"] = "("+EncodeKeyword(keyword)+")";
 	}
 
-	Ext.Ajax.request({
-		url: "/patric-searches-and-tools/jsp/get_taxon_ids.json.jsp",
-		method: 'GET',
-		params: {cType: cType, cId: cId, genomeId:genomeId, algorithm:"", status:""},
-		success: function(response, opts) {
-			genomes = Ext.JSON.decode(response.responseText);
-			var ids="";
-			if(genomes.ids.length >= 1){
-				ids += genomes.ids[0].id;
-			}
-			for(var i=1; i< genomes.ids.length; i++) {
-				ids += "##"+genomes.ids[i].id;
-			}
-			ids += "##246196.19##216594.6"; //add two outgroup genomes
-			object["genome_id"] = ids;
-			search__(constructKeyword(object, name), cId, cType);
-		}
+	getGenomeByTaxon(taxonId, function(genomeIds) {
+
+		genomeIds.push('246196.19','216594.6'); //add two outgroup genomes
+
+		object["genome_id"] = genomeIds.join("##");
+		search__(constructKeyword(object, name), cId, cType);
 	});
 }
 
@@ -69,8 +71,8 @@ function searchFeature() {
 	if (cId == 83332) {
 		need_genomes = false;
 		cType = "genome";
-		cId = 87468;
-		genomeId = "87468";
+		cId = 83332.12;
+		genomeId = "83332.12";
 		if (outgroup.length > 0) {
 			genomeId += "##"+outgroup.join("##");
 		}
@@ -86,25 +88,15 @@ function searchFeature() {
 	}
 	
 	if (need_genomes) {
-		Ext.Ajax.request({
-			url: "/patric-searches-and-tools/jsp/get_taxon_ids.json.jsp",
-			method: 'GET',
-			params: {cType: cType, cId: cId, genomeId:genomeId, algorithm:"", status:""},
-			success: function(response, opts) {
-				genomes = Ext.JSON.decode(response.responseText);
-				var ids="";
-				if(genomes.ids.length >= 1){
-					ids += genomes.ids[0].id;
-				}
-				for(var i=1; i< genomes.ids.length; i++) {
-					ids += "##"+genomes.ids[i].id;
-				}
-				if (outgroup.length > 0) {
-					ids += "##"+outgroup.join("##");
-				}
-				object["genome_id"] = ids;
-				search__(constructKeyword(object, name), cId, cType);
+
+		getGenomeByTaxon(cId, function(genomeIds) {
+
+			if (outgroup.length > 0) {
+				genomeIds.push(outgroup);
 			}
+
+			object["genome_id"] = genomeIds.join("##");
+			search__(constructKeyword(object, name), cId, cType);
 		});
 	} else {
 		object["genome_id"] = genomeId;
@@ -125,8 +117,8 @@ function searchSpecialtyGene() {
 	if (cId == 83332) {
 		need_genomes = false;
 		cType = "genome";
-		cId = 87468;
-		genomeId = "87468";
+		cId = 83332.12;
+		genomeId = "83332.12";
 	}
 	
 	var object = {};
@@ -142,22 +134,10 @@ function searchSpecialtyGene() {
 	}
 	
 	if (need_genomes) {
-		Ext.Ajax.request({
-			url: "/patric-searches-and-tools/jsp/get_taxon_ids.json.jsp",
-			method: 'GET',
-			params: {cType: cType, cId: cId, genomeId:genomeId, algorithm:"", status:""},
-			success: function(response, opts) {
-				genomes = Ext.JSON.decode(response.responseText);
-				var ids="";
-				if(genomes.ids.length >= 1){
-					ids += genomes.ids[0].id;
-				}
-				for(var i=1; i< genomes.ids.length; i++) {
-					ids += "##"+genomes.ids[i].id;
-				}
-				object["genome_id"] = ids;
-				search__(constructKeyword(object, name), cId, cType);
-			}
+		getGenomeByTaxon(cId, function(genomeIds) {
+
+			object["genome_id"] = genomeIds.join("##");
+			search__(constructKeyword(object, name), cId, cType);
 		});
 	} else {
 		object["genome_id"] = genomeId;
@@ -202,8 +182,8 @@ function getScope(parentId) {
 }
 
 function getOutgroupGenomes() {
-	var elements = document.getElementsByName("outgroup"),
-	selected = new Array();
+	var elements = document.getElementsByName("outgroup");
+	var selected = [];
 	
 	for (var i = 0; i < elements.length; ++i) {
 		if (elements[i].checked) {
@@ -214,8 +194,8 @@ function getOutgroupGenomes() {
 }
 
 function getTargetProperties() {
-	var elements = document.getElementsByName("property"),
-		selected = new Array();
+	var elements = document.getElementsByName("property");
+	var selected = [];
 	
 	for (var i = 0; i < elements.length; ++i) {
 		if (elements[i].checked) {
@@ -225,17 +205,11 @@ function getTargetProperties() {
 	return selected;
 }
 function launchCPT() {
-	Ext.Ajax.request({
-		url: "/patric-searches-and-tools/jsp/get_taxon_ids.json.jsp",
-		method: 'GET',
-		params: {cType: "taxon", cId:<%=mtbTaxon%> , genomeId:genomeId, algorithm:"", status:""},
-		success: function(response, opts) {
-			genomes = Ext.JSON.decode(response.responseText);
-			var ids = "246196.19,216594.6";
-			for(var i=0; i< genomes.ids.length; i++)
-				ids += ","+genomes.ids[i].id;
-			_launchCPT(ids);
-		}
+	getGenomeByTaxon('<%=mtbTaxon%>', function(genomeIds) {
+
+		genomeIds.push('246196.19','216594.6'); //add two outgroup genomes
+
+		_launchCPT(genomeIds.join(","));
 	});
 }
 
@@ -258,17 +232,11 @@ function _launchCPT(idList) {
 }
 
 function launchPFS() {
-	Ext.Ajax.request({
-		url: "/patric-searches-and-tools/jsp/get_taxon_ids.json.jsp",
-		method: 'GET',
-		params: {cType: "taxon", cId:<%=mtbTaxon%> , genomeId:genomeId, algorithm:"", status:""},
-		success: function(response, opts) {
-			genomes = Ext.JSON.decode(response.responseText);
-			var ids = "246196.19,216594.6"; // "246196.19,216594.6";
-			for(var i=0; i< genomes.ids.length; i++)
-				ids += ","+genomes.ids[i].id;
-			_launchPFS(ids);
-		}
+	getGenomeByTaxon('<%=mtbTaxon%>', function(genomeIds) {
+
+		genomeIds.push('246196.19','216594.6'); //add two outgroup genomes
+
+		_launchPFS(genomeIds.join(","));
 	});
 }
 

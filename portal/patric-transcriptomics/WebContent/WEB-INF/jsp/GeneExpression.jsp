@@ -16,12 +16,9 @@ To learn more, see <a href=" http://enews.patricbrc.org/faqs/transcriptomics-faq
 	<input type="hidden" id="sampleId" 	name="sampleId"  value="<%=sampleId %>" />
 	<input type="hidden" id="log_ratio" name="log_ratio" value="<%=log_ratio %>" />
 	<input type="hidden" id="zscore" 	name="zscore" 	 value="<%=zscore %>" />
-</form>
-<form id="fTableForm" action="#" method="post">
+
 	<input type="hidden" id="tablesource" name="tablesource" value="" />
 	<input type="hidden" id="fileformat" name="fileformat" value="" />
-	<input type="hidden" id="fids" name="fids" value="" />	
-	<input type="hidden" id="idType" name="idType" value="" />
 </form>
 <script type="text/javascript">
 //<![CDATA[
