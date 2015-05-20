@@ -154,15 +154,16 @@ function getSummaryandCreateLayout() {
         Ext.Msg.alert('Warning', 'Please enter keyword.');
         return false;
     }
+
 	Ext.Ajax.request({
-		url : "/patric-searches-and-tools/jsp/getGlobalSearchCounts.jsp",
+		url : "/portal/portal/patric/GlobalSearch/GlobalSearchWindow?action=b&cacheability=PAGE&need=search",
 		method : 'GET',
 		timeout : 600000,
 		params : {
 			keyword : Ext.getDom('keyword').value,
 			spellcheck : hash.spellcheck
 		},
-		success : function(response, opts) {
+		success : function(response) {
 			var result = Ext.JSON.decode(response.responseText);
 			var summary_data = result.data;
 
@@ -297,7 +298,9 @@ function getExtraParams() {
 		keyword : constructKeyword((tree) ? tree.getSelectedTerms() : {}, property.name[which]),
 		facet : JSON.stringify({
 			"facet" : configuration[property.name[which]].display_facets.join(","),
-			"facet_text" : configuration[property.name[which]].display_facets_texts.join(",")
+			"facet_text" : configuration[property.name[which]].display_facets_texts.join(","),
+			'field_facets': configuration[name].field_facets.join(','),
+			'date_range_facets': configuration[name].date_range_facets.join(',')
 		})
 	};
 }
@@ -867,7 +870,7 @@ function DownloadFile() {
 		tree.selectedTerm["Keyword"] = Ext.getDom("keyword").value;
 	}
 
-	form.action = "/patric-searches-and-tools/jsp/grid_download_handler.jsp";
+	form.action = "/portal/portal/patric/GlobalSearch/GlobalSearchWindow?action=b&cacheability=PAGE&need=download";
 	form.target = "";
 	form.fileformat.value = arguments[0];
 	form.download_keyword.value = constructKeyword(tree.getSelectedTerms(), name);

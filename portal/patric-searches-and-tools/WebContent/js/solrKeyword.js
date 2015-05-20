@@ -729,6 +729,8 @@ configuration['GlobalTaxonomy'] = {
 	display_facets : ['taxon_rank', 'genomes_f'],
 	display_facets_texts : ['Taxon Rank', 'Genomes'],
 	all_facets : ['Keyword', 'taxon_rank', 'genomes_f'],
+	field_facets: ['taxon_rank', 'genomes_f'],
+	date_range_facets: [],
 	search_fields : ['taxon_name'],
 	url : '/portal/portal/patric/GlobalTaxonomy/GlobalTaxonomyWindow?action=b&cacheability=PAGE'
 };

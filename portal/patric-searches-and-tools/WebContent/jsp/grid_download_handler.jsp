@@ -1,7 +1,6 @@
 <%@ page import="edu.vt.vbi.patric.common.ExcelHelper"%><%@ page 
 	import="edu.vt.vbi.patric.common.SolrInterface"%><%@ page
-	import="edu.vt.vbi.patric.common.SolrCore"%><%@ page 
-	import="edu.vt.vbi.patric.common.DownloadHelper"%><%@ page
+	import="edu.vt.vbi.patric.common.SolrCore"%><%@ page
 	import="edu.vt.vbi.patric.dao.*"%><%@ page
 	import="org.json.simple.JSONArray"%><%@ page
 	import="org.json.simple.JSONObject"%><%@ page 
@@ -33,46 +32,7 @@
 
 	ExcelHelper excel = null;
 
-	if (_tablesource.equalsIgnoreCase("GlobalSearch")) {
-
-		SolrInterface solr = new SolrInterface();
-		String keyword = request.getParameter("download_keyword");
-		String cat = request.getParameter("cat");
-
-		key.put("keyword", keyword);
-
-		if (cat.equals("2")) {
-			solr.setCurrentInstance(SolrCore.TAXONOMY);
-			_tbl_header.addAll(Arrays.asList("Taxon ID", "Taxon Name", "# of Genomes"));
-			_tbl_field.addAll(Arrays.asList("taxon_id", "taxon_name", "genomes"));
-		}
-		else if (cat.equals("3")) {
-			solr.setCurrentInstance(SolrCore.TRANSCRIPTOMICS_EXPERIMENT);
-			_tbl_header.addAll(Arrays.asList("Experiment ID", "Title", "Comparisons", "Genes", "PubMed", "Accession", "Organism", "Strain",
-					"Gene Modification", "Experimental Condition", "Time Series", "Release Date", "Author", "PI", "Institution"));
-			_tbl_field.addAll(Arrays.asList("eid", "title", "samples", "genes", "pmid", "accession", "organism", "strain", "mutant",
-					"condition", "timeseries", "release_date", "author", "pi", "institution"));
-		}
-		else if (cat.equals("1")) {
-			solr.setCurrentInstance(SolrCore.GENOME);
-			_tbl_header.addAll(DownloadHelper.getHeaderForGenomes());
-			_tbl_field.addAll(DownloadHelper.getFieldsForGenomes());
-		}
-		else if (cat.equals("0")) {
-			solr.setCurrentInstance(SolrCore.FEATURE);
-			_tbl_header.addAll(DownloadHelper.getHeaderForFeatures());
-			_tbl_field.addAll(DownloadHelper.getFieldsForFeatures());
-		}
-
-		JSONObject object = solr.getData(key, sort, null, 0, -1, false, false, false);
-		JSONObject obj = (JSONObject) object.get("response");
-		_tbl_source = (JSONArray) obj.get("docs");
-		_tbl_header.addAll(Arrays.asList(new String[] {}));
-		_tbl_field.addAll(Arrays.asList(new String[] {}));
-
-		_filename = "GlobalSearch";
-	}
-	else if (_tablesource.equalsIgnoreCase("Proteomics_Experiment")) {
+	if (_tablesource.equalsIgnoreCase("Proteomics_Experiment")) {
 
 		SolrInterface solr = new SolrInterface();
 		String keyword = request.getParameter("download_keyword");

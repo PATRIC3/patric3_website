@@ -57,4 +57,11 @@ public class StringHelper {
 
 		return keyword;
 	}
+
+	public static String stripQuoteAndParseSolrKeywordOperator(String keyword) {
+
+		keyword = keyword.replaceAll("%20", " ").replaceAll("%22", "\"").replaceAll("%27", "'").replaceAll("%2F", "\\\\/");
+
+		return parseSolrKeywordOperator(keyword);
+	}
 }

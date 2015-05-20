@@ -17,17 +17,13 @@
  */
 package edu.vt.vbi.patric.portlets;
 
-import com.google.gson.Gson;
 import edu.vt.vbi.patric.beans.GenomeFeature;
 import edu.vt.vbi.patric.common.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrRequest;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.FacetField;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectReader;
+import org.codehaus.jackson.map.ObjectWriter;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
@@ -36,12 +32,24 @@ import org.slf4j.LoggerFactory;
 import javax.portlet.*;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.MalformedURLException;
 import java.util.*;
 
 public class IDMapping extends GenericPortlet {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(IDMapping.class);
+
+	private ObjectReader jsonReader;
+
+	private ObjectWriter jsonWriter;
+
+	@Override
+	public void init() throws PortletException {
+		super.init();
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		jsonReader = objectMapper.reader(Map.class);
+		jsonWriter = objectMapper.writerWithType(Map.class);
+	}
 
 	@Override
 	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
@@ -54,7 +62,6 @@ public class IDMapping extends GenericPortlet {
 		String contextType = request.getParameter("context_type");
 		String contextId = request.getParameter("context_id");
 		String pk = request.getParameter("param_key");
-		Gson gson = new Gson();
 
 		LOGGER.trace("mode:{}, contextType:{}, contextId:{}, paramKey:{}", mode, contextType, contextId, pk);
 		PortletRequestDispatcher prd;
@@ -62,7 +69,7 @@ public class IDMapping extends GenericPortlet {
 
 			String to = "", toGroup = "", from = "", fromGroup = "", keyword = "";
 
-			Map<String, String> key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), Map.class);
+			Map<String, String> key = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
 
 			if (key != null) {
 				to = key.get("to");
@@ -91,7 +98,7 @@ public class IDMapping extends GenericPortlet {
 			String keyword = request.getParameter("id") == null ? "" : request.getParameter("id");
 
 			if (pk != null) {
-				Map<String, String> key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), Map.class);
+				Map<String, String> key = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
 
 				if (key != null) {
 					to = key.get("to");
@@ -119,7 +126,6 @@ public class IDMapping extends GenericPortlet {
 	public void serveResource(ResourceRequest request, ResourceResponse response) throws PortletException, IOException {
 
 		String sraction = request.getParameter("sraction");
-		Gson gson = new Gson();
 
 		if (sraction != null && sraction.equals("save_params")) {
 
@@ -142,7 +148,7 @@ public class IDMapping extends GenericPortlet {
 			// random
 			long pk = (new Random()).nextLong();
 
-			SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, Map.class));
+			SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
 
 			PrintWriter writer = response.getWriter();
 			writer.write("" + pk);
@@ -156,13 +162,16 @@ public class IDMapping extends GenericPortlet {
 			processDownload(request, response);
 		}
 		else {
+
+			DataApiHandler dataApi = new DataApiHandler(request);
+
 			String pk = request.getParameter("pk");
 
-			Map<String, String> key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), Map.class);
+			Map<String, String> key = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
 
 			LOGGER.debug("id mapping param: {}", key);
 
-			JSONObject jsonResult = processIDMapping(key.get("from"), key.get("fromGroup"), key.get("to"), key.get("toGroup"), key.get("keyword"));
+			JSONObject jsonResult = processIDMapping(dataApi, key.get("from"), key.get("fromGroup"), key.get("to"), key.get("toGroup"), key.get("keyword"));
 
 			response.setContentType("application/json");
 			jsonResult.writeJSONString(response.getWriter());
@@ -259,7 +268,9 @@ public class IDMapping extends GenericPortlet {
 		String fileFormat = request.getParameter("fileformat");
 		String fileName = "IDMapping";
 
-		JSONObject jsonResult = processIDMapping(paramFrom, paramFromGroup, paramTo, paramToGroup, paramKeyword);
+		DataApiHandler dataApi = new DataApiHandler(request);
+
+		JSONObject jsonResult = processIDMapping(dataApi, paramFrom, paramFromGroup, paramTo, paramToGroup, paramKeyword);
 		_tbl_source = (JSONArray) jsonResult.get("results");
 
 		ExcelHelper excel = new ExcelHelper("xssf", _tbl_header, _tbl_field, _tbl_source);
@@ -282,8 +293,7 @@ public class IDMapping extends GenericPortlet {
 	}
 
 	@SuppressWarnings("unchecked")
-	private JSONObject processIDMapping(String fromId, String fromIdGroup, String toId, String toIdGroup, String keyword) throws IOException {
-		SolrInterface solr = new SolrInterface();
+	private JSONObject processIDMapping(DataApiHandler dataApi, String fromId, String fromIdGroup, String toId, String toIdGroup, String keyword) throws IOException {
 
 		JSONArray results = new JSONArray();
 		int total;
@@ -300,15 +310,20 @@ public class IDMapping extends GenericPortlet {
 						query.addFilterQuery(toId + ":[1 TO *]");
 					}
 
-					LOGGER.trace("PATRIC TO PATRIC: {}", query.toString());
-					QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query, SolrRequest.METHOD.POST);
-					List<GenomeFeature> featureList = qr.getBeans(GenomeFeature.class);
+					LOGGER.trace("PATRIC TO PATRIC: [{}] {}", SolrCore.FEATURE.getSolrCoreName(), query);
+
+					String apiResponse = dataApi.solrQuery(SolrCore.FEATURE, query);
+
+					Map resp = jsonReader.readValue(apiResponse);
+					Map respBody = (Map) resp.get("response");
+
+					List<GenomeFeature> featureList = dataApi.bindDocuments((List<Map>) respBody.get("docs"), GenomeFeature.class);
 
 					for (GenomeFeature feature : featureList) {
 						results.add(feature.toJSONObject());
 					}
 				}
-				catch (MalformedURLException | SolrServerException e) {
+				catch (IOException e) {
 					LOGGER.error(e.getMessage(), e);
 				}
 
@@ -325,16 +340,20 @@ public class IDMapping extends GenericPortlet {
 				try {
 					SolrQuery query = new SolrQuery(fromId + ":(" + keyword + ")");
 					query.setRows(10000);
-					LOGGER.trace("PATRIC TO Other 1/3: {}", query.toString());
+					LOGGER.trace("PATRIC TO Other 1/3: [{}] {}", SolrCore.FEATURE.getSolrCoreName(), query);
 
-					QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query, SolrRequest.METHOD.POST);
-					featureList = qr.getBeans(GenomeFeature.class);
+					String apiResponse = dataApi.solrQuery(SolrCore.FEATURE, query);
+
+					Map resp = jsonReader.readValue(apiResponse);
+					Map respBody = (Map) resp.get("response");
+
+					featureList = dataApi.bindDocuments((List<Map>) respBody.get("docs"), GenomeFeature.class);
 
 					for (GenomeFeature feature : featureList) {
 						giList.add(feature.getGi());
 					}
 				}
-				catch (MalformedURLException | SolrServerException e) {
+				catch (IOException e) {
 					LOGGER.error(e.getMessage(), e);
 				}
 
@@ -343,16 +362,21 @@ public class IDMapping extends GenericPortlet {
 					SolrQuery query = new SolrQuery("id_value:(" + StringUtils.join(giList, " OR ") + ")");
 					query.addFilterQuery("id_type:GI").setRows(10000);
 
-					LOGGER.trace("PATRIC TO Other 2/3: {}", query.toString());
-					QueryResponse qr = solr.getSolrServer(SolrCore.ID_REF).query(query, SolrRequest.METHOD.POST);
-					SolrDocumentList uniprotList = qr.getResults();
+					LOGGER.trace("PATRIC TO Other 2/3: [{}] {}", SolrCore.ID_REF.getSolrCoreName(), query.toString());
 
-					for (SolrDocument doc : uniprotList) {
+					String apiResponse = dataApi.solrQuery(SolrCore.ID_REF, query);
+
+					Map resp = jsonReader.readValue(apiResponse);
+					Map respBody = (Map) resp.get("response");
+
+					List<Map> uniprotList = (List<Map>) respBody.get("docs");
+
+					for (Map doc : uniprotList) {
 
 						accessionGiMap.put(doc.get("uniprotkb_accession").toString(), doc.get("id_value").toString());
 					}
 				}
-				catch (MalformedURLException | SolrServerException e) {
+				catch (IOException e) {
 					LOGGER.error(e.getMessage(), e);
 				}
 				LOGGER.trace("accessionGiMap:{}", accessionGiMap);
@@ -369,11 +393,16 @@ public class IDMapping extends GenericPortlet {
 						}
 						query.setRows(accessionGiMap.size());
 
-						LOGGER.trace("PATRIC TO Other 3/3: {}", query.toString());
-						QueryResponse qr = solr.getSolrServer(SolrCore.ID_REF).query(query, SolrRequest.METHOD.POST);
-						SolrDocumentList targets = qr.getResults();
+						LOGGER.trace("PATRIC TO Other 3/3: [{}] {}", SolrCore.ID_REF.getSolrCoreName(), query.toString());
 
-						for (SolrDocument doc : targets) {
+						String apiResponse = dataApi.solrQuery(SolrCore.ID_REF, query);
+
+						Map resp = jsonReader.readValue(apiResponse);
+						Map respBody = (Map) resp.get("response");
+
+						List<Map> targets = (List<Map>) respBody.get("docs");
+
+						for (Map doc : targets) {
 							String accession = doc.get("uniprotkb_accession").toString();
 							String target = doc.get("id_value").toString();
 
@@ -389,7 +418,7 @@ public class IDMapping extends GenericPortlet {
 							giTargetList.add(giTarget);
 						}
 					}
-					catch (MalformedURLException | SolrServerException e) {
+					catch (IOException e) {
 						LOGGER.error(e.getMessage(), e);
 					}
 
@@ -421,15 +450,20 @@ public class IDMapping extends GenericPortlet {
 				SolrQuery query = new SolrQuery("id_value:(" + keyword + ")");
 				query.addFilterQuery("id_type:" + fromId).setRows(10000).addField("uniprotkb_accession,id_value");
 
-				LOGGER.trace("Other to PATRIC 1/3: {}", query.toString());
-				QueryResponse qr = solr.getSolrServer(SolrCore.ID_REF).query(query, SolrRequest.METHOD.POST);
-				SolrDocumentList accessions = qr.getResults();
+				LOGGER.trace("Other to PATRIC 1/3: [{}] {}", SolrCore.ID_REF.getSolrCoreName(), query.toString());
 
-				for (SolrDocument doc : accessions) {
+				String apiResponse = dataApi.solrQuery(SolrCore.ID_REF, query);
+
+				Map resp = jsonReader.readValue(apiResponse);
+				Map respBody = (Map) resp.get("response");
+
+				List<Map> accessions = (List<Map>) respBody.get("docs");
+
+				for (Map doc : accessions) {
 					accessionTargetMap.put(doc.get("uniprotkb_accession").toString(), doc.get("id_value").toString());
 				}
 			}
-			catch (MalformedURLException | SolrServerException e) {
+			catch (IOException e) {
 				LOGGER.error(e.getMessage(), e);
 			}
 
@@ -438,11 +472,16 @@ public class IDMapping extends GenericPortlet {
 					SolrQuery query = new SolrQuery("uniprotkb_accession:(" + StringUtils.join(accessionTargetMap.keySet(), " OR ") + ")");
 					query.addFilterQuery("id_type:GI").setRows(10000);
 
-					LOGGER.trace("Other to PATRIC 2/3: {}", query.toString());
-					QueryResponse qr = solr.getSolrServer(SolrCore.ID_REF).query(query, SolrRequest.METHOD.POST);
-					SolrDocumentList accessions = qr.getResults();
+					LOGGER.trace("Other to PATRIC 2/3: [{}] {}", SolrCore.ID_REF.getSolrCoreName(), query.toString());
 
-					for (SolrDocument doc : accessions) {
+					String apiResponse = dataApi.solrQuery(SolrCore.ID_REF, query);
+
+					Map resp = jsonReader.readValue(apiResponse);
+					Map respBody = (Map) resp.get("response");
+
+					List<Map> accessions = (List<Map>) respBody.get("docs");
+
+					for (Map doc : accessions) {
 						Long targetGi = Long.parseLong(doc.get("id_value").toString());
 						String accession = doc.get("uniprotkb_accession").toString();
 						String target = accessionTargetMap.get(accession);
@@ -454,7 +493,7 @@ public class IDMapping extends GenericPortlet {
 						giTargetList.add(targetMap);
 					}
 				}
-				catch (MalformedURLException | SolrServerException e) {
+				catch (IOException e) {
 					LOGGER.error(e.getMessage(), e);
 				}
 			}
@@ -465,9 +504,14 @@ public class IDMapping extends GenericPortlet {
 					SolrQuery query = new SolrQuery("gi:(" + StringUtils.join(giList, " OR ") + ")");
 					query.setRows(10000);
 
-					LOGGER.trace("Other to PATRIC 3/3: {}", query.toString());
-					QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query, SolrRequest.METHOD.POST);
-					List<GenomeFeature> featureList = qr.getBeans(GenomeFeature.class);
+					LOGGER.trace("Other to PATRIC 3/3: [{}] {}", SolrCore.FEATURE.getSolrCoreName(), query.toString());
+
+					String apiResponse = dataApi.solrQuery(SolrCore.FEATURE, query);
+
+					Map resp = jsonReader.readValue(apiResponse);
+					Map respBody = (Map) resp.get("response");
+
+					List<GenomeFeature> featureList = dataApi.bindDocuments((List<Map>) respBody.get("docs"), GenomeFeature.class);
 
 					for (GenomeFeature feature : featureList) {
 						for (Map<Long, String> targetMap : giTargetList) {
@@ -481,7 +525,7 @@ public class IDMapping extends GenericPortlet {
 					}
 
 				}
-				catch (MalformedURLException | SolrServerException e) {
+				catch (IOException e) {
 					LOGGER.error(e.getMessage(), e);
 				}
 			}
@@ -606,22 +650,17 @@ public class IDMapping extends GenericPortlet {
 	private List<String> getIdTypes() {
 		List<String> idTypes = new ArrayList<>();
 
-		SolrInterface solr = new SolrInterface();
+		DataApiHandler dataApi = new DataApiHandler();
 
 		try {
-			SolrQuery query = new SolrQuery("*:*");
-			query.addFacetField("id_type").setFacetLimit(-1);
+			Map facets = dataApi.getFieldFacets(SolrCore.ID_REF, "*:*", "!id_type:(RefSeq OR GeneID OR GI)", "id_type");
+			Map id_type = (Map) facets.get("id_type");
 
-			QueryResponse qr = solr.getSolrServer(SolrCore.ID_REF).query(query);
-			FacetField ffIdType = qr.getFacetField("id_type");
-
-			for (FacetField.Count type : ffIdType.getValues()) {
-				if (!type.getName().equals("RefSeq") && !type.getName().equals("GeneID") && !type.getName().equals("GI")) {
-					idTypes.add(type.getName());
-				}
+			for (Map.Entry<String, String> type : (Iterable<Map.Entry>) id_type.entrySet()) {
+				idTypes.add(type.getKey());
 			}
 		}
-		catch (MalformedURLException | SolrServerException e) {
+		catch (IOException e) {
 			LOGGER.error(e.getMessage(), e);
 		}
 

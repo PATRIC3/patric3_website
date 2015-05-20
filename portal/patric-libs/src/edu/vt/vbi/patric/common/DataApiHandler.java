@@ -324,6 +324,9 @@ public class DataApiHandler {
 					if (!resp.isEmpty()) {
 						patricFeature = this.bindDocument(resp.get(0), GenomeFeature.class);
 					}
+					else {
+						patricFeature = feature; // if no corresponding PATRIC feature, return original
+					}
 				}
 				catch (IOException e) {
 					LOGGER.error(e.getMessage(), e);

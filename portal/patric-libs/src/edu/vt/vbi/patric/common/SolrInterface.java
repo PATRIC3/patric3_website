@@ -542,36 +542,6 @@ public class SolrInterface {
 		return ConverttoJSON(server, query, true, false);
 	}
 
-	public JSONObject getSummaryforGlobalSearch(String keyword) throws SolrServerException {
-		SolrQuery query = new SolrQuery();
-		query.setQuery(KeywordReplace(keyword));
-		query.setRows(3);
-		query.set("hl", "on");
-		query.set("hl.fl", "*");
-
-		// if (type.equals("GenomicFeature")) {
-		if (this.core == SolrCore.FEATURE) {
-			query.setFields(StringUtils.join(DownloadHelper.getFieldsForFeatures(), ","));
-			query.addFilterQuery("!feature_type:source");
-			query.addFilterQuery("!annotation:BRC1");
-//			query.set("group", true);
-//			query.set("group.field", "pos_group");
-//			query.set("group.sort", "annotation_sort asc");
-//			query.set("group.ngroups", "true");
-		}
-		else if (this.core == SolrCore.GENOME) {
-			query.setFields(StringUtils.join(DownloadHelper.getFieldsForGenomes(), ","));
-		}
-		else if (this.core == SolrCore.TAXONOMY) {
-			query.setFields("taxon_id,taxon_name,taxon_rank,genomes");
-		}
-		else if (this.core == SolrCore.TRANSCRIPTOMICS_EXPERIMENT) {
-			query.setFields("eid,accession,title,description,organism,strain,mutant,timeseries,condition");
-		}
-
-		return ConverttoJSON(server, query, false, true);
-	}
-
 	public JSONObject getSpellCheckerResult(String keyword) throws SolrServerException, MalformedURLException {
 
 		SolrQuery query = new SolrQuery();
@@ -660,6 +630,8 @@ public class SolrInterface {
 
 			if (state.equals("") || state_object.get(a[i]) == null) {
 				sent = (JSONObject) facet_fields.get(a[i]);
+
+				LOGGER.debug("attributes: {}, {}, {}", i, a[i], sent);
 				f = createNode(sent, i, need, false, "", limit, a_text[i]);
 			}
 			else {
@@ -874,48 +846,6 @@ public class SolrInterface {
 			return null;
 		}
 	}
-
-
-//	public Taxonomy getTaxonomy(int taxonId) {
-//		Taxonomy taxonomy = null;
-//
-//		try {
-//			SolrQuery query = new SolrQuery("taxon_id:" + taxonId);
-//
-//			QueryResponse qr = this.getSolrServer(SolrCore.TAXONOMY).query(query);
-//			List<Taxonomy> taxonomies = qr.getBeans(Taxonomy.class);
-//
-//			if (!taxonomies.isEmpty()) {
-//				taxonomy = taxonomies.get(0);
-//			}
-//		}
-//		catch (MalformedURLException | SolrServerException e) {
-//			LOGGER.error(e.getMessage(), e);
-//		}
-//
-//		return taxonomy;
-//	}
-//
-//	public Genome getGenome(String genomeId) {
-//		Genome genome = null;
-//
-//		try {
-//			SolrQuery query = new SolrQuery("genome_id:" + genomeId);
-//
-//			QueryResponse qr = this.getSolrServer(SolrCore.GENOME).query(query);
-//			List<Genome> genomes = qr.getBeans(Genome.class);
-//
-//			if (!genomes.isEmpty()) {
-//				genome = genomes.get(0);
-//			}
-//		}
-//		catch (MalformedURLException | SolrServerException e) {
-//			LOGGER.error(e.getMessage(), e);
-//		}
-//
-//		return genome;
-//	}
-
 
 	public String getProteomicsTaxonIdFromFeatureId(String id) {
 		SolrQuery query = new SolrQuery();

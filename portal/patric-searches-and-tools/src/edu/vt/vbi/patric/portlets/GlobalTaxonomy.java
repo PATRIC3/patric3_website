@@ -15,11 +15,15 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.portlets;
 
-import com.google.gson.Gson;
+import edu.vt.vbi.patric.beans.Taxonomy;
+import edu.vt.vbi.patric.common.DataApiHandler;
 import edu.vt.vbi.patric.common.SessionHandler;
 import edu.vt.vbi.patric.common.SolrCore;
 import edu.vt.vbi.patric.common.SolrInterface;
-import edu.vt.vbi.patric.dao.ResultType;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectReader;
+import org.codehaus.jackson.map.ObjectWriter;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -31,14 +35,26 @@ import javax.portlet.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
 public class GlobalTaxonomy extends GenericPortlet {
 
-	SolrInterface solr = new SolrInterface();
-
 	private static final Logger LOGGER = LoggerFactory.getLogger(GlobalTaxonomy.class);
+
+	private ObjectReader jsonReader;
+
+	private ObjectWriter jsonWriter;
+
+	@Override
+	public void init() throws PortletException {
+		super.init();
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		jsonReader = objectMapper.reader(Map.class);
+		jsonWriter = objectMapper.writerWithType(Map.class);
+	}
 
 	@Override
 	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
@@ -48,7 +64,6 @@ public class GlobalTaxonomy extends GenericPortlet {
 	public void serveResource(ResourceRequest request, ResourceResponse response) throws PortletException, IOException {
 
 		String sraction = request.getParameter("sraction");
-		Gson gson = new Gson();
 
 		if (sraction != null && sraction.equals("save_params")) {
 
@@ -59,7 +74,7 @@ public class GlobalTaxonomy extends GenericPortlet {
 			String algorithm = request.getParameter("algorithm");
 			String exact_search_term = request.getParameter("exact_search_term");
 
-			ResultType key = new ResultType();
+			Map<String, String> key = new HashMap<>();
 
 			if (search_on != null) {
 				key.put("search_on", search_on.trim());
@@ -85,7 +100,7 @@ public class GlobalTaxonomy extends GenericPortlet {
 
 			long pk = (new Random()).nextLong();
 
-			SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
+			SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
 
 			PrintWriter writer = response.getWriter();
 			writer.write("" + pk);
@@ -97,28 +112,30 @@ public class GlobalTaxonomy extends GenericPortlet {
 			String facet, keyword, pk, state;
 			boolean hl;
 
-			ResultType key = new ResultType();
-			JSONObject jsonResult = new JSONObject();
+			Map<String, String> key = new HashMap<>();
+			SolrInterface solr = new SolrInterface();
 
 			if (need.equals("taxonomy")) {
 
-				solr.setCurrentInstance(SolrCore.TAXONOMY);
+				DataApiHandler dataApi = new DataApiHandler(request);
+//				solr.setCurrentInstance(SolrCore.TAXONOMY);
 
 				pk = request.getParameter("pk");
 				keyword = request.getParameter("keyword");
 				facet = request.getParameter("facet");
 				String highlight = request.getParameter("highlight");
 				hl = Boolean.parseBoolean(highlight);
+				String sort = request.getParameter("sort");
 
 				String json = SessionHandler.getInstance().get(SessionHandler.PREFIX + pk);
 				if (json == null) {
 					key.put("facet", facet);
 					key.put("keyword", keyword);
 
-					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
+					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
 				}
 				else {
-					key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), ResultType.class);
+					key = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
 					key.put("facet", facet);
 				}
 
@@ -128,30 +145,41 @@ public class GlobalTaxonomy extends GenericPortlet {
 				int end = Integer.parseInt(limit);
 
 				// sorting
-				String sort_field = request.getParameter("sort");
-				String sort_dir = request.getParameter("dir");
+//				String sort_field = request.getParameter("sort");
+//				String sort_dir = request.getParameter("dir");
+//
+//				Map<String, String> sort = null;
+//
+//				if (sort_field != null && sort_dir != null && !sort_field.equals("") && !sort_dir.equals("")) {
+//					sort = new HashMap<>();
+//					sort.put("field", sort_field);
+//					sort.put("direction", sort_dir);
+//				}
 
-				Map<String, String> sort = null;
+				SolrQuery query = solr.buildSolrQuery(key, sort, facet, start, end, hl);
 
-				if (sort_field != null && sort_dir != null && !sort_field.equals("") && !sort_dir.equals("")) {
-					sort = new HashMap<>();
-					sort.put("field", sort_field);
-					sort.put("direction", sort_dir);
+				String apiResponse = dataApi.solrQuery(SolrCore.TAXONOMY, query);
+
+				Map resp = jsonReader.readValue(apiResponse);
+				Map respBody = (Map) resp.get("response");
+
+				int numFound = (Integer) respBody.get("numFound");
+				List<Taxonomy> sdl = dataApi.bindDocuments((List<Map>) respBody.get("docs"), Taxonomy.class);
+
+				JSONArray docs = new JSONArray();
+				for (Taxonomy taxonomy : sdl) {
+					docs.add(taxonomy.toJSONObject());
 				}
 
-				JSONObject object = solr.getData(key, sort, facet, start, end, true, hl, false);
-
-				JSONObject obj = (JSONObject) object.get("response");
-				JSONArray obj1 = (JSONArray) obj.get("docs");
-
-				if (!key.containsKey("facets")) {
-					JSONObject facets = (JSONObject) object.get("facets");
+				if (resp.containsKey("facet_counts")) {
+					JSONObject facets = solr.formatFacetTree((Map) resp.get("facet_counts"));
 					key.put("facets", facets.toJSONString());
-					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
+					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
 				}
 
-				jsonResult.put("results", obj1);
-				jsonResult.put("total", obj.get("numFound"));
+				JSONObject jsonResult = new JSONObject();
+				jsonResult.put("results", docs);
+				jsonResult.put("total", numFound);
 
 				response.setContentType("application/json");
 				PrintWriter writer = response.getWriter();
@@ -161,20 +189,17 @@ public class GlobalTaxonomy extends GenericPortlet {
 			else if (need.equals("tree")) {
 
 				pk = request.getParameter("pk");
-				key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), ResultType.class);
+				key = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
 				state = request.getParameter("state");
 				key.put("state", state);
-				SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
+				SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
 
+				JSONArray tree = new JSONArray();
 				try {
-					if (!key.containsKey("tree")) {
+					if (key.containsKey("facets") && !key.get("facets").isEmpty()) {
+						solr.setCurrentInstance(SolrCore.TAXONOMY);
 						JSONObject facet_fields = (JSONObject) new JSONParser().parse(key.get("facets"));
-						JSONArray arr1 = solr.processStateAndTree(key, need, facet_fields, key.get("facet"), state, null, 4, false);
-						jsonResult.put("results", arr1);
-						key.put("tree", arr1);
-					}
-					else {
-						jsonResult.put("results", key.get("tree"));
+						tree = solr.processStateAndTree(key, need, facet_fields, key.get("facet"), state, null, 4, false);
 					}
 				}
 				catch (ParseException e) {
@@ -183,7 +208,7 @@ public class GlobalTaxonomy extends GenericPortlet {
 
 				response.setContentType("application/json");
 				PrintWriter writer = response.getWriter();
-				writer.write(jsonResult.get("results").toString());
+				tree.writeJSONString(writer);
 				writer.close();
 			}
 		}
