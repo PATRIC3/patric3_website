@@ -17,24 +17,19 @@
  */
 package edu.vt.vbi.patric.portlets;
 
+import edu.vt.vbi.patric.common.DataApiHandler;
 import edu.vt.vbi.patric.common.SolrCore;
-import edu.vt.vbi.patric.common.SolrInterface;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectReader;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import org.slf4j.LoggerFactory;
 
 import javax.portlet.*;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,6 +38,16 @@ import java.util.Map;
 public class PathwayTable extends GenericPortlet {
 
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(PathwayTable.class);
+
+	private ObjectReader jsonReader;
+
+	@Override
+	public void init() throws PortletException {
+		super.init();
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		jsonReader = objectMapper.reader(Map.class);
+	}
 
 	@Override
 	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
@@ -57,45 +62,14 @@ public class PathwayTable extends GenericPortlet {
 	public void serveResource(ResourceRequest request, ResourceResponse response) throws PortletException, IOException {
 
 		response.setContentType("application/json");
-		SolrInterface solr = new SolrInterface();
-
-		int start = Integer.parseInt(request.getParameter("start"));
-		int end = start + Integer.parseInt(request.getParameter("limit"));
 
 		HashMap<String, String> key = new HashMap<>();
 
-		// sorting
-		HashMap<String, String> sort;
-		if (request.getParameter("sort") != null) {
-			// sorting
-			JSONParser a = new JSONParser();
-			JSONArray sorter;
-			String sort_field = "";
-			String sort_dir = "";
-			try {
-				sorter = (JSONArray) a.parse(request.getParameter("sort"));
-				sort_field += ((JSONObject) sorter.get(0)).get("property").toString();
-				sort_dir += ((JSONObject) sorter.get(0)).get("direction").toString();
-				for (int i = 1; i < sorter.size(); i++) {
-					sort_field += "," + ((JSONObject) sorter.get(i)).get("property").toString();
-				}
-			}
-			catch (ParseException e) {
-				LOGGER.error(e.getMessage(), e);
-			}
-
-			sort = new HashMap<>();
-
-			if (!sort_field.equals("") && !sort_dir.equals("")) {
-				sort.put("field", sort_field);
-				sort.put("direction", sort_dir);
-			}
-
-		}
-
 		if (request.getParameter("id") != null) {
-			key.put("na_feature_id", request.getParameter("id"));
+			key.put("feature_id", request.getParameter("id"));
 		}
+
+		DataApiHandler dataApi = new DataApiHandler(request);
 
 		int count_total = 0;
 		JSONArray results = new JSONArray();
@@ -103,12 +77,17 @@ public class PathwayTable extends GenericPortlet {
 		Map<String, Integer> mapOccurrence = new HashMap<>();
 		try {
 			SolrQuery query = new SolrQuery("feature_id:" + request.getParameter("id"));
-			query.setRows(10000);
-			QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query);
-			SolrDocumentList sdl = qr.getResults();
-			count_total = (int) sdl.getNumFound();
+			query.setRows(dataApi.MAX_ROWS);
 
-			for (SolrDocument doc : sdl) {
+			String apiResponse = dataApi.solrQuery(SolrCore.PATHWAY, query);
+
+			Map resp = jsonReader.readValue(apiResponse);
+			Map respBody = (Map) resp.get("response");
+
+			count_total = (Integer) respBody.get("numFound");
+			List<Map> sdl = (List<Map>) respBody.get("docs");
+
+			for (Map doc : sdl) {
 				String pathwayKey = "(pathway_id:" + doc.get("pathway_id").toString() + " AND ec_number:" + doc.get("ec_number").toString() + ")";
 
 				pathwayKeys.add(pathwayKey);
@@ -117,13 +96,19 @@ public class PathwayTable extends GenericPortlet {
 			SolrQuery queryRef = new SolrQuery(StringUtils.join(pathwayKeys, " OR "));
 			queryRef.setFields("pathway_id,ec_number,occurrence");
 			queryRef.setRows(pathwayKeys.size());
-			QueryResponse qrRef = solr.getSolrServer(SolrCore.PATHWAY_REF).query(queryRef);
 
-			for (SolrDocument doc : qrRef.getResults()) {
+			apiResponse = dataApi.solrQuery(SolrCore.PATHWAY_REF, queryRef);
+
+			resp = jsonReader.readValue(apiResponse);
+			respBody = (Map) resp.get("response");
+
+			List<Map> refList = (List<Map>) respBody.get("docs");
+
+			for (Map doc : refList) {
 				mapOccurrence.put(doc.get("pathway_id") + "_" + doc.get("ec_number"), (Integer) doc.get("occurrence"));
 			}
 
-			for (SolrDocument doc : sdl) {
+			for (Map doc : sdl) {
 				JSONObject item = new JSONObject();
 				item.put("pathway_id", doc.get("pathway_id"));
 				item.put("feature_id", doc.get("feature_id"));
@@ -140,7 +125,7 @@ public class PathwayTable extends GenericPortlet {
 				results.add(item);
 			}
 		}
-		catch (MalformedURLException | SolrServerException e) {
+		catch (IOException e) {
 			LOGGER.error(e.getMessage(), e);
 		}
 

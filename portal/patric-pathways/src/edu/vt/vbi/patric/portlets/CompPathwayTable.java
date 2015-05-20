@@ -17,20 +17,15 @@
  */
 package edu.vt.vbi.patric.portlets;
 
+import edu.vt.vbi.patric.beans.GenomeFeature;
+import edu.vt.vbi.patric.common.DataApiHandler;
 import edu.vt.vbi.patric.common.ExcelHelper;
 import edu.vt.vbi.patric.common.SiteHelper;
 import edu.vt.vbi.patric.common.SolrCore;
-import edu.vt.vbi.patric.common.SolrInterface;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrRequest;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.FacetField;
-import org.apache.solr.client.solrj.response.PivotField;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
-import org.apache.solr.common.util.SimpleOrderedMap;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectReader;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -40,12 +35,21 @@ import org.slf4j.LoggerFactory;
 
 import javax.portlet.*;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.*;
 
 public class CompPathwayTable extends GenericPortlet {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(CompPathwayTable.class);
+
+	private ObjectReader jsonReader;
+
+	@Override
+	public void init() throws PortletException {
+		super.init();
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		jsonReader = objectMapper.reader(Map.class);
+	}
 
 	@Override
 	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
@@ -61,6 +65,8 @@ public class CompPathwayTable extends GenericPortlet {
 
 		String need = request.getParameter("need");
 
+		DataApiHandler dataApi = new DataApiHandler(request);
+
 		String pathwayClass = request.getParameter("pathway_class");
 		String pathwayId = request.getParameter("pathway_id");
 		String ecNumber = request.getParameter("ec_number");
@@ -72,17 +78,17 @@ public class CompPathwayTable extends GenericPortlet {
 
 		switch (need) {
 		case "0":
-			jsonResult = this.processPathwayTab(pathwayClass, pathwayId, ecNumber, annotation, contextType, contextId);
+			jsonResult = this.processPathwayTab(dataApi, pathwayClass, pathwayId, ecNumber, annotation, contextType, contextId);
 			response.setContentType("application/json");
 			jsonResult.writeJSONString(response.getWriter());
 			break;
 		case "1":
-			jsonResult = this.processEcNumberTab(pathwayClass, pathwayId, ecNumber, annotation, contextType, contextId);
+			jsonResult = this.processEcNumberTab(dataApi, pathwayClass, pathwayId, ecNumber, annotation, contextType, contextId);
 			response.setContentType("application/json");
 			jsonResult.writeJSONString(response.getWriter());
 			break;
 		case "2":
-			jsonResult = this.processGeneTab(pathwayClass, pathwayId, ecNumber, annotation, contextType, contextId);
+			jsonResult = this.processGeneTab(dataApi, pathwayClass, pathwayId, ecNumber, annotation, contextType, contextId);
 			response.setContentType("application/json");
 			jsonResult.writeJSONString(response.getWriter());
 			break;
@@ -92,11 +98,14 @@ public class CompPathwayTable extends GenericPortlet {
 		case "download":
 			this.processDownload(request, response);
 			break;
+		case "getFeatureIds":
+			this.processFeatureIds(request, response);
+			break;
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	private JSONObject processPathwayTab(String pathwayClass, String pathwayId, String ecNumber, String annotation, String contextType,
+	private JSONObject processPathwayTab(DataApiHandler dataApi, String pathwayClass, String pathwayId, String ecNumber, String annotation, String contextType,
 			String contextId) throws PortletException, IOException {
 
 		JSONObject jsonResult = new JSONObject();
@@ -125,7 +134,6 @@ public class CompPathwayTable extends GenericPortlet {
 			query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + contextId));
 		}
 
-		SolrInterface solr = new SolrInterface();
 		JSONArray items = new JSONArray();
 		int count_total = 0;
 		int count_unique = 0;
@@ -139,28 +147,36 @@ public class CompPathwayTable extends GenericPortlet {
 			query.add("json.facet",
 					"{stat:{field:{field:pathway_id,limit:-1,facet:{genome_count:\"unique(genome_id)\",gene_count:\"unique(feature_id)\",ec_count:\"unique(ec_number)\",genome_ec:\"unique(genome_ec)\"}}}}");
 
-			QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query);
-			List<SimpleOrderedMap> buckets = (List) ((SimpleOrderedMap) ((SimpleOrderedMap) qr.getResponse().get("facets")).get("stat")).get(
-					"buckets");
+			LOGGER.trace("[{}] {}", SolrCore.PATHWAY.getSolrCoreName(), query);
 
-			Map<String, SimpleOrderedMap> mapStat = new HashMap<>();
-			for (SimpleOrderedMap value : buckets) {
-				mapStat.put(value.get("val").toString(), value);
-				listPathwayIds.add(value.get("val").toString());
+			String apiResponse = dataApi.solrQuery(SolrCore.PATHWAY, query);
+
+			Map resp = jsonReader.readValue(apiResponse);
+			List<Map> buckets = (List<Map>) ((Map) ((Map) resp.get("facets")).get("stat")).get("buckets");
+
+			Map<String, Map> mapStat = new HashMap<>();
+			for (Map value : buckets) {
+				mapStat.put((String) value.get("val"), value);
+				listPathwayIds.add((String) value.get("val"));
 			}
 
 			if (!listPathwayIds.isEmpty()) {
 				// get pathway list
 				SolrQuery pathwayQuery = new SolrQuery("pathway_id:(" + StringUtils.join(listPathwayIds, " OR ") + ")");
 				pathwayQuery.setFields("pathway_id,pathway_name,pathway_class");
-				pathwayQuery.setRows(Math.max(1000000, listPathwayIds.size()));
+				pathwayQuery.setRows(Math.max(dataApi.MAX_ROWS, listPathwayIds.size()));
 
-				QueryResponse pathwayQueryResponse = solr.getSolrServer(SolrCore.PATHWAY_REF).query(pathwayQuery, SolrRequest.METHOD.POST);
-				SolrDocumentList sdl = pathwayQueryResponse.getResults();
+				LOGGER.trace("[{}] {}", SolrCore.PATHWAY_REF.getSolrCoreName(), pathwayQuery);
 
-				for (SolrDocument doc : sdl) {
+				apiResponse = dataApi.solrQuery(SolrCore.PATHWAY_REF, pathwayQuery);
+				resp = jsonReader.readValue(apiResponse);
+				Map respBody = (Map) resp.get("response");
+
+				List<Map> sdl = (List<Map>) respBody.get("docs");
+
+				for (Map doc : sdl) {
 					String aPathwayId = doc.get("pathway_id").toString();
-					SimpleOrderedMap stat = mapStat.get(aPathwayId);
+					Map stat = mapStat.get(aPathwayId);
 
 					if (!uniquePathways.containsKey(aPathwayId) && !stat.get("genome_count").toString().equals("0")) {
 						JSONObject item = new JSONObject();
@@ -198,7 +214,7 @@ public class CompPathwayTable extends GenericPortlet {
 				count_unique = count_total;
 			}
 		}
-		catch (MalformedURLException | SolrServerException e) {
+		catch (IOException e) {
 			LOGGER.error(e.getMessage(), e);
 		}
 
@@ -216,7 +232,7 @@ public class CompPathwayTable extends GenericPortlet {
 	}
 
 	@SuppressWarnings("unchecked")
-	private JSONObject processEcNumberTab(String pathwayClass, String pathwayId, String ecNumber, String annotation, String contextType,
+	private JSONObject processEcNumberTab(DataApiHandler dataApi, String pathwayClass, String pathwayId, String ecNumber, String annotation, String contextType,
 			String contextId) throws PortletException, IOException {
 
 		JSONObject jsonResult = new JSONObject();
@@ -245,7 +261,6 @@ public class CompPathwayTable extends GenericPortlet {
 			query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + contextId));
 		}
 
-		SolrInterface solr = new SolrInterface();
 		JSONArray items = new JSONArray();
 		int count_total = 0;
 		int count_unique = 0;
@@ -259,13 +274,14 @@ public class CompPathwayTable extends GenericPortlet {
 			query.add("json.facet",
 					"{stat:{field:{field:pathway_ec,limit:-1,facet:{genome_count:\"unique(genome_id)\",gene_count:\"unique(feature_id)\",ec_count:\"unique(ec_number)\"}}}}");
 
-			QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query);
+			LOGGER.trace("[{}] {}", SolrCore.PATHWAY.getSolrCoreName(), query);
 
-			List<SimpleOrderedMap> buckets = (List) ((SimpleOrderedMap) ((SimpleOrderedMap) qr.getResponse().get("facets")).get("stat"))
-					.get("buckets");
+			String apiResponse = dataApi.solrQuery(SolrCore.PATHWAY, query);
+			Map resp = jsonReader.readValue(apiResponse);
+			List<Map> buckets = (List<Map>) ((Map) ((Map) resp.get("facets")).get("stat")).get("buckets");
 
-			Map<String, SimpleOrderedMap> mapStat = new HashMap<>();
-			for (SimpleOrderedMap value : buckets) {
+			Map<String, Map> mapStat = new HashMap<>();
+			for (Map value : buckets) {
 
 				if (!value.get("genome_count").toString().equals("0")) {
 					mapStat.put(value.get("val").toString(), value);
@@ -282,15 +298,20 @@ public class CompPathwayTable extends GenericPortlet {
 				pathwayQuery.setQuery("pathway_id:(" + StringUtils.join(listPathwayIds, " OR ") + ")");
 
 				pathwayQuery.setFields("pathway_id,pathway_name,pathway_class,ec_number,ec_description");
-				pathwayQuery.setRows(Math.max(1000000, listPathwayIds.size()));
-				// LOGGER.debug("{}", pathwayQuery.toString());
-				QueryResponse pathwayQueryResponse = solr.getSolrServer(SolrCore.PATHWAY_REF).query(pathwayQuery, SolrRequest.METHOD.POST);
-				SolrDocumentList sdl = pathwayQueryResponse.getResults();
+				pathwayQuery.setRows(Math.max(dataApi.MAX_ROWS, listPathwayIds.size()));
 
-				for (SolrDocument doc : sdl) {
+				LOGGER.trace("[{}] {}", SolrCore.PATHWAY_REF.getSolrCoreName(), pathwayQuery);
+
+				apiResponse = dataApi.solrQuery(SolrCore.PATHWAY_REF, pathwayQuery);
+				resp = jsonReader.readValue(apiResponse);
+				Map respBody = (Map) resp.get("response");
+
+				List<Map> sdl = (List<Map>) respBody.get("docs");
+
+				for (Map doc : sdl) {
 					String aPathwayId = doc.get("pathway_id").toString();
 					String aEcNumber = doc.get("ec_number").toString();
-					SimpleOrderedMap stat = mapStat.get(aPathwayId + "_" + aEcNumber);
+					Map stat = mapStat.get(aPathwayId + "_" + aEcNumber);
 
 					if (stat != null && !stat.get("genome_count").toString().equals("0")) {
 						JSONObject item = new JSONObject();
@@ -314,25 +335,20 @@ public class CompPathwayTable extends GenericPortlet {
 				count_unique = listEcNumbers.size();
 			}
 		}
-		catch (MalformedURLException | SolrServerException e) {
+		catch (IOException e) {
 			LOGGER.error(e.getMessage(), e);
 		}
 
 		// Wrapping jsonResult
-		try {
-			jsonResult.put("total", count_total);
-			jsonResult.put("results", items);
-			jsonResult.put("unique", count_unique);
-		}
-		catch (Exception ex) {
-			LOGGER.error(ex.getMessage(), ex);
-		}
+		jsonResult.put("total", count_total);
+		jsonResult.put("results", items);
+		jsonResult.put("unique", count_unique);
 
 		return jsonResult;
 	}
 
 	@SuppressWarnings("unchecked")
-	private JSONObject processGeneTab(String pathwayClass, String pathwayId, String ecNumber, String annotation, String contextType, String contextId)
+	private JSONObject processGeneTab(DataApiHandler dataApi, String pathwayClass, String pathwayId, String ecNumber, String annotation, String contextType, String contextId)
 			throws PortletException, IOException {
 
 		JSONObject jsonResult = new JSONObject();
@@ -361,7 +377,6 @@ public class CompPathwayTable extends GenericPortlet {
 			query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + contextId));
 		}
 
-		SolrInterface solr = new SolrInterface();
 		JSONArray items = new JSONArray();
 		int count_total = 0;
 		int count_unique = 0;
@@ -370,12 +385,18 @@ public class CompPathwayTable extends GenericPortlet {
 			Set<String> listFeatureIds = new HashSet<>();
 
 			query.setFields("pathway_id,pathway_name,feature_id,ec_number,ec_description");
-			query.setRows(1000000);
-			QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query);
-			SolrDocumentList sdl = qr.getResults();
+			query.setRows(dataApi.MAX_ROWS);
 
-			Map<String, SolrDocument> mapStat = new HashMap<>();
-			for (SolrDocument doc : sdl) {
+			LOGGER.trace("[{}] {}", SolrCore.PATHWAY.getSolrCoreName(), query);
+
+			String apiResponse = dataApi.solrQuery(SolrCore.PATHWAY, query);
+			Map resp = jsonReader.readValue(apiResponse);
+			Map respBody = (Map) resp.get("response");
+
+			List<Map> sdl = (List<Map>) respBody.get("docs");
+
+			Map<String, Map> mapStat = new HashMap<>();
+			for (Map doc : sdl) {
 
 				mapStat.put(doc.get("feature_id").toString(), doc);
 				listFeatureIds.add(doc.get("feature_id").toString());
@@ -385,26 +406,31 @@ public class CompPathwayTable extends GenericPortlet {
 			if (!listFeatureIds.isEmpty()) {
 				SolrQuery featureQuery = new SolrQuery("feature_id:(" + StringUtils.join(listFeatureIds, " OR ") + ")");
 				featureQuery.setFields("genome_name,genome_id,accession,alt_locus_tag,refseq_locus_tag,seed_id,feature_id,gene,product");
-				featureQuery.setRows(Math.max(1000000, listFeatureIds.size()));
-				// LOGGER.debug("{}", featureQuery.toString());
-				QueryResponse featureQueryResponse = solr.getSolrServer(SolrCore.FEATURE).query(featureQuery, SolrRequest.METHOD.POST);
-				sdl = featureQueryResponse.getResults();
+				featureQuery.setRows(Math.max(dataApi.MAX_ROWS, listFeatureIds.size()));
 
-				for (SolrDocument doc : sdl) {
-					String featureId = doc.get("feature_id").toString();
-					SolrDocument stat = mapStat.get(featureId);
+				LOGGER.trace("[{}] {}", SolrCore.FEATURE.getSolrCoreName(), featureQuery);
+
+				apiResponse = dataApi.solrQuery(SolrCore.FEATURE, featureQuery);
+				resp = jsonReader.readValue(apiResponse);
+				respBody = (Map) resp.get("response");
+
+				List<GenomeFeature> features = dataApi.bindDocuments((List<Map>) respBody.get("docs"), GenomeFeature.class);
+
+				for (GenomeFeature feature : features) {
+					String featureId = feature.getId();
+					Map stat = mapStat.get(featureId);
 
 					JSONObject item = new JSONObject();
-					item.put("genome_name", doc.get("genome_name"));
-					item.put("genome_id", doc.get("genome_id"));
-					item.put("accession", doc.get("accession"));
-					item.put("feature_id", doc.get("feature_id"));
-					item.put("alt_locus_tag", doc.get("alt_locus_tag"));
-					item.put("refseq_locus_tag", doc.get("refseq_locus_tag"));
+					item.put("genome_name", feature.getGenomeName());
+					item.put("genome_id", feature.getGenomeId());
+					item.put("accession", feature.getAccession());
+					item.put("feature_id", feature.getId());
+					item.put("alt_locus_tag", feature.getAltLocusTag());
+					item.put("refseq_locus_tag", feature.getRefseqLocusTag());
 					item.put("algorithm", annotation);
-					item.put("seed_id", doc.get("seed_id"));
-					item.put("gene", doc.get("gene"));
-					item.put("product", doc.get("product"));
+					item.put("seed_id", feature.getSeedId());
+					item.put("gene", feature.getGene());
+					item.put("product", feature.getProduct());
 
 					item.put("ec_name", stat.get("ec_description"));
 					item.put("ec_number", stat.get("ec_number"));
@@ -417,19 +443,14 @@ public class CompPathwayTable extends GenericPortlet {
 				count_unique = count_total;
 			}
 		}
-		catch (MalformedURLException | SolrServerException e) {
+		catch (IOException e) {
 			LOGGER.error(e.getMessage(), e);
 		}
 
 		// Wrapping jsonResult
-		try {
-			jsonResult.put("total", count_total);
-			jsonResult.put("results", items);
-			jsonResult.put("unique", count_unique);
-		}
-		catch (Exception ex) {
-			LOGGER.error(ex.getMessage(), ex);
-		}
+		jsonResult.put("total", count_total);
+		jsonResult.put("results", items);
+		jsonResult.put("unique", count_unique);
 
 		return jsonResult;
 	}
@@ -447,17 +468,10 @@ public class CompPathwayTable extends GenericPortlet {
 			LOGGER.error(e.getMessage(), e);
 		}
 
+		DataApiHandler dataApi = new DataApiHandler(request);
 		JSONObject json = new JSONObject();
 
-		//		String algorithm = val.get("alg") != null ? val.get("alg").toString() : "";
-		//		String pid = val.get("pId") != null ? val.get("pId").toString() : "";
-		//		String pathway_class = val.get("pClass") != null ? val.get("pClass").toString() : "";
-		//		String ec_number = val.get("ecN") != null ? val.get("ecN").toString() : "";
-		//		String cType = val.get("cType") != null ? val.get("cType").toString() : "";
-		//		String cId = val.get("cId") != null ? val.get("cId").toString() : "";
 		String need = val.get("need") != null ? val.get("need").toString() : "";
-
-		SolrInterface solr = new SolrInterface();
 
 		JSONObject defaultItem = new JSONObject();
 		defaultItem.put("name", "ALL");
@@ -466,120 +480,78 @@ public class CompPathwayTable extends GenericPortlet {
 		JSONArray items = new JSONArray();
 		items.add(defaultItem);
 
-		// common solrQuery
-		//		SolrQuery query = new SolrQuery("annotation:" + algorithm);
-		//		if (cType.equals("taxon")) {
-		//			query.addFilterQuery(
-		//					SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "genome_status:(complete OR wgs) AND taxon_lineage_ids:" + cId));
-		//		}
-		//		else {
-		//			query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "genome_status:(complete OR wgs) AND genome_id:" + cId));
-		//		}
-		//		query.setRows(0).setFacet(true).setFacetMinCount(1).setFacetLimit(-1);
-		//
-		//		if (!pathway_class.equals("")) {
-		//			query.addFilterQuery("pathway_class:" + pathway_class);
-		//		}
-		//		if (!pid.equals("")) {
-		//			query.addFilterQuery("pathway_name:" + pid);
-		//		}
-		//		if (!ec_number.equals("")) {
-		//			query.addFilterQuery("ec_number:" + ec_number);
-		//		}
-		SolrQuery query = new SolrQuery("*:*");
-		query.setRows(0).setFacet(true).setFacetMinCount(1).setFacetLimit(-1);
-
 		switch (need) {
 		case "pathway":
 			try {
-				query.addFacetPivotField("pathway_id,pathway_name");
-				// QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query);
-				QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY_REF).query(query);
-				List<PivotField> pivotFacet = qr.getFacetPivot().get("pathway_id,pathway_name");
+				Map facets = dataApi.getPivotFacets(SolrCore.PATHWAY_REF, "*:*", null, "pathway_id,pathway_name");
 
-				for (PivotField field : pivotFacet) {
+				Map pivot = (Map) facets.get("pathway_id,pathway_name");
+
+				for (Map.Entry entry : (Iterable<Map.Entry>) pivot.entrySet()) {
+
+					Map entryValue = (Map) entry.getValue();
+					String key = (String) entryValue.keySet().iterator().next();
+
 					JSONObject item = new JSONObject();
-					item.put("name", field.getPivot().get(0).getValue());
-					item.put("value", field.getValue());
+					item.put("name", key);
+					item.put("value", entry.getKey());
 
 					items.add(item);
-					// LOGGER.debug("{},{}", field.getValue(), field.getPivot().get(0).getValue());
 				}
 
 				json.put(need, items);
 			}
-			catch (MalformedURLException | SolrServerException e) {
+			catch (IOException e) {
 				LOGGER.error(e.getMessage(), e);
 			}
 
 			break;
 		case "ec":
 			try {
-				query.addFacetField("ec_number");
+				Map facets = dataApi.getFieldFacets(SolrCore.PATHWAY_REF, "*:*", null, "ec_number");
+				Map list = (Map) ((Map) facets.get("facets")).get("ec_number");
 
-				QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY_REF).query(query);
-				FacetField facet = qr.getFacetField("ec_number");
-
-				for (FacetField.Count item : facet.getValues()) {
+				for (Map.Entry entry : (Iterable<Map.Entry>) list.entrySet()) {
 					JSONObject i = new JSONObject();
-					i.put("name", item.getName());
-					i.put("value", item.getName());
+					i.put("name", entry.getKey());
+					i.put("value", entry.getKey());
 
 					items.add(i);
 				}
 
 				json.put(need, items);
 			}
-			catch (MalformedURLException | SolrServerException e) {
+			catch (IOException e) {
 				LOGGER.error(e.getMessage(), e);
 			}
 
 			break;
 		case "parent":
 			try {
-				query.addFacetField("pathway_class");
+				Map facets = dataApi.getFieldFacets(SolrCore.PATHWAY_REF, "*:*", null, "pathway_class");
+				Map list = (Map) ((Map) facets.get("facets")).get("pathway_class");
 
-				QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY_REF).query(query);
-				FacetField facet = qr.getFacetField("pathway_class");
-
-				for (FacetField.Count item : facet.getValues()) {
+				for (Map.Entry entry : (Iterable<Map.Entry>) list.entrySet()) {
 					JSONObject i = new JSONObject();
-					i.put("name", item.getName());
-					i.put("value", item.getName());
+					i.put("name", entry.getKey());
+					i.put("value", entry.getKey());
 
 					items.add(i);
 				}
 
 				json.put(need, items);
 			}
-			catch (MalformedURLException | SolrServerException e) {
+			catch (IOException e) {
 				LOGGER.error(e.getMessage(), e);
 			}
 			break;
 		case "algorithm":
-			//			try {
-			//				query.addFacetField("annotation");
-			//
-			//				QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query);
-			//				FacetField facet = qr.getFacetField("annotation");
-			//
-			//				for (FacetField.Count item : facet.getValues()) {
-			//					JSONObject i = new JSONObject();
-			//					i.put("name", item.getName());
-			//					i.put("value", item.getName());
-			//
-			//					items.add(i);
-			//				}
 			JSONObject annotationPATRIC = new JSONObject();
 			annotationPATRIC.put("name", "PATRIC");
 			annotationPATRIC.put("value", "PATRIC");
 			items.add(annotationPATRIC);
 
 			json.put(need, items);
-			//			}
-			//			catch (MalformedURLException | SolrServerException e) {
-			//				LOGGER.error(e.getMessage(), e);
-			//			}
 			break;
 		}
 		response.setContentType("application/json");
@@ -588,11 +560,13 @@ public class CompPathwayTable extends GenericPortlet {
 
 	private void processDownload(ResourceRequest request, ResourceResponse response) throws PortletException, IOException {
 
-		List<String> _tbl_header = new ArrayList<>();
-		List<String> _tbl_field = new ArrayList<>();
-		JSONArray _tbl_source = null;
+		List<String> tableHeader = new ArrayList<>();
+		List<String> tableField = new ArrayList<>();
+		JSONArray tableSource = null;
 		String fileFormat = request.getParameter("fileformat");
 		String fileName;
+
+		DataApiHandler dataApi = new DataApiHandler(request);
 
 		String pathwayClass = request.getParameter("pClass");
 		String pathwayId = request.getParameter("pId");
@@ -602,48 +576,48 @@ public class CompPathwayTable extends GenericPortlet {
 		String contextType = request.getParameter("cType");
 
 		if (request.getParameter("aT").equals("0")) {
-			_tbl_source = (JSONArray) this.processPathwayTab(pathwayClass, pathwayId, ecNumber, annotation, contextType, contextId).get("results");
+			tableSource = (JSONArray) this.processPathwayTab(dataApi, pathwayClass, pathwayId, ecNumber, annotation, contextType, contextId).get("results");
 
 			if (contextType.equals("taxon")) {
-				_tbl_header.addAll(Arrays.asList("Pathway ID", "Pathway Name", "Pathway Class", "Annotation", "Genome Count",
+				tableHeader.addAll(Arrays.asList("Pathway ID", "Pathway Name", "Pathway Class", "Annotation", "Genome Count",
 						"Unique Gene Count", "Unique EC Count", "Ec Conservation %", "Gene Conservation"));
-				_tbl_field.addAll(Arrays.asList("pathway_id", "pathway_name", "pathway_class", "algorithm", "genome_count", "gene_count",
+				tableField.addAll(Arrays.asList("pathway_id", "pathway_name", "pathway_class", "algorithm", "genome_count", "gene_count",
 						"ec_count", "ec_cons", "gene_cons"));
 			}
 			else if (contextType.equals("genome")) {
-				_tbl_header.addAll(Arrays.asList("Pathway ID", "Pathway Name", "Pathway Class", "Annotation", "Unique Gene Count",
+				tableHeader.addAll(Arrays.asList("Pathway ID", "Pathway Name", "Pathway Class", "Annotation", "Unique Gene Count",
 						"Unique EC Count", "Ec Conservation %", "Gene Conservation"));
-				_tbl_field.addAll(Arrays.asList("pathway_id", "pathway_name", "pathway_class", "algorithm", "gene_count", "ec_count",
+				tableField.addAll(Arrays.asList("pathway_id", "pathway_name", "pathway_class", "algorithm", "gene_count", "ec_count",
 						"ec_cons", "gene_cons"));
 			}
 		}
 		else if (request.getParameter("aT").equals("1")) {
-			_tbl_source = (JSONArray) this.processEcNumberTab(pathwayClass, pathwayId, ecNumber, annotation, contextType, contextId).get("results");
+			tableSource = (JSONArray) this.processEcNumberTab(dataApi, pathwayClass, pathwayId, ecNumber, annotation, contextType, contextId).get("results");
 			if (contextType.equals("taxon")) {
-				_tbl_header.addAll(Arrays.asList("Pathway ID", "Pathway Name", "Pathway Class", "Annotation", "EC Number", "EC Description",
+				tableHeader.addAll(Arrays.asList("Pathway ID", "Pathway Name", "Pathway Class", "Annotation", "EC Number", "EC Description",
 						"Genome Count", "Unique Gene Count"));
-				_tbl_field.addAll(Arrays.asList("pathway_id", "pathway_name", "pathway_class", "algorithm", "ec_number", "ec_name",
+				tableField.addAll(Arrays.asList("pathway_id", "pathway_name", "pathway_class", "algorithm", "ec_number", "ec_name",
 						"genome_count", "gene_count"));
 			}
 			else if (contextType.equals("genome")) {
-				_tbl_header.addAll(Arrays.asList("Pathway ID", "Pathway Name", "Pathway Class", "Annotation", "EC Number", "EC Description",
+				tableHeader.addAll(Arrays.asList("Pathway ID", "Pathway Name", "Pathway Class", "Annotation", "EC Number", "EC Description",
 						"Unique Gene Count"));
-				_tbl_field.addAll(Arrays.asList("pathway_id", "pathway_name", "pathway_class", "algorithm", "ec_number", "ec_name",
+				tableField.addAll(Arrays.asList("pathway_id", "pathway_name", "pathway_class", "algorithm", "ec_number", "ec_name",
 						"gene_count"));
 			}
 		}
 		else if (request.getParameter("aT").equals("2")) {
-			_tbl_source = (JSONArray) this.processGeneTab(pathwayClass, pathwayId, ecNumber, annotation, contextType, contextId).get("results");
-			_tbl_header.addAll(Arrays
+			tableSource = (JSONArray) this.processGeneTab(dataApi, pathwayClass, pathwayId, ecNumber, annotation, contextType, contextId).get("results");
+			tableHeader.addAll(Arrays
 					.asList("Feature ID", "Genome Name", "Accession", "PATRIC ID", "RefSeq Locus Tag", "Alt Locus Tag", "Gene Symbol", "Product Name",
 							"Annotation", "Pathway ID", "Pathway Name", "Ec Number", "EC Description"));
-			_tbl_field.addAll(Arrays
+			tableField.addAll(Arrays
 					.asList("feature_id", "genome_name", "accession", "seed_id", "refseq_locus_tag", "alt_locus_tag", "gene", "product", "algorithm",
 							"pathway_id", "pathway_name", "ec_number", "ec_name"));
 		}
 
 		fileName = "CompPathwayTable";
-		ExcelHelper excel = new ExcelHelper("xssf", _tbl_header, _tbl_field, _tbl_source);
+		ExcelHelper excel = new ExcelHelper("xssf", tableHeader, tableField, tableSource);
 		excel.buildSpreadsheet();
 
 		if (fileFormat.equalsIgnoreCase("xlsx")) {
@@ -660,5 +634,64 @@ public class CompPathwayTable extends GenericPortlet {
 
 			response.getWriter().write(excel.writeToTextFile());
 		}
+	}
+
+	private void processFeatureIds(ResourceRequest request, ResourceResponse response) throws IOException {
+		String cId = request.getParameter("cId");
+		String cType = request.getParameter("cType");
+		String map = request.getParameter("map");
+		String algorithm = request.getParameter("algorithm");
+		String ec_number = request.getParameter("ec_number");
+		String featureList = request.getParameter("featureList");
+
+		DataApiHandler dataApi = new DataApiHandler(request);
+		JSONArray items = new JSONArray();
+
+		try {
+			SolrQuery query = new SolrQuery("*:*");
+
+			if (cType != null && cType.equals("taxon")) {
+				query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + cId + " AND genome_status:(complete OR wgs)"));
+			}
+			else if (cType != null && cType.equals("genome")) {
+				query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "genome_id:(" + cId + ") AND genome_status:(complete OR wgs)"));
+			}
+
+			if (map != null && !map.equals("")) {
+				query.addFilterQuery("pathway_id:(" + map.replaceAll(",", " OR ") + ")");
+			}
+
+			if (algorithm != null && !algorithm.equals("")) {
+				query.addFilterQuery("annotation:(" + algorithm + ")");
+			}
+
+			if (ec_number != null && !ec_number.equals("")) {
+				query.addFilterQuery("ec_number:(" + ec_number.replaceAll(",", " OR ") + ")");
+			}
+
+			if (featureList != null && !featureList.equals("")) {
+				query.addFilterQuery("feature_id:(" + featureList.replaceAll(",", " OR ") + ")");
+			}
+
+			query.setRows(dataApi.MAX_ROWS).setFields("feature_id");
+
+			LOGGER.debug("processFeatureIds: [{}]{}", SolrCore.PATHWAY.getSolrCoreName(), query);
+
+			String apiResponse = dataApi.solrQuery(SolrCore.PATHWAY, query);
+
+			Map resp = jsonReader.readValue(apiResponse);
+			Map respBody = (Map) resp.get("response");
+
+			List<Map> features = (List<Map>) respBody.get("docs");
+
+			for (Map feature : features) {
+				items.add(feature.get("feature_id").toString());
+			}
+		}
+		catch (IOException e) {
+			LOGGER.error(e.getMessage(), e);
+		}
+
+		items.writeJSONString(response.getWriter());
 	}
 }

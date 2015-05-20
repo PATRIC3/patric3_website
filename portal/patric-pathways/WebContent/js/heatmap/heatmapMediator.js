@@ -61,7 +61,7 @@ function flashCellClicked(flashObjectID, colID, rowID) {
 	}
 	
 	Ext.Ajax.request({
-		url: "/patric-pathways/jsp/get_na_feature_ids.json.jsp",
+		url: "/portal/portal/patric/CompPathwayTable/CompPathwayTableWindow?action=b&cacheability=PAGE&need=getFeatureIds",
 		method: 'POST',
 		params: {cId:colID, cType:'genome', map:Ext.getDom("map").value, algorithm:algorithm, ec_number:rowID},
 		success: function(rs) {
@@ -235,7 +235,7 @@ function flashCellsSelected(flashObjectID, affectedColumns, affectedRows) {
 	}
 	
 	Ext.Ajax.request({
-		url: "/patric-pathways/jsp/get_na_feature_ids.json.jsp",
+		url: "/portal/portal/patric/CompPathwayTable/CompPathwayTableWindow?action=b&cacheability=PAGE&need=getFeatureIds",
 		method: 'POST',
 		params: {cId:selectGenomes.join(" OR "), cType:'genome', map:Ext.getDom("map").value, algorithm:algorithm, ec_number: selectEcs.join(" OR ")},
 		success: function(rs) {
@@ -482,7 +482,7 @@ function flashColSelected(flashObjectID,colID) {
 	var algorithm = Ext.getDom("algorithm").value;
 
 	Ext.Ajax.request({
-		url: "/patric-pathways/jsp/get_na_feature_ids.json.jsp",
+		url: "/portal/portal/patric/CompPathwayTable/CompPathwayTableWindow?action=b&cacheability=PAGE&need=getFeatureIds",
 		method: 'POST',
 		params: {cId:colID, cType:'genome', map:Ext.getDom("map").value, algorithm:algorithm, ec_number: ""},
 		success: function(rs) {
@@ -500,7 +500,7 @@ function flashRowSelected(flashObjectID,rowID) {
 	var algorithm = Ext.getDom("algorithm").value;
 
 	Ext.Ajax.request({
-		url: "/patric-pathways/jsp/get_na_feature_ids.json.jsp",
+		url: "/portal/portal/patric/CompPathwayTable/CompPathwayTableWindow?action=b&cacheability=PAGE&need=getFeatureIds",
 		method: 'POST',
 		params: {cType:'genome', map:Ext.getDom("map").value, algorithm:algorithm, ec_number:rowID},
 		success: function(rs) {

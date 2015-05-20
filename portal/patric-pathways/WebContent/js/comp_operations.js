@@ -124,7 +124,7 @@ function drawMap(type){
 	Ext.getCmp('kegg-panel').mask();
 	
 	Ext.Ajax.request({
-	    url: "/patric-pathways/jsp/draw_comp_map.json.jsp",
+	    url: "/portal/portal/patric/CompPathwayMap/CompPathwayMapWindow?action=b&cacheability=PAGE&callType=KeggMap",
 	    method: 'POST',
 	    params: {val:Ext.JSON.encode(passObject)},
 	    success: function(response, opts) {

@@ -101,13 +101,13 @@ ResultType key = (ResultType) request.getAttribute("key");
 
 <div id="copy-button" style="display:none"></div>
 
-<form id='orthoToFile' action='<%=contextPath%>/jsp/GetMainTable.jsp' method="post">
+<form id='orthoToFile' action='/portal/portal/patric/FIGfam/FIGfamWindow?action=b&cacheability=PAGE&callType=GetMainTable' method="post">
 	<input name='OrthoFileType' type='hidden' value='xlsx' />
 	<input name='OrthoFileName' type='hidden' value='mainName' />
 	<input name='data' type='hidden' value='' />
 </form>
 
-<form id='detailsToFile' action='<%=contextPath%>/jsp/DetailsFromMain.jsp' method="post">
+<form id='detailsToFile' action='/portal/portal/patric/FIGfam/FIGfamWindow?action=b&cacheability=PAGE&callType=DetailsFromMain' method="post">
 	<input name='detailsType' type='hidden' value='' />
 	<input name='detailsGenomes' type='hidden' />
 	<input name='detailsFigfams' type='hidden' />

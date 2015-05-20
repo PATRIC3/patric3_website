@@ -1,6 +1,4 @@
 <%@ page import="edu.vt.vbi.patric.common.ImageBuilder"
-%><%@ page import="java.awt.Color"
-%><%@ page import="java.io.OutputStream"
 %><%@ page import="javax.servlet.ServletOutputStream"
 %><%
 	int i = 0, j = 0, k=0, left=0, top=0, width=0, height=0, flag=0;

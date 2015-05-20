@@ -379,8 +379,6 @@ public class BreadCrumb extends GenericPortlet {
 						lineage.add(taxon);
 					}
 
-					LOGGER.trace("{},{}", lineage, isBelowGenus);
-
 					request.setAttribute("lineage", lineage);
 					request.setAttribute("isBelowGenus", isBelowGenus);
 

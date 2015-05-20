@@ -21,6 +21,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
+import javax.management.MBeanServer;
+import javax.management.MBeanServerFactory;
+import javax.management.ObjectName;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
@@ -37,30 +40,25 @@ public class ImageBuilder {
 
 	Graphics2D g2d;
 
-	final String MAP_FILE_ROOT_DEV = "/home/oral/workspace/labs/patric-pathways/pathways";
 
-	final String MAP_FILE_ROOT_TEST = "/opt/jboss-patric/jboss-deploy/deploy/jboss-web.deployer/ROOT.war/patric/images/pathways";
+	String SERVER_HOME_DIR;
 
-	final String MAP_FILE_ROOT_PROD = "/opt/jboss-home/jboss-patric/deploy/jboss-web.deployer/ROOT.war/patric/images/pathways";
+	final String MAP_FILE_ROOT = "/deploy/jboss-web.deployer/ROOT.war/patric/images/pathways";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ImageBuilder.class);
 
 	public ImageBuilder(String map_id) {
 
 		try {
+			// reading Server Home Dir
+			java.util.List<MBeanServer> list = MBeanServerFactory.findMBeanServer(null);
+			MBeanServer server = list.get(0);
+			ObjectName objectName = new ObjectName("jboss.system:type=ServerConfig");
+			SERVER_HOME_DIR = ((File) server.getAttribute(objectName, "ServerHomeDir")).getAbsolutePath();
 
-			if ((new File(MAP_FILE_ROOT_TEST + "/map" + map_id + ".png")).exists()) {
+//			LOGGER.debug("path: {}", SERVER_HOME_DIR + MAP_FILE_ROOT );
 
-				image = ImageIO.read(new File(MAP_FILE_ROOT_TEST + "/map" + map_id + ".png"));
-			}
-			else if ((new File(MAP_FILE_ROOT_PROD + "/map" + map_id + ".png")).exists()) {
-
-				image = ImageIO.read(new File(MAP_FILE_ROOT_PROD + "/map" + map_id + ".png"));
-			}
-			else if ((new File(MAP_FILE_ROOT_DEV + "/map" + map_id + ".png")).exists()) {
-
-				image = ImageIO.read(new File(MAP_FILE_ROOT_DEV + "/map" + map_id + ".png"));
-			}
+			image = ImageIO.read(new File(SERVER_HOME_DIR + MAP_FILE_ROOT + "/map" + map_id + ".png"));
 		}
 		catch (Exception e) {
 			LOGGER.error(e.getMessage(), e);

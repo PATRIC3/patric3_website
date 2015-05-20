@@ -17,16 +17,14 @@
  */
 package edu.vt.vbi.patric.portlets;
 
-import com.google.gson.Gson;
-import edu.vt.vbi.patric.common.SessionHandler;
-import edu.vt.vbi.patric.common.SiteHelper;
-import edu.vt.vbi.patric.common.SolrCore;
-import edu.vt.vbi.patric.common.SolrInterface;
-import edu.vt.vbi.patric.dao.ResultType;
+import edu.vt.vbi.patric.beans.GenomeFeature;
+import edu.vt.vbi.patric.common.*;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectReader;
+import org.codehaus.jackson.map.ObjectWriter;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,11 +32,26 @@ import javax.portlet.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 public class SingleFIGfam extends GenericPortlet {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SingleFIGfam.class);
+
+	ObjectReader jsonReader;
+
+	ObjectWriter jsonWriter;
+
+	@Override
+	public void init() throws PortletException {
+		super.init();
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		jsonReader = objectMapper.reader(Map.class);
+		jsonWriter = objectMapper.writerWithType(Map.class);
+	}
 
 	public void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 		SiteHelper.setHtmlMetaElements(request, response, "Protein Family");
@@ -52,9 +65,8 @@ public class SingleFIGfam extends GenericPortlet {
 		String figfam = "";
 
 		int length = 1;
-		Gson gson = new Gson();
 
-		ResultType key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), ResultType.class);
+		Map<String, String> key = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
 
 		if (key != null && key.containsKey("gid")) {
 			gid = key.get("gid");
@@ -76,16 +88,14 @@ public class SingleFIGfam extends GenericPortlet {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void serveResource(ResourceRequest req, ResourceResponse resp) throws PortletException, IOException {
-		String callType = req.getParameter("callType");
-		SolrInterface solr = new SolrInterface();
-		Gson gson = new Gson();
+	public void serveResource(ResourceRequest request, ResourceResponse response) throws PortletException, IOException {
+		String callType = request.getParameter("callType");
 
 		if (callType != null) {
-			ResultType key = new ResultType();
+			Map<String, String> key = new HashMap<>();
 			if (callType.equals("saveState")) {
-				String gid = req.getParameter("gid");
-				String figfam = req.getParameter("figfam");
+				String gid = request.getParameter("gid");
+				String figfam = request.getParameter("figfam");
 
 				key.put("gid", gid);
 				key.put("figfam", figfam);
@@ -93,64 +103,51 @@ public class SingleFIGfam extends GenericPortlet {
 				Random g = new Random();
 				long pk = g.nextLong();
 
-				SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
+				SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
 
-				PrintWriter writer = resp.getWriter();
+				PrintWriter writer = response.getWriter();
 				writer.write("" + pk);
 				writer.close();
 
 			}
 			else if (callType.equals("getData")) {
-				String keyword = req.getParameter("keyword");
-				JSONObject jsonResult = new JSONObject();
+				String keyword = request.getParameter("keyword");
+				String sort = request.getParameter("sort");
+
 				key.put("keyword", keyword);
 
-				solr.setCurrentInstance(SolrCore.FEATURE);
-				String start_id = req.getParameter("start");
-				String limit = req.getParameter("limit");
+				SolrInterface solr = new SolrInterface();
+				DataApiHandler dataApi = new DataApiHandler(request);
+
+				String start_id = request.getParameter("start");
+				String limit = request.getParameter("limit");
 				int start = Integer.parseInt(start_id);
 				int end = Integer.parseInt(limit);
 
-				// sorting
-				HashMap<String, String> sort = null;
-				if (req.getParameter("sort") != null) {
-					// sorting
-					JSONParser a = new JSONParser();
-					JSONArray sorter;
-					String sort_field = "";
-					String sort_dir = "";
-					try {
-						sorter = (JSONArray) a.parse(req.getParameter("sort"));
-						sort_field += ((JSONObject) sorter.get(0)).get("property").toString();
-						sort_dir += ((JSONObject) sorter.get(0)).get("direction").toString();
-						for (int i = 1; i < sorter.size(); i++) {
-							sort_field += "," + ((JSONObject) sorter.get(i)).get("property").toString();
-						}
-					}
-					catch (ParseException e) {
-						LOGGER.debug(e.getMessage(), e);
-					}
-
-					sort = new HashMap<>();
-
-					if (!sort_field.equals("") && !sort_dir.equals("")) {
-						sort.put("field", sort_field);
-						sort.put("direction", sort_dir);
-					}
-				}
 				key.put("fields",
 						"genome_id,genome_name,accession,seed_id,alt_locus_tag,refseq_locus_tag,gene,annotation,feature_type,feature_id,start,end,na_length,strand,protein_id,aa_length,product,figfam_id");
 
-				JSONObject object = solr.getData(key, sort, null, start, end, false, false, false);
+				SolrQuery query = solr.buildSolrQuery(key, sort, null, start, end, false);
 
-				JSONObject obj = (JSONObject) object.get("response");
-				JSONArray obj1 = (JSONArray) obj.get("docs");
+				String apiResponse = dataApi.solrQuery(SolrCore.FEATURE, query);
 
-				jsonResult.put("results", obj1);
-				jsonResult.put("total", obj.get("numFound"));
+				Map resp = jsonReader.readValue(apiResponse);
+				Map respBody = (Map) resp.get("response");
 
-				resp.setContentType("application/json");
-				PrintWriter writer = resp.getWriter();
+				int numFound = (Integer) respBody.get("numFound");
+				List<GenomeFeature> features = dataApi.bindDocuments((List<Map>) respBody.get("docs"), GenomeFeature.class);
+
+				JSONArray docs = new JSONArray();
+				for (GenomeFeature feature : features) {
+					docs.add(feature.toJSONObject());
+				}
+
+				JSONObject jsonResult = new JSONObject();
+				jsonResult.put("results", docs);
+				jsonResult.put("total", numFound);
+
+				response.setContentType("application/json");
+				PrintWriter writer = response.getWriter();
 				jsonResult.writeJSONString(writer);
 				writer.close();
 			}

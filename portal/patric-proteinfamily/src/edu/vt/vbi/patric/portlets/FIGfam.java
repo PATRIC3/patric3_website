@@ -24,27 +24,41 @@ import edu.vt.vbi.ci.util.ExecUtilities;
 import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.beans.Taxonomy;
 import edu.vt.vbi.patric.common.DataApiHandler;
+import edu.vt.vbi.patric.common.ExcelHelper;
 import edu.vt.vbi.patric.common.SessionHandler;
 import edu.vt.vbi.patric.common.SiteHelper;
 import edu.vt.vbi.patric.dao.ResultType;
 import edu.vt.vbi.patric.proteinfamily.FIGfamData;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectReader;
+import org.codehaus.jackson.map.ObjectWriter;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.portlet.*;
-import javax.xml.crypto.Data;
 import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class FIGfam extends GenericPortlet {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(FIGfam.class);
 
 	private final boolean removeAfterClusterComputed = true;
+
+	private ObjectReader jsonReader;
+
+	private ObjectWriter jsonWriter;
+
+	@Override
+	public void init() throws PortletException {
+		super.init();
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		jsonReader = objectMapper.reader(Map.class);
+		jsonWriter = objectMapper.writerWithType(Map.class);
+	}
 
 	public boolean isLoggedIn(PortletRequest request) {
 
@@ -74,17 +88,16 @@ public class FIGfam extends GenericPortlet {
 				contextId = "";
 			}
 
-			ResultType key = null;
+			Map<String, String> key = null;
 			String pk = request.getParameter("param_key");
 			String keyword = "";
 
 			if (pk != null) {
-				Gson gson = new Gson();
-				key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), ResultType.class);
+				key = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
 			}
 
 			if (key == null) {
-				key = new ResultType();
+				key = new HashMap<>();
 				key.put("keyword", "");
 				key.put("genera", "");
 				key.put("genomeIds", "");
@@ -142,21 +155,22 @@ public class FIGfam extends GenericPortlet {
 		prd.include(request, response);
 	}
 
-	private void getGenomeIds(ResourceRequest req, Map<String, String> key) {
-		String result = req.getParameter("genomeIds");
-		FIGfamData access = new FIGfamData();
+	private void getGenomeIds(ResourceRequest request, Map<String, String> key) throws IOException {
+		String result = request.getParameter("genomeIds");
+
+		DataApiHandler dataApi = new DataApiHandler(request);
+		FIGfamData access = new FIGfamData(dataApi);
 		if (result != null && !result.equals("")) {
 			key.put("genomeIds", result);
 		}
 		else {
-			String cType = req.getParameter("cType");
+			String cType = request.getParameter("cType");
 			if ((cType != null) && (cType.equals("taxon"))) {
-				String cId = req.getParameter("cId");
+				String cId = request.getParameter("cId");
 				if (cId == null || cId.equals("")) {
 					cId = "2";
 				}
 				result = access.getGenomeIdsForTaxon(cId);
-				DataApiHandler dataApi = new DataApiHandler(req);
 				Taxonomy taxonomy = dataApi.getTaxonomy(Integer.parseInt(cId));
 				key.put("genera", taxonomy.getTaxonName());
 				// key.put("genera", access.getTaxonName(cId));
@@ -165,16 +179,17 @@ public class FIGfam extends GenericPortlet {
 		}
 	}
 
-	private void getTaxonIds(ResourceRequest req, PrintWriter writer) {
-		String cId = req.getParameter("taxonId");
+	private void getTaxonIds(ResourceRequest request, PrintWriter writer) throws IOException {
+		String cId = request.getParameter("taxonId");
 		if ((cId != null) && (0 < cId.length())) {
-			FIGfamData access = new FIGfamData();
+			DataApiHandler dataApi = new DataApiHandler(request);
+			FIGfamData access = new FIGfamData(dataApi);
 			writer.write(access.getGenomeIdsForTaxon(cId));
 		}
 	}
 
-	private void setKeyValues(String name, ResourceRequest req, Map key) {
-		String result = req.getParameter(name);
+	private void setKeyValues(String name, ResourceRequest request, Map key) {
+		String result = request.getParameter(name);
 		if (result == null) {
 			result = "";
 		}
@@ -191,9 +206,9 @@ public class FIGfam extends GenericPortlet {
 	}
 
 	// async requests and responses are processed here
-	public void serveResource(ResourceRequest req, ResourceResponse resp) throws PortletException, IOException {
+	public void serveResource(ResourceRequest request, ResourceResponse resp) throws PortletException, IOException {
 		resp.setContentType("text/html");
-		String callType = req.getParameter("callType");
+		String callType = request.getParameter("callType");
 
 		if (callType != null) {
 			switch (callType) {
@@ -201,14 +216,14 @@ public class FIGfam extends GenericPortlet {
 				Map<String, String> key = new HashMap<>();
 				// Added by OralDALAY
 
-				if (req.getParameter("keyword") != null && !req.getParameter("keyword").equals(""))
-					key.put("keyword", req.getParameter("keyword"));
+				if (request.getParameter("keyword") != null && !request.getParameter("keyword").equals(""))
+					key.put("keyword", request.getParameter("keyword"));
 
-				getGenomeIds(req, key);
-				Random g = new Random();
-				long pk = g.nextLong();
-				Gson gson = new Gson();
-				SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
+				getGenomeIds(request, key);
+
+				long pk = (new Random()).nextLong();
+				SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
+
 				PrintWriter writer = resp.getWriter();
 				writer.write("" + pk);
 				writer.close();
@@ -218,25 +233,25 @@ public class FIGfam extends GenericPortlet {
 				resp.setContentType("application/json");
 				PrintWriter writer = resp.getWriter();
 				FIGfamData access = new FIGfamData();
-				access.getGenomeDetails(req, writer);
+				access.getGenomeDetails(request, writer);
 				writer.close();
 				break;
 			}
 			case "getTaxonIds": {
 				PrintWriter writer = resp.getWriter();
-				getTaxonIds(req, writer);
+				getTaxonIds(request, writer);
 				writer.close();
 				break;
 			}
 			case "toAligner": {
 				Map<String, String> key = new HashMap<>();
-				setKeyValues("featureIds", req, key);
-				setKeyValues("figfamId", req, key);
-				setKeyValues("product", req, key);
-				Random g = new Random();
-				long pk = g.nextLong();
-				Gson gson = new Gson();
-				SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
+				setKeyValues("featureIds", request, key);
+				setKeyValues("figfamId", request, key);
+				setKeyValues("product", request, key);
+
+				long pk = (new Random()).nextLong();
+				SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
+
 				PrintWriter writer = resp.getWriter();
 				writer.write("" + pk);
 				writer.close();
@@ -244,29 +259,29 @@ public class FIGfam extends GenericPortlet {
 			}
 			case "toDetails": {
 				Map<String, String> key = new HashMap<>();
-				setKeyValues("genomeIds", req, key);
-				setKeyValues("figfamIds", req, key);
-				Random g = new Random();
-				long pk = g.nextLong();
-				Gson gson = new Gson();
-				SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
+				setKeyValues("genomeIds", request, key);
+				setKeyValues("figfamIds", request, key);
+
+				long pk = (new Random()).nextLong();
+				SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
+
 				PrintWriter writer = resp.getWriter();
 				writer.write("" + pk);
 				writer.close();
 				break;
 			}
 			case "getJsp":
-				String jspName = req.getParameter("JSP_NAME");
+				String jspName = request.getParameter("JSP_NAME");
 				jspName = "/WEB-INF/jsp/" + jspName + ".jsp";
 				resp.setContentType("text/html");
 				PortletContext context = this.getPortletContext();
 				PortletRequestDispatcher reqDispatcher = context.getRequestDispatcher(jspName);
-				reqDispatcher.include(req, resp);
+				reqDispatcher.include(request, resp);
 				break;
 			case "getFeatureIds": {
 				PrintWriter writer = resp.getWriter();
 				FIGfamData access = new FIGfamData();
-				access.getFeatureIds(req, writer, req.getParameter("keyword"));
+				access.getFeatureIds(request, writer, request.getParameter("keyword"));
 				writer.close();
 				break;
 			}
@@ -274,47 +289,46 @@ public class FIGfam extends GenericPortlet {
 				resp.setContentType("application/json");
 				PrintWriter writer = resp.getWriter();
 				FIGfamData access = new FIGfamData();
-				access.getGroupStats(req, writer);
+				access.getGroupStats(request, writer);
 				writer.close();
 				break;
 			}
 			case "getLocusTags": {
 				PrintWriter writer = resp.getWriter();
 				FIGfamData access = new FIGfamData();
-				access.getLocusTags(req, writer);
+				access.getLocusTags(request, writer);
 				writer.close();
 				break;
 			}
 			case "getSessionId": {
 				PrintWriter writer = resp.getWriter();
-				PortletSession session = req.getPortletSession(true);
+				PortletSession session = request.getPortletSession(true);
 				writer.write(session.getId());
 				writer.close();
 				break;
 			}
 			case "saveState": {
-				String keyType = req.getParameter("keyType");
+				String keyType = request.getParameter("keyType");
 				// ResultType key = new ResultType();
 				Map<String, String> key = new HashMap<>();
-				setKeyValues("pageAt", req, key);
-				setKeyValues("syntonyId", req, key);
-				setKeyValues("regex", req, key);
-				setKeyValues("filter", req, key);
-				setKeyValues("perfectFamMatch", req, key);
-				setKeyValues("minnumber_of_members", req, key);
-				setKeyValues("maxnumber_of_members", req, key);
-				setKeyValues("minnumber_of_species", req, key);
-				setKeyValues("maxnumber_of_species", req, key);
-				setKeyValues("ClusterRowOrder", req, key);
-				setKeyValues("ClusterColumnOrder", req, key);
-				setKeyValues("heatmapAxis", req, key);
-				setKeyValues("colorScheme", req, key);
-				setKeyValues("heatmapState", req, key);
-				setKeyValues("steps", req, key);
-				Random g = new Random();
-				long pk = g.nextLong();
-				Gson gson = new Gson();
-				SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, ResultType.class));
+				setKeyValues("pageAt", request, key);
+				setKeyValues("syntonyId", request, key);
+				setKeyValues("regex", request, key);
+				setKeyValues("filter", request, key);
+				setKeyValues("perfectFamMatch", request, key);
+				setKeyValues("minnumber_of_members", request, key);
+				setKeyValues("maxnumber_of_members", request, key);
+				setKeyValues("minnumber_of_species", request, key);
+				setKeyValues("maxnumber_of_species", request, key);
+				setKeyValues("ClusterRowOrder", request, key);
+				setKeyValues("ClusterColumnOrder", request, key);
+				setKeyValues("heatmapAxis", request, key);
+				setKeyValues("colorScheme", request, key);
+				setKeyValues("heatmapState", request, key);
+				setKeyValues("steps", request, key);
+
+				long pk = (new Random()).nextLong();
+				SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
 
 				PrintWriter writer = resp.getWriter();
 				writer.write("" + pk);
@@ -324,11 +338,10 @@ public class FIGfam extends GenericPortlet {
 			case "getState": {
 				PrintWriter writer = resp.getWriter();
 
-				Gson gson = new Gson();
-				String keyType = req.getParameter("keyType");
-				String pk = req.getParameter("random");
+				String keyType = request.getParameter("keyType");
+				String pk = request.getParameter("random");
 				if ((pk != null) && (keyType != null)) {
-					Map<String, String> key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), Map.class);
+					Map<String, String> key = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
 
 					writer.write(getKeyValue("pageAt", key));
 					writer.write("\t" + getKeyValue("syntonyId", key));
@@ -351,13 +364,13 @@ public class FIGfam extends GenericPortlet {
 			}
 			case "doClustering": {
 				PrintWriter writer = resp.getWriter();
-				String data = req.getParameter("data");
-				String g = req.getParameter("g");
-				String e = req.getParameter("e");
-				String m = req.getParameter("m");
-				String ge = req.getParameter("ge");
-				String pk = req.getParameter("pk");
-				String action = req.getParameter("action");
+				String data = request.getParameter("data");
+				String g = request.getParameter("g");
+				String e = request.getParameter("e");
+				String m = request.getParameter("m");
+				String ge = request.getParameter("ge");
+				String pk = request.getParameter("pk");
+				String action = request.getParameter("action");
 
 				String tmpDir = System.getProperty("java.io.tmpdir", "/tmp");
 				String filename = tmpDir + "/tmp_" + pk + ".txt";
@@ -380,9 +393,17 @@ public class FIGfam extends GenericPortlet {
 			case "getSyntonyOrder": {
 				PrintWriter writer = resp.getWriter();
 				FIGfamData access = new FIGfamData();
-				JSONArray json = access.getSyntonyOrder(req);
+				JSONArray json = access.getSyntonyOrder(request);
 				json.writeJSONString(writer);
 				writer.close();
+				break;
+			}
+			case "DetailsFromMain": {
+				processDetailFromMain(request, resp);
+				break;
+			}
+			case "GetMainTable": {
+				processGetMainTable(request, resp);
 				break;
 			}
 			default: {
@@ -392,6 +413,93 @@ public class FIGfam extends GenericPortlet {
 				break;
 			}
 			}
+		}
+	}
+
+	private void processDetailFromMain(ResourceRequest request, ResourceResponse response) throws IOException {
+		String genomeIds = request.getParameter("detailsGenomes");
+		String figfamIds = request.getParameter("detailsFigfams");
+
+		DataApiHandler dataApi = new DataApiHandler(request);
+		FIGfamData figfamData = new FIGfamData(dataApi);
+
+		String fileName = "ProteinFamilyFeatures";
+		String fileFormat = request.getParameter("detailsType");
+
+		List<String> tableHeader = new ArrayList<>();
+		List<String> tableField = new ArrayList<>();
+
+		JSONArray tableSource = figfamData.getDetails(genomeIds, figfamIds);
+
+		tableHeader.addAll(Arrays.asList("Group Id", "Genome Name", "Accession", "PATRIC ID", "RefSeq Locus Tag", "Alt Locus Tag", "Start", "End", "Length(NT)", "Strand",
+				"Length(AA)", "Gene Symbol", "Product Description"));
+		tableField.addAll(Arrays.asList("figfam_id", "genome_name", "accession", "seed_id", "refseq_locus_tag", "alt_locus_tag", "start", "end", "na_length", "strand",
+				"aa_length", "gene", "product"));
+
+		ExcelHelper excel = new ExcelHelper("xssf", tableHeader, tableField, tableSource);
+		excel.buildSpreadsheet();
+
+		if (fileFormat.equalsIgnoreCase("xlsx")) {
+			response.setContentType("application/octetstream");
+			response.addProperty("Content-Disposition", "attachment; filename=\"" + fileName + "." + fileFormat + "\"");
+
+			excel.writeSpreadsheettoBrowser(response.getPortletOutputStream());
+		}
+		else if (fileFormat.equalsIgnoreCase("txt")) {
+			response.setContentType("application/octetstream");
+			response.addProperty("Content-Disposition", "attachment; filename=\"" + fileName + "." + fileFormat + "\"");
+
+			response.getWriter().write(excel.writeToTextFile());
+		}
+	}
+
+	private void processGetMainTable(ResourceRequest request, ResourceResponse response) throws IOException {
+		String fileName = request.getParameter("OrthoFileName");
+		String fileType = request.getParameter("OrthoFileType");
+		String data = request.getParameter("data");
+
+		if (fileType.equals("xls") || fileType.equals("xlsx")) {
+
+			List<String> tableHeader = new ArrayList<>();
+			List<String> tableField = new ArrayList<>();
+			List<ResultType> tableSource = new ArrayList<>();
+
+			BufferedReader br = new BufferedReader(new StringReader(data));
+			String line;
+			boolean isHeader = true;
+			while ((line = br.readLine()) != null) {
+				String[] tabs = line.split("\t");
+
+				if (isHeader) {
+					isHeader = false;
+					tableHeader.addAll(Arrays.asList(tabs));
+
+					for (String tab : tabs) {
+						tableField.add(tab.replaceAll(" ", "_").toLowerCase());
+					}
+				}
+				else {
+					ResultType row = new ResultType();
+					for (int i = 0; i < tabs.length; i++ ) {
+						row.put(tableField.get(i), tabs[i]);
+					}
+					tableSource.add(row);
+				}
+			}
+
+			ExcelHelper excel = new ExcelHelper("xssf", tableHeader, tableField, tableSource);
+			excel.buildSpreadsheet();
+
+			response.setContentType("application/octetstream");
+			response.addProperty("Content-Disposition", "attachment; filename=\"" + fileName + "." + fileType + "\"");
+
+			excel.writeSpreadsheettoBrowser(response.getPortletOutputStream());
+		}
+		else if (fileType.equals("txt")) {
+			response.setContentType("application/octetstream");
+			response.addProperty("Content-Disposition", "attachment; filename=\"" + fileName + "." + fileType + "\"");
+
+			response.getWriter().write(data);
 		}
 	}
 

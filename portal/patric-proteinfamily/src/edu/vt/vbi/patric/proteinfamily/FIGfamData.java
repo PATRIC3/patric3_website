@@ -15,37 +15,24 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.proteinfamily;
 
-import com.google.gson.Gson;
 import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.beans.GenomeFeature;
-import edu.vt.vbi.patric.beans.Taxonomy;
-import edu.vt.vbi.patric.common.SessionHandler;
-import edu.vt.vbi.patric.common.SolrCore;
-import edu.vt.vbi.patric.common.SolrInterface;
+import edu.vt.vbi.patric.common.*;
 import edu.vt.vbi.patric.msa.Aligner;
 import edu.vt.vbi.patric.msa.SequenceData;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrRequest;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.LBHttpSolrServer;
-import org.apache.solr.client.solrj.response.FieldStatsInfo;
-import org.apache.solr.client.solrj.response.PivotField;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
-import org.apache.solr.common.util.NamedList;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectReader;
+import org.codehaus.jackson.map.ObjectWriter;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.portlet.PortletSession;
 import javax.portlet.ResourceRequest;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.MalformedURLException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -57,27 +44,38 @@ public class FIGfamData {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(FIGfamData.class);
 
-	private SolrInterface solr = new SolrInterface();
+	DataApiHandler dataApiHandler;
+
+	ObjectReader jsonReader;
+
+	ObjectWriter jsonWriter;
+
+	public FIGfamData() {
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		jsonReader = objectMapper.reader(Map.class);
+		jsonWriter = objectMapper.writerWithType(Map.class);
+	}
+
+	public FIGfamData(DataApiHandler dataApi) {
+		dataApiHandler = dataApi;
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		jsonReader = objectMapper.reader(Map.class);
+		jsonWriter = objectMapper.writerWithType(Map.class);
+	}
 
 	// This function is called to get an ordering of the Figfams based on order of occurrence only for the ref. genome
 	// It has nothing to do with the other genomes in a display.
 	// This function returns an ordering of the Figfam ID's for the reference genome with paralogs removed
 	// The counting for the number of paralogs occurs in the javascript code (I think)
-	public JSONArray getSyntonyOrder(ResourceRequest req) {
-		String genomeId = req.getParameter("syntonyId");
+	public JSONArray getSyntonyOrder(ResourceRequest request) {
+		String genomeId = request.getParameter("syntonyId");
 		JSONArray json_arr = null;
 
 		if (genomeId != null) {
 
-			LBHttpSolrServer server = null;
-
-			try {
-				server = solr.getSolrServer(SolrCore.FEATURE);
-			}
-			catch (MalformedURLException e) {
-				LOGGER.error(e.getMessage(), e);
-			}
-
+			DataApiHandler dataApi = new DataApiHandler(request);
 			long end_ms, start_ms = System.currentTimeMillis();
 
 			SolrQuery solr_query = new SolrQuery("genome_id:" + genomeId);
@@ -85,44 +83,36 @@ public class FIGfamData {
 			solr_query.setFilterQueries("annotation:PATRIC AND feature_type:CDS AND figfam_id:[* TO *]");
 			solr_query.addField("figfam_id");
 
-			QueryResponse qr;
-			SolrDocumentList sdl;
+			solr_query.setRows(dataApi.MAX_ROWS);
+			solr_query.addSort("accession", SolrQuery.ORDER.asc);
+			solr_query.addSort("start", SolrQuery.ORDER.asc);
 
-			try {
-				qr = server.query(solr_query, SolrRequest.METHOD.POST);
-				sdl = qr.getResults();
-
-				solr_query.setRows((int) sdl.getNumFound());
-				solr_query.addSort("accession", SolrQuery.ORDER.asc);
-				solr_query.addSort("start", SolrQuery.ORDER.asc);
-				//				solr_query.addSort("seed_id", SolrQuery.ORDER.asc);
-			}
-			catch (SolrServerException e) {
-				LOGGER.error(e.getMessage(), e);
-			}
-
-			LOGGER.debug("getSyntonyOrder() {}", solr_query.toString());
+			LOGGER.debug("getSyntonyOrder() [{}] {}", SolrCore.FEATURE.getSolrCoreName(), solr_query.toString());
 
 			int orderSet = 0;
 			List<SyntonyOrder> collect = new ArrayList<>();
 			try {
-				qr = server.query(solr_query, SolrRequest.METHOD.POST);
-				sdl = qr.getResults();
+				String apiResponse = dataApi.solrQuery(SolrCore.FEATURE, solr_query);
+
+				Map resp = jsonReader.readValue(apiResponse);
+				Map respBody = (Map) resp.get("response");
+
+				List<GenomeFeature> features = dataApi.bindDocuments((List<Map>) respBody.get("docs"), GenomeFeature.class);
 
 				end_ms = System.currentTimeMillis();
 
 				LOGGER.debug("Genome anchoring query time - {}", (end_ms - start_ms));
 
 				start_ms = System.currentTimeMillis();
-				for (SolrDocument doc : sdl) {
-					if (doc.get("figfam_id") != null) {
-						collect.add(new SyntonyOrder(doc.get("figfam_id").toString(), orderSet));
+				for (GenomeFeature feature : features) {
+					if (feature.hasFigfamId()) {
+						collect.add(new SyntonyOrder(feature.getFigfamId(), orderSet));
 						++orderSet;
 					}
 				}
 
 			}
-			catch (SolrServerException e) {
+			catch (IOException e) {
 				LOGGER.error(e.getMessage(), e);
 			}
 
@@ -156,29 +146,31 @@ public class FIGfamData {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void getLocusTags(ResourceRequest req, PrintWriter writer) {
+	public void getLocusTags(ResourceRequest request, PrintWriter writer) {
 
 		JSONArray arr = new JSONArray();
+
+		DataApiHandler dataApi = new DataApiHandler(request);
 		try {
 			SolrQuery solr_query = new SolrQuery();
-			solr_query.setQuery("genome_id:(" + req.getParameter("genomeIds") + ") AND figfam_id:(" + req.getParameter("figfamIds") + ")");
+			solr_query.setQuery("genome_id:(" + request.getParameter("genomeIds") + ") AND figfam_id:(" + request.getParameter("figfamIds") + ")");
 			solr_query.setFilterQueries("annotation:PATRIC AND feature_type:CDS");
 			solr_query.addField("feature_id,seed_id,refseq_locus_tag,alt_locus_tag");
-			solr_query.setRows(150000);
+			solr_query.setRows(dataApi.MAX_ROWS);
 
-			LOGGER.debug("getLocusTags() {}", solr_query.toString());
+			LOGGER.debug("getLocusTags(): [{}] {}", SolrCore.FEATURE.toString(), solr_query.toString());
 
-			QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(solr_query, SolrRequest.METHOD.POST);
-			SolrDocumentList sdl = qr.getResults();
+			String apiResponse = dataApi.solrQuery(SolrCore.FEATURE, solr_query);
+			Map resp = jsonReader.readValue(apiResponse);
+			Map respBody = (Map) resp.get("response");
 
-			for (SolrDocument doc : sdl) {
-				JSONObject item = new JSONObject();
-				item.putAll(doc);
+			List<GenomeFeature> features = dataApi.bindDocuments((List<Map>) respBody.get("docs"), GenomeFeature.class);
 
-				arr.add(item);
+			for (GenomeFeature feature : features) {
+				arr.add(feature.toJSONObject());
 			}
 		}
-		catch (MalformedURLException | SolrServerException e) {
+		catch (IOException e) {
 			LOGGER.error(e.getMessage(), e);
 		}
 
@@ -193,99 +185,92 @@ public class FIGfamData {
 	}
 
 	@SuppressWarnings("unchecked")
-	public JSONArray getDetails(String genomeIds, String figfamIds) {
+	public JSONArray getDetails(String genomeIds, String figfamIds) throws IOException {
 
 		JSONArray arr = new JSONArray();
 
-		try {
-			SolrQuery solr_query = new SolrQuery();
-			solr_query.setQuery("genome_id:(" + genomeIds + ") AND figfam_id:(" + figfamIds + ")");
-			solr_query.setFields(
-					"figfam_id,genome_name,accession,seed_id,refseq_locus_tag,alt_locus_tag,start,end,na_length,strand,aa_length,gene,product");
-			solr_query.setFilterQueries("annotation:PATRIC AND feature_type:CDS");
-			solr_query.setRows(1500000);
+		SolrQuery query = new SolrQuery();
+		query.setQuery("genome_id:(" + genomeIds + ") AND figfam_id:(" + figfamIds + ")");
+		query.setFields(StringUtils.join(DownloadHelper.getFieldsForFeatures(), ","));
+		query.setFilterQueries("annotation:PATRIC AND feature_type:CDS");
+		query.setRows(dataApiHandler.MAX_ROWS);
 
-			LOGGER.debug("getDetails() {}", solr_query.toString());
+		LOGGER.debug("getDetails(): [{}] {}", SolrCore.FEATURE.getSolrCoreName(), query.toString());
 
-			QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(solr_query, SolrRequest.METHOD.POST);
-			SolrDocumentList sdl = qr.getResults();
+		String apiResponse = dataApiHandler.solrQuery(SolrCore.FEATURE, query);
+		Map resp = jsonReader.readValue(apiResponse);
+		Map respBody = (Map) resp.get("response");
 
-			for (SolrDocument doc : sdl) {
-				JSONObject values = new JSONObject();
-				values.putAll(doc);
+		List<GenomeFeature> features = dataApiHandler.bindDocuments((List<Map>) respBody.get("docs"), GenomeFeature.class);
 
-				arr.add(values);
-			}
+		for (GenomeFeature feature : features) {
+			arr.add(feature.toJSONObject());
 		}
-		catch (MalformedURLException | SolrServerException e) {
-			LOGGER.error(e.getMessage(), e);
-		}
+
 		return arr;
 	}
 
-	public Aligner getFeatureAlignment(char needHtml, ResourceRequest req) {
+	public Aligner getFeatureAlignment(char needHtml, ResourceRequest request) {
 		Aligner result = null;
 		try {
-			SequenceData[] sequences = getFeatureProteins(req);
-			result = new Aligner(needHtml, req.getParameter(FIGFAM_ID), sequences);
+			SequenceData[] sequences = getFeatureProteins(request);
+			result = new Aligner(needHtml, request.getParameter(FIGFAM_ID), sequences);
 		}
-		catch (SQLException e) {
+		catch (IOException e) {
 			LOGGER.error(e.getMessage(), e);
 		}
 		return result;
 	}
 
-	public String getGenomeIdsForTaxon(String taxon) {
+	public String getGenomeIdsForTaxon(String taxon) throws IOException {
 		List<String> gIds = new ArrayList<>();
 
-		try {
-			SolrQuery query = new SolrQuery("patric_cds:[1 TO *] AND taxon_lineage_ids:" + taxon);
-			query.addField("genome_id");
-			query.setRows(500000);
+		SolrQuery query = new SolrQuery("patric_cds:[1 TO *] AND taxon_lineage_ids:" + taxon);
+		query.addField("genome_id");
+		query.setRows(dataApiHandler.MAX_ROWS);
 
-			QueryResponse qr = solr.getSolrServer(SolrCore.GENOME).query(query);
-			List<Genome> genomes = qr.getBeans(Genome.class);
-			for (Genome g : genomes) {
-				gIds.add(g.getId());
-			}
+		String apiResponse = dataApiHandler.solrQuery(SolrCore.GENOME, query);
+		Map resp = jsonReader.readValue(apiResponse);
+		Map respBody = (Map) resp.get("response");
+
+		List<Genome> genomes = dataApiHandler.bindDocuments((List<Map>) respBody.get("docs"), Genome.class);
+
+		for (Genome g : genomes) {
+			gIds.add(g.getId());
 		}
-		catch (SolrServerException | MalformedURLException e) {
-			LOGGER.error(e.getMessage(), e);
-		}
+
 		return StringUtils.join(gIds, ",");
 	}
 
-	private SequenceData[] getFeatureSequences(String[] featureIds) {
+	private SequenceData[] getFeatureSequences(String[] featureIds) throws IOException {
 		List<SequenceData> collect = new ArrayList<>();
 
-		try {
-			SolrQuery query = new SolrQuery("feature_id:(" + StringUtils.join(featureIds, " OR ") + ")");
-			query.addField("genome_name,seed_id,refseq_locus_tag,alt_locus_tag,aa_sequence");
-			query.setRows(featureIds.length);
+		SolrQuery query = new SolrQuery("feature_id:(" + StringUtils.join(featureIds, " OR ") + ")");
+		query.addField("genome_name,seed_id,refseq_locus_tag,alt_locus_tag,aa_sequence");
+		query.setRows(featureIds.length);
 
-			QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query, SolrRequest.METHOD.POST);
-			List<GenomeFeature> features = qr.getBeans(GenomeFeature.class);
+		String apiResponse = dataApiHandler.solrQuery(SolrCore.GENOME, query);
+		Map resp = jsonReader.readValue(apiResponse);
+		Map respBody = (Map) resp.get("response");
 
-			for (GenomeFeature feature : features) {
-				String locusTag = "";
-				if (feature.hasSeedId()) {
-					locusTag = feature.getSeedId();
+		List<GenomeFeature> features = dataApiHandler.bindDocuments((List<Map>) respBody.get("docs"), GenomeFeature.class);
+
+		for (GenomeFeature feature : features) {
+			String locusTag = "";
+			if (feature.hasSeedId()) {
+				locusTag = feature.getSeedId();
+			}
+			else {
+				if (feature.hasRefseqLocusTag()) {
+					locusTag = feature.getRefseqLocusTag();
 				}
 				else {
-					if (feature.hasRefseqLocusTag()) {
-						locusTag = feature.getRefseqLocusTag();
-					}
-					else {
-						if (feature.hasAltLocusTag()) {
-							locusTag = feature.getAltLocusTag();
-						}
+					if (feature.hasAltLocusTag()) {
+						locusTag = feature.getAltLocusTag();
 					}
 				}
-				collect.add(new SequenceData(feature.getGenomeName().replace(" ", "_"), locusTag, feature.getAaSequence()));
 			}
-		}
-		catch (MalformedURLException | SolrServerException e) {
-			e.printStackTrace();
+			collect.add(new SequenceData(feature.getGenomeName().replace(" ", "_"), locusTag, feature.getAaSequence()));
 		}
 
 		SequenceData[] result = new SequenceData[collect.size()];
@@ -293,264 +278,293 @@ public class FIGfamData {
 		return result;
 	}
 
-	private SequenceData[] getFeatureProteins(ResourceRequest req) throws SQLException {
+	private SequenceData[] getFeatureProteins(ResourceRequest request) throws IOException {
 		SequenceData[] result = null;
-		String featuresString = req.getParameter("featureIds");
+		String featuresString = request.getParameter("featureIds");
 		LOGGER.debug("getFeatureProteins: {}", featuresString);
 		if (featuresString != null && !featuresString.equals("")) {
 			String[] idList = featuresString.split(",");
+			DataApiHandler dataApi = new DataApiHandler(request);
+			this.dataApiHandler = dataApi;
 			result = getFeatureSequences(idList);
 		}
 		return result;
 	}
 
-	public void getFeatureIds(ResourceRequest req, PrintWriter writer, String keyword) {
+	public void getFeatureIds(ResourceRequest request, PrintWriter writer, String keyword) {
 
 		try {
-			LBHttpSolrServer lbHttpSolrServer = solr.getSolrServer(SolrCore.FEATURE);
-
+			DataApiHandler dataApi = new DataApiHandler(request);
 			SolrQuery query = new SolrQuery(keyword);
 			query.addField("feature_id");
+			query.setRows(dataApi.MAX_ROWS);
 
-			long rows = lbHttpSolrServer.query(query).getResults().getNumFound();
-			query.setRows((int) rows);
 
-			QueryResponse qr = lbHttpSolrServer.query(query, SolrRequest.METHOD.POST);
-			SolrDocumentList sdl = qr.getResults();
+			String apiResponse = dataApi.solrQuery(SolrCore.FEATURE, query);
+			Map resp = jsonReader.readValue(apiResponse);
+			Map respBody = (Map) resp.get("response");
 
-			List<String> features = new ArrayList<>();
-			for (SolrDocument d : sdl) {
-				features.add(d.get("feature_id").toString());
+			List<GenomeFeature> features = dataApi.bindDocuments((List<Map>) respBody.get("docs"), GenomeFeature.class);
+
+			List<String> featureIds = new ArrayList<>();
+			for (GenomeFeature feature : features) {
+				featureIds.add(feature.getId());
 			}
 
 			writer.write(StringUtils.join(features, ","));
 		}
-		catch (SolrServerException | MalformedURLException e) {
+		catch (IOException e) {
 			LOGGER.debug(e.getMessage(), e);
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	public void getGenomeDetails(ResourceRequest req, PrintWriter writer) throws IOException {
+	public void getGenomeDetails(ResourceRequest request, PrintWriter writer) throws IOException {
 
-		String cType = req.getParameter("context_type");
-		String cId = req.getParameter("context_id");
+		String cType = request.getParameter("context_type");
+		String cId = request.getParameter("context_id");
 		String keyword = "";
 		if (cType != null && cType.equals("taxon") && cId != null && !cId.equals("")) {
 			keyword = "patric_cds:[1 TO *] AND taxon_lineage_ids:" + cId;
 		}
-		else if (req.getParameter("keyword") != null) {
-			keyword = req.getParameter("keyword");
+		else if (request.getParameter("keyword") != null) {
+			keyword = request.getParameter("keyword");
 		}
-		String fields = req.getParameter("fields");
+		String fields = request.getParameter("fields");
 
-		SolrQuery query = new SolrQuery();
-		query.setQuery(keyword);
+		DataApiHandler dataApi = new DataApiHandler(request);
+
+		SolrQuery query = new SolrQuery(keyword);
 		if (fields != null && !fields.equals("")) {
 			query.addField(fields);
 		}
-		query.setRows(500000).addSort("genome_name", SolrQuery.ORDER.asc);
+		query.setRows(dataApi.MAX_ROWS).addSort("genome_name", SolrQuery.ORDER.asc);
 
-		String pk = req.getParameter("param_key");
-		Gson gson = new Gson();
-		Map<String, String> key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), Map.class);
+		String pk = request.getParameter("param_key");
+		Map<String, String> key = null;
+		if (pk != null) {
+			key = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
+		}
 
 		if (key != null && key.containsKey("genomeIds") && !key.get("genomeIds").equals("")) {
 			query.addFilterQuery("genome_id:(" + key.get("genomeIds").replaceAll(",", " OR ") + ")");
 		}
 
-		LOGGER.debug("getGenomeDetails() {}", query.toString());
-		JSONObject object = null;
-		try {
-			object = solr.ConverttoJSON(solr.getSolrServer(SolrCore.GENOME), query, false, false);
-		}
-		catch (Exception e) {
-			LOGGER.error(e.getMessage(), e);
-			LOGGER.debug("params: {}", req.getParameterMap().toString());
-		}
+		LOGGER.debug("getGenomeDetails(): [{}] {}", SolrCore.GENOME.getSolrCoreName(), query.toString());
 
-		JSONObject obj = (JSONObject) object.get("response");
-		JSONArray obj1 = (JSONArray) obj.get("docs");
+		String apiResponse = dataApi.solrQuery(SolrCore.GENOME, query);
+		Map resp = jsonReader.readValue(apiResponse);
+		Map respBody = (Map) resp.get("response");
+
+		int numFound = (Integer)  respBody.get("numFound");
+		List<Map> sdl = (List<Map>) respBody.get("docs");
+
+		JSONArray docs = new JSONArray();
+		for (Map doc : sdl) {
+			JSONObject  item = new JSONObject();
+			item.putAll(doc);
+			docs.add(item);
+		}
 
 		JSONObject jsonResult = new JSONObject();
-		jsonResult.put("results", obj1);
-		jsonResult.put("total", obj.get("numFound"));
+		jsonResult.put("results", docs);
+		jsonResult.put("total", numFound);
 		jsonResult.writeJSONString(writer);
 	}
 
 	@SuppressWarnings("unchecked")
-	public void getGroupStats(ResourceRequest req, PrintWriter writer) throws IOException {
+	public void getGroupStats(ResourceRequest request, PrintWriter writer) throws IOException {
 
-		// TODO: utilize heliosearch subfaceting and facet analytics to merge three queries as much as possible
+		DataApiHandler dataApi = new DataApiHandler(request);
 
-		// long start_ms, end_ms;
 		JSONObject figfams = new JSONObject();
 		List<String> figfamIdList = new ArrayList<>();
-		List<String> genomeIdList = Arrays.asList(req.getParameter("genomeIds").split(","));
+		List<String> genomeIdList = new ArrayList<>(); // Arrays.asList(request.getParameter("genomeIds").split(","));
 
 		// get genome list in order
-		SolrQuery solr_query = new SolrQuery("genome_id:(" + StringUtils.join(genomeIdList, " OR ") + ")");
-		solr_query.addSort("genome_name", SolrQuery.ORDER.asc).addField("genome_id").setRows(genomeIdList.size());
-
+		String genomeIds = request.getParameter("genomeIds");
 		try {
-			QueryResponse qr = solr.getSolrServer(SolrCore.GENOME).query(solr_query, SolrRequest.METHOD.POST);
+			SolrQuery query = new SolrQuery("genome_id:(" + genomeIds.replaceAll(",", " OR ") + ")");
+			query.addSort("genome_name", SolrQuery.ORDER.asc).addField("genome_id").setRows(dataApi.MAX_ROWS);
 
-			genomeIdList = new ArrayList<>();
-			for (SolrDocument doc : qr.getResults()) {
-				genomeIdList.add(doc.get("genome_id").toString());
+			LOGGER.trace("[{}] {}", SolrCore.GENOME.getSolrCoreName(), query.toString());
+
+			String apiResponse = dataApi.solrQuery(SolrCore.GENOME, query);
+			Map resp = jsonReader.readValue(apiResponse);
+			Map respBody = (Map) resp.get("response");
+
+			List<Genome> genomes = dataApi.bindDocuments((List<Map>) respBody.get("docs"), Genome.class);
+
+			for (Genome genome : genomes) {
+				genomeIdList.add(genome.getId());
 			}
 		}
-		catch (MalformedURLException | SolrServerException e) {
+		catch (IOException e) {
 			LOGGER.error(e.getMessage(), e);
 		}
+
+		LOGGER.debug("genomeIdList: {}", genomeIdList);
 
 		// getting genome counts per figfamID (figfam)
-		solr_query = new SolrQuery("*:*");
-		solr_query.addFilterQuery("annotation:PATRIC AND feature_type:CDS");
-		solr_query.addFilterQuery(getSolrQuery(req));
-		solr_query.setRows(0);
-		solr_query.setFacet(true);
-		solr_query.addFacetPivotField("figfam_id,genome_id");
-		solr_query.setFacetMinCount(1);
-		solr_query.setFacetLimit(-1);
-
-		LOGGER.debug("getGroupStats() 1/3:{}", solr_query.toString());
+		// {stat:{field:{field:figfam_id,limit:-1,facet:{min:"min(aa_length)",max:"max(aa_length)",mean:"avg(aa_length)",ss:"sumsq(aa_length)",dist:"percentile(aa_length,50,75,99,99.9)",field:{field:genome_id}}}}}
 
 		try {
-			QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(solr_query, SolrRequest.METHOD.POST);
+			SolrQuery query = new SolrQuery("annotation:PATRIC AND feature_type:CDS");
+			query.addFilterQuery(getSolrQuery(request));
+			query.setRows(0).setFacet(true);
+			query.add("json.facet","{stat:{field:{field:figfam_id,limit:-1,facet:{min:\"min(aa_length)\",max:\"max(aa_length)\",mean:\"avg(aa_length)\",ss:\"sumsq(aa_length)\",dist:\"percentile(aa_length,1,25,50,75,99,99.9)\",field:{field:genome_id}}}}}");
 
-			NamedList<List<PivotField>> pivots = qr.getFacetPivot();
+			LOGGER.trace("getGroupStats(): [{}] {}", SolrCore.FEATURE.getSolrCoreName(), query.toString());
+			String apiResponse = dataApi.solrQuery(SolrCore.FEATURE, query);
 
-			for (Map.Entry<String, List<PivotField>> pivot : pivots) {
-				List<PivotField> pivotEntries = pivot.getValue();
-				if (pivotEntries != null) {
-					for (PivotField pivotEntry : pivotEntries) {
-						JSONObject figfam = new JSONObject();
+			Map resp = jsonReader.readValue(apiResponse);
+			Map stat = (Map) ((Map) resp.get("facets")).get("stat");
 
-						List<PivotField> pivotGenomes = pivotEntry.getPivot();
-						int count = 0, index;
-						String hex;
+			List<Map> buckets = (List<Map>) stat.get("buckets");
 
-						String[] genomeIdsStr = new String[genomeIdList.size()];
-						Arrays.fill(genomeIdsStr, "00");
+			for (Map bucket : buckets) {
+				String figfamId = (String) bucket.get("val");
+				int count = (Integer) bucket.get("count");
 
-						for (PivotField pivotGenome : pivotGenomes) {
-							index = genomeIdList.indexOf(pivotGenome.getValue().toString());
-							hex = Integer.toHexString(pivotGenome.getCount());
-							genomeIdsStr[index] = hex.length() < 2 ? "0" + hex : hex;
-							//							LOGGER.debug("{},{},{},{}", pivotGenome.getValue(), index, hex, genomeIdsStr);
-							count += pivotGenome.getCount();
-						}
+				String[] genomeIdsStr = new String[genomeIdList.size()];
+				Arrays.fill(genomeIdsStr, "00");
 
-						figfamIdList.add(pivotEntry.getValue().toString());
+				List<Map> genomes = (List<Map>) ((Map) bucket.get("field")).get("buckets");
+				for (Map genome : genomes) {
+					String genomeId = (String) genome.get("val");
+					int genomeCount = (Integer) genome.get("count");
 
-						figfam.put("genomes", StringUtils.join(genomeIdsStr, ""));
-						figfam.put("genome_count", pivotGenomes.size());
-						figfam.put("feature_count", count);
-
-						figfams.put(pivotEntry.getValue(), figfam);
-					}
+					int index = genomeIdList.indexOf(genomeId);
+					String hex = Integer.toHexString(genomeCount);
+					genomeIdsStr[index] = hex.length() < 2 ? "0" + hex : hex;
 				}
+
+				double min, max, mean, sumsq;
+				if (bucket.get("min") instanceof Double) {
+					min = (Double) bucket.get("min");
+				}
+				else if (bucket.get("min") instanceof Integer) {
+					min = ((Integer) bucket.get("min")).doubleValue();
+				}
+				else {
+					min = 0;
+				}
+				if (bucket.get("max") instanceof Double) {
+					max = (Double) bucket.get("max");
+				}
+				else if (bucket.get("max") instanceof Integer) {
+					max = ((Integer) bucket.get("max")).doubleValue();
+				}
+				else {
+					max = 0;
+				}
+				if (bucket.get("mean") instanceof Double) {
+					mean = (Double) bucket.get("mean");
+				}
+				else if (bucket.get("mean") instanceof Integer) {
+					mean = ((Integer) bucket.get("mean")).doubleValue();
+				}
+				else {
+					mean = 0;
+				}
+				if (bucket.get("sumsq") instanceof Double) {
+					sumsq = (Double) bucket.get("sumsq");
+				}
+				else if (bucket.get("sumsq") instanceof Integer) {
+					sumsq = ((Integer) bucket.get("sumsq")).doubleValue();
+				}
+				else {
+					sumsq = 0;
+				}
+
+				LOGGER.debug("sumsq:{}, count: {}", sumsq, count);
+				double std = Math.sqrt(sumsq / (count - 1));
+				JSONObject aaLength = new JSONObject();
+				aaLength.put("min", min);
+				aaLength.put("max", max);
+				aaLength.put("mean", mean);
+				aaLength.put("stddev", std);
+
+				List<Double> dist = (List) bucket.get("dist");
+
+				figfamIdList.add(figfamId);
+
+				JSONObject figfam = new JSONObject();
+				figfam.put("genomes", StringUtils.join(genomeIdsStr, ""));
+				figfam.put("genome_count", genomes.size());
+				figfam.put("feature_count", count);
+				figfam.put("stats", aaLength);
+				figfam.put("dist", dist);
+
+				figfams.put(figfamId, figfam);
 			}
 		}
-		catch (MalformedURLException | SolrServerException e) {
+		catch (IOException e) {
 			LOGGER.error(e.getMessage(), e);
-			LOGGER.debug("::getGroupStats() 1/3, params: {}", req.getParameterMap().toString());
-		}
-
-		// getting distribution of aa length in each protein family
-
-		solr_query = new SolrQuery("*:*");
-		solr_query.addFilterQuery("annotation:PATRIC AND feature_type:CDS");
-		solr_query.addFilterQuery(getSolrQuery(req));
-		solr_query.setRows(0);
-		solr_query.set("stats", "true");
-		solr_query.set("stats.field", "aa_length");
-		solr_query.set("stats.facet", "figfam_id");
-
-		LOGGER.debug("getGroupStats() 2/3:{}", solr_query.toString());
-		try {
-			QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(solr_query, SolrRequest.METHOD.POST);
-			Map<String, FieldStatsInfo> stats_map = qr.getFieldStatsInfo();
-
-			if (stats_map != null) {
-				FieldStatsInfo stats = stats_map.get("aa_length");
-				if (stats != null) {
-					List<FieldStatsInfo> fieldStats = stats.getFacets().get("figfam_id");
-					for (FieldStatsInfo fieldStat : fieldStats) {
-						if (fieldStat.getName() != null) {
-							JSONObject figfam = (JSONObject) figfams.get(fieldStat.getName());
-							JSONObject stat = new JSONObject();
-							stat.put("max", fieldStat.getMax());
-							stat.put("min", fieldStat.getMin());
-							stat.put("mean", fieldStat.getMean());
-							stat.put("stddev", Math.round(fieldStat.getStddev() * 1000) / (double) 1000);
-
-							figfam.put("stats", stat);
-							figfams.put(fieldStat.getName(), figfam);
-						}
-					}
-				}
-			}
-		}
-		catch (MalformedURLException | SolrServerException e) {
-			LOGGER.error(e.getMessage(), e);
-			LOGGER.debug("::getGroupStats() 2/3, params: {}", req.getParameterMap().toString());
 		}
 
 		// getting distinct figfam_product
 		if (!figfamIdList.isEmpty()) {
 
 			figfamIdList.remove("");
-			solr_query = new SolrQuery("figfam_id:(" + StringUtils.join(figfamIdList, " OR ") + ")");
-			solr_query.addField("figfam_id,figfam_product");
-			solr_query.setRows(figfams.size());
 
-			LOGGER.debug("getGroupStats() 3/3: {}", solr_query.toString());
 			try {
-				QueryResponse qr = solr.getSolrServer(SolrCore.FIGFAM_DIC).query(solr_query, SolrRequest.METHOD.POST);
-				SolrDocumentList sdl = qr.getResults();
+				SolrQuery query = new SolrQuery("figfam_id:(" + StringUtils.join(figfamIdList, " OR ") + ")");
+				query.addField("figfam_id,figfam_product").setRows(figfams.size());
 
-				for (SolrDocument d : sdl) {
-					JSONObject figfam = (JSONObject) figfams.get(d.get("figfam_id"));
-					figfam.put("description", d.get("figfam_product"));
-					figfams.put(d.get("figfam_id"), figfam);
+				LOGGER.debug("getGroupStats() 3/3: [{}] {}", SolrCore.FIGFAM_DIC.getSolrCoreName(), query.toString());
+
+				String apiResponse = dataApi.solrQuery(SolrCore.FIGFAM_DIC, query);
+				LOGGER.debug("{}", apiResponse);
+				Map resp = jsonReader.readValue(apiResponse);
+				Map respBody = (Map) resp.get("response");
+
+				List<Map> sdl = (List<Map>) respBody.get("docs");
+
+				for (Map doc : sdl) {
+					JSONObject figfam = (JSONObject) figfams.get(doc.get("figfam_id"));
+					figfam.put("description", doc.get("figfam_product"));
+					figfams.put(doc.get("figfam_id").toString(), figfam);
 				}
 			}
-			catch (MalformedURLException | SolrServerException e) {
+			catch (IOException e) {
 				LOGGER.error(e.getMessage(), e);
-				LOGGER.debug("::getGroupStats() 3/3, params: {}", req.getParameterMap().toString());
+				LOGGER.debug("::getGroupStats() 3/3, params: {}", request.getParameterMap().toString());
 			}
 			figfams.writeJSONString(writer);
 		}
 	}
 
-	public String getSolrQuery(ResourceRequest req) {
+	public String getSolrQuery(ResourceRequest request) throws IOException {
 		String keyword = "";
 
-		if (req.getParameter("keyword") != null && !req.getParameter("keyword").equals("")) {
-			keyword += "(" + solr.KeywordReplace(req.getParameter("keyword")) + ")";
+		if (request.getParameter("keyword") != null && !request.getParameter("keyword").equals("")) {
+			SolrInterface solr = new SolrInterface();
+			keyword += "(" + solr.KeywordReplace(request.getParameter("keyword")) + ")";
 		}
 
-		String cType = req.getParameter("context_type");
-		String cId = req.getParameter("context_id");
+		String cType = request.getParameter("context_type");
+		String cId = request.getParameter("context_id");
 		if (cType != null && cType.equals("taxon") && cId != null && !cId.equals("")) {
 			keyword += SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + cId);
 		}
 		else {
-			String listText = req.getParameter("genomeIds");
+			String listText = request.getParameter("genomeIds");
 
 			if (listText != null) {
-				if (req.getParameter("keyword") != null && !req.getParameter("keyword").equals("")) {
+				if (request.getParameter("keyword") != null && !request.getParameter("keyword").equals("")) {
 					keyword += " AND ";
 				}
-				keyword += "(genome_id:(" + listText.replaceAll(",", " OR ") + "))";
+				keyword += "genome_id:(" + listText.replaceAll(",", " OR ") + ")";
 			}
 		}
 
-		String pk = req.getParameter("param_key");
-		Gson gson = new Gson();
-		Map<String, String> key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), Map.class);
+		String pk = request.getParameter("param_key");
+
+		Map<String, String> key = null;
+		if (pk != null) {
+			key = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
+		}
 
 		if (key != null && key.containsKey("genomeIds") && !key.get("genomeIds").equals("")) {
 			if (!keyword.equals("")) {

@@ -17,16 +17,15 @@
  */
 package edu.vt.vbi.patric.portlets;
 
-import com.google.gson.Gson;
 import edu.vt.vbi.patric.beans.GenomeFeature;
+import edu.vt.vbi.patric.common.DataApiHandler;
 import edu.vt.vbi.patric.common.SessionHandler;
 import edu.vt.vbi.patric.common.SolrCore;
-import edu.vt.vbi.patric.common.SolrInterface;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrRequest;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.QueryResponse;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectReader;
+import org.codehaus.jackson.map.ObjectWriter;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
@@ -35,27 +34,35 @@ import org.slf4j.LoggerFactory;
 import javax.portlet.*;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.MalformedURLException;
 import java.util.*;
 
 public class PathwayTableSingle extends GenericPortlet {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(PathwayTableSingle.class);
 
+	private ObjectReader jsonReader;
+
+	private ObjectWriter jsonWriter;
+
+	@Override
+	public void init() throws PortletException {
+		super.init();
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		jsonReader = objectMapper.reader(Map.class);
+		jsonWriter = objectMapper.writerWithType(Map.class);
+	}
+
 	@Override
 	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 		response.setContentType("text/html");
 		response.setTitle("Pathway Table");
 
-		// String contextType = request.getParameter("context_type");
-		// String contextId = request.getParameter("context_id");
-
 		String pk = request.getParameter("param_key");
 
 		String ec_number = "", algorithm = "", map = "", genomeId = "";
-		Gson gson = new Gson();
 
-		Map<String, String> key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), Map.class);
+		Map<String, String> key = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
 
 		if (key != null && key.containsKey("algorithm")) {
 			algorithm = key.get("algorithm");
@@ -89,7 +96,6 @@ public class PathwayTableSingle extends GenericPortlet {
 		response.setContentType("application/json");
 
 		String callType = request.getParameter("callType");
-		Gson gson = new Gson();
 
 		if (callType != null && callType.equals("savetopk")) {
 
@@ -124,7 +130,7 @@ public class PathwayTableSingle extends GenericPortlet {
 
 			long pk = (new Random()).nextLong();
 
-			SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, Map.class));
+			SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
 
 			PrintWriter writer = response.getWriter();
 			writer.write("" + pk);
@@ -136,9 +142,9 @@ public class PathwayTableSingle extends GenericPortlet {
 			JSONObject jsonResult = new JSONObject();
 			JSONArray results = new JSONArray();
 			String pk = request.getParameter("pk");
-			Map<String, String> key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), Map.class);
+			Map<String, String> key = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
 
-			SolrInterface solr = new SolrInterface();
+			DataApiHandler dataApi = new DataApiHandler(request);
 			try {
 				SolrQuery query = new SolrQuery("*:*");
 				List<String> joinConditions = new ArrayList<>();
@@ -161,19 +167,25 @@ public class PathwayTableSingle extends GenericPortlet {
 				}
 				query.setRows(10000);
 
-				LOGGER.debug("{}", query.toString());
-				QueryResponse qr = solr.getSolrServer(SolrCore.FEATURE).query(query, SolrRequest.METHOD.POST);
-				List<GenomeFeature> featureList = qr.getBeans(GenomeFeature.class);
+				LOGGER.debug("[{}] {}", SolrCore.FEATURE.getSolrCoreName(), query.toString());
 
-				for (GenomeFeature feature : featureList) {
+				String apiResponse = dataApi.solrQuery(SolrCore.FEATURE, query);
+
+				Map resp = jsonReader.readValue(apiResponse);
+				Map respBody = (Map) resp.get("response");
+
+				int numFound = (Integer) respBody.get("numFound");
+				List<GenomeFeature> features = dataApi.bindDocuments((List<Map>) respBody.get("docs"), GenomeFeature.class);
+
+				for (GenomeFeature feature : features) {
 
 					results.add(feature.toJSONObject());
 				}
 
-				jsonResult.put("total", featureList.size());
+				jsonResult.put("total", numFound);
 				jsonResult.put("results", results);
 			}
-			catch (MalformedURLException | SolrServerException e) {
+			catch (IOException e) {
 				LOGGER.error(e.getMessage(), e);
 			}
 

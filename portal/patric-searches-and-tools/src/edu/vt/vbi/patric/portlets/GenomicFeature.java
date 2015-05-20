@@ -40,9 +40,9 @@ public class GenomicFeature extends GenericPortlet {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(GenomicFeature.class);
 
-	ObjectReader jsonReader;
+	private ObjectReader jsonReader;
 
-	ObjectWriter jsonWriter;
+	private ObjectWriter jsonWriter;
 
 	@Override
 	public void init() throws PortletException {

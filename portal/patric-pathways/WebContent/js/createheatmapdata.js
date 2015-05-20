@@ -11,7 +11,7 @@ function loadHeatMap(){
             'x-mask-loading');
 	
 	Ext.Ajax.request({
-	    url: "/patric-pathways/jsp/heatmap_data.json.jsp",
+	    url: "/portal/portal/patric/CompPathwayMap/CompPathwayMapWindow?action=b&cacheability=PAGE&callType=HeatMap",
 	    method: 'GET',
 	    params: {genomeId:genomeId, map:map, taxonId:taxonId, algorithm:algorithm},
 	    synchronous: true,

@@ -1,6 +1,4 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet"%>
-<%@ page import="java.util.*" %>
-<%@ page import="javax.portlet.PortletSession" %>
 <portlet:defineObjects/>
 <%
 String cType = (String) request.getAttribute("cType");
@@ -551,7 +549,8 @@ function loadGrid(action){
 				totalProperty:'total'	
 			},
 			extraParams: {
-				genomeId: Ext.getDom("genomeId").value 
+				callType: "EcTable"
+				,genomeId: Ext.getDom("genomeId").value
 				,taxonId: Ext.getDom("taxonId").value 
 				,cType: Ext.getDom("cType").value 
 				,map:Ext.getDom("map").value 
@@ -559,7 +558,6 @@ function loadGrid(action){
 				,algorithm: Ext.getDom("algorithm").value
 				,sort:'ec_number'
 				,dir:'ASC'
-
 			}
 		},
 		listeners:{

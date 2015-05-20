@@ -492,7 +492,7 @@ function getSelectedFeatures(actiontype, showdownload, fastatype, to){
 	    	ecid.push(Ext.getDom("ecN").value);
 
 		Ext.Ajax.request({
-		    url: "/patric-pathways/jsp/get_na_feature_ids.json.jsp",
+		    url: "/portal/portal/patric/CompPathwayTable/CompPathwayTableWindow?action=b&cacheability=PAGE&need=getFeatureIds",
 		    method: 'POST',
 		    params: {cId:cId, cType:cType, map:pid.join(" OR "), algorithm:aid.join(" OR "), ec_number:ecid.join(" OR ")},
 		    success: function(response, opts) {

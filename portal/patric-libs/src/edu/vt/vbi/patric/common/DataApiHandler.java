@@ -354,7 +354,7 @@ public class DataApiHandler {
 
 		List<String> fields = Arrays.asList(facetFields.split(","));
 
-		LOGGER.trace("{}", query.toString());
+		LOGGER.trace("getFieldFacets: [{}] {}", core.getSolrCoreName(), query.toString());
 		String response = this.solrQuery(core, query);
 		Map resp = jsonParser.readValue(response);
 		Map facet_fields = (Map) ((Map) resp.get("facet_counts")).get("facet_fields");
@@ -396,7 +396,7 @@ public class DataApiHandler {
 		query.setRows(0).setFacet(true).setFacetLimit(-1).setFacetMinCount(1).setFacetSort(FacetParams.FACET_SORT_INDEX);
 		query.addFacetPivotField(facetFields);
 
-		LOGGER.trace("{}", query.toString());
+		LOGGER.trace("getPivotFacets: [{}] {}", core.getSolrCoreName(), query.toString());
 		String response = this.solrQuery(core, query);
 		Map<String, Object> resp = jsonParser.readValue(response);
 		Map facet_fields = (Map) ((Map) resp.get("facet_counts")).get("facet_pivot");

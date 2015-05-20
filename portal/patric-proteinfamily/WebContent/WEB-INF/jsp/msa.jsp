@@ -1,9 +1,9 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet"
-%><%@ page import="edu.vt.vbi.patric.dao.ResultType"
 %><%@ page import="java.util.*"
-%><%@ page import="com.google.gson.Gson"
 %><%@ page import="edu.vt.vbi.patric.common.SessionHandler"
 %>
+<%@ page import="org.codehaus.jackson.map.ObjectMapper" %>
+<%@ page import="org.codehaus.jackson.map.ObjectReader" %>
 <portlet:defineObjects /><%
 String nameSpaceAids = renderResponse.encodeURL(renderRequest.getContextPath() + "/js/namespace.js");
 
@@ -21,8 +21,11 @@ String pk = request.getParameter("param_key");
 String featureIds = "";
 String figfamId = "";
 String product = "";
-Gson gson = new Gson();
-Map<String, String> key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), Map.class);
+
+ObjectMapper objectMapper = new ObjectMapper();
+ObjectReader jsonReader = objectMapper.reader(Map.class);
+
+Map<String, String> key = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
 if (key != null) {
 	featureIds = key.get("featureIds");
 	figfamId = key.get("figfamId");

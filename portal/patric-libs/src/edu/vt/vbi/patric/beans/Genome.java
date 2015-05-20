@@ -924,6 +924,14 @@ public class Genome {
 		this.additionalMetadata = additionalMetadata;
 	}
 
+	public boolean hasPatricCds() {
+		return this.patricCds > 0;
+	}
+
+	public boolean hasRefseqCds() {
+		return this.refseqCds > 0;
+	}
+
 	public boolean hasCollectionDate() {
 		return (this.collectionDate != null);
 	}

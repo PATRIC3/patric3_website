@@ -20,15 +20,13 @@ package edu.vt.vbi.patric.portlets;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import edu.vt.vbi.patric.beans.Genome;
+import edu.vt.vbi.patric.beans.GenomeFeature;
 import edu.vt.vbi.patric.common.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrRequest;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
-import org.apache.solr.common.util.SimpleOrderedMap;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectReader;
+import org.codehaus.jackson.map.ObjectWriter;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
@@ -37,12 +35,24 @@ import org.slf4j.LoggerFactory;
 import javax.portlet.*;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.MalformedURLException;
 import java.util.*;
 
 public class PathwayFinder extends GenericPortlet {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(PathwayFinder.class);
+
+	private ObjectReader jsonReader;
+
+	private ObjectWriter jsonWriter;
+
+	@Override
+	public void init() throws PortletException {
+		super.init();
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		jsonReader = objectMapper.reader(Map.class);
+		jsonWriter = objectMapper.writerWithType(Map.class);
+	}
 
 	public boolean isLoggedIn(PortletRequest request) {
 
@@ -62,7 +72,6 @@ public class PathwayFinder extends GenericPortlet {
 		SiteHelper.setHtmlMetaElements(request, response, "Comparative Pathway Tool");
 
 		String mode = request.getParameter("display_mode");
-		Gson gson = new Gson();
 
 		if (mode != null && mode.equals("result")) {
 
@@ -74,7 +83,7 @@ public class PathwayFinder extends GenericPortlet {
 			String annotation = request.getParameter("algorithm");
 			String pathwayId = request.getParameter("map");
 
-			Map<String, String> key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), Map.class);
+			Map<String, String> key = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
 
 			String searchOn = "";
 			String keyword = "";
@@ -111,7 +120,7 @@ public class PathwayFinder extends GenericPortlet {
 		else if (mode != null && mode.equals("featurelist")) {
 
 			String pk = request.getParameter("param_key");
-			Map<String, String> key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), Map.class);
+			Map<String, String> key = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
 
 			String ecNumber = request.getParameter("ec_number");
 			String annotation = request.getParameter("algorithm");
@@ -127,7 +136,7 @@ public class PathwayFinder extends GenericPortlet {
 				key.put("map", pathwayId);
 			}
 
-			SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, Map.class));
+			SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
 
 			request.setAttribute("pk", pk);
 
@@ -180,7 +189,6 @@ public class PathwayFinder extends GenericPortlet {
 	public void serveResource(ResourceRequest request, ResourceResponse response) throws PortletException, IOException {
 
 		String sraction = request.getParameter("sraction");
-		Gson gson = new Gson();
 
 		if (sraction != null && sraction.equals("save_params")) {
 
@@ -223,7 +231,7 @@ public class PathwayFinder extends GenericPortlet {
 
 			long pk = (new Random()).nextLong();
 
-			SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, gson.toJson(key, Map.class));
+			SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
 
 			PrintWriter writer = response.getWriter();
 			writer.write("" + pk);
@@ -233,23 +241,27 @@ public class PathwayFinder extends GenericPortlet {
 
 			String need = request.getParameter("need");
 			String pk = request.getParameter("pk");
-			Map<String, String> key = gson.fromJson(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk), Map.class);
+			Map<String, String> key = null;
+			if (pk != null && !pk.isEmpty()) {
+				key = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
+			}
 
+			DataApiHandler dataApi = new DataApiHandler(request);
 			switch (need) {
 			case "0":
-				JSONObject jsonResult = processPathwayTab(key.get("map"), key.get("ec_number"), key.get("algorithm"), key.get("taxonId"),
+				JSONObject jsonResult = processPathwayTab(dataApi, key.get("map"), key.get("ec_number"), key.get("algorithm"), key.get("taxonId"),
 						key.get("genomeId"), key.get("keyword"));
 				response.setContentType("application/json");
 				jsonResult.writeJSONString(response.getWriter());
 				break;
 			case "1":
-				jsonResult = processEcNumberTab(key.get("map"), key.get("ec_number"), key.get("algorithm"), key.get("taxonId"), key.get("genomeId"),
+				jsonResult = processEcNumberTab(dataApi, key.get("map"), key.get("ec_number"), key.get("algorithm"), key.get("taxonId"), key.get("genomeId"),
 						key.get("keyword"));
 				response.setContentType("application/json");
 				jsonResult.writeJSONString(response.getWriter());
 				break;
 			case "2":
-				jsonResult = processGeneTab(key.get("map"), key.get("ec_number"), key.get("algorithm"), key.get("taxonId"), key.get("genomeId"),
+				jsonResult = processGeneTab(dataApi, key.get("map"), key.get("ec_number"), key.get("algorithm"), key.get("taxonId"), key.get("genomeId"),
 						key.get("keyword"));
 				response.setContentType("application/json");
 				jsonResult.writeJSONString(response.getWriter());
@@ -265,7 +277,7 @@ public class PathwayFinder extends GenericPortlet {
 	}
 
 	@SuppressWarnings("unchecked")
-	private JSONObject processPathwayTab(String pathwayId, String ecNumber, String annotation, String taxonId, String genomeId, String keyword)
+	private JSONObject processPathwayTab(DataApiHandler dataApi, String pathwayId, String ecNumber, String annotation, String taxonId, String genomeId, String keyword)
 			throws PortletException, IOException {
 
 		JSONObject jsonResult = new JSONObject();
@@ -295,7 +307,6 @@ public class PathwayFinder extends GenericPortlet {
 			query.setQuery(keyword);
 		}
 
-		SolrInterface solr = new SolrInterface();
 		JSONArray items = new JSONArray();
 		int count_total = 0;
 		int count_unique = 0;
@@ -309,13 +320,15 @@ public class PathwayFinder extends GenericPortlet {
 			query.add("json.facet",
 					"{stat:{field:{field:pathway_id,limit:-1,facet:{genome_count:\"unique(genome_id)\",gene_count:\"unique(feature_id)\",ec_count:\"unique(ec_number)\",genome_ec:\"unique(genome_ec)\"}}}}");
 
-			LOGGER.trace("processPathwayTab 1:{}", query.toString());
-			QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query, SolrRequest.METHOD.POST);
-			List<SimpleOrderedMap> buckets = (List) ((SimpleOrderedMap) ((SimpleOrderedMap) qr.getResponse().get("facets")).get("stat")).get(
-					"buckets");
+			LOGGER.trace("processPathwayTab: [{}] {}", SolrCore.PATHWAY.getSolrCoreName(), query);
 
-			Map<String, SimpleOrderedMap> mapStat = new HashMap<>();
-			for (SimpleOrderedMap value : buckets) {
+			String apiResponse = dataApi.solrQuery(SolrCore.PATHWAY, query);
+
+			Map resp = jsonReader.readValue(apiResponse);
+			List<Map> buckets = (List<Map>) ((Map) ((Map) resp.get("facets")).get("stat")).get("buckets");
+
+			Map<String, Map> mapStat = new HashMap<>();
+			for (Map value : buckets) {
 				mapStat.put(value.get("val").toString(), value);
 				listPathwayIds.add(value.get("val").toString());
 			}
@@ -324,14 +337,19 @@ public class PathwayFinder extends GenericPortlet {
 				// get pathway list
 				SolrQuery pathwayQuery = new SolrQuery("pathway_id:(" + StringUtils.join(listPathwayIds, " OR ") + ")");
 				pathwayQuery.setFields("pathway_id,pathway_name,pathway_class");
-				pathwayQuery.setRows(Math.max(1000000, listPathwayIds.size()));
+				pathwayQuery.setRows(Math.max(dataApi.MAX_ROWS, listPathwayIds.size()));
 
-				QueryResponse pathwayQueryResponse = solr.getSolrServer(SolrCore.PATHWAY_REF).query(pathwayQuery);
-				SolrDocumentList sdl = pathwayQueryResponse.getResults();
+				LOGGER.trace("processPathwayTab: [{}] {}", SolrCore.PATHWAY_REF.getSolrCoreName(), pathwayQuery);
 
-				for (SolrDocument doc : sdl) {
+				apiResponse = dataApi.solrQuery(SolrCore.PATHWAY_REF, pathwayQuery);
+				resp = jsonReader.readValue(apiResponse);
+				Map respBody = (Map) resp.get("response");
+
+				List<Map> sdl = (List<Map>) respBody.get("docs");
+
+				for (Map doc : sdl) {
 					String aPathwayId = doc.get("pathway_id").toString();
-					SimpleOrderedMap stat = mapStat.get(aPathwayId);
+					Map stat = mapStat.get(aPathwayId);
 
 					if (!uniquePathways.containsKey(aPathwayId) && !stat.get("genome_count").toString().equals("0")) {
 						JSONObject item = new JSONObject();
@@ -369,7 +387,7 @@ public class PathwayFinder extends GenericPortlet {
 				count_unique = count_total;
 			}
 		}
-		catch (MalformedURLException | SolrServerException e) {
+		catch (IOException e) {
 			LOGGER.error(e.getMessage(), e);
 		}
 
@@ -387,7 +405,7 @@ public class PathwayFinder extends GenericPortlet {
 	}
 
 	@SuppressWarnings("unchecked")
-	private JSONObject processEcNumberTab(String pathwayId, String ecNumber, String annotation, String taxonId, String genomeId, String keyword)
+	private JSONObject processEcNumberTab(DataApiHandler dataApi, String pathwayId, String ecNumber, String annotation, String taxonId, String genomeId, String keyword)
 			throws PortletException, IOException {
 
 		JSONObject jsonResult = new JSONObject();
@@ -417,7 +435,6 @@ public class PathwayFinder extends GenericPortlet {
 			query.setQuery(keyword);
 		}
 
-		SolrInterface solr = new SolrInterface();
 		JSONArray items = new JSONArray();
 		int count_total = 0;
 		int count_unique = 0;
@@ -431,13 +448,14 @@ public class PathwayFinder extends GenericPortlet {
 			query.add("json.facet",
 					"{stat:{field:{field:pathway_ec,limit:-1,facet:{genome_count:\"unique(genome_id)\",gene_count:\"unique(feature_id)\",ec_count:\"unique(ec_number)\"}}}}");
 
-			QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query, SolrRequest.METHOD.POST);
+			LOGGER.trace("processEcNumberTab: [{}] {}", SolrCore.PATHWAY.getSolrCoreName(), query);
 
-			List<SimpleOrderedMap> buckets = (List) ((SimpleOrderedMap) ((SimpleOrderedMap) qr.getResponse().get("facets")).get("stat"))
-					.get("buckets");
+			String apiResponse = dataApi.solrQuery(SolrCore.PATHWAY, query);
+			Map resp = jsonReader.readValue(apiResponse);
+			List<Map> buckets = (List<Map>) ((Map) ((Map) resp.get("facets")).get("stat")).get("buckets");
 
-			Map<String, SimpleOrderedMap> mapStat = new HashMap<>();
-			for (SimpleOrderedMap value : buckets) {
+			Map<String, Map> mapStat = new HashMap<>();
+			for (Map value : buckets) {
 
 				if (!value.get("genome_count").toString().equals("0")) {
 					mapStat.put(value.get("val").toString(), value);
@@ -455,14 +473,19 @@ public class PathwayFinder extends GenericPortlet {
 
 				pathwayQuery.setFields("pathway_id,pathway_name,pathway_class,ec_number,ec_description");
 				pathwayQuery.setRows(Math.max(1000000, listPathwayIds.size()));
-				// LOGGER.debug("{}", pathwayQuery.toString());
-				QueryResponse pathwayQueryResponse = solr.getSolrServer(SolrCore.PATHWAY_REF).query(pathwayQuery, SolrRequest.METHOD.POST);
-				SolrDocumentList sdl = pathwayQueryResponse.getResults();
 
-				for (SolrDocument doc : sdl) {
+				LOGGER.trace("processEcNumberTab: [{}] {}", SolrCore.PATHWAY_REF.getSolrCoreName(), pathwayQuery);
+
+				apiResponse = dataApi.solrQuery(SolrCore.PATHWAY_REF, pathwayQuery);
+				resp = jsonReader.readValue(apiResponse);
+				Map respBody = (Map) resp.get("response");
+
+				List<Map> sdl = (List<Map>) respBody.get("docs");
+
+				for (Map doc : sdl) {
 					String aPathwayId = doc.get("pathway_id").toString();
 					String aEcNumber = doc.get("ec_number").toString();
-					SimpleOrderedMap stat = mapStat.get(aPathwayId + "_" + aEcNumber);
+					Map stat = mapStat.get(aPathwayId + "_" + aEcNumber);
 
 					if (stat != null && !stat.get("genome_count").toString().equals("0")) {
 						JSONObject item = new JSONObject();
@@ -486,7 +509,7 @@ public class PathwayFinder extends GenericPortlet {
 				count_unique = listEcNumbers.size();
 			}
 		}
-		catch (MalformedURLException | SolrServerException e) {
+		catch (IOException e) {
 			LOGGER.error(e.getMessage(), e);
 		}
 
@@ -504,7 +527,7 @@ public class PathwayFinder extends GenericPortlet {
 	}
 
 	@SuppressWarnings("unchecked")
-	private JSONObject processGeneTab(String pathwayId, String ecNumber, String annotation, String taxonId, String genomeId, String keyword)
+	private JSONObject processGeneTab(DataApiHandler dataApi, String pathwayId, String ecNumber, String annotation, String taxonId, String genomeId, String keyword)
 			throws PortletException, IOException {
 
 		LOGGER.debug("pathwayId:{}, ecNumber:{}, annotation:{}, taxonId:{}, genomeId:{}, keyword:{}", pathwayId, ecNumber, annotation, taxonId, genomeId, keyword);
@@ -536,7 +559,6 @@ public class PathwayFinder extends GenericPortlet {
 			query.setQuery(keyword);
 		}
 
-		SolrInterface solr = new SolrInterface();
 		JSONArray items = new JSONArray();
 		int count_total = 0;
 		int count_unique = 0;
@@ -545,15 +567,18 @@ public class PathwayFinder extends GenericPortlet {
 			Set<String> listFeatureIds = new HashSet<>();
 
 			query.setFields("pathway_id,pathway_name,feature_id,ec_number,ec_description");
-			query.setRows(1000000);
+			query.setRows(dataApi.MAX_ROWS);
 
-			LOGGER.trace("processGeneTab 1/2: {}", query.toString());
+			LOGGER.trace("processGeneTab: [{}] {}", SolrCore.PATHWAY.getSolrCoreName(), query);
 
-			QueryResponse qr = solr.getSolrServer(SolrCore.PATHWAY).query(query, SolrRequest.METHOD.POST);
-			SolrDocumentList sdl = qr.getResults();
+			String apiResponse = dataApi.solrQuery(SolrCore.PATHWAY, query);
+			Map resp = jsonReader.readValue(apiResponse);
+			Map respBody = (Map) resp.get("response");
 
-			Map<String, SolrDocument> mapStat = new HashMap<>();
-			for (SolrDocument doc : sdl) {
+			List<Map> sdl = (List<Map>) respBody.get("docs");
+
+			Map<String, Map> mapStat = new HashMap<>();
+			for (Map doc : sdl) {
 
 				mapStat.put(doc.get("feature_id").toString(), doc);
 				listFeatureIds.add(doc.get("feature_id").toString());
@@ -563,28 +588,32 @@ public class PathwayFinder extends GenericPortlet {
 			if (!listFeatureIds.isEmpty()) {
 				SolrQuery featureQuery = new SolrQuery("feature_id:(" + StringUtils.join(listFeatureIds, " OR ") + ")");
 				featureQuery.setFields("genome_name,genome_id,accession,alt_locus_tag,refseq_locus_tag,seed_id,feature_id,gene,product");
-				featureQuery.setRows(Math.max(1000000, listFeatureIds.size()));
+				featureQuery.setRows(Math.max(dataApi.MAX_ROWS, listFeatureIds.size()));
 
-				LOGGER.trace("processGeneTab 2/2: {}", featureQuery.toString());
+				LOGGER.trace("processGeneTab: [{}] {}", SolrCore.FEATURE.getSolrCoreName(), featureQuery);
 
-				QueryResponse featureQueryResponse = solr.getSolrServer(SolrCore.FEATURE).query(featureQuery, SolrRequest.METHOD.POST);
-				sdl = featureQueryResponse.getResults();
+				apiResponse = dataApi.solrQuery(SolrCore.FEATURE, featureQuery);
+				resp = jsonReader.readValue(apiResponse);
+				respBody = (Map) resp.get("response");
 
-				for (SolrDocument doc : sdl) {
-					String featureId = doc.get("feature_id").toString();
-					SolrDocument stat = mapStat.get(featureId);
+				List<GenomeFeature> features = dataApi.bindDocuments((List<Map>) respBody.get("docs"), GenomeFeature.class);
+
+				for (GenomeFeature feature : features) {
+					String featureId = feature.getId();
+					Map stat = mapStat.get(featureId);
 
 					JSONObject item = new JSONObject();
-					item.put("genome_name", doc.get("genome_name"));
-					item.put("genome_id", doc.get("genome_id"));
-					item.put("accession", doc.get("accession"));
-					item.put("feature_id", doc.get("feature_id"));
-					item.put("alt_locus_tag", doc.get("alt_locus_tag"));
-					item.put("refseq_locus_tag", doc.get("refseq_locus_tag"));
+					item.put("genome_name", feature.getGenomeName());
+					item.put("genome_id", feature.getGenomeId());
+					item.put("accession", feature.getAccession());
+					item.put("feature_id", feature.getId());
+					item.put("alt_locus_tag", feature.getAltLocusTag());
+					item.put("refseq_locus_tag", feature.getRefseqLocusTag());
 					item.put("algorithm", annotation);
-					item.put("seed_id", doc.get("seed_id"));
-					item.put("gene", doc.get("gene"));
-					item.put("product", doc.get("product"));
+					item.put("seed_id", feature.getSeedId());
+					item.put("gene", feature.getGene());
+					item.put("product", feature.getProduct());
+
 
 					item.put("ec_name", stat.get("ec_description"));
 					item.put("ec_number", stat.get("ec_number"));
@@ -597,7 +626,7 @@ public class PathwayFinder extends GenericPortlet {
 				count_unique = count_total;
 			}
 		}
-		catch (MalformedURLException | SolrServerException e) {
+		catch (IOException e) {
 			LOGGER.error(e.getMessage(), e);
 		}
 
@@ -622,6 +651,8 @@ public class PathwayFinder extends GenericPortlet {
 		String fileFormat = request.getParameter("fileformat");
 		String fileName;
 
+		DataApiHandler dataApi = new DataApiHandler(request);
+
 		String search_on = request.getParameter("search_on");
 		String keyword = request.getParameter("keyword");
 		String ecNumber = request.getParameter("ecN");
@@ -642,7 +673,7 @@ public class PathwayFinder extends GenericPortlet {
 		String annotation = request.getParameter("alg");
 
 		if (request.getParameter("aT").equals("0")) {
-			_tbl_source = (JSONArray) this.processPathwayTab(pathwayId, ecNumber, annotation, taxonId, genomeId, keyword).get("results");
+			_tbl_source = (JSONArray) this.processPathwayTab(dataApi, pathwayId, ecNumber, annotation, taxonId, genomeId, keyword).get("results");
 			_tbl_header.addAll(Arrays
 					.asList("Pathway ID", "Pathway Name", "Pathway Class", "Annotation", "Genome Count", "Unique Gene Count", "Unique EC Count",
 							"Ec Conservation %", "Gene Conservation"));
@@ -651,7 +682,7 @@ public class PathwayFinder extends GenericPortlet {
 							"gene_cons"));
 		}
 		else if (request.getParameter("aT").equals("1")) {
-			_tbl_source = (JSONArray) this.processEcNumberTab(pathwayId, ecNumber, annotation, taxonId, genomeId, keyword).get("results");
+			_tbl_source = (JSONArray) this.processEcNumberTab(dataApi, pathwayId, ecNumber, annotation, taxonId, genomeId, keyword).get("results");
 			_tbl_header.addAll(Arrays
 					.asList("Pathway ID", "Pathway Name", "Pathway Class", "Annotation", "EC Number", "EC Description", "Genome Count",
 							"Unique Gene Count"));
@@ -659,7 +690,7 @@ public class PathwayFinder extends GenericPortlet {
 					.asList("pathway_id", "pathway_name", "pathway_class", "algorithm", "ec_number", "ec_name", "genome_count", "gene_count"));
 		}
 		else if (request.getParameter("aT").equals("2")) {
-			_tbl_source = (JSONArray) this.processGeneTab(pathwayId, ecNumber, annotation, taxonId, genomeId, keyword).get("results");
+			_tbl_source = (JSONArray) this.processGeneTab(dataApi, pathwayId, ecNumber, annotation, taxonId, genomeId, keyword).get("results");
 			_tbl_header.addAll(Arrays
 					.asList("Feature ID", "Genome Name", "Accession", "PATRIC ID", "RefSeq Locus Tag", "Alt Locus Tag", "Gene Symbol", "Product Name",
 							"Annotation",
@@ -695,6 +726,8 @@ public class PathwayFinder extends GenericPortlet {
 		List<String> _tbl_header = new ArrayList<>();
 		List<String> _tbl_field = new ArrayList<>();
 
+		DataApiHandler dataApi = new DataApiHandler(request);
+
 		String fileFormat = request.getParameter("fileformat");
 		String fileName;
 
@@ -705,7 +738,7 @@ public class PathwayFinder extends GenericPortlet {
 		String taxonId = request.getParameter("taxonId");
 		String genomeId = request.getParameter("genomeId");
 
-		JSONArray _tbl_source = (JSONArray) this.processGeneTab(pathwayId, ecNumber, annotation, taxonId, genomeId, "").get("results");
+		JSONArray _tbl_source = (JSONArray) this.processGeneTab(dataApi, pathwayId, ecNumber, annotation, taxonId, genomeId, "").get("results");
 		_tbl_header.addAll(Arrays
 				.asList("Feature ID", "Genome Name", "Accession", "PATRIC ID", "RefSeq Locus Tag", "Alt Locus Tag", "Gene Symbol", "Product Name",
 						"Annotation", "Pathway ID", "Pathway Name", "Ec Number", "EC Description"));

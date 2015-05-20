@@ -2,7 +2,6 @@
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.Arrays" %>
 <%@ page import="java.util.Random" %>
-<%@ page import="java.util.Iterator" %>
 <%@ page import="java.io.File" %>
 <%@ page import="java.io.FileWriter" %>
 <%@ page import="java.io.BufferedWriter" %>
@@ -14,7 +13,9 @@
 <%@ page import="org.slf4j.Logger" %>
 <%@ page import="org.slf4j.LoggerFactory" %>
 <%@ page import="edu.vt.vbi.patric.portlets.DiseaseOverview" %>
-<%@ page import="org.json.simple.*" %>
+<%@ page import="javax.management.MBeanServer" %>
+<%@ page import="javax.management.MBeanServerFactory" %>
+<%@ page import="javax.management.ObjectName" %>
 <%
 	String tmpDir = System.getProperty("java.io.tmpdir", "/tmp");
 	boolean remove = true;
@@ -22,26 +23,38 @@
     final Logger LOGGER = LoggerFactory.getLogger(DiseaseOverview.class);
 
 	String path = "";
-	String machine = "";
+	String machine = "cluster";
 
     Random generator = new Random();
     int key = generator.nextInt(10000) + 1;
 
-	if ((new File("/opt/jboss/jboss-epp-4.3/jboss-as/server/jboss-patric/deploy/jboss-web.deployer/ROOT.war/patric/idv-perl/server/idv-gidi.pl")).exists())
-	{
-		path = "/opt/jboss/jboss-epp-4.3/jboss-as/server/jboss-patric/deploy/jboss-web.deployer/ROOT.war/patric/idv-perl";
-		machine = "dev";
-	}
-	else if((new File("/opt/jboss-patric/jboss_patric/deploy/jboss-web.deployer/ROOT.war/patric/idv-perl/server/idv-gidi.pl")).exists())
-	{
-		path = "/opt/jboss-patric/jboss_patric/deploy/jboss-web.deployer/ROOT.war/patric/idv-perl";
-		machine = "production";
-	}
-	else if ((new File("/usr/share/jboss_deploy/jboss-as/server/patric/patric_website/webRoot/patric/idv-perl/server/idv-gidi.pl")).exists())
-	{
-	    path = "/usr/share/jboss_deploy/jboss-as/server/patric/patric_website/webRoot/patric/idv-perl";
-	    machine = "cluster";
-	}
+	// reading Server Home Dir
+	java.util.List<MBeanServer> list = MBeanServerFactory.findMBeanServer(null);
+	MBeanServer server = list.get(0);
+	ObjectName objectName = new ObjectName("jboss.system:type=ServerConfig");
+	String serverHomeDir = ((File) server.getAttribute(objectName, "ServerHomeDir")).getAbsolutePath();
+
+	String perlDir = "/deploy/jboss-web.deployer/ROOT.war/patric/idv-perl";
+
+//	if ((new File("/opt/jboss/jboss-epp-4.3/jboss-as/server/jboss-patric/deploy/jboss-web.deployer/ROOT.war/patric/idv-perl/server/idv-gidi.pl")).exists())
+//	{
+//		path = "/opt/jboss/jboss-epp-4.3/jboss-as/server/jboss-patric/deploy/jboss-web.deployer/ROOT.war/patric/idv-perl";
+//		machine = "dev";
+//	}
+//	else if((new File("/opt/jboss-patric/jboss_patric/deploy/jboss-web.deployer/ROOT.war/patric/idv-perl/server/idv-gidi.pl")).exists())
+//	{
+//		path = "/opt/jboss-patric/jboss_patric/deploy/jboss-web.deployer/ROOT.war/patric/idv-perl";
+//		machine = "production";
+//	}
+//	else if ((new File("/usr/share/jboss_deploy/jboss-as/server/patric/patric_website/webRoot/patric/idv-perl/server/idv-gidi.pl")).exists())
+//	{
+//	    path = "/usr/share/jboss_deploy/jboss-as/server/patric/patric_website/webRoot/patric/idv-perl";
+//	    machine = "cluster";
+//	}
+
+	path = serverHomeDir + perlDir;
+
+	LOGGER.debug("{},{},{}", serverHomeDir, perlDir, path);
 
 	String cId = request.getParameter("cId");
 
