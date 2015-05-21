@@ -18,20 +18,15 @@
 package edu.vt.vbi.patric.portlets;
 
 import edu.vt.vbi.patric.common.*;
-import edu.vt.vbi.patric.dao.ResultType;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.ObjectReader;
-import org.codehaus.jackson.map.ObjectWriter;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.portlet.*;
-import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -101,8 +96,7 @@ public class SingleExperiment extends GenericPortlet {
 			key.put("fields", "description,condition,pi,title,institution,release_date,accession,organism,strain,timeseries");
 
 			DataApiHandler dataApi = new DataApiHandler(request);
-			SolrInterface solr = new SolrInterface();
-			SolrQuery query = solr.buildSolrQuery(key, null, null, 0, 1, false);
+			SolrQuery query = dataApi.buildSolrQuery(key, null, null, 0, 1, false);
 			String apiResponse = dataApi.solrQuery(SolrCore.TRANSCRIPTOMICS_EXPERIMENT, query);
 
 			Map resp = jsonReader.readValue(apiResponse);
@@ -164,7 +158,6 @@ public class SingleExperiment extends GenericPortlet {
 
 	private Map processComparisonTab(ResourceRequest request) throws IOException {
 
-		SolrInterface solr = new SolrInterface();
 		DataApiHandler dataApi = new DataApiHandler(request);
 
 		String eid = request.getParameter("eid");
@@ -186,7 +179,7 @@ public class SingleExperiment extends GenericPortlet {
 			end = Integer.parseInt(limit);
 		}
 
-		SolrQuery query = solr.buildSolrQuery(key, sort, null, start, end, false);
+		SolrQuery query = dataApi.buildSolrQuery(key, sort, null, start, end, false);
 
 		LOGGER.debug("getTable: [{}] {}", SolrCore.TRANSCRIPTOMICS_COMPARISON.getSolrCoreName(), query.toString());
 

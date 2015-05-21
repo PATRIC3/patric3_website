@@ -227,8 +227,7 @@ public class SpecialtyGeneSearch extends GenericPortlet {
 				}
 
 				if (data.containsKey("facets")) {
-					SolrInterface solr = new SolrInterface();
-					JSONObject facets = solr.formatFacetTree((Map) data.get("facets"));
+					JSONObject facets = FacetHelper.formatFacetTree((Map) data.get("facets"));
 					key.put("facets", facets.toJSONString());
 					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
 				}
@@ -264,9 +263,8 @@ public class SpecialtyGeneSearch extends GenericPortlet {
 					if (key.containsKey("facets") && !key.get("facets").isEmpty()) {
 
 						JSONObject facet_fields = (JSONObject) jsonParser.parse(key.get("facets"));
-						SolrInterface solr = new SolrInterface();
-						solr.setCurrentInstance(SolrCore.SPECIALTY_GENE_MAPPING);
-						tree = solr.processStateAndTree(key, need, facet_fields, key.get("facet"), state, key.get("join"), 10, false);
+						DataApiHandler dataApi = new DataApiHandler(request);
+						tree = FacetHelper.processStateAndTree(dataApi, SolrCore.SPECIALTY_GENE_MAPPING, key, need, facet_fields, key.get("facet"), state, key.get("join"), 10);
 					}
 				}
 				catch (ParseException e) {
@@ -371,11 +369,11 @@ public class SpecialtyGeneSearch extends GenericPortlet {
 			key.put("join", "genome_id:" + genomeId);
 		}
 
-		SolrInterface solr = new SolrInterface();
-		SolrQuery query = solr.buildSolrQuery(key, sort, facet, start, end, hl);
+		DataApiHandler dataApi = new DataApiHandler(request);
+		SolrQuery query = dataApi.buildSolrQuery(key, sort, facet, start, end, hl);
 
 		LOGGER.debug("query: {}", query.toString());
-		DataApiHandler dataApi = new DataApiHandler(request);
+
 		String apiResponse = dataApi.solrQuery(SolrCore.SPECIALTY_GENE_MAPPING, query);
 
 		Map resp = jsonReader.readValue(apiResponse);

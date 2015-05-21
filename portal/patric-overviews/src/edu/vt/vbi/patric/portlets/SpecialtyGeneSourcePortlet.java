@@ -136,8 +136,7 @@ public class SpecialtyGeneSourcePortlet extends GenericPortlet {
 
 					// process facets
 					if (data.containsKey("facets")) {
-						SolrInterface solr = new SolrInterface();
-						JSONObject facets = solr.formatFacetTree((Map) data.get("facets"));
+						JSONObject facets = FacetHelper.formatFacetTree((Map) data.get("facets"));
 						key.put("facets", facets.toJSONString());
 						SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
 					}
@@ -170,9 +169,8 @@ public class SpecialtyGeneSourcePortlet extends GenericPortlet {
 						if (key.containsKey("facets") && !key.get("facets").isEmpty()) {
 
 							JSONObject facet_fields = (JSONObject) (new JSONParser()).parse(key.get("facets"));
-							SolrInterface solr = new SolrInterface();
-							solr.setCurrentInstance(SolrCore.SPECIALTY_GENE);
-							tree = solr.processStateAndTree(key, need, facet_fields, key.get("facet"), state, null, 4, false);
+							DataApiHandler dataApi = new DataApiHandler(request);
+							tree = FacetHelper.processStateAndTree(dataApi, SolrCore.SPECIALTY_GENE, key, need, facet_fields, key.get("facet"), state, null, 4);
 						}
 					}
 					catch (ParseException e) {
@@ -238,7 +236,6 @@ public class SpecialtyGeneSourcePortlet extends GenericPortlet {
 		//&sort=source_id+asc,+locus_tag+asc&facet.sort=count&start=0
 		//&facet.field=genus&facet.field=species&facet.field=organism&facet.field=classification&wt=&fq=source:PATRIC_VF
 
-		SolrInterface solr = new SolrInterface();
 		Map<String, String> key = new HashMap<>();
 		key.put("keyword", keyword);
 		key.put("join", "source:" + source);
@@ -268,7 +265,7 @@ public class SpecialtyGeneSourcePortlet extends GenericPortlet {
 			key.put("facet", facet);
 		}
 
-		SolrQuery query = solr.buildSolrQuery(key, null, facet, start, end, false);
+		SolrQuery query = dataApi.buildSolrQuery(key, null, facet, start, end, false);
 
 		LOGGER.trace("processSpecialtyGeneSourceTab: [{}] {}", SolrCore.SPECIALTY_GENE.getSolrCoreName(), query.toString());
 

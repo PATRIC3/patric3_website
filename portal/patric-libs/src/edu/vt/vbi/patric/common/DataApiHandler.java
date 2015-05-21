@@ -32,6 +32,10 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.common.params.FacetParams;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.ObjectReader;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -422,5 +426,93 @@ public class DataApiHandler {
 		res.put(facetFields, facet);
 
 		return res;
+	}
+
+	public SolrQuery buildSolrQuery(Map<String, String> key, String sorts, String facets, int start, int end, boolean highlight) {
+
+		SolrQuery query = new SolrQuery();
+		SolrInterface solr = new SolrInterface();
+
+		// Processing key map
+		query.setQuery(StringHelper.stripQuoteAndParseSolrKeywordOperator(key.get("keyword")));
+
+		if (key.containsKey("filter") && key.get("filter") != null) {
+			query.setFilterQueries(key.get("filter"));
+		}
+		if (key.containsKey("filter2") && key.get("filter2") != null) {
+			query.addFilterQuery(key.get("filter2"));
+		}
+
+		// use SolrJoin if possible
+		if (key.containsKey("join")) {
+			query.setFilterQueries(key.get("join"));
+		}
+
+		if (key.containsKey("fields") && !key.get("fields").equals("")) {
+			query.addField(key.get("fields"));
+		}
+
+		// sort conditions
+		if (sorts != null && !sorts.equals("") && !sorts.equals("[]")) {
+			try {
+				JSONArray sorter = (JSONArray) new JSONParser().parse(sorts);
+				for (Object aSort : sorter) {
+					JSONObject jsonSort = (JSONObject) aSort;
+					query.addSort(
+							SolrQuery.SortClause.create(jsonSort.get("property").toString(), jsonSort.get("direction").toString().toLowerCase()));
+				}
+			}
+			catch (ParseException e) {
+				LOGGER.error(e.getMessage(), e);
+			}
+		}
+
+		// facet conditions
+		if (facets != null && !facets.equals("") && !facets.equals("{}")) {
+			query.setFacet(true).setFacetMinCount(1).setFacetLimit(-1).setFacetSort(FacetParams.FACET_SORT_COUNT);
+
+			try {
+				JSONObject facetConditions = (JSONObject) new JSONParser().parse(facets);
+
+				if (facetConditions.containsKey("facet.sort")) {
+					String facetSort = facetConditions.get("facet.sort").toString();
+					if (facetSort.equals("index")) {
+						query.setFacetSort(FacetParams.FACET_SORT_INDEX);
+					}
+				}
+
+				if (facetConditions.containsKey("field_facets")) {
+					String[] fieldFacets = facetConditions.get("field_facets").toString().split(",");
+					query.addFacetField(fieldFacets);
+				}
+
+				if (facetConditions.containsKey("date_range_facets")) {
+					String[] dateRangeFacets = facetConditions.get("date_range_facets").toString().split(",");
+					for (String field : dateRangeFacets) {
+						query.addDateRangeFacet(field, solr.getRangeStartDate(), solr.getRangeEndDate(), solr.getRangeDate());
+					}
+				}
+			}
+			catch (ParseException e) {
+				LOGGER.error(e.getMessage(), e);
+			}
+		}
+
+		// start & end
+		query.setStart(start); // setting starting index
+
+		if (end == -1) {
+			query.setRows(500000);
+		}
+		else {
+			query.setRows(end);
+		}
+
+		// highlight
+		if (highlight) {
+			query.set("hl", "on").set("hl.fl", "*");
+		}
+
+		return query;
 	}
 }

@@ -1,12 +1,6 @@
 <%@ page import="edu.vt.vbi.patric.common.ExcelHelper"%><%@ page
-	import="edu.vt.vbi.patric.common.SolrInterface"%><%@ page
-	import="edu.vt.vbi.patric.common.SQLHelper"%><%@ page
-	import="edu.vt.vbi.patric.common.StringHelper"%><%@ page
 	import="edu.vt.vbi.patric.dao.ResultType"%><%@ page
-	import="javax.portlet.PortletSession"%><%@ page
 	import="edu.vt.vbi.patric.dao.*"%><%@ page
-	import="org.json.simple.JSONArray"%><%@ page
-	import="org.json.simple.JSONObject"%><%@ page
 	import="java.io.OutputStream"%><%@ page import="java.util.List"%><%@ page
 	import="java.util.ArrayList"%><%@ page import="java.util.Arrays"%><%@ page
 	import="java.util.HashMap"%><%@ page import="java.util.Map" %>

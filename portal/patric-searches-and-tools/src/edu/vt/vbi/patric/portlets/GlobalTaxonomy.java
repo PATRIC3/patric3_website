@@ -16,10 +16,7 @@
 package edu.vt.vbi.patric.portlets;
 
 import edu.vt.vbi.patric.beans.Taxonomy;
-import edu.vt.vbi.patric.common.DataApiHandler;
-import edu.vt.vbi.patric.common.SessionHandler;
-import edu.vt.vbi.patric.common.SolrCore;
-import edu.vt.vbi.patric.common.SolrInterface;
+import edu.vt.vbi.patric.common.*;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.ObjectReader;
@@ -113,7 +110,6 @@ public class GlobalTaxonomy extends GenericPortlet {
 			boolean hl;
 
 			Map<String, String> key = new HashMap<>();
-			SolrInterface solr = new SolrInterface();
 
 			if (need.equals("taxonomy")) {
 
@@ -156,7 +152,7 @@ public class GlobalTaxonomy extends GenericPortlet {
 //					sort.put("direction", sort_dir);
 //				}
 
-				SolrQuery query = solr.buildSolrQuery(key, sort, facet, start, end, hl);
+				SolrQuery query = dataApi.buildSolrQuery(key, sort, facet, start, end, hl);
 
 				String apiResponse = dataApi.solrQuery(SolrCore.TAXONOMY, query);
 
@@ -172,7 +168,7 @@ public class GlobalTaxonomy extends GenericPortlet {
 				}
 
 				if (resp.containsKey("facet_counts")) {
-					JSONObject facets = solr.formatFacetTree((Map) resp.get("facet_counts"));
+					JSONObject facets = FacetHelper.formatFacetTree((Map) resp.get("facet_counts"));
 					key.put("facets", facets.toJSONString());
 					SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
 				}
@@ -197,9 +193,9 @@ public class GlobalTaxonomy extends GenericPortlet {
 				JSONArray tree = new JSONArray();
 				try {
 					if (key.containsKey("facets") && !key.get("facets").isEmpty()) {
-						solr.setCurrentInstance(SolrCore.TAXONOMY);
+						DataApiHandler dataApi = new DataApiHandler(request);
 						JSONObject facet_fields = (JSONObject) new JSONParser().parse(key.get("facets"));
-						tree = solr.processStateAndTree(key, need, facet_fields, key.get("facet"), state, null, 4, false);
+						tree = FacetHelper.processStateAndTree(dataApi, SolrCore.TAXONOMY, key, need, facet_fields, key.get("facet"), state, null, 4);
 					}
 				}
 				catch (ParseException e) {

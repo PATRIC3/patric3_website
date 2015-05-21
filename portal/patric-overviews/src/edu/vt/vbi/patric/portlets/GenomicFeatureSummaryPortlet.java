@@ -19,19 +19,13 @@ package edu.vt.vbi.patric.portlets;
 
 import edu.vt.vbi.patric.common.DataApiHandler;
 import edu.vt.vbi.patric.common.SolrCore;
-import edu.vt.vbi.patric.common.SolrInterface;
-import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.LBHttpSolrServer;
-import org.apache.solr.client.solrj.response.FacetField;
-import org.apache.solr.client.solrj.response.QueryResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.portlet.*;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.*;
+import java.util.Map;
 
 public class GenomicFeatureSummaryPortlet extends GenericPortlet {
 

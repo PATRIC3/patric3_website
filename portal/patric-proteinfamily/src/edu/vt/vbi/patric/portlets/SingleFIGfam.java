@@ -116,7 +116,6 @@ public class SingleFIGfam extends GenericPortlet {
 
 				key.put("keyword", keyword);
 
-				SolrInterface solr = new SolrInterface();
 				DataApiHandler dataApi = new DataApiHandler(request);
 
 				String start_id = request.getParameter("start");
@@ -127,7 +126,7 @@ public class SingleFIGfam extends GenericPortlet {
 				key.put("fields",
 						"genome_id,genome_name,accession,seed_id,alt_locus_tag,refseq_locus_tag,gene,annotation,feature_type,feature_id,start,end,na_length,strand,protein_id,aa_length,product,figfam_id");
 
-				SolrQuery query = solr.buildSolrQuery(key, sort, null, start, end, false);
+				SolrQuery query = dataApi.buildSolrQuery(key, sort, null, start, end, false);
 
 				String apiResponse = dataApi.solrQuery(SolrCore.FEATURE, query);
 

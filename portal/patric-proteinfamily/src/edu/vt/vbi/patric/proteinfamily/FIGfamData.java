@@ -539,8 +539,7 @@ public class FIGfamData {
 		String keyword = "";
 
 		if (request.getParameter("keyword") != null && !request.getParameter("keyword").equals("")) {
-			SolrInterface solr = new SolrInterface();
-			keyword += "(" + solr.KeywordReplace(request.getParameter("keyword")) + ")";
+			keyword += "(" + StringHelper.stripQuoteAndParseSolrKeywordOperator(request.getParameter("keyword")) + ")";
 		}
 
 		String cType = request.getParameter("context_type");

@@ -335,11 +335,12 @@ public class GenomicFeature extends GenericPortlet {
 			key.put("join", "genome_id:" + genomeId);
 		}
 
-		SolrInterface solr = new SolrInterface();
-		SolrQuery query = solr.buildSolrQuery(key, sort, null, start, end, false);
+		DataApiHandler dataApi = new DataApiHandler(request);
+
+		SolrQuery query = dataApi.buildSolrQuery(key, sort, null, start, end, false);
 
 		LOGGER.debug("query: {}", query.toString());
-		DataApiHandler dataApi = new DataApiHandler(request);
+
 		String apiResponse = dataApi.solrQuery(SolrCore.FEATURE, query);
 
 		Map resp = jsonReader.readValue(apiResponse);

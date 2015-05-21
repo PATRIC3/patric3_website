@@ -179,10 +179,9 @@ public class TranscriptomicsGeneFeature extends GenericPortlet {
 		Map<String, String> key = new HashMap<>();
 		key.put("keyword", "feature_id:(" + featureId.replaceAll(",", " OR ") + ")");
 
-		SolrInterface solr = new SolrInterface();
-		SolrQuery query = solr.buildSolrQuery(key, sort, null, start, end, false);
-
 		DataApiHandler dataApi = new DataApiHandler(request);
+
+		SolrQuery query = dataApi.buildSolrQuery(key, sort, null, start, end, false);
 
 		String apiResponse = dataApi.solrQuery(SolrCore.FEATURE, query);
 

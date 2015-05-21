@@ -19,7 +19,6 @@ package edu.vt.vbi.patric.portlets;
 
 import edu.vt.vbi.patric.beans.GenomeFeature;
 import edu.vt.vbi.patric.common.DataApiHandler;
-import edu.vt.vbi.patric.common.SolrInterface;
 import edu.vt.vbi.patric.dao.DBSummary;
 import org.slf4j.LoggerFactory;
 

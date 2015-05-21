@@ -128,15 +128,13 @@ public class TranscriptomicsGene extends GenericPortlet {
 			case "saveParams": {
 
 				String keyword = request.getParameter("keyword");
-				SolrInterface solr = new SolrInterface();
+				DataApiHandler dataApi = new DataApiHandler(request);
 
 				Map<String, String> key = new HashMap<>();
 				key.put("keyword", "locus_tag:(" + keyword + ") OR refseq_locus_tag:(" + keyword + ") ");
 				key.put("fields", "pid");
 
-				SolrQuery query = solr.buildSolrQuery(key, null, null, 0, -1, false);
-
-				DataApiHandler dataApi = new DataApiHandler(request);
+				SolrQuery query = dataApi.buildSolrQuery(key, null, null, 0, -1, false);
 
 				String apiResponse = dataApi.solrQuery(SolrCore.TRANSCRIPTOMICS_GENE, query);
 
@@ -180,7 +178,6 @@ public class TranscriptomicsGene extends GenericPortlet {
 				String wsExperimentId = request.getParameter("wsExperimentId");
 				String wsSampleId = request.getParameter("wsSampleId");
 				String keyword = request.getParameter("keyword");
-				SolrInterface solr = new SolrInterface();
 				DataApiHandler dataApi = new DataApiHandler(request);
 
 				JSONArray sample = new JSONArray();
@@ -204,7 +201,7 @@ public class TranscriptomicsGene extends GenericPortlet {
 					key.put("keyword", query_keyword);
 					key.put("fields", "pid,expname,expmean,timepoint,mutant,strain,condition");
 
-					SolrQuery query = solr.buildSolrQuery(key, null, null, 0, -1, false);
+					SolrQuery query = dataApi.buildSolrQuery(key, null, null, 0, -1, false);
 
 					String apiResponse = dataApi.solrQuery(SolrCore.TRANSCRIPTOMICS_COMPARISON, query);
 
@@ -272,7 +269,7 @@ public class TranscriptomicsGene extends GenericPortlet {
 					key.put("keyword", query_keyword);
 					key.put("fields", "pid,refseq_locus_tag,feature_id,log_ratio,z_score");
 
-					SolrQuery query = solr.buildSolrQuery(key, null, null, 0, -1, false);
+					SolrQuery query = dataApi.buildSolrQuery(key, null, null, 0, -1, false);
 					String apiResponse = dataApi.solrQuery(SolrCore.TRANSCRIPTOMICS_GENE, query);
 
 					Map resp = jsonReader.readValue(apiResponse);
