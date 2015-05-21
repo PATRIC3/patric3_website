@@ -56,6 +56,8 @@ public class PhylogeneticTree extends GenericPortlet {
 			SolrQuery query = new SolrQuery("*:*");
 			query.setFields("genome_name,genome_id").setRows(dataApi.MAX_ROWS);
 
+			LOGGER.trace("[{}] {}", SolrCore.GENOME, query);
+
 			String apiResponse = dataApi.solrQuery(SolrCore.GENOME, query);
 
 			Map resp = jsonReader.readValue(apiResponse);
@@ -64,6 +66,21 @@ public class PhylogeneticTree extends GenericPortlet {
 
 			StringBuilder sb = new StringBuilder();
 			sb.append("var genomeMap = new Array();\n");
+
+			for (Genome genome : genomes) {
+				sb.append("genomeMap[\"").append(genome.getGenomeName().replaceAll("[\\s\\(\\)\\:\\[\\],]+", "_")).append("\"] = \"")
+						.append(genome.getId()).append("\";\n");
+			}
+
+			// 2nd query due to the DataAPI has 25k limit
+			query.setStart(25001);
+
+			LOGGER.trace("[{}] {}", SolrCore.GENOME, query);
+
+			apiResponse = dataApi.solrQuery(SolrCore.GENOME, query);
+			resp = jsonReader.readValue(apiResponse);
+			respBody = (Map) resp.get("response");
+			genomes = dataApi.bindDocuments((List<Map>) respBody.get("docs"), Genome.class);
 
 			for (Genome genome : genomes) {
 				sb.append("genomeMap[\"").append(genome.getGenomeName().replaceAll("[\\s\\(\\)\\:\\[\\],]+", "_")).append("\"] = \"")
