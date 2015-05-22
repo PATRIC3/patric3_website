@@ -1,5 +1,5 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet"
-%><%@ page import="edu.vt.vbi.patric.dao.ResultType"
+%><%@ page import="java.util.*"
 %><portlet:defineObjects /><%
 
 String name = "FIGfamSorter";
@@ -27,7 +27,7 @@ String contextType = (String) request.getAttribute("contextType");
 String contextId = (String) request.getAttribute("contextId");
 String pk = (String) request.getAttribute("pk");
 String keyword = (String) request.getAttribute("keyword");
-ResultType key = (ResultType) request.getAttribute("key");
+Map<String, String> key = (Map) request.getAttribute("key");
 %>
 
 <script type="text/javascript" src="<%=nameSpaceAids%>"></script>

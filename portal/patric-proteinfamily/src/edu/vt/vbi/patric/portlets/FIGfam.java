@@ -92,7 +92,7 @@ public class FIGfam extends GenericPortlet {
 			String pk = request.getParameter("param_key");
 			String keyword = "";
 
-			if (pk != null) {
+			if (pk != null && !pk.isEmpty()) {
 				key = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
 			}
 

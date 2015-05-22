@@ -418,7 +418,8 @@ public class FIGfamData {
 			String apiResponse = dataApi.solrQuery(SolrCore.FEATURE, query);
 
 			Map resp = jsonReader.readValue(apiResponse);
-			Map stat = (Map) ((Map) resp.get("facets")).get("stat");
+			Map facets = (Map) resp.get("facets");
+			Map stat = (Map) facets.get("stat");
 
 			List<Map> buckets = (List<Map>) stat.get("buckets");
 
@@ -467,18 +468,24 @@ public class FIGfamData {
 				else {
 					mean = 0;
 				}
-				if (bucket.get("sumsq") instanceof Double) {
-					sumsq = (Double) bucket.get("sumsq");
+				if (bucket.get("ss") instanceof Double) {
+					sumsq = (Double) bucket.get("ss");
 				}
-				else if (bucket.get("sumsq") instanceof Integer) {
-					sumsq = ((Integer) bucket.get("sumsq")).doubleValue();
+				else if (bucket.get("ss") instanceof Integer) {
+					sumsq = ((Integer) bucket.get("ss")).doubleValue();
 				}
 				else {
 					sumsq = 0;
 				}
 
-				LOGGER.debug("sumsq:{}, count: {}", sumsq, count);
-				double std = Math.sqrt(sumsq / (count - 1));
+//				LOGGER.debug("bucket:{}, sumsq:{}, count: {}", bucket, sumsq, count);
+				double std;
+				if (count > 1 ) {
+					std = Math.sqrt(sumsq / (count - 1));
+				}
+				else {
+					std = Math.sqrt(sumsq / (count));
+				}
 				JSONObject aaLength = new JSONObject();
 				aaLength.put("min", min);
 				aaLength.put("max", max);
