@@ -430,7 +430,6 @@ public class WorkspacePortlet extends GenericPortlet {
 				//					JSONArray gr = ws.getTags(filter);
 				//					groupType = ((JSONObject) gr.get(0)).get("type").toString();
 				//
-				//					SolrInterface solr = new SolrInterface();
 				//					JSONObject res;
 				//					Map<String, Object> key = new HashMap<>();
 				//					key.put("tracks", tracks);
