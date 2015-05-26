@@ -556,41 +556,5 @@
 				</bindings>
 			</coordination>
 		</page>
-	</deployment><!-- 
-	<deployment>
-		<parent-ref>patric</parent-ref>
-		<if-exists>overwrite</if-exists>
-		<page>
-			<page-name>KLEIO</page-name>
-			<properties>
-				<property>
-					<name>layout.id</name>
-					<value>patric-full</value>
-				</property>
-			</properties>
-			<window>
-				<window-name>KLEIOPortletWindow</window-name>
-				<instance-ref>KLEIOPortletInstance</instance-ref>
-				<region>center</region>
-				<height>0</height>
-			</window>
-			<coordination>
-				<bindings>
-					<implicit-mode>FALSE</implicit-mode>
-					<alias-binding>
-						<id>cType</id>
-						<qname>{http://patricbrc.org/params}context_type</qname>
-					</alias-binding>
-					<alias-binding>
-						<id>cId</id>
-						<qname>{http://patricbrc.org/params}context_id</qname>
-					</alias-binding>
-					<alias-binding>
-						<id>kw</id>
-						<qname>{http://patricbrc.org/params}keyword</qname>
-					</alias-binding>
-				</bindings>
-			</coordination>
-		</page>
-	</deployment> -->
+	</deployment>
 </deployments>

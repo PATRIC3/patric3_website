@@ -68,7 +68,7 @@ public class EutilInterface {
 		c.setReadTimeout(TIMEOUT_READ);
 		c.setUseCaches(true);
 
-		LOGGER.debug(url.toString());
+//		LOGGER.debug(url.toString());
 
 		xmlReader.parse(new InputSource(c.getInputStream()));
 
@@ -93,7 +93,7 @@ public class EutilInterface {
 			c.setReadTimeout(TIMEOUT_READ);
 			c.setUseCaches(true);
 
-			LOGGER.debug(url.toString());
+//			LOGGER.debug(url.toString());
 
 			JSONArray subList = null;
 			switch (db) {

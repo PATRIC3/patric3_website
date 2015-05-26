@@ -67,7 +67,7 @@ public class ArrayExpressInterface {
 			c.setConnectTimeout(EutilInterface.TIMEOUT_CONN);
 			c.setReadTimeout(EutilInterface.TIMEOUT_READ);
 
-			LOGGER.debug(url.toString());
+			LOGGER.trace(url.toString());
 
 			xmlReader.parse(new InputSource(c.getInputStream()));
 			JSONArray subList = handler.getParsedJSON();
