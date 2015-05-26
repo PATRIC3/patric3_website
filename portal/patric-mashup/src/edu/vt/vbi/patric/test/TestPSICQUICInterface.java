@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2014 Virginia Polytechnic Institute and State University
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,34 +16,55 @@
 package edu.vt.vbi.patric.test;
 
 import edu.vt.vbi.patric.mashup.PSICQUICInterface;
-import junit.framework.TestCase;
+
+import static org.junit.Assert.*;
+
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TestPSICQUICInterface extends TestCase {
+public class TestPSICQUICInterface {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(PSICQUICInterface.class);
 
-	protected boolean mode = false;
+	private static PSICQUICInterface psicquicInterface;
 
-	public static void main(String[] args) {
-		junit.textui.TestRunner.run(TestPSICQUICInterface.class);
+	@BeforeClass
+	public static void setUp() {
+		psicquicInterface = new PSICQUICInterface();
 	}
 
-	public void testGetResult() {
-		if (mode) {
-			PSICQUICInterface eui = new PSICQUICInterface();
-			try {
-				String count = eui.getCounts("intact", "species:2");
-				LOGGER.debug("count={}", count);
+	@Test
+	public void testGetCounts() {
+		try {
+			String count = psicquicInterface.getCounts("intact", "species:2");
+			assertEquals("55168", count);
+		}
+		catch (Exception ex) {
+			LOGGER.error(ex.getMessage(), ex);
+		}
+	}
 
-				JSONObject result = eui.getResults("intact", "species:63363", 0, 5);
-				LOGGER.debug(result.toString());
+	@Test
+	public void testGetResults() {
+		try {
+			JSONObject response = psicquicInterface.getResults("intact", "species:63363", 0, 5);
+
+			int total = Integer.parseInt((String) response.get("total"));
+			JSONArray results = (JSONArray) response.get("results");
+
+			if (total > 5) {
+				assertTrue(results.size() == 5);
 			}
-			catch (Exception ex) {
-				LOGGER.error(ex.getMessage(), ex);
+			else {
+				assertTrue(results.size() == total);
 			}
+		}
+		catch (Exception ex) {
+			LOGGER.error(ex.getMessage(), ex);
 		}
 	}
 }

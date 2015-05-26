@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2014 Virginia Polytechnic Institute and State University
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,52 +16,102 @@
 package edu.vt.vbi.patric.test;
 
 import edu.vt.vbi.patric.mashup.PDBInterface;
-import junit.framework.TestCase;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
 
-public class TestPDBInterface extends TestCase {
+import static org.junit.Assert.*;
+
+public class TestPDBInterface {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(PDBInterface.class);
 
-	protected boolean mode = false;
+	private static PDBInterface pdbInterface;
 
-	public static void main(String[] args) {
-		junit.textui.TestRunner.run(TestPDBInterface.class);
+	@BeforeClass
+	public static void setUp() {
+		pdbInterface = new PDBInterface();
 	}
 
-	public void testGetResult() {
-		if (mode) {
-			PDBInterface api = new PDBInterface();
-			List<Map<String, String>> result;
-			Map<String,String> resultMap;
-			List<String> resultList;
+	@Test
+	public void testLigands() {
+		try {
+			List<Map<String, String>> result = pdbInterface.getLigands("4hhb");
+			assertNotNull(result);
+			assertTrue(result.size() > 0);
+		}
+		catch (Exception ex) {
+			LOGGER.error(ex.getMessage(), ex);
+		}
+	}
 
-			try {
-				result = api.getLigands("4hhb");
-				LOGGER.debug("getLigands(\"4hhb\"): {}", result);
+	@Test
+	public void testDescription() {
+		try {
+			Map<String, String> result = pdbInterface.getDescription("3GOA");
 
-				resultMap = api.getDescription("3GOA");
-				LOGGER.debug("getDescription(\"3GOA\"): {}", resultMap);
+			assertNotNull(result);
+			assertEquals("Crystal structure of the Salmonella typhimurium FadA 3-ketoacyl-CoA thiolase", result.get("title"));
+		}
+		catch (Exception ex) {
+			LOGGER.error(ex.getMessage(), ex);
+		}
 
-				result = api.getGOTerms("4hhb");
-				LOGGER.debug("getGOTerms(\"4hhb\"): {}", result);
+	}
 
-				result = api.getSequenceCluster("4hhb.A", 40);
-				LOGGER.debug("getSequenceCluster(\"4hhb.A\", 40): {}", result);
+	@Test
+	public void testGOTerms() {
+		try {
+			List<Map<String, String>> result = pdbInterface.getGOTerms("4hhb");
 
-				result = api.getAnnotations("1A8R.B");
-				LOGGER.debug("getAnnotations(\"1A8R.B\"): {}", result);
+			assertNotNull(result);
+			assertTrue(result.size() > 0);
+		}
+		catch (Exception ex) {
+			LOGGER.error(ex.getMessage(), ex);
+		}
+	}
 
-				resultList = api.getPolymers("3op9");
-				LOGGER.debug("getPolymers(\"3op9\"): {}", resultList);
-			}
-			catch (Exception ex) {
-				LOGGER.error(ex.getMessage(), ex);
-			}
+	@Test
+	public void testSequenceCluster() {
+		try {
+			List<Map<String, String>> result = pdbInterface.getSequenceCluster("4hhb.A", 40);
+
+			assertNotNull(result);
+			assertTrue(result.size() > 0);
+		}
+		catch (Exception ex) {
+			LOGGER.error(ex.getMessage(), ex);
+		}
+	}
+
+	@Test
+	public void testAnnotations() {
+		try {
+			List<Map<String, String>> result = pdbInterface.getAnnotations("1A8R.B");
+
+			assertNotNull(result);
+			// assertTrue(result.size() > 0);
+		}
+		catch (Exception ex) {
+			LOGGER.error(ex.getMessage(), ex);
+		}
+	}
+
+	@Test
+	public void testPolymers() {
+		try {
+			List<String> result = pdbInterface.getPolymers("3op9");
+
+			assertNotNull(result);
+			assertTrue(result.size() > 0);
+		}
+		catch (Exception ex) {
+			LOGGER.error(ex.getMessage(), ex);
 		}
 	}
 }
