@@ -129,11 +129,11 @@ public class PeptidomeHandler extends DefaultHandler {
 		if (currentElement.equals("Summary")) {
 			sbSummary.append(tmpVal);
 		}
-		else if (currentElement.equals("Title") && isReadingTitle == true) {
+		else if (currentElement.equals("Title") && isReadingTitle) {
 			sbTitle.append(tmpVal);
 			isReadingTitle = false;
 		}
-		else if (currentElement.equals("Accession") && isReadingAccession == true) {
+		else if (currentElement.equals("Accession") && isReadingAccession) {
 			sbAccession.append(tmpVal);
 			isReadingAccession = false;
 		}
@@ -152,7 +152,7 @@ public class PeptidomeHandler extends DefaultHandler {
 		else if (currentElement.equals("SpectraCount")) {
 			sbSpectraCount.append(tmpVal);
 		}
-		else if (currentElement.equals("int") && isReadingPubMed == true) {
+		else if (currentElement.equals("int") && isReadingPubMed) {
 			item.put("pubmed_id", tmpVal);
 			isReadingPubMed = false;
 		}

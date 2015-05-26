@@ -30,7 +30,7 @@ public class PDBLigandHandler extends DefaultHandler {
 
 	private String currentElement = "";
 
-	private HashMap<String, String> ligand;
+	private Map<String, String> ligand;
 
 	private StringBuffer sbChemicalName = null;
 

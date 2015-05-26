@@ -30,7 +30,7 @@ public class PRIDEInterface {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(PRIDEInterface.class);
 
-	protected String baseURL = "http://www.ebi.ac.uk/pride/biomart/martservice";
+	protected final String baseURL = "http://www.ebi.ac.uk/pride/biomart/martservice";
 
 	private StringBuffer xmlQueryString = null;
 

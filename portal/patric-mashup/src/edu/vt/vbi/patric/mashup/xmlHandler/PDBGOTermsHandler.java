@@ -28,7 +28,7 @@ public class PDBGOTermsHandler extends DefaultHandler {
 
 	private List<Map<String, String>> result;
 
-	private HashMap<String, String> goTerm;
+	private Map<String, String> goTerm;
 
 	public PDBGOTermsHandler() {
 	}
@@ -45,7 +45,7 @@ public class PDBGOTermsHandler extends DefaultHandler {
 	@Override
 	public void startElement(String namespaceURI, String localName, String qName, Attributes atts) throws SAXException {
 		if (qName.equalsIgnoreCase("term")) {
-			goTerm = new HashMap<String, String>();
+			goTerm = new HashMap<>();
 			goTerm.put("id", atts.getValue("id"));
 			goTerm.put("chainId", atts.getValue("chainId"));
 		}

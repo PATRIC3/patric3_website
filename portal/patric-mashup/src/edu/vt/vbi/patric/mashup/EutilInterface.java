@@ -40,9 +40,9 @@ public class EutilInterface {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(EutilInterface.class);
 
-	protected String baseURLESearch = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi";
+	protected final String baseURLESearch = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi";
 
-	protected String baseURLESummary = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi";
+	protected final String baseURLESummary = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi";
 
 	private XMLReader xmlReader = null;
 
@@ -68,7 +68,7 @@ public class EutilInterface {
 		c.setReadTimeout(TIMEOUT_READ);
 		c.setUseCaches(true);
 
-//		LOGGER.debug(url.toString());
+		LOGGER.trace(url.toString());
 
 		xmlReader.parse(new InputSource(c.getInputStream()));
 
@@ -93,7 +93,7 @@ public class EutilInterface {
 			c.setReadTimeout(TIMEOUT_READ);
 			c.setUseCaches(true);
 
-//			LOGGER.debug(url.toString());
+			LOGGER.trace(url.toString());
 
 			JSONArray subList = null;
 			switch (db) {

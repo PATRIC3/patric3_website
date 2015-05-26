@@ -31,17 +31,17 @@ public class PDBInterface {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(PDBInterface.class);
 
-	protected String baseUrlDescription = "http://www.pdb.org/pdb/rest/describePDB";
+	protected final String baseUrlDescription = "http://www.pdb.org/pdb/rest/describePDB";
 
-	protected String baseUrlLigand = "http://www.pdb.org/pdb/rest/ligandInfo";
+	protected final String baseUrlLigand = "http://www.pdb.org/pdb/rest/ligandInfo";
 
-	protected String baseUrlGOTerm = "http://www.pdb.org/pdb/rest/goTerms";
+	protected final String baseUrlGOTerm = "http://www.pdb.org/pdb/rest/goTerms";
 
-	protected String baseUrlCluster = "http://www.pdb.org/pdb/rest/sequenceCluster";
+	protected final String baseUrlCluster = "http://www.pdb.org/pdb/rest/sequenceCluster";
 
-	protected String baseUrlAnnotations = "http://www.pdb.org/pdb/rest/das/pdbchainfeatures/features";
+	protected final String baseUrlAnnotations = "http://www.pdb.org/pdb/rest/das/pdbchainfeatures/features";
 
-	protected String baseUrlPolymers = "http://www.pdb.org/pdb/rest/describeMol";
+	protected final String baseUrlPolymers = "http://www.pdb.org/pdb/rest/describeMol";
 
 	private XMLReader xmlReader = null;
 
@@ -59,7 +59,7 @@ public class PDBInterface {
 		PDBDescriptionHandler handler = new PDBDescriptionHandler();
 		try {
 			String url = baseUrlDescription + "?structureId=" + pdbIDs;
-			LOGGER.debug(url);
+			LOGGER.trace(url);
 
 			URL u = new URL(url);
 			URLConnection c = u.openConnection();
@@ -79,7 +79,7 @@ public class PDBInterface {
 		PDBLigandHandler handler = new PDBLigandHandler();
 		try {
 			String url = baseUrlLigand + "?structureId=" + pdbID;
-			LOGGER.debug(url);
+			LOGGER.trace(url);
 
 			URL u = new URL(url);
 			URLConnection c = u.openConnection();
@@ -99,7 +99,7 @@ public class PDBInterface {
 		PDBGOTermsHandler handler = new PDBGOTermsHandler();
 		try {
 			String url = baseUrlGOTerm + "?structureId=" + pdbID;
-			LOGGER.debug(url);
+			LOGGER.trace(url);
 
 			URL u = new URL(url);
 			URLConnection c = u.openConnection();
@@ -119,7 +119,7 @@ public class PDBInterface {
 		PDBSequenceClusterHandler handler = new PDBSequenceClusterHandler();
 		try {
 			String url = baseUrlCluster + "?structureId=" + pdbID + "&cluster=" + cluster;
-			LOGGER.debug(url);
+			LOGGER.trace(url);
 
 			URL u = new URL(url);
 			URLConnection c = u.openConnection();
@@ -140,7 +140,7 @@ public class PDBInterface {
 		PDBAnnotationsResolver resolver = new PDBAnnotationsResolver();
 		try {
 			String url = baseUrlAnnotations + "?segment=" + pdbID;
-			LOGGER.debug(url);
+			LOGGER.trace(url);
 
 			URL u = new URL(url);
 			URLConnection c = u.openConnection();
@@ -162,7 +162,7 @@ public class PDBInterface {
 		PDBPolymersHandler handler = new PDBPolymersHandler();
 		try {
 			String url = baseUrlPolymers + "?structureId=" + pdbID;
-			LOGGER.debug(url);
+			LOGGER.trace(url);
 
 			URL u = new URL(url);
 			URLConnection c = u.openConnection();

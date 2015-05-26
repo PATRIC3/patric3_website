@@ -28,7 +28,7 @@ public class PDBSequenceClusterHandler extends DefaultHandler {
 
 	private List<Map<String, String>> result;
 
-	private HashMap<String, String> chain;
+	private Map<String, String> chain;
 
 	public PDBSequenceClusterHandler() {
 	}

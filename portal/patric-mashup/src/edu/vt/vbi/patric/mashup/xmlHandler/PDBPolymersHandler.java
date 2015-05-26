@@ -16,6 +16,7 @@
 package edu.vt.vbi.patric.mashup.xmlHandler;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -23,18 +24,18 @@ import org.xml.sax.helpers.DefaultHandler;
 
 public class PDBPolymersHandler extends DefaultHandler {
 
-	private ArrayList<String> result;
+	private List<String> result;
 
 	public PDBPolymersHandler() {
 	}
 
-	public ArrayList<String> getParsedData() {
+	public List<String> getParsedData() {
 		return result;
 	}
 
 	@Override
 	public void startDocument() throws SAXException {
-		result = new ArrayList<String>();
+		result = new ArrayList<>();
 	}
 
 	@Override

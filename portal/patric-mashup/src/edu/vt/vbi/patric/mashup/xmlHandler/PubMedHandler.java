@@ -16,6 +16,7 @@
 package edu.vt.vbi.patric.mashup.xmlHandler;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -32,7 +33,7 @@ public class PubMedHandler extends DefaultHandler {
 
 	private String currentElement = "";
 
-	private ArrayList<String> authors = null;
+	private List<String> authors = null;
 
 	private boolean isReadingArticleIds = false;
 
@@ -64,7 +65,7 @@ public class PubMedHandler extends DefaultHandler {
 				currentElement = atts.getValue("Name");
 			}
 			else if (atts.getValue("Name").equals("AuthorList")) {
-				authors = new ArrayList<String>();
+				authors = new ArrayList<>();
 			}
 			else if (atts.getValue("Name").equals("ArticleIds")) {
 				isReadingArticleIds = true;
@@ -79,7 +80,7 @@ public class PubMedHandler extends DefaultHandler {
 	public void endElement(String namespaceURI, String localName, String qName) throws SAXException {
 
 		if (qName.equalsIgnoreCase("DocSum")) {
-			String abbrAuthorList, fullAuthorList = null;
+			String abbrAuthorList, fullAuthorList;
 
 			if (authors.size() == 1) {
 				abbrAuthorList = fullAuthorList = authors.get(0);
@@ -117,7 +118,7 @@ public class PubMedHandler extends DefaultHandler {
 		if (currentElement.equals("Author") && !tmpVal.trim().equals("")) {
 			authors.add(tmpVal);
 		}
-		else if (currentElement.equals("pubmed") && isReadingArticleIds == true) {
+		else if (currentElement.equals("pubmed") && isReadingArticleIds) {
 			if (tmpVal.trim().equals("")) {
 				isReadingArticleIds = false;
 			}
@@ -128,7 +129,7 @@ public class PubMedHandler extends DefaultHandler {
 				article.put("pubmed_id", tmpVal);
 			}
 		}
-		else if (currentElement.equals("pmid") && isReadingArticleIds == true) {
+		else if (currentElement.equals("pmid") && isReadingArticleIds) {
 			if (tmpVal.trim().equals("")) {
 				isReadingArticleIds = false;
 			}

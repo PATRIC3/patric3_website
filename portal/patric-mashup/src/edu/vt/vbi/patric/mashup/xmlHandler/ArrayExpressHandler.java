@@ -145,14 +145,14 @@ public class ArrayExpressHandler extends DefaultHandler {
 			}
 			sbExpDesign.append(tmpVal);
 		}
-		else if (currentElement.equals("name") && isReadingExpName == true) {
+		else if (currentElement.equals("name") && isReadingExpName) {
 			sbTitle.append(tmpVal);
 			isReadingExpName = false;
 		}
-		else if (currentElement.equals("accession") && isReadingExpAccession == true) {
+		else if (currentElement.equals("accession") && isReadingExpAccession) {
 			sbAccession.append(tmpVal);
 		}
-		else if (currentElement.equals("accession") && isReadingBibliography == true) {
+		else if (currentElement.equals("accession") && isReadingBibliography) {
 			if (!tmpVal.trim().equalsIgnoreCase("")) {
 				if (sbPubMedID.length() > 0) {
 					sbPubMedID.append(",");
@@ -160,7 +160,7 @@ public class ArrayExpressHandler extends DefaultHandler {
 				sbPubMedID.append(tmpVal);
 			}
 		}
-		else if (currentElement.equals("id") && isReadingID == true) {
+		else if (currentElement.equals("id") && isReadingID) {
 			exp.put("id", tmpVal);
 			isReadingID = false;
 		}

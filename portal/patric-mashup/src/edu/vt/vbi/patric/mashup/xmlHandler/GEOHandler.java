@@ -162,7 +162,7 @@ public class GEOHandler extends DefaultHandler {
 	public void characters(char[] ch, int start, int length) throws SAXException {
 		String tmpVal = new String(ch, start, length);
 		if (currentElement.equals("int")) {
-			if (isReadingPubMedIds == true) {
+			if (isReadingPubMedIds) {
 				// docsum.put("pubmed_id", tmpVal);
 				if (!tmpVal.trim().equalsIgnoreCase("")) {
 					if (sbPubMedID.length() > 0) {

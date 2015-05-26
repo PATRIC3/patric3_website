@@ -15,15 +15,14 @@
  ******************************************************************************/
 package edu.vt.vbi.patric.mashup.xmlHandler;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-
 import edu.vt.vbi.patric.mashup.PDBInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
+
+import java.io.IOException;
+import java.net.URL;
 
 public class PDBAnnotationsResolver implements EntityResolver {
 
@@ -34,9 +33,6 @@ public class PDBAnnotationsResolver implements EntityResolver {
 		InputSource is = null;
 		try {
 			is = new InputSource(new URL("http://www.biodas.org/dtd/dasgff.dtd").openStream());
-		}
-		catch (MalformedURLException e) {
-			LOGGER.error(e.getMessage(), e);
 		}
 		catch (IOException e) {
 			LOGGER.error(e.getMessage(), e);

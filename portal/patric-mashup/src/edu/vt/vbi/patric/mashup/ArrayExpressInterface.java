@@ -32,7 +32,7 @@ public class ArrayExpressInterface {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ArrayExpressInterface.class);
 
-	protected String baseURL = "http://www.ebi.ac.uk/microarray-as/ae/xml/experiments";
+	protected final String baseURL = "http://www.ebi.ac.uk/microarray-as/ae/xml/experiments";
 
 	private XMLReader xmlReader = null;
 

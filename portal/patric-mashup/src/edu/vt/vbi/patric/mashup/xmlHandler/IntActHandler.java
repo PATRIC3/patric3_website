@@ -24,10 +24,6 @@ import edu.vt.vbi.patric.mashup.PRIDEInterface;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-//import psidev.psi.mi.xml.xmlindex.ExperimentIterator;
-//import psidev.psi.mi.xml.xmlindex.InteractionIterator;
-//import psidev.psi.mi.xml.xmlindex.InteractorIterator;
-//import psidev.psi.mi.xml.xml.PsimiXmlPullReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import psidev.psi.mi.xml.PsimiXmlReader;
@@ -45,12 +41,6 @@ public class IntActHandler {
 
 	private JSONArray list = null;
 
-	private Iterator<ExperimentDescription> expItr = null;
-
-	private Iterator<Interaction> intrnItr = null;
-
-	private Iterator<Interactor> intrrItr = null;
-
 	private static final Logger LOGGER = LoggerFactory.getLogger(PRIDEInterface.class);
 
 	public IntActHandler(String url) {
@@ -59,17 +49,21 @@ public class IntActHandler {
 		try {
 			PsimiXmlReader api = new PsimiXmlReader();
 			EntrySet entrySet = api.read(new URL(url));
+			Iterator<Interaction> intrnItr = null;
+			Iterator<Interactor> intrrItr = null;
+			Iterator<ExperimentDescription> expItr = null;
 			for (Entry entry : entrySet.getEntries()) {
 				expItr = entry.getExperiments().iterator();
 				intrnItr = entry.getInteractions().iterator();
 				intrrItr = entry.getInteractors().iterator();
 			}
-			HashMap<String, HashMap<String, String>> mapExp = new HashMap<String, HashMap<String, String>>();
-			HashMap<String, HashMap<String, String>> mapInteractor = new HashMap<String, HashMap<String, String>>();
+			HashMap<String, HashMap<String, String>> mapExp = new HashMap<>();
+			HashMap<String, HashMap<String, String>> mapInteractor = new HashMap<>();
 
 			// Parsing Interactors
+			assert intrrItr != null;
 			while (intrrItr.hasNext()) {
-				HashMap<String, String> itrr = new HashMap<String, String>();
+				HashMap<String, String> itrr = new HashMap<>();
 				Interactor itrr_desc = intrrItr.next();
 				itrr.put("id", "" + itrr_desc.getId());
 				itrr.put("name", itrr_desc.getNames().getShortLabel());
@@ -88,21 +82,20 @@ public class IntActHandler {
 					itrr.put("organism_taxon_id", "");
 				}
 
-				StringBuffer sb = new StringBuffer();
+				StringBuilder sb = new StringBuilder();
 				sb.append("<table border=1>");
-				sb.append("<tr><td>name:</td><td>" + itrr.get("name") + "</td></tr>");
-				sb.append("<tr><td>type:</td><td>" + itrr.get("type") + "</td></tr>");
-				sb.append("<tr><td>organism:</td><td>" + itrr.get("organism") + "</td></tr>");
+				sb.append("<tr><td>name:</td><td>").append(itrr.get("name")).append("</td></tr>");
+				sb.append("<tr><td>type:</td><td>").append(itrr.get("type")).append("</td></tr>");
+				sb.append("<tr><td>organism:</td><td>").append(itrr.get("organism")).append("</td></tr>");
 				sb.append("</table>");
 
 				itrr.put("html", sb.toString());
-				sb = null;
 				mapInteractor.put(itrr.get("id"), itrr);
 			}
 
 			// Parsing Experiments
 			while (expItr.hasNext()) {
-				HashMap<String, String> exp = new HashMap<String, String>();
+				HashMap<String, String> exp = new HashMap<>();
 				ExperimentDescription exp_desc = expItr.next();
 				exp.put("id", "" + exp_desc.getId());
 				exp.put("name", exp_desc.getNames().getShortLabel());
@@ -119,14 +112,13 @@ public class IntActHandler {
 
 				StringBuffer sb = new StringBuffer();
 				sb.append("<table border=1>");
-				sb.append("<tr><td>name:</td><td>" + exp.get("name") + "</td></tr>");
-				sb.append("<tr><td>method:</td><td>" + exp.get("method") + "</td></tr>");
-				sb.append("<tr><td>organism:</td><td>" + exp.get("host_name") + "</td></tr>");
-				sb.append("<tr><td>publication:</td><td>" + exp.get("pubmed_id") + "</td></tr>");
+				sb.append("<tr><td>name:</td><td>").append(exp.get("name")).append("</td></tr>");
+				sb.append("<tr><td>method:</td><td>").append(exp.get("method")).append("</td></tr>");
+				sb.append("<tr><td>organism:</td><td>").append(exp.get("host_name")).append("</td></tr>");
+				sb.append("<tr><td>publication:</td><td>").append(exp.get("pubmed_id")).append("</td></tr>");
 				sb.append("</table>");
 
 				exp.put("html", sb.toString());
-				sb = null;
 				mapExp.put(exp.get("id"), exp);
 			}
 
@@ -143,34 +135,34 @@ public class IntActHandler {
 				row.put("interaction_type", arrItrnType.get(0).getNames().getShortLabel());
 				row.put("interaction_ac", itrn.getXref().getPrimaryRef().getId());
 				row.put("count_exp_ref", arrExpRef.size());
-				StringBuffer exps = new StringBuffer();
+				StringBuilder exps = new StringBuilder();
 				String exp_id = "";
 				exps.append("<table><tr>");
-				for (int i = 0; i < arrExpRef.size(); i++) {
-					exp_id = "" + arrExpRef.get(i).getId();
+
+				for (ExperimentDescription anArrExpRef : arrExpRef) {
+					exp_id = "" + anArrExpRef.getId();
 					exps.append("<td>");
 					exps.append(mapExp.get(exp_id).get("html"));
 					exps.append("</td>");
 				}
 				exps.append("</tr></table>");
 				row.put("experiments", exps.toString());
-				exps = null;
+
 				//
 				row.put("exp_name", mapExp.get(exp_id).get("name"));
 				row.put("exp_method", mapExp.get(exp_id).get("method"));
 				row.put("exp_org", mapExp.get(exp_id).get("host_name"));
 				row.put("exp_pubmed", mapExp.get(exp_id).get("pubmed_id"));
 				row.put("count_participants", arrParticipants.size());
-				StringBuffer participants = new StringBuffer();
+				StringBuilder participants = new StringBuilder();
 				participants.append("<table><tr>");
-				for (int i = 0; i < arrParticipants.size(); i++) {
+				for (Participant arrParticipant : arrParticipants) {
 					participants.append("<td>");
-					participants.append(mapInteractor.get("" + arrParticipants.get(i).getInteractor().getId()).get("html"));
+					participants.append(mapInteractor.get("" + arrParticipant.getInteractor().getId()).get("html"));
 					participants.append("</td>");
 				}
 				participants.append("</tr></table>");
 				row.put("participants", participants.toString());
-				participants = null;
 				row.put("count_interaction_type", arrItrnType.size());
 
 				list.add(row);

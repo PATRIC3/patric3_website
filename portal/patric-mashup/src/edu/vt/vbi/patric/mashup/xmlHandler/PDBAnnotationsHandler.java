@@ -28,7 +28,7 @@ public class PDBAnnotationsHandler extends DefaultHandler {
 
 	private List<Map<String, String>> result;
 
-	private HashMap<String, String> feature;
+	private Map<String, String> feature;
 
 	private String currentElement = "";
 

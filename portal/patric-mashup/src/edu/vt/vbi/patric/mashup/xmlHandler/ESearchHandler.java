@@ -16,6 +16,7 @@
 package edu.vt.vbi.patric.mashup.xmlHandler;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -23,7 +24,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 public class ESearchHandler extends DefaultHandler {
 
-	private HashMap<String, String> result;
+	private Map<String, String> result;
 
 	private String currentElement = "";
 
@@ -36,11 +37,11 @@ public class ESearchHandler extends DefaultHandler {
 	private StringBuffer sbWebEnv = null;
 
 	public ESearchHandler() {
-		result = new HashMap<String, String>();
+		result = new HashMap<>();
 		result.put("hasData", "false");
 	}
 
-	public HashMap<String, String> getParsedData() {
+	public Map<String, String> getParsedData() {
 		return result;
 	}
 
@@ -87,16 +88,18 @@ public class ESearchHandler extends DefaultHandler {
 	public void characters(char[] ch, int start, int length) throws SAXException {
 		String tmpVal = new String(ch, start, length);
 
-		if (!currentElement.equals("") && isReadingResult == true) {
+		if (!currentElement.equals("") && isReadingResult) {
 			// result.put(currentElement, tmpVal);
-			if (currentElement.equals("Count")) {
+			switch (currentElement) {
+			case "Count":
 				sbCount.append(tmpVal);
-			}
-			else if (currentElement.equals("QueryKey")) {
+				break;
+			case "QueryKey":
 				sbQueryKey.append(tmpVal);
-			}
-			else if (currentElement.equals("WebEnv")) {
+				break;
+			case "WebEnv":
 				sbWebEnv.append(tmpVal);
+				break;
 			}
 		}
 	}

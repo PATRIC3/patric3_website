@@ -16,6 +16,7 @@
 package edu.vt.vbi.patric.mashup.xmlHandler;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -23,18 +24,18 @@ import org.xml.sax.helpers.DefaultHandler;
 
 public class PDBDescriptionHandler extends DefaultHandler {
 
-	private HashMap<String, String> result;
+	private Map<String, String> result;
 
 	public PDBDescriptionHandler() {
 	}
 
-	public HashMap<String, String> getParsedData() {
+	public Map<String, String> getParsedData() {
 		return result;
 	}
 
 	@Override
 	public void startDocument() throws SAXException {
-		result = new HashMap<String, String>();
+		result = new HashMap<>();
 	}
 
 	@Override

@@ -95,7 +95,7 @@ public class StructureHandler extends DefaultHandler {
 	public void characters(char[] ch, int start, int length) throws SAXException {
 		String tmpVal = new String(ch, start, length);
 		if (currentElement.equals("string")) {
-			if (isReadingOrganism == true) {
+			if (isReadingOrganism) {
 				docsum.put("Organism", tmpVal);
 				isReadingOrganism = false;
 			}
