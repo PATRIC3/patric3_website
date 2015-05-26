@@ -42,6 +42,7 @@ public class P2Management extends GenericPortlet {
 			out.println("<li>updateENews: update fontpage eNews feed</li>");
 			out.println("<li>updateENewsDev: update fontpage eNews feed from Dev-version WordPress</li>");
 			out.println("<li>checkCurrentDB: show current database name</li>");
+			out.println("<li>updateDataLandingCaches: update local cache for DLP pages (all below 7)</li>");
 			out.println("<li>updateDataLandingGenomicFeatures: update local cache for feature landing page</li>");
 			out.println("<li>updateDataLandingSpecialtyGenes: update local cache for specialty gene landing page</li>");
 			out.println("<li>updateDataLandingAntibioticResistance: update local cache for antibiotic resistance gene landing page</li>");
@@ -78,6 +79,63 @@ public class P2Management extends GenericPortlet {
 				out.println("<li>failed</li>");
 			}
 			out.println("</ul>");
+		}
+		else if (mode.equals("updateDataLandingCaches")) {
+			DataLandingGenerator cacheGen = new DataLandingGenerator();
+
+			boolean antibioticResistance = cacheGen.createCacheFileAntibioticResistanceGenes(getPortletContext().getRealPath("/data/antibioticresistance.json"));
+			boolean genome = cacheGen.createCacheFileGenomes(getPortletContext().getRealPath("/data/genomes.json"));
+			boolean feature = cacheGen.createCacheFileGenomicFeatures(getPortletContext().getRealPath("/data/features.json"));
+			boolean pathway = cacheGen.createCacheFilePathways(getPortletContext().getRealPath("/data/pathways.json"));
+			boolean proteinFamily = cacheGen.createCacheFileProteinFamilies(getPortletContext().getRealPath("/data/proteinfamilies.json"));
+			boolean spGene = cacheGen.createCacheFileSpecialtyGenes(getPortletContext().getRealPath("/data/specialtygenes.json"));
+			boolean transcriptomics = cacheGen.createCacheFileTranscriptomics(getPortletContext().getRealPath("/data/transcriptomics.json"));
+
+			out.println("<ul>");
+			if (antibioticResistance) {
+				out.println("<li>AntibioticResistance Landing data is generated</li>");
+			}
+			else {
+				out.println("<li>AntibioticResistance Landing data is failed</li>");
+			}
+			if (genome) {
+				out.println("<li>Genome Landing data is generated</li>");
+			}
+			else {
+				out.println("<li>Genome Landing data is failed</li>");
+			}
+			if (feature) {
+				out.println("<li>Feature Landing data is generated</li>");
+			}
+			else {
+				out.println("<li>Feature Landing data is failed</li>");
+			}
+			if (pathway) {
+				out.println("<li>Pathway Landing data is generated</li>");
+			}
+			else {
+				out.println("<li>Pathway Landing data is failed</li>");
+			}
+			if (proteinFamily) {
+				out.println("<li>ProteinFamily Landing data is generated</li>");
+			}
+			else {
+				out.println("<li>ProteinFamily Landing data is failed</li>");
+			}
+			if (spGene) {
+				out.println("<li>SpecialtyGene Landing data is generated</li>");
+			}
+			else {
+				out.println("<li>SpecialtyGene Landing data is failed</li>");
+			}
+			if (transcriptomics) {
+				out.println("<li>Transcriptomics Landing data is generated</li>");
+			}
+			else {
+				out.println("<li>Transcriptomics Landing data is failed</li>");
+			}
+			out.println("</ul>");
+
 		}
 		else if (mode.equals("updateDataLandingGenomicFeatures")) {
 			DataLandingGenerator cacheGen = new DataLandingGenerator();
