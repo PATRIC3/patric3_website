@@ -254,8 +254,8 @@ public class DataApiHandler {
 	/**
 	 * Retrieve genome by old genome ID (numeric ID used in PATRIC2)
 	 *
-	 * @param p2GenomeId
-	 * @return
+	 * @param p2GenomeId old genome id
+	 * @return Genome
 	 */
 	public Genome getGenomeByP2GenomeId(int p2GenomeId) {
 		Genome genome = null;
@@ -277,8 +277,8 @@ public class DataApiHandler {
 	/**
 	 * Retrieve feature by old feature ID (na_feature_id, numeric ID used in PATRIC2)
 	 *
-	 * @param p2FeatureId
-	 * @return
+	 * @param p2FeatureId old feature id (na_feature_id)
+	 * @return GenomeFeature
 	 */
 	public GenomeFeature getPATRICFeatureByP2FeatureId(int p2FeatureId) {
 		GenomeFeature patricFeature = null;
@@ -307,8 +307,8 @@ public class DataApiHandler {
 	/**
 	 * Retrieve PATRIC annotated feature with given featureId, which could be an Id of RefSeq or from other annotation
 	 *
-	 * @param featureId
-	 * @return
+	 * @param featureId feature ID
+	 * @return GenomeFeature
 	 */
 	public GenomeFeature getPATRICFeature(String featureId) {
 		GenomeFeature patricFeature = null;
@@ -344,12 +344,13 @@ public class DataApiHandler {
 	/**
 	 * wrapper function of field facet query
 	 *
-	 * @param core
-	 * @param queryParam
+	 * @param core SolrCore
+	 * @param queryParam query condition
+	 * @param filterParam filter condition
 	 * @param facetFields comma separated list of fields
 	 */
 	public Map getFieldFacets(SolrCore core, String queryParam, String filterParam, String facetFields) throws IOException {
-		Map res = new HashMap<>();
+		Map<String, Object> res = new HashMap<>();
 		SolrQuery query = new SolrQuery();
 
 		query.setQuery(queryParam);
@@ -370,7 +371,7 @@ public class DataApiHandler {
 		for (String field : fields) {
 			List values = (List) facet_fields.get(field);
 
-			Map<String, Integer> facetValues = new HashMap<>();
+			Map<String, Integer> facetValues = new LinkedHashMap<>();
 
 			for (int i = 0; i < values.size(); i = i + 2) {
 				facetValues.put(values.get(i).toString(), (Integer) values.get(i + 1));
@@ -388,12 +389,14 @@ public class DataApiHandler {
 	/**
 	 * wrapper function of pivot facet query
 	 *
-	 * @param core
-	 * @param queryParam
+	 * @param core SolrCore
+	 * @param queryParam query condition
+	 * @param filterParam filter condition
 	 * @param facetFields comma separated list of fields
 	 */
+
 	public Map getPivotFacets(SolrCore core, String queryParam, String filterParam, String facetFields) throws IOException {
-		Map res = new HashMap<>();
+		Map<String, Object>  res = new HashMap<>();
 		SolrQuery query = new SolrQuery();
 
 		query.setQuery(queryParam);
@@ -409,13 +412,13 @@ public class DataApiHandler {
 		Map facet_fields = (Map) ((Map) resp.get("facet_counts")).get("facet_pivot");
 		List<Map> values = (List<Map>) facet_fields.get(facetFields);
 
-		Map facet = new LinkedHashMap();
+		Map<String, Object>  facet = new LinkedHashMap<>();
 
-		for (Map value : values) {
+		for (Map<String, Object> value : values) {
 			String localKey = value.get("value").toString();
 			List<Map> localValues = (List<Map>) value.get("pivot");
 
-			Map<String, Integer> pivotValues = new LinkedHashMap();
+			Map<String, Integer> pivotValues = new LinkedHashMap<>();
 			for (Map local : localValues) {
 				pivotValues.put(local.get("value").toString(), (Integer) local.get("count"));
 			}
