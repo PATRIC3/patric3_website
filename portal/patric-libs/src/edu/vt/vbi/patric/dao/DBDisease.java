@@ -430,7 +430,7 @@ public class DBDisease {
 			row.put("product", obj[9]);
 			row.put("genome_id", obj[10]);
 			row.put("feature_id", obj[11]);
-			row.put("seed_id", obj[12]);
+			row.put("patric_id", obj[12]);
 			row.put("refseq_locus_tag", obj[13]);
 			row.put("alt_locus_tag", obj[14]);
 

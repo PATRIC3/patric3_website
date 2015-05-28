@@ -112,7 +112,7 @@ Ext.onReady(function()
 				],[checkbox, {header:'Feature ID',		dataIndex:'na_feature_id', 	flex:1, hidden:true, renderer:BasicRenderer},  
 			          {header:'Genome Name',	dataIndex:'genome_name', 	flex:1, renderer:renderGenomeName},
 			    	  {header:'Accession',		dataIndex:'accession', 		hidden: true, flex:1, renderer:renderAccession},
-			    	  {header:'PATRIC ID',    	dataIndex:'seed_id', 		flex:2, renderer:renderSeedId},
+			    	  {header:'PATRIC ID',    	dataIndex:'patric_id', 		flex:2, renderer:renderSeedId},
 			    	  {header:'Alt Locus Tag',	dataIndex:'alt_locus_tag', 	flex:2, renderer:renderLocusTag},
 			    	  {header:'Gene Symbol',	dataIndex:'gene',			flex:1, align:'center', renderer:BasicRenderer},
 			    	  {header:'Product Name',	dataIndex:'product',		flex:2, renderer:BasicRenderer},
@@ -136,7 +136,7 @@ Ext.onReady(function()
 			property: 'genome_name',
 			direction: 'ASC'
 		},{
-			property: 'seed_id',
+			property: 'patric_id',
 			direction: 'ASC'
 		}]],
 		hash:{

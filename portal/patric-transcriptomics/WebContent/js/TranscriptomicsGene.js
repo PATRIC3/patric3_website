@@ -700,7 +700,7 @@ function filterTranscriptomicsTableData(windowID) {"use strict";
 				}
 
 				if (sample_flag) {
-					tableData[kept] = [nextRow.refseq_locus_tag, nextRow.alt_locus_tag, nextRow.patric_product, nextRow.patric_accession, nextRow.start, nextRow.end, nextRow.strand, nextRow.feature_id, nextRow.genome_name, nextRow.gene, total_samples, up_r, down_r, nextRow.sample_binary, windowID, nextRow.seed_id];
+					tableData[kept] = [nextRow.refseq_locus_tag, nextRow.alt_locus_tag, nextRow.patric_product, nextRow.patric_accession, nextRow.start, nextRow.end, nextRow.strand, nextRow.feature_id, nextRow.genome_name, nextRow.gene, total_samples, up_r, down_r, nextRow.sample_binary, windowID, nextRow.patric_id];
 					kept++;
 				}
 			}
@@ -1653,7 +1653,7 @@ function processFigfamSelectedItems(windowID, actiontype, showdownload, fastatyp
 				from : 'feature_id',
 				to : to,
 				fromGroup: 'PATRIC',
-				toGroup: (["seed_id","feature_id","alt_locus_tag","refseq_locus_tag","protein_id","gene_id","gi"].indexOf(to) > -1)? "PATRIC": "Other",
+				toGroup: (["patric_id","feature_id","alt_locus_tag","refseq_locus_tag","protein_id","gene_id","gi"].indexOf(to) > -1)? "PATRIC": "Other",
 				sraction : 'save_params'
 			},
 			success : function(response, opts) {

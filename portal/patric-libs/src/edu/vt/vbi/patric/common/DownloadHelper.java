@@ -26,7 +26,7 @@ public class DownloadHelper {
 	}
 
 	public static List<String> getFieldsForFeatures() {
-		return Arrays.asList("genome_name", "accession", "seed_id", "refseq_locus_tag", "alt_locus_tag", "feature_id", "annotation", "feature_type",
+		return Arrays.asList("genome_name", "accession", "patric_id", "refseq_locus_tag", "alt_locus_tag", "feature_id", "annotation", "feature_type",
 				"start", "end", "na_length", "strand", "protein_id", "aa_length", "gene", "product");
 	}
 
@@ -85,7 +85,7 @@ public class DownloadHelper {
 	}
 
 	public static List<String> getFieldsForSpecialtyGeneMapping() {
-		return Arrays.asList("evidence", "property", "source", "genome_name", "seed_id", "refseq_locus_tag", "alt_locus_tag", "source_id",
+		return Arrays.asList("evidence", "property", "source", "genome_name", "patric_id", "refseq_locus_tag", "alt_locus_tag", "source_id",
 				"organism", "gene", "product", "function", "classification", "pmid", "subject_coverage", "query_coverage", "identity",
 				"e_value");
 	}

@@ -550,7 +550,7 @@ public class TranscriptomicsGene extends GenericPortlet {
 			// this should not occur
 			query.addFilterQuery("feature_id:1");
 		}
-		query.setFields("feature_id,p2_feature_id,strand,product,accession,start,end,seed_id,alt_locus_tag,genome_name,gene");
+		query.setFields("feature_id,p2_feature_id,strand,product,accession,start,end,patric_id,alt_locus_tag,genome_name,gene");
 		query.setRows(featureIdList.size() + p2FeatureIdList.size());
 
 		LOGGER.trace("getExperimentStats:{}", query.toString());
@@ -577,7 +577,7 @@ public class TranscriptomicsGene extends GenericPortlet {
 			json.put("start", feature.getStart());
 			json.put("end", feature.getEnd());
 			json.put("alt_locus_tag", feature.getAltLocusTag());
-			json.put("seed_id", feature.getSeedId());
+			json.put("patric_id", feature.getPatricId());
 			json.put("genome_name", feature.getGenomeName());
 			json.put("gene", feature.getGene());
 

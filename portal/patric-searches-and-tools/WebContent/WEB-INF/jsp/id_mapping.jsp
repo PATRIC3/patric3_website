@@ -90,7 +90,7 @@ Ext.onReady(function(){
  					combo_prev_value = combo.rawValue;
                 }
 	        	if (combo.rawValue != "PATRIC Locus Tag") {
-                    combo2.setValue("seed_id");
+                    combo2.setValue("patric_id");
 	    		}
     		}
 		}
@@ -119,7 +119,7 @@ Ext.onReady(function(){
  				}
 
 	        	if (combo2.rawValue != "PATRIC Locus Tag") {
-                    combo.setValue("seed_id");
+                    combo.setValue("patric_id");
 	    		}
     		}
 		}

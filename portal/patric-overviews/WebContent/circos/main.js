@@ -473,7 +473,7 @@ function linkFeature(id) {
 }
 
 function createPopup(feature) {
-  var strFeature = Ext.String.format("{0}{1}{2}", feature.seed_id, (feature.refseq_locus_tag != null ? " | " + feature.refseq_locus_tag : ""),
+  var strFeature = Ext.String.format("{0}{1}{2}", feature.patric_id, (feature.refseq_locus_tag != null ? " | " + feature.refseq_locus_tag : ""),
           (feature.gene != null ? " | " + feature.gene : ""));
   var strLoc = Ext.String.format("{0}: {1}..{2} ({3})", feature.feature_type, feature.start, feature.end, feature.strand);
 
@@ -575,7 +575,7 @@ function createTooltip() {
               url: ds_url + '/genome_feature/' + tooltipId,
               success: function(rs) {
                 var feature = JSON.parse(rs.responseText);
-                var strFeature = Ext.String.format("{0}{1}{2}", feature.seed_id, (feature.refseq_locus_tag != null ? " | "
+                var strFeature = Ext.String.format("{0}{1}{2}", feature.patric_id, (feature.refseq_locus_tag != null ? " | "
                         + feature.refseq_locus_tag : ""), (feature.gene != null ? " | " + feature.gene : ""));
                 var strLoc = Ext.String.format("{0}: {1} .. {2} ({3})", feature.feature_type, feature.start, feature.end, feature.strand);
                 tip.update('<b>' + strFeature + '</b><br/>' + feature.product + '<br/>' + strLoc + '<br/><i>Click for detail information</i>');

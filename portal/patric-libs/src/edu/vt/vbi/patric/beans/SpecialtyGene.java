@@ -41,8 +41,8 @@ public class SpecialtyGene {
 	@Field("refseq_locus_tag")
 	private String refseqLocusTag;
 
-	@Field("seed_id")
-	private String seedId;
+	@Field("patric_id")
+	private String patricId;
 
 	@Field
 	private String gene;
@@ -110,7 +110,7 @@ public class SpecialtyGene {
 		json.put("feature_id", getFeatureId());
 		json.put("alt_locus_tag", getAltLocusTag());
 		json.put("refseq_locus_tag", getRefseqLocusTag());
-		json.put("seed_id", getSeedId());
+		json.put("patric_id", getPatricId());
 
 		json.put("gene", getGene());
 		json.put("product", getProduct());
@@ -176,8 +176,8 @@ public class SpecialtyGene {
 		return (this.refseqLocusTag != null);
 	}
 
-	public boolean hasSeedId() {
-		return (this.seedId != null);
+	public boolean hasPatricId() {
+		return (this.patricId != null);
 	}
 
 	public boolean hasOrganism() {
@@ -228,12 +228,12 @@ public class SpecialtyGene {
 		this.altLocusTag = altLocusTag;
 	}
 
-	public String getSeedId() {
-		return seedId;
+	public String getPatricId() {
+		return patricId;
 	}
 
-	public void setSeedId(String seedId) {
-		this.seedId = seedId;
+	public void setPatricId(String seedId) {
+		this.patricId = seedId;
 	}
 
 	public void setGene(String gene) {

@@ -695,7 +695,7 @@ function renderListGenome(value, p, record) {
 
 function renderListFeature(value, p, record) {
 
-	var data = {}, text = "", seed_id, alt_locus_tag, refseq_locus_tag, highlights_checked = {}, span = "<span style=\"font-size: 14px;\"> | </span>";
+	var data = {}, text = "", patric_id, alt_locus_tag, refseq_locus_tag, highlights_checked = {}, span = "<span style=\"font-size: 14px;\"> | </span>";
 
 	if (record && record.data) {
 		data = record.data;
@@ -733,15 +733,15 @@ function renderListFeature(value, p, record) {
 			text += data.feature_type;
 		}
 
-		if (data.seed_id) {
+		if (data.patric_id) {
 			text += span;
-			if (data.highlight && data.highlight.seed_id)
-				seed_id = data.highlight.seed_id;
+			if (data.highlight && data.highlight.patric_id)
+				patric_id = data.highlight.patric_id;
 			else
-				seed_id = data.seed_id;
+				patric_id = data.patric_id;
 
-			text += seed_id;
-			highlights_checked.seed_id = true;
+			text += patric_id;
+			highlights_checked.patric_id = true;
 		}
 
 		if (data.refseq_locus_tag) {

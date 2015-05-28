@@ -37,7 +37,7 @@ public class FASTAHelper {
 		StringBuilder fasta = new StringBuilder();
 
 		SolrQuery query = new SolrQuery("feature_id:(" + StringUtils.join(featureIds, " OR ") + ")");
-		query.setFields("feature_id,seed_id,alt_locus_tag,refseq_locus_tag,annotation,gi,product,genome_id,genome_name,na_sequence,aa_sequence");
+		query.setFields("feature_id,patric_id,alt_locus_tag,refseq_locus_tag,annotation,gi,product,genome_id,genome_name,na_sequence,aa_sequence");
 		query.setRows(featureIds.size());
 
 		DataApiHandler dataApi = new DataApiHandler();
@@ -52,8 +52,8 @@ public class FASTAHelper {
 			if (type.equals("dna") || type.equals("both")) {
 				fasta.append(">");
 				if (feature.getAnnotation().equals("PATRIC")) {
-					if (feature.hasSeedId()) {
-						fasta.append(feature.getSeedId()).append("|");
+					if (feature.hasPatricId()) {
+						fasta.append(feature.getPatricId()).append("|");
 					}
 				} else if (feature.getAnnotation().equals("RefSeq")) {
 					if (feature.getGi() > 0) {
@@ -81,8 +81,8 @@ public class FASTAHelper {
 			if (type.equals("protein") || type.equals("both")) {
 				fasta.append(">");
 				if (feature.getAnnotation().equals("PATRIC")) {
-					if (feature.hasSeedId()) {
-						fasta.append(feature.getSeedId()).append("|");
+					if (feature.hasPatricId()) {
+						fasta.append(feature.getPatricId()).append("|");
 					}
 				} else if (feature.getAnnotation().equals("RefSeq")) {
 					if (feature.getGi() > 0) {

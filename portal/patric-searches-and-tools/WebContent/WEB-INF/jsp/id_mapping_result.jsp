@@ -99,7 +99,7 @@ Ext.onReady(function() {
 			{name:'gene_id',	type:'int'},
 			{name:'gi',			type:'int'},
 			{name:'requested_data',	type:'string'},
-			{name:'seed_id',	type:'string'},
+			{name:'patric_id',	type:'string'},
 			{name:'target',     type:'string'}
 		]
 	});
@@ -119,7 +119,7 @@ Ext.onReady(function() {
 			property: 'genome_name',
 			direction: 'ASC'
 		}/*,{
-			property: 'seed_id',
+			property: 'patric_id',
 			direction: 'ASC'
 		}*/]],
 		hash:{

@@ -107,7 +107,7 @@ Ext.onReady(function() {
 			<th scope="row">PATRIC Features</th>
 			<td colspan=3>
 				<% for (GenomeFeature feature : features) { %>
-				<a href="Feature?cType=feature&cId=<%=feature.getId() %>" target="_blank"><%=feature.getSeedId() %></a>
+				<a href="Feature?cType=feature&cId=<%=feature.getId() %>" target="_blank"><%=feature.getPatricId() %></a>
 				<% } %>
 			</td>
 	<% } %>

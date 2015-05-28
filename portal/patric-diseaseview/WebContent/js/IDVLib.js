@@ -430,7 +430,7 @@ function mkToolbar_Graph() {
 							text: 'PATRIC ID',
 							itemCls:'x-menu-item-cstm',
 							handler: function(){
-							callIDMapping_Graph("seed_id");
+							callIDMapping_Graph("patric_id");
 							}
 						}, {
 							text: 'Feature ID',

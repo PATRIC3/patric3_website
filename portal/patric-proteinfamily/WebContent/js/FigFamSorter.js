@@ -1751,7 +1751,7 @@ function processFigfamSelectedItems(windowID, actiontype, showdownload, fastatyp
 				from : 'feature_id',
 				to : to,
 				fromGroup: 'PATRIC',
-				toGroup: (["seed_id","feature_id","alt_locus_tag","refseq_locus_tag","protein_id","gene_id","gi"].indexOf(to) > -1)? "PATRIC": "Other",
+				toGroup: (["patric_id","feature_id","alt_locus_tag","refseq_locus_tag","protein_id","gene_id","gi"].indexOf(to) > -1)? "PATRIC": "Other",
 				sraction : 'save_params'
 			},
 			success : function(response, opts) {

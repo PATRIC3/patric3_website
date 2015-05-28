@@ -53,8 +53,8 @@ public class GenomeFeature {
 	@Field("alt_locus_tag")
 	private String altLocusTag;
 
-	@Field("seed_id")
-	private String seedId;
+	@Field("patric_id")
+	private String patricId;
 
 	@Field("refseq_locus_tag")
 	private String refseqLocusTag;
@@ -135,7 +135,7 @@ public class GenomeFeature {
 		json.put("feature_id", getId());
 		// p2_feature_id
 		json.put("alt_locus_tag", getAltLocusTag());
-		json.put("seed_id", getSeedId());
+		json.put("patric_id", getPatricId());
 		json.put("refseq_locus_tag", getRefseqLocusTag());
 		json.put("protein_id", getProteinId());
 		json.put("gene_id", getGeneId());
@@ -259,8 +259,8 @@ public class GenomeFeature {
 		return (this.proteinId != null);
 	}
 
-	public boolean hasSeedId() {
-		return (this.seedId != null);
+	public boolean hasPatricId() {
+		return (this.patricId != null);
 	}
 
 	public boolean hasNaSequence() {
@@ -310,12 +310,12 @@ public class GenomeFeature {
 		this.altLocusTag = altLocusTag;
 	}
 
-	public String getSeedId() {
-		return seedId;
+	public String getPatricId() {
+		return patricId;
 	}
 
-	public void setSeedId(String seedId) {
-		this.seedId = seedId;
+	public void setPatricId(String patricId) {
+		this.patricId = patricId;
 	}
 
 	public String getProteinId() {

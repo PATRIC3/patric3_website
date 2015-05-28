@@ -99,7 +99,7 @@ public class CompareRegionViewer extends GenericPortlet {
 
 			DataApiHandler dataApi = new DataApiHandler(request);
 			GenomeFeature feature = dataApi.getFeature(contextId);
-			pinFeatureSeedId = feature.getSeedId();
+			pinFeatureSeedId = feature.getPatricId();
 		}
 
 		if (pinFeatureSeedId != null && !pinFeatureSeedId.equals("") && windowSize != null) {
@@ -143,7 +143,7 @@ public class CompareRegionViewer extends GenericPortlet {
 		if (pinFeatureSeedId == null && (contextType != null && contextType.equals("feature") && contextId != null)) {
 
 			GenomeFeature feature = dataApi.getFeature(contextId);
-			pinFeatureSeedId = feature.getSeedId();
+			pinFeatureSeedId = feature.getPatricId();
 		}
 
 		if (pinFeatureSeedId != null && !pinFeatureSeedId.equals("") && windowSize != null) {
@@ -171,7 +171,7 @@ public class CompareRegionViewer extends GenericPortlet {
 			JSONObject trStyle = new JSONObject();
 			trStyle.put("className", "feature5");
 			trStyle.put("showLabels", false);
-			trStyle.put("label", "function( feature ) { return feature.get('seed_id'); }");
+			trStyle.put("label", "function( feature ) { return feature.get('patric_id'); }");
 			JSONObject trHooks = new JSONObject();
 			trHooks.put("modify",
 					"function(track, feature, div) { div.style.backgroundColor = ['red','#1F497D','#938953','#4F81BD','#9BBB59','#806482','#4BACC6','#F79646'][feature.get('phase')];}");
@@ -208,7 +208,7 @@ public class CompareRegionViewer extends GenericPortlet {
 						tr.put("hooks", trHooks);
 						tr.put("type", "FeatureTrack");
 						tr.put("tooltip",
-								"<div style='line-height:1.7em'><b>{seed_id}</b> | {refseq_locus_tag} | {alt_locus_tag} | {gene}<br>{product}<br>{type}:{start}...{end} ({strand_str})<br> <i>Click for detail information</i></div>");
+								"<div style='line-height:1.7em'><b>{patric_id}</b> | {refseq_locus_tag} | {alt_locus_tag} | {gene}<br>{product}<br>{type}:{start}...{end} ({strand_str})<br> <i>Click for detail information</i></div>");
 						tr.put("urlTemplate",
 								"/portal/portal/patric/CompareRegionViewer/CRWindow?action=b&cacheability=PAGE&mode=getTrackInfo&key=" + _key
 										+ "&rowId=" + crTrack.getRowID() + "&format=.json");
@@ -315,7 +315,7 @@ public class CompareRegionViewer extends GenericPortlet {
 				alist.addAll(Arrays.asList(0, feature.getStartPosition(), feature.getStartString(), feature.getEndPosition(),
 						(feature.getStrand().equals("+") ? 1 : -1), feature.getStrand(),
 
-						feature_patric.getId(), feature_patric.getSeedId(), feature_patric.getRefseqLocusTag(),
+						feature_patric.getId(), feature_patric.getPatricId(), feature_patric.getRefseqLocusTag(),
 						feature_patric.getAltLocusTag(), "PATRIC", feature_patric.getFeatureType(), feature_patric.getProduct(),
 
 						feature_patric.getGene(), feature_patric.getGenomeName(), feature_patric.getAccession(), feature.getPhase()));
@@ -334,7 +334,7 @@ public class CompareRegionViewer extends GenericPortlet {
 		JSONArray _clses = new JSONArray();
 		JSONObject _cls = new JSONObject();
 		_cls.put("attributes",
-				Arrays.asList("Start", "Start_str", "End", "Strand", "strand_str", "id", "seed_id", "refseq_locus_tag", "alt_locus_tag", "source",
+				Arrays.asList("Start", "Start_str", "End", "Strand", "strand_str", "id", "patric_id", "refseq_locus_tag", "alt_locus_tag", "source",
 						"type", "product", "gene", "genome_name", "accession", "phase"));
 		_cls.put("isArrayAttr", new JSONObject());
 		_clses.add(_cls);
@@ -410,8 +410,8 @@ public class CompareRegionViewer extends GenericPortlet {
 
 		DataApiHandler dataApi = new DataApiHandler(request);
 
-		SolrQuery query = new SolrQuery("seed_id:(" + IDs + ")");
-		query.setFields("feature_id,seed_id,alt_locus_tag,start,end,strand,feature_type,product,gene,refseq_locus_tag,genome_name,accession");
+		SolrQuery query = new SolrQuery("patric_id:(" + IDs + ")");
+		query.setFields("feature_id,patric_id,alt_locus_tag,start,end,strand,feature_type,product,gene,refseq_locus_tag,genome_name,accession");
 		query.setRows(1000);
 
 		String apiResponse = dataApi.solrQuery(SolrCore.FEATURE, query);
@@ -421,7 +421,7 @@ public class CompareRegionViewer extends GenericPortlet {
 		List<GenomeFeature> features = dataApi.bindDocuments((List<Map>) respBody.get("docs"), GenomeFeature.class);
 
 		for (GenomeFeature feature : features) {
-			result.put(feature.getSeedId(), feature);
+			result.put(feature.getPatricId(), feature);
 		}
 		return result;
 	}

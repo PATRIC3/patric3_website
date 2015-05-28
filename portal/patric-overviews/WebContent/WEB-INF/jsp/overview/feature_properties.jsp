@@ -20,9 +20,9 @@ if (feature != null) {
 		<tr>
 			<th scope="row" style="width:15%">Gene ID</th>
 			<td>
-				<% if (feature.hasSeedId()) { %>
+				<% if (feature.hasPatricId()) { %>
 					<span><b>PATRIC ID</b></span>:
-					<span><%=feature.getSeedId() %> </span>
+					<span><%=feature.getPatricId() %> </span>
 					&nbsp;
 				<% } %>
 

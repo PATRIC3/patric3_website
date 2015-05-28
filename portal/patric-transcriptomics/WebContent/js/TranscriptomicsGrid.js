@@ -58,7 +58,7 @@ function TranscriptomicsGrid(gridId, stateObject, instance) {
 			name : 'windowID',
 			type : 'string'
 		}, {
-            name : 'seed_id',
+            name : 'patric_id',
             type : 'string'
         }]
 	});
@@ -240,7 +240,7 @@ function pickPanel() {
 				header : 'PATRIC ID',
 				sortable : true,
 				flex : 1,
-				dataIndex : 'seed_id',
+				dataIndex : 'patric_id',
 				renderer : renderGeneLevelPage
 			}, {
 				header : 'RefSeq Locus Tag',

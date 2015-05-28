@@ -155,7 +155,7 @@ public class FIGfamData {
 			SolrQuery solr_query = new SolrQuery();
 			solr_query.setQuery("genome_id:(" + request.getParameter("genomeIds") + ") AND figfam_id:(" + request.getParameter("figfamIds") + ")");
 			solr_query.setFilterQueries("annotation:PATRIC AND feature_type:CDS");
-			solr_query.addField("feature_id,seed_id,refseq_locus_tag,alt_locus_tag");
+			solr_query.addField("feature_id,patric_id,refseq_locus_tag,alt_locus_tag");
 			solr_query.setRows(dataApi.MAX_ROWS);
 
 			LOGGER.debug("getLocusTags(): [{}] {}", SolrCore.FEATURE.toString(), solr_query.toString());
@@ -246,7 +246,7 @@ public class FIGfamData {
 		List<SequenceData> collect = new ArrayList<>();
 
 		SolrQuery query = new SolrQuery("feature_id:(" + StringUtils.join(featureIds, " OR ") + ")");
-		query.addField("genome_name,seed_id,refseq_locus_tag,alt_locus_tag,aa_sequence");
+		query.addField("genome_name,patric_id,refseq_locus_tag,alt_locus_tag,aa_sequence");
 		query.setRows(featureIds.length);
 
 		String apiResponse = dataApiHandler.solrQuery(SolrCore.GENOME, query);
@@ -257,8 +257,8 @@ public class FIGfamData {
 
 		for (GenomeFeature feature : features) {
 			String locusTag = "";
-			if (feature.hasSeedId()) {
-				locusTag = feature.getSeedId();
+			if (feature.hasPatricId()) {
+				locusTag = feature.getPatricId();
 			}
 			else {
 				if (feature.hasRefseqLocusTag()) {

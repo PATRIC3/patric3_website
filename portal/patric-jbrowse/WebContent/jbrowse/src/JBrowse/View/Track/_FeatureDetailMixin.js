@@ -100,7 +100,7 @@ return declare( FeatureDescriptionMixin, {
         var _coreID = {}, _coreProduct = "", _coreLoc = {};
         
         _coreID.feature_id = f.get("id") || "";
-        _coreID.locus_tag = (f.get("seed_id") != undefined && f.get("seed_id") != "")?f.get("seed_id") : "";
+        _coreID.locus_tag = (f.get("patric_id") != undefined && f.get("patric_id") != "")?f.get("patric__id") : "";
         _coreID.refseq = (f.get("refseq_locus_tag") != undefined && f.get("refseq_locus_tag") != "")?f.get("refseq_locus_tag") : "";
         _coreID.gene =  (f.get("gene") != undefined && f.get("gene") != "")?f.get("gene") : "";
         

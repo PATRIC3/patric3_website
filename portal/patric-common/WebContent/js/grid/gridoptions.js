@@ -242,7 +242,7 @@ function DoIDMapping() {"use strict";
             from : 'feature_id',
             to : arguments[1],
             fromGroup : "PATRIC",
-            toGroup : (["seed_id","feature_id","alt_locus_tag","refseq_locus_tag","protein_id","gene_id","gi"].indexOf(arguments[1]) > -1)?"PATRIC":"Other",
+            toGroup : (["patric_id","feature_id","alt_locus_tag","refseq_locus_tag","protein_id","gene_id","gi"].indexOf(arguments[1]) > -1)?"PATRIC":"Other",
             sraction : 'save_params'
 		},
 		success : function(response, opts) {

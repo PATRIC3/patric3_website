@@ -37,7 +37,7 @@ Ext.define('Feature', {
 		{name:'genome_name',	type:'string'},
 		{name:'accession',	type:'string'},
 		{name:'alt_locus_tag',	type:'string'},
-		{name:'seed_id',    type:'string'},
+		{name:'patric_id',    type:'string'},
 		{name:'feature_id',	type:'string'},
 		{name:'algorithm',	type:'string'},
 		{name:'gene',		type:'string'},

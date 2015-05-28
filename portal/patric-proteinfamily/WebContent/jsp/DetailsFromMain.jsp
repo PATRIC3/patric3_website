@@ -19,7 +19,7 @@
 
 	_tbl_header.addAll(Arrays.asList("Group Id", "Genome Name", "Accession", "PATRIC ID", "RefSeq Locus Tag", "Alt Locus Tag", "Start", "End", "Length(NT)", "Strand",
 			"Length(AA)", "Gene Symbol", "Product Description"));
-	_tbl_field.addAll(Arrays.asList("figfam_id", "genome_name", "accession", "seed_id", "refseq_locus_tag", "alt_locus_tag", "start", "end", "na_length", "strand",
+	_tbl_field.addAll(Arrays.asList("figfam_id", "genome_name", "accession", "patric_id", "refseq_locus_tag", "alt_locus_tag", "start", "end", "na_length", "strand",
 			"aa_length", "gene", "product"));
 
 	ExcelHelper excel = new ExcelHelper("xssf", _tbl_header, _tbl_field, _tbl_source);

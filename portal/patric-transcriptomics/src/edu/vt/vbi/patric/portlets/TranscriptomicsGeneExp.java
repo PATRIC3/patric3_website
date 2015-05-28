@@ -139,7 +139,7 @@ public class TranscriptomicsGeneExp extends GenericPortlet {
 					Arrays.asList("Genome Name", "Accession", "PATRIC ID", "Alt Locus Tag", "RefSeq Locus Tag", "Gene Symbol", "Annotation",
 							"Feature Type", "Start", "End", "Length(NT)", "Strand", "Protein ID", "Length(AA)", "Product Description", "Correlations",
 							"Comparisons"));
-			tableField.addAll(Arrays.asList("genome_name", "accession", "seed_id", "alt_locus_tag", "refseq_locus_tag", "gene", "annotation", "feature_type",
+			tableField.addAll(Arrays.asList("genome_name", "accession", "patric_id", "alt_locus_tag", "refseq_locus_tag", "gene", "annotation", "feature_type",
 					"start", "end", "na_length", "strand", "protein_id", "aa_length", "product", "correlation", "count"));
 
 			ExcelHelper excel = new ExcelHelper("xssf", tableHeader, tableField, tableSource);
@@ -381,7 +381,7 @@ public class TranscriptomicsGeneExp extends GenericPortlet {
 				SolrQuery query = new SolrQuery("refseq_locus_tag:(" + StringUtils.join(correlationMap.keySet(), " OR ") + ")");
 				query.setFilterQueries("annotation:PATRIC");
 				query.setFields(
-						"genome_id,genome_name,accession,feature_id,start,end,strand,feature_type,annotation,alt_locus_tag,refseq_locus_tag,seed_id,na_length,aa_length,protein_id,gene,product");
+						"genome_id,genome_name,accession,feature_id,start,end,strand,feature_type,annotation,alt_locus_tag,refseq_locus_tag,patric_id,na_length,aa_length,protein_id,gene,product");
 				query.setRows(numFound);
 
 				LOGGER.trace("[{}] {}", SolrCore.FEATURE.getSolrCoreName(), query.toString());
@@ -400,7 +400,7 @@ public class TranscriptomicsGeneExp extends GenericPortlet {
 					obj.put("feature_id", f.getId());
 					obj.put("alt_locus_tag", f.getAltLocusTag());
 					obj.put("refseq_locus_tag", f.getRefseqLocusTag());
-					obj.put("seed_id", f.getSeedId());
+					obj.put("patric_id", f.getPatricId());
 					obj.put("gene", f.getGene());
 					obj.put("annotation", f.getAnnotation());
 					obj.put("feature_type", f.getFeatureType());

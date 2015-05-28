@@ -258,9 +258,9 @@ public class SiteHelper {
 
 				GenomeFeature feature = dataApi.getFeature(contextId);
 				if (feature != null) {
-					if (feature.getSeedId() != null) {
-						sbTitle.append(feature.getSeedId()).append(":").append(feature.getProduct()).append("::").append(context);
-						sbKeyword.append(context).append(", ").append(feature.getSeedId()).append(":").append(feature.getProduct())
+					if (feature.hasPatricId()) {
+						sbTitle.append(feature.getPatricId()).append(":").append(feature.getProduct()).append("::").append(context);
+						sbKeyword.append(context).append(", ").append(feature.getPatricId()).append(":").append(feature.getProduct())
 								.append(", PATRIC");
 					}
 					else if (feature.getRefseqLocusTag() != null) {

@@ -124,7 +124,7 @@ public class SingleFIGfam extends GenericPortlet {
 				int end = Integer.parseInt(limit);
 
 				key.put("fields",
-						"genome_id,genome_name,accession,seed_id,alt_locus_tag,refseq_locus_tag,gene,annotation,feature_type,feature_id,start,end,na_length,strand,protein_id,aa_length,product,figfam_id");
+						"genome_id,genome_name,accession,patric_id,alt_locus_tag,refseq_locus_tag,gene,annotation,feature_type,feature_id,start,end,na_length,strand,protein_id,aa_length,product,figfam_id");
 
 				SolrQuery query = dataApi.buildSolrQuery(key, sort, null, start, end, false);
 

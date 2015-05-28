@@ -186,7 +186,7 @@ public class BreadCrumb extends GenericPortlet {
 					// check whether ID is PATRIC ID (fig|xxx.peg.xxx)
 					if (cId.contains("fig|")) {
 						String encodedContextId = URLEncoder.encode(cId, "UTF-8");
-						String apiResponse = dataApi.get("/genome_feature/?eq(seed_id," + encodedContextId + ")");
+						String apiResponse = dataApi.get("/genome_feature/?eq(patric_id," + encodedContextId + ")");
 
 						List<Map> features = jsonListParser.readValue(apiResponse);
 						GenomeFeature feature = dataApi.bindDocument(features.get(0), GenomeFeature.class);

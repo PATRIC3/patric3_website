@@ -18,12 +18,12 @@ response.setContentType("application/json");
 			"key": "PATRIC Annotation",
 			"label": "PATRICGenes",
 			"style": {
-				"label": "function( feature ) { return feature.get('seed_id'); }"
+				"label": "function( feature ) { return feature.get('patric_id'); }"
 			},
 			"hooks": {
 				"modify": "function(track, feature, div) { div.style.backgroundColor = ['#17487d','#5190d5','#c7daf1'][feature.get('phase')];}"
 			},
-			"tooltip": "<div style='line-height:1.7em'><b>{seed_id}</b> | {refseq_locus_tag} | {alt_locus_Tag} | {gene}<br>{product}<br>{type}: {start_str} .. {end} ({strand_str})<br> <i>Click for detail information</i></div>",
+			"tooltip": "<div style='line-height:1.7em'><b>{patric_id}</b> | {refseq_locus_tag} | {alt_locus_Tag} | {gene}<br>{product}<br>{type}: {start_str} .. {end} ({strand_str})<br> <i>Click for detail information</i></div>",
 			"metadata": {
 				"Description": "PATRIC annotated genes"
 			},

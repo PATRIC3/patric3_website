@@ -405,7 +405,7 @@ public class CompPathwayTable extends GenericPortlet {
 			// get pathway list
 			if (!listFeatureIds.isEmpty()) {
 				SolrQuery featureQuery = new SolrQuery("feature_id:(" + StringUtils.join(listFeatureIds, " OR ") + ")");
-				featureQuery.setFields("genome_name,genome_id,accession,alt_locus_tag,refseq_locus_tag,seed_id,feature_id,gene,product");
+				featureQuery.setFields("genome_name,genome_id,accession,alt_locus_tag,refseq_locus_tag,patric_id,feature_id,gene,product");
 				featureQuery.setRows(Math.max(dataApi.MAX_ROWS, listFeatureIds.size()));
 
 				LOGGER.trace("[{}] {}", SolrCore.FEATURE.getSolrCoreName(), featureQuery);
@@ -428,7 +428,7 @@ public class CompPathwayTable extends GenericPortlet {
 					item.put("alt_locus_tag", feature.getAltLocusTag());
 					item.put("refseq_locus_tag", feature.getRefseqLocusTag());
 					item.put("algorithm", annotation);
-					item.put("seed_id", feature.getSeedId());
+					item.put("patric_id", feature.getPatricId());
 					item.put("gene", feature.getGene());
 					item.put("product", feature.getProduct());
 
@@ -612,7 +612,7 @@ public class CompPathwayTable extends GenericPortlet {
 					.asList("Feature ID", "Genome Name", "Accession", "PATRIC ID", "RefSeq Locus Tag", "Alt Locus Tag", "Gene Symbol", "Product Name",
 							"Annotation", "Pathway ID", "Pathway Name", "Ec Number", "EC Description"));
 			tableField.addAll(Arrays
-					.asList("feature_id", "genome_name", "accession", "seed_id", "refseq_locus_tag", "alt_locus_tag", "gene", "product", "algorithm",
+					.asList("feature_id", "genome_name", "accession", "patric_id", "refseq_locus_tag", "alt_locus_tag", "gene", "product", "algorithm",
 							"pathway_id", "pathway_name", "ec_number", "ec_name"));
 		}
 

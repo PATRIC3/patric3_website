@@ -400,9 +400,9 @@ function createToolbar(type, download_option, workspace_type) {
 					if (Page.exemptList.some(function(element, index, array) {
 							return property.name && property.name == element;
 						}))
-						submitIDMapping(property.name, "seed_id");
+						submitIDMapping(property.name, "patric_id");
 					else
-						callOperation('DoIDMapping', "seed_id", 'No item(s) are selected. To run id mapping tool, at least one item must be selected.');
+						callOperation('DoIDMapping', "patric_id", 'No item(s) are selected. To run id mapping tool, at least one item must be selected.');
 				}
 			}, {
 				text : 'Feature ID',

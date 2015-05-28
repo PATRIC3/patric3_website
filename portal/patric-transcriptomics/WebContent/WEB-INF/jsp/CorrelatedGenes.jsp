@@ -55,7 +55,7 @@ Ext.onReady(function()
 			'genome_id', 'genome_name', 'accession', 'alt_locus_tag',
 			'feature_id', {name:'start', type:'int'}, {name:'end', type:'int'},
 			{name:'na_length', type:'int'}, {name:'correlation', type:'float'}, {name:'count', type:'int'},
-			'strand', 'product', 'refseq_locus_tag', 'seed_id', 'gene', 'annotation', 'feature_type', 'protein_id', 'aa_length'
+			'strand', 'product', 'refseq_locus_tag', 'patric_id', 'gene', 'annotation', 'feature_type', 'protein_id', 'aa_length'
 		]
 	});
 	
@@ -70,7 +70,7 @@ Ext.onReady(function()
 		scm:[[checkbox,
 				{text:'Genome Name',		dataIndex:'genome_name',		flex:3,	align:'center', renderer:renderGenomeName},
 				{text:'Accession',			dataIndex:'accession',			flex:1,	hidden:true, align:'center', renderer:renderAccession},
-				{text:'PATRIC ID',			dataIndex:'seed_id',	    	flex:2,	align:'center', renderer:renderSeedId},
+				{text:'PATRIC ID',			dataIndex:'patric_id',	    	flex:2,	align:'center', renderer:renderSeedId},
 				{text:'Alt Locus Tag',		dataIndex:'alt_locus_tag',		flex:2,	align:'center', renderer:renderLocusTag},
 				{text:'RefSeq Locus Tag',	dataIndex:'refseq_locus_tag',	flex:2,	align:'center', renderer:renderLocusTag},
 				{text:'Gene Symbol',		dataIndex:'gene',				flex:1,	align:'center', renderer:BasicRenderer},

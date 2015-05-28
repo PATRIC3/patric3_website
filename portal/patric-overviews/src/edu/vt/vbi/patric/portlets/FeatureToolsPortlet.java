@@ -44,7 +44,7 @@ public class FeatureToolsPortlet extends GenericPortlet {
 				if (feature.getAnnotation().equals("PATRIC")) {
 
 					dispRefseqLocusTag = feature.getRefseqLocusTag();
-					dispSeedId = feature.getSeedId();
+					dispSeedId = feature.getPatricId();
 
 					if (feature.hasAltLocusTag()) {
 						dispSequenceID.append(feature.getAltLocusTag());
