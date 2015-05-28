@@ -33,10 +33,7 @@ import org.slf4j.LoggerFactory;
 import javax.portlet.ResourceRequest;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class FIGfamData {
 
@@ -87,7 +84,7 @@ public class FIGfamData {
 			solr_query.addSort("accession", SolrQuery.ORDER.asc);
 			solr_query.addSort("start", SolrQuery.ORDER.asc);
 
-			LOGGER.debug("getSyntonyOrder() [{}] {}", SolrCore.FEATURE.getSolrCoreName(), solr_query.toString());
+			LOGGER.debug("getSyntonyOrder() [{}] {}", SolrCore.FEATURE.getSolrCoreName(), solr_query);
 
 			int orderSet = 0;
 			List<SyntonyOrder> collect = new ArrayList<>();
@@ -158,7 +155,7 @@ public class FIGfamData {
 			solr_query.addField("feature_id,patric_id,refseq_locus_tag,alt_locus_tag");
 			solr_query.setRows(dataApi.MAX_ROWS);
 
-			LOGGER.debug("getLocusTags(): [{}] {}", SolrCore.FEATURE.toString(), solr_query.toString());
+			LOGGER.debug("getLocusTags(): [{}] {}", SolrCore.FEATURE.toString(), solr_query);
 
 			String apiResponse = dataApi.solrQuery(SolrCore.FEATURE, solr_query);
 			Map resp = jsonReader.readValue(apiResponse);
@@ -195,7 +192,7 @@ public class FIGfamData {
 		query.setFilterQueries("annotation:PATRIC AND feature_type:CDS");
 		query.setRows(dataApiHandler.MAX_ROWS);
 
-		LOGGER.debug("getDetails(): [{}] {}", SolrCore.FEATURE.getSolrCoreName(), query.toString());
+		LOGGER.debug("getDetails(): [{}] {}", SolrCore.FEATURE.getSolrCoreName(), query);
 
 		String apiResponse = dataApiHandler.solrQuery(SolrCore.FEATURE, query);
 		Map resp = jsonReader.readValue(apiResponse);
@@ -350,7 +347,7 @@ public class FIGfamData {
 			query.addFilterQuery("genome_id:(" + key.get("genomeIds").replaceAll(",", " OR ") + ")");
 		}
 
-		LOGGER.debug("getGenomeDetails(): [{}] {}", SolrCore.GENOME.getSolrCoreName(), query.toString());
+		LOGGER.debug("getGenomeDetails(): [{}] {}", SolrCore.GENOME.getSolrCoreName(), query);
 
 		String apiResponse = dataApi.solrQuery(SolrCore.GENOME, query);
 		Map resp = jsonReader.readValue(apiResponse);
@@ -378,7 +375,7 @@ public class FIGfamData {
 		DataApiHandler dataApi = new DataApiHandler(request);
 
 		JSONObject figfams = new JSONObject();
-		List<String> figfamIdList = new ArrayList<>();
+		Set<String> figfamIdList = new HashSet<>();
 		List<String> genomeIdList = new ArrayList<>(); // Arrays.asList(request.getParameter("genomeIds").split(","));
 
 		// get genome list in order
@@ -387,7 +384,7 @@ public class FIGfamData {
 			SolrQuery query = new SolrQuery("genome_id:(" + genomeIds.replaceAll(",", " OR ") + ")");
 			query.addSort("genome_name", SolrQuery.ORDER.asc).addField("genome_id").setRows(dataApi.MAX_ROWS);
 
-			LOGGER.trace("[{}] {}", SolrCore.GENOME.getSolrCoreName(), query.toString());
+			LOGGER.trace("[{}] {}", SolrCore.GENOME.getSolrCoreName(), query);
 
 			String apiResponse = dataApi.solrQuery(SolrCore.GENOME, query);
 			Map resp = jsonReader.readValue(apiResponse);
@@ -403,7 +400,7 @@ public class FIGfamData {
 			LOGGER.error(e.getMessage(), e);
 		}
 
-		LOGGER.debug("genomeIdList: {}", genomeIdList);
+//		LOGGER.debug("genomeIdList: {}", genomeIdList);
 
 		// getting genome counts per figfamID (figfam)
 		// {stat:{field:{field:figfam_id,limit:-1,facet:{min:"min(aa_length)",max:"max(aa_length)",mean:"avg(aa_length)",ss:"sumsq(aa_length)",dist:"percentile(aa_length,50,75,99,99.9)",field:{field:genome_id}}}}}
@@ -522,7 +519,7 @@ public class FIGfamData {
 				LOGGER.debug("getGroupStats() 3/3: [{}] {}", SolrCore.FIGFAM_DIC.getSolrCoreName(), query.toString());
 
 				String apiResponse = dataApi.solrQuery(SolrCore.FIGFAM_DIC, query);
-				LOGGER.debug("{}", apiResponse);
+
 				Map resp = jsonReader.readValue(apiResponse);
 				Map respBody = (Map) resp.get("response");
 
