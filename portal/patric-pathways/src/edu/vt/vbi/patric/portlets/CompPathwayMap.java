@@ -272,41 +272,46 @@ public class CompPathwayMap extends GenericPortlet {
 			String apiResponse = dataApi.solrQuery(SolrCore.PATHWAY, query);
 
 			Map resp = jsonReader.readValue(apiResponse);
-			List<Map> buckets = (List<Map>) ((Map) ((Map) resp.get("facets")).get("stat")).get("buckets");
+			Map respBody = (Map) resp.get("response");
+			int numFound = (Integer) respBody.get("numFound");
 
-			Map<String, Map> mapStat = new HashMap<>();
-			for (Map value : buckets) {
-				if (Integer.parseInt(value.get("gene_count").toString()) > 0) {
-					mapStat.put(value.get("val").toString(), value);
-					ecNumbers.add(value.get("val").toString());
+			if (numFound > 0) {
+				List<Map> buckets = (List<Map>) ((Map) ((Map) resp.get("facets")).get("stat")).get("buckets");
+
+				Map<String, Map> mapStat = new HashMap<>();
+				for (Map value : buckets) {
+					if (Integer.parseInt(value.get("gene_count").toString()) > 0) {
+						mapStat.put(value.get("val").toString(), value);
+						ecNumbers.add(value.get("val").toString());
+					}
 				}
-			}
 
-			if (!ecNumbers.isEmpty()) {
-				query = new SolrQuery("pathway_id:" + map + " AND ec_number:(" + StringUtils.join(ecNumbers, " OR ") + ")");
-				query.setRows(ecNumbers.size()).setFields("ec_number,ec_description,occurrence");
-				query.addSort("ec_number", SolrQuery.ORDER.asc);
+				if (!ecNumbers.isEmpty()) {
+					query = new SolrQuery("pathway_id:" + map + " AND ec_number:(" + StringUtils.join(ecNumbers, " OR ") + ")");
+					query.setRows(ecNumbers.size()).setFields("ec_number,ec_description,occurrence");
+					query.addSort("ec_number", SolrQuery.ORDER.asc);
 
-				apiResponse = dataApi.solrQuery(SolrCore.PATHWAY_REF, query);
-				resp = jsonReader.readValue(apiResponse);
-				Map respBdoby = (Map) resp.get("response");
+					apiResponse = dataApi.solrQuery(SolrCore.PATHWAY_REF, query);
+					resp = jsonReader.readValue(apiResponse);
+					Map respBdoby = (Map) resp.get("response");
 
-				count_total = (Integer) respBdoby.get("numFound");
-				List<Map> sdl = (List<Map>) respBdoby.get("docs");
+					count_total = (Integer) respBdoby.get("numFound");
+					List<Map> sdl = (List<Map>) respBdoby.get("docs");
 
-				for (Map doc : sdl) {
-					String ecNumber = doc.get("ec_number").toString();
-					Map stat = mapStat.get(ecNumber);
+					for (Map doc : sdl) {
+						String ecNumber = doc.get("ec_number").toString();
+						Map stat = mapStat.get(ecNumber);
 
-					JSONObject item = new JSONObject();
-					item.put("algorithm", algorithm);
-					item.put("ec_name", doc.get("ec_description"));
-					item.put("ec_number", ecNumber);
-					item.put("occurrence", doc.get("occurrence"));
-					item.put("gene_count", stat.get("gene_count"));
-					item.put("genome_count", stat.get("genome_count"));
+						JSONObject item = new JSONObject();
+						item.put("algorithm", algorithm);
+						item.put("ec_name", doc.get("ec_description"));
+						item.put("ec_number", ecNumber);
+						item.put("occurrence", doc.get("occurrence"));
+						item.put("gene_count", stat.get("gene_count"));
+						item.put("genome_count", stat.get("genome_count"));
 
-					results.add(item);
+						results.add(item);
+					}
 				}
 			}
 		}
@@ -388,58 +393,63 @@ public class CompPathwayMap extends GenericPortlet {
 
 					query.add("json.facet","{stat:{field:{field:ec_number,limit:-1,facet:{genome_count:\"unique(genome_id)\",gene_count:\"unique(feature_id)\"}}}}");
 
-					LOGGER.debug("step 1. [{}] {}", SolrCore.PATHWAY.getSolrCoreName(), query.toString());
+					LOGGER.debug("step 1. [{}] {}", SolrCore.PATHWAY.getSolrCoreName(), query);
 
 					String apiResponse = dataApi.solrQuery(SolrCore.PATHWAY, query);
 
 					Map resp = jsonReader.readValue(apiResponse);
-					List<Map> buckets = (List<Map>) ((Map) ((Map) resp.get("facets")).get("stat")).get("buckets");
+					Map respBody = (Map) resp.get("response");
+					int numFound = (Integer) respBody.get("numFound");
 
-					Map<String, Map> mapStat = new HashMap<>();
-					for (Map value: buckets) {
-						if (Integer.parseInt(value.get("count").toString()) > 0) {
-							mapStat.put(value.get("val").toString(), value);
-							ecNumbers.add(value.get("val").toString());
+					if (numFound > 0) {
+						List<Map> buckets = (List<Map>) ((Map) ((Map) resp.get("facets")).get("stat")).get("buckets");
+
+						Map<String, Map> mapStat = new HashMap<>();
+						for (Map value : buckets) {
+							if (Integer.parseInt(value.get("count").toString()) > 0) {
+								mapStat.put(value.get("val").toString(), value);
+								ecNumbers.add(value.get("val").toString());
+							}
 						}
-					}
 
-					// step2. coordinates, occurrence
-					// pathway_ref/select?q=pathway_id:00010+AND+map_type:enzyme%+AND+ec_number:("1.2.1.3"+OR+"1.1.1.1")&fl=ec_number,ec_description,map_location,occurrence
+						// step2. coordinates, occurrence
+						// pathway_ref/select?q=pathway_id:00010+AND+map_type:enzyme%+AND+ec_number:("1.2.1.3"+OR+"1.1.1.1")&fl=ec_number,ec_description,map_location,occurrence
 
-					if (!ecNumbers.isEmpty()) {
-						query = new SolrQuery("pathway_id:" + map + " AND map_type:enzyme AND ec_number:(" + StringUtils.join(ecNumbers, " OR ") + ")");
-						query.setFields("ec_number,ec_description,map_location,occurrence");
-						query.setRows(dataApi.MAX_ROWS);
+						if (!ecNumbers.isEmpty()) {
+							query = new SolrQuery("pathway_id:" + map + " AND map_type:enzyme AND ec_number:(" + StringUtils.join(ecNumbers, " OR ") + ")");
+							query.setFields("ec_number,ec_description,map_location,occurrence");
+							query.setRows(dataApi.MAX_ROWS);
 
-						LOGGER.trace("[{}] {}", SolrCore.PATHWAY_REF.getSolrCoreName(), query);
+							LOGGER.trace("[{}] {}", SolrCore.PATHWAY_REF.getSolrCoreName(), query);
 
-						apiResponse = dataApi.solrQuery(SolrCore.PATHWAY_REF, query);
+							apiResponse = dataApi.solrQuery(SolrCore.PATHWAY_REF, query);
 
-						resp = jsonReader.readValue(apiResponse);
-						Map respBody = (Map) resp.get("response");
+							resp = jsonReader.readValue(apiResponse);
+							respBody = (Map) resp.get("response");
 
-						List<Map> sdl = (List<Map>) respBody.get("docs");
+							List<Map> sdl = (List<Map>) respBody.get("docs");
 
-						for (Map doc: sdl) {
-							String ecNumber = doc.get("ec_number").toString();
-							Map stat = mapStat.get(ecNumber);
+							for (Map doc : sdl) {
+								String ecNumber = doc.get("ec_number").toString();
+								Map stat = mapStat.get(ecNumber);
 
-							if (!stat.get("gene_count").toString().equals("0")) {
+								if (!stat.get("gene_count").toString().equals("0")) {
 
-								List<String> locations = (List<String>) doc.get("map_location");
-								for (String location : locations) {
+									List<String> locations = (List<String>) doc.get("map_location");
+									for (String location : locations) {
 
-									JSONObject coordinate = new JSONObject();
-									coordinate.put("algorithm", annotation);
-									coordinate.put("description", doc.get("ec_description"));
-									coordinate.put("ec_number", ecNumber);
-									coordinate.put("genome_count", stat.get("genome_count"));
+										JSONObject coordinate = new JSONObject();
+										coordinate.put("algorithm", annotation);
+										coordinate.put("description", doc.get("ec_description"));
+										coordinate.put("ec_number", ecNumber);
+										coordinate.put("genome_count", stat.get("genome_count"));
 
-									String[] loc = location.split(",");
-									coordinate.put("x", loc[0]);
-									coordinate.put("y", loc[1]);
+										String[] loc = location.split(",");
+										coordinate.put("x", loc[0]);
+										coordinate.put("y", loc[1]);
 
-									listCoordinates.add(coordinate);
+										listCoordinates.add(coordinate);
+									}
 								}
 							}
 						}
@@ -694,32 +704,37 @@ public class CompPathwayMap extends GenericPortlet {
 			String apiResponse = dataApi.solrQuery(SolrCore.PATHWAY, query);
 
 			Map resp = jsonReader.readValue(apiResponse);
-			List<Map> buckets = (List<Map>) ((Map) ((Map) resp.get("facets")).get("stat")).get("buckets");
-
 			Map respBody = (Map) resp.get("response");
-			List<Map> sdl = (List<Map>) respBody.get("docs");
+			int numFound = (Integer) respBody.get("numFound");
 
-			Map<String, Integer> mapStat = new HashMap<>();
-			for (Map value: buckets) {
-				if (Integer.parseInt(value.get("count").toString()) > 0) {
-					mapStat.put(value.get("val").toString(), (Integer) value.get("count"));
+			if (numFound > 0) {
+				List<Map> buckets = (List<Map>) ((Map) ((Map) resp.get("facets")).get("stat")).get("buckets");
+
+				respBody = (Map) resp.get("response");
+				List<Map> sdl = (List<Map>) respBody.get("docs");
+
+				Map<String, Integer> mapStat = new HashMap<>();
+				for (Map value : buckets) {
+					if (Integer.parseInt(value.get("count").toString()) > 0) {
+						mapStat.put(value.get("val").toString(), (Integer) value.get("count"));
+					}
 				}
+
+				JSONArray items = new JSONArray();
+				for (Map doc : sdl) {
+					JSONObject item = new JSONObject();
+					item.put("genome_id", doc.get("genome_id"));
+					item.put("algorithm", doc.get("annotation"));
+					item.put("ec_number", doc.get("ec_number"));
+					item.put("ec_name", doc.get("ec_description"));
+					Integer count = mapStat.get(doc.get("genome_id") + "_" + doc.get("ec_number"));
+					item.put("gene_count", String.format("%02x", count)); // 2-digit hex string
+
+					items.add(item);
+				}
+
+				json.put("data", items);
 			}
-
-			JSONArray items = new JSONArray();
-			for (Map doc: sdl) {
-				JSONObject item = new JSONObject();
-				item.put("genome_id", doc.get("genome_id"));
-				item.put("algorithm", doc.get("annotation"));
-				item.put("ec_number", doc.get("ec_number"));
-				item.put("ec_name", doc.get("ec_description"));
-				Integer count = mapStat.get(doc.get("genome_id") + "_" + doc.get("ec_number"));
-				item.put("gene_count", String.format("%02x", count)); // 2-digit hex string
-
-				items.add(item);
-			}
-
-			json.put("data", items);
 		}
 		catch (IOException e) {
 			LOGGER.error(e.getMessage(), e);
