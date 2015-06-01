@@ -89,6 +89,8 @@ public class FeatureTable extends GenericPortlet {
 
 		JSONObject res = new JSONObject();
 		res.putAll(facets);
+
+		response.setContentType("application/json");
 		res.writeJSONString(response.getWriter());
 	}
 

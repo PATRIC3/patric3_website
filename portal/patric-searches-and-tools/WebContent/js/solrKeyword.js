@@ -639,6 +639,8 @@ configuration['Feature'] = {
 	display_facets : [],
 	display_facets_texts : [],
 	all_facets : ['Keyword', 'feature_type', 'annotation', 'genome_id', 'go', 'ec', 'pathway', 'figfam_id'],
+	field_facets : [],
+	date_range_facets : [],
 	search_fields : [{
 		value : 'Keyword',
 		text : 'Keyword'

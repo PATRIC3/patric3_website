@@ -220,6 +220,7 @@ public class GlobalSearch extends GenericPortlet {
 			LOGGER.error(e.getMessage(), e);
 		}
 
+		response.setContentType("application/json");
 		result.writeJSONString(response.getWriter());
 	}
 

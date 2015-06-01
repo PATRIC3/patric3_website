@@ -299,8 +299,8 @@ function getExtraParams() {
 		facet : JSON.stringify({
 			"facet" : configuration[property.name[which]].display_facets.join(","),
 			"facet_text" : configuration[property.name[which]].display_facets_texts.join(","),
-			'field_facets': configuration[name].field_facets.join(','),
-			'date_range_facets': configuration[name].date_range_facets.join(',')
+			'field_facets': configuration[property.name[which]].field_facets.join(','),
+			'date_range_facets': configuration[property.name[which]].date_range_facets.join(',')
 		})
 	};
 }
