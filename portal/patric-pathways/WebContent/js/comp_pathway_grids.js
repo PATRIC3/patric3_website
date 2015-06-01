@@ -436,7 +436,7 @@ function renderPathwayEc(value, metadata, record, rowIndex, colIndex, store) {
 // render Unique Gene Count in ec tab
 function renderGeneCountEc(value, metadata, record, rowIndex, colIndex, store) {
 	metadata.tdAttr = 'data-qtip="'+record.data.gene_count+'" data-qclass="x-tip"';
-	return Ext.String.format('<a href="javascript:void(0);" onclick=ShowFeatureTab("{0}","{1}","{2}","{3}","{4}"); />{5}</a>',
+	return Ext.String.format('<a href="javascript:void(0);" onclick="ShowFeatureTab(\'{0}\',\'{1}\',\'{2}\',\'{3}\',\'{4}\');" />{5}</a>',
 		record.data.pathway_id, record.data.pathway_name, record.data.pathway_class, record.data.ec_number, record.data.algorithm, record.data.gene_count);
 }
 
