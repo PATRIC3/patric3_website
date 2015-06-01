@@ -415,14 +415,14 @@ function renderPathwayName(value, metadata, record, rowIndex, colIndex, store) {
 // render Unique Gene Count in pathway tab
 function renderGeneCountPathway(value, metadata, record, rowIndex, colIndex, store) {
 	metadata.tdAttr = 'data-qtip="'+record.data.gene_count+'" data-qclass="x-tip"';
-	return Ext.String.format('<a href="javascript:void(0);" onclick=ShowFeatureTab("{0}","{1}","{2}","{3}","{4}"); />{5}</a>',
+	return Ext.String.format('<a href="javascript:void(0);" onclick="ShowFeatureTab(\'{0}\',\'{1}\',\'{2}\',\'{3}\',\'{4}\');" />{5}</a>',
 		record.data.pathway_id, record.data.pathway_name, record.data.pathway_class, '', record.data.algorithm, record.data.gene_count);
 }
 
 // render Unique EC Count in pathway tab
 function renderAvgECCount(value, metadata, record, rowIndex, colIndex, store) {
 	metadata.tdAttr = 'data-qtip="'+record.data.ec_count+'" data-qclass="x-tip"';
-	return Ext.String.format('<a href="javascript:void(0);" onclick=ShowECTab("{0}","{1}","{2}","{3}"); />{4}</a>',
+	return Ext.String.format('<a href="javascript:void(0);" onclick="ShowECTab(\'{0}\',\'{1}\',\'{2}\',\'{3}\');" />{4}</a>',
 		record.data.pathway_id, record.data.pathway_name, record.data.pathway_class, record.data.algorithm, record.data.ec_count);
 }
 
