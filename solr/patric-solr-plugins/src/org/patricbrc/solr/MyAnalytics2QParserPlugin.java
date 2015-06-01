@@ -6,10 +6,15 @@
 
 package org.patricbrc.solr;
 
+import org.apache.lucene.document.Document;
+import org.apache.lucene.index.DocValues;
+import org.apache.lucene.index.IndexableField;
+import org.apache.lucene.index.NumericDocValues;
 import org.apache.lucene.index.SortedDocValues;
-import org.apache.lucene.search.FieldCache;
+import org.apache.lucene.queries.function.valuesource.SimpleFloatFunction;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.uninverting.UninvertingReader;
 import org.apache.solr.common.params.SolrParams;
 import org.apache.solr.common.util.NamedList;
 import org.apache.solr.handler.component.ResponseBuilder;
@@ -17,24 +22,28 @@ import org.apache.solr.request.SolrQueryRequest;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaField;
 import org.apache.solr.search.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MyAnalytics2QParserPlugin extends QParserPlugin {
 
 	public void init(NamedList params) {
 	}
 
-	public QParser createParser(String query, SolrParams localParams, SolrParams params, SolrQueryRequest req) {
-		return new MyAnalytics2QueryParser(query, localParams, params, req);
+	public QParser createParser(String query, SolrParams localParams, SolrParams params, SolrQueryRequest request) {
+		return new MyAnalytics2QueryParser(query, localParams, params, request);
 	}
 
 	class MyAnalytics2QueryParser extends QParser {
 
-		public MyAnalytics2QueryParser(String query, SolrParams localParams, SolrParams params, SolrQueryRequest req) {
-			super(query, localParams, params, req);
+		public MyAnalytics2QueryParser(String query, SolrParams localParams, SolrParams params, SolrQueryRequest request) {
+			super(query, localParams, params, request);
 		}
 
 		public Query parse() throws SyntaxError {
@@ -50,36 +59,14 @@ public class MyAnalytics2QParserPlugin extends QParserPlugin {
 	@SuppressWarnings("CanBeFinal")
 	class MyAnalytics2Query extends AnalyticsQuery {
 
-		private String field = "rast_cds";
-
 		public MyAnalytics2Query(SolrParams localParams, SolrParams params, SolrQueryRequest request) throws IOException {
 		}
 
 		public DelegatingCollector getAnalyticsCollector(ResponseBuilder rb, IndexSearcher indexSearcher) {
 			try {
 				SolrIndexSearcher searcher = (SolrIndexSearcher) indexSearcher;
-				IndexSchema schema = searcher.getSchema();
-				SchemaField schemaField = schema.getField(this.field);
-				SortedDocValues docValues;
 
-				if (schemaField.hasDocValues()) {
-					docValues = searcher.getAtomicReader().getSortedDocValues(this.field);
-				}
-				else {
-					docValues = FieldCache.DEFAULT.getTermsIndex(searcher.getAtomicReader(), this.field);
-				}
-
-				SortedDocValues dvGenomeIDs = FieldCache.DEFAULT.getTermsIndex(searcher.getAtomicReader(), "genome_info_id");
-
-				SortedDocValues dvGenomeNames;
-				if (schema.getField("common_name").hasDocValues()) {
-					dvGenomeNames = searcher.getAtomicReader().getSortedDocValues("common_name");
-				}
-				else {
-					dvGenomeNames = FieldCache.DEFAULT.getTermsIndex(searcher.getAtomicReader(), "common_name");
-				}
-
-				return new MyAnalytics2Collector(rb, docValues, dvGenomeIDs, dvGenomeNames);
+				return new MyAnalytics2Collector(rb, searcher);
 
 			}
 			catch (Exception e) {
@@ -90,50 +77,56 @@ public class MyAnalytics2QParserPlugin extends QParserPlugin {
 
 	@SuppressWarnings({ "unchecked", "CanBeFinal" })
 	class MyAnalytics2Collector extends DelegatingCollector {
-		ResponseBuilder rb;
+		private ResponseBuilder rb;
 
-		int count;
+		private int count;
 
-		private SortedDocValues values;
+		private SortedDocValues genomeIds;
 
-		private SortedDocValues genomeIDs;
+		private SortedDocValues genomeNames;
 
-		private SortedDocValues genomes;
+		private UninvertingReader uninvertingReader;
 
 		private List<String> list;
 
-		public MyAnalytics2Collector(ResponseBuilder rb, SortedDocValues values, SortedDocValues genomeIDs, SortedDocValues genomes) {
+		public final Logger logger = LoggerFactory.getLogger(MyAnalytics2Collector.class);
+
+		public MyAnalytics2Collector(ResponseBuilder rb, SolrIndexSearcher searcher) throws IOException {
+
+			Map<String, UninvertingReader.Type> mapping = new HashMap<>();
+			mapping.put("patric_cds", UninvertingReader.Type.INTEGER);
+			mapping.put("gc_content", UninvertingReader.Type.FLOAT);
+			uninvertingReader = new UninvertingReader(searcher.getLeafReader(), mapping);
+
+			genomeIds = DocValues.getSorted(searcher.getLeafReader(), "genome_id");
+			genomeNames = DocValues.getSorted(searcher.getLeafReader(), "genome_name");
+
 			this.rb = rb;
-			this.values = values;
-			this.genomeIDs = genomeIDs;
-			this.genomes = genomes;
 			this.list = new ArrayList<>();
 		}
 
 		public void collect(int doc) throws IOException {
 			++count;
 
-			int ord_value = values.getOrd(doc);
-			int ord_genomeID = genomeIDs.getOrd(doc);
-			int ord_genome = genomes.getOrd(doc);
+			// float gc = floats.get(doc);
+			float gc = uninvertingReader.document(doc).getField("gc_content").numericValue().floatValue();
+			int value = uninvertingReader.document(doc).getField("gc_content").numericValue().intValue();
+			int ord_genomeID = genomeIds.getOrd(doc);
+			int ord_genome = genomeNames.getOrd(doc);
 
-			int value = -1;
-			int genomeID = -1;
-			String genome = null;
+			String genomeId = null;
+			String genomeName = null;
 
-			if (ord_value > -1 && ord_genomeID > -1 && ord_genome > -1) {
-				value = FieldCache.NUMERIC_UTILS_INT_PARSER.parseInt(values.lookupOrd(ord_value));
-				genomeID = FieldCache.NUMERIC_UTILS_INT_PARSER.parseInt(genomeIDs.lookupOrd(ord_genomeID));
-				genome = genomes.lookupOrd(ord_genome).utf8ToString();
+			if (ord_genomeID > -1 && ord_genome > -1) {
+				genomeId = genomeIds.lookupOrd(ord_genomeID).utf8ToString();
+				genomeName = genomeNames.lookupOrd(ord_genome).utf8ToString();
 			}
 
-			if (value > 0 && genomeID > 0 && genome != null) {
+			if (value > 0 && genomeId != null) {
 
-				System.out.println(String.format("%d, %d, %s", value, genomeID, genome));
+				logger.info("patric_cds: {}, gc_content: {}, genome_id: {}, genome_name: {}", value, gc, genomeId, genomeName);
 
-				list.add(value + "," + genomeID + "," + genome);
-
-				delegate.collect(doc);
+				list.add("patric_cds: " + value + ", gc_content: " + gc + ", genome_id: " + genomeId + ", genome_name: " + genomeName);
 			}
 		}
 

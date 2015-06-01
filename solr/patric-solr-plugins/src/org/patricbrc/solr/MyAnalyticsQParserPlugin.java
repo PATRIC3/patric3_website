@@ -62,7 +62,7 @@ public class MyAnalyticsQParserPlugin extends QParserPlugin {
 
 		public void collect(int doc) throws IOException {
 			++count;
-			delegate.collect(doc);
+//			delegate.collect(doc);
 		}
 
 		public void finish() throws IOException {

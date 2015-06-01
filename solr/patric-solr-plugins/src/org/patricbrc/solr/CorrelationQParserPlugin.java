@@ -12,19 +12,17 @@ package org.patricbrc.solr;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
-import org.apache.lucene.index.AtomicReaderContext;
+import org.apache.lucene.index.DocValues;
+import org.apache.lucene.index.LeafReaderContext;
 import org.apache.lucene.index.SortedDocValues;
-import org.apache.lucene.search.FieldCache;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
+import org.apache.lucene.uninverting.UninvertingReader;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.common.params.SolrParams;
 import org.apache.solr.common.util.NamedList;
 import org.apache.solr.handler.component.ResponseBuilder;
 import org.apache.solr.request.SolrQueryRequest;
-import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.search.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,34 +106,8 @@ public class CorrelationQParserPlugin extends QParserPlugin {
 		public DelegatingCollector getAnalyticsCollector(ResponseBuilder rb, IndexSearcher indexSearcher) {
 			try {
 				SolrIndexSearcher searcher = (SolrIndexSearcher) indexSearcher;
-				IndexSchema schema = searcher.getSchema();
-				int segments = searcher.getTopReaderContext().leaves().size();
-				SortedDocValues dvIds;
-				SortedDocValues dvConditions;
-				SortedDocValues dvValues;
 
-				if (schema.getField(this.fieldId).hasDocValues()) {
-					dvIds = searcher.getAtomicReader().getSortedDocValues(this.fieldId);
-				}
-				else {
-					dvIds = FieldCache.DEFAULT.getTermsIndex(searcher.getAtomicReader(), this.fieldId);
-				}
-
-				if (schema.getField(this.fieldCondition).hasDocValues()) {
-					dvConditions = searcher.getAtomicReader().getSortedDocValues(this.fieldCondition);
-				}
-				else {
-					dvConditions = FieldCache.DEFAULT.getTermsIndex(searcher.getAtomicReader(), this.fieldCondition);
-				}
-				if (schema.getField(this.fieldValue).hasDocValues()) {
-					dvValues = searcher.getAtomicReader().getSortedDocValues(this.fieldValue);
-				}
-				else {
-					dvValues = FieldCache.DEFAULT.getTermsIndex(searcher.getAtomicReader(), this.fieldValue);
-				}
-
-				return new CorrelationCollector(rb, segments, srcId, filterCutOff, filterDirection, dvIds, dvConditions, dvValues);
-
+				return new CorrelationCollector(rb, searcher, srcId, filterCutOff, filterDirection, fieldId, fieldCondition, fieldValue);
 			}
 			catch (Exception e) {
 				throw new RuntimeException(e);
@@ -153,13 +125,11 @@ public class CorrelationQParserPlugin extends QParserPlugin {
 
 		private int docBase;
 
-		private AtomicReaderContext[] contexts;
+		private LeafReaderContext[] contexts;
 
 		private SortedDocValues ids;
 
-		private SortedDocValues conditions;
-
-		private SortedDocValues values;
+		private UninvertingReader uninvertingReader;
 
 		private String srcId;
 
@@ -167,62 +137,74 @@ public class CorrelationQParserPlugin extends QParserPlugin {
 
 		private String filterDirection;
 
-		private Map<StringKey, Double> data;
+		private String fieldId;
+
+		private String fieldCondition;
+
+		private String fieldValue;
+
+		private Map<StringKey, Float> data;
 
 		private Set<String> targets;
 
-		public CorrelationCollector(ResponseBuilder rb, int segments, String srcId, String filterCutOff, String filterDirection, SortedDocValues ids,
-				SortedDocValues conditions, SortedDocValues values) {
+		public CorrelationCollector(ResponseBuilder rb, SolrIndexSearcher searcher, String srcId, String filterCutOff, String filterDirection, String fieldId, String fieldCondition, String fieldValue)
+				throws IOException {
+
+			int segments = searcher.getTopReaderContext().leaves().size();
+			this.contexts = new LeafReaderContext[segments];
 			this.rb = rb;
-			this.contexts = new AtomicReaderContext[segments];
-
-			this.ids = ids;
-			this.conditions = conditions;
-			this.values = values;
-
 			this.srcId = srcId;
 			this.filterCutOff = Double.parseDouble(filterCutOff);
 			this.filterDirection = filterDirection;
+			this.fieldId = fieldId;
+			this.fieldCondition = fieldCondition;
+			this.fieldValue = fieldValue;
+
+
+			Map<String, UninvertingReader.Type> mapping = new HashMap<>();
+			mapping.put(fieldCondition, UninvertingReader.Type.INTEGER);
+			mapping.put(fieldValue, UninvertingReader.Type.FLOAT);
+			uninvertingReader = new UninvertingReader(searcher.getLeafReader(), mapping);
+
+			this.ids = DocValues.getSorted(searcher.getLeafReader(), this.fieldId);
 
 			this.data = new HashMap<>();
 			this.targets = new HashSet<>();
 		}
 
-		@Override
-		public void setNextReader(AtomicReaderContext context) throws IOException {
+		public void doSetNextReader(LeafReaderContext context) throws IOException {
 			this.contexts[context.ord] = context;
 			this.docBase = context.docBase;
 		}
 
-		public void collect(int doc) throws IOException {
-			int globalDoc = doc + this.docBase;
+		public void collect(int contextDoc) throws IOException {
+			int globalDoc = contextDoc + this.docBase;
 
 			int ordId = ids.getOrd(globalDoc);
-			int ordCondition = conditions.getOrd(globalDoc);
-			int ordValue = values.getOrd(globalDoc);
+			int condition = uninvertingReader.document(globalDoc).getField(fieldCondition).numericValue().intValue();
+			float value = uninvertingReader.document(globalDoc).getField(fieldValue).numericValue().floatValue();
 
-			if (ordId > -1 && ordCondition > -1 && ordValue > -1) {
+			if (ordId > -1) {
 
 				String id = ids.lookupOrd(ordId).utf8ToString();
-				String condition = "" + FieldCache.NUMERIC_UTILS_INT_PARSER.parseInt(conditions.lookupOrd(ordCondition));
-				double value = (double) FieldCache.NUMERIC_UTILS_FLOAT_PARSER.parseFloat(values.lookupOrd(ordValue));
+
+//				LOGGER.info("refseq_locus_tag: {}, pid: {}, log_ratio: {}", id, condition, value);
 
 				targets.add(id);
-				data.put(new StringKey(id, condition), value);
+				data.put(new StringKey(id, "" + condition), value);
 			}
-			delegate.collect(doc);
 		}
 
 		public void finish() throws IOException {
 
-			SolrDocumentList correlations = new SolrDocumentList();
+			ArrayList<NamedList> correlations = new ArrayList<>();
 			rb.rsp.add("correlation", correlations);
 
 			long start = System.currentTimeMillis();
 
 			// populate refHash
-			Map<String, Double> refHash = new HashMap<>();
-			for (Map.Entry<StringKey, Double> entry : data.entrySet()) {
+			Map<String, Float> refHash = new HashMap<>();
+			for (Map.Entry<StringKey, Float> entry : data.entrySet()) {
 				if (entry.getKey().equalFirstKey(srcId)) {
 					refHash.put(entry.getKey().getSecondKey(), entry.getValue());
 				}
@@ -232,6 +214,7 @@ public class CorrelationQParserPlugin extends QParserPlugin {
 			long cntTarget = 0;
 			int conditionCufOff = (int) Math.round(0.8 * refHash.size());
 			for (String target : targets) {
+
 				RealMatrix matrix = new Array2DRowRealMatrix(refHash.size(), 2);
 				Iterator<String> itKeys = refHash.keySet().iterator();
 				int rows = 0;
@@ -257,18 +240,16 @@ public class CorrelationQParserPlugin extends QParserPlugin {
 					if ((filterDirection.equals("pos") && coefficient >= filterCutOff)
 							|| (filterDirection.equals("neg") && coefficient <= (-1) * filterCutOff)) {
 
-						SolrDocument entry = new SolrDocument();
-						entry.put("id", target);
-						entry.put("correlation", coefficient);
-						entry.put("conditions", rows);
-						entry.put("p_value", p_value);
+						NamedList<Object> entry = new NamedList<>();
+						entry.add("id", target);
+						entry.add("correlation", coefficient);
+						entry.add("conditions", rows);
+						entry.add("p_value", p_value);
 						cntTarget++;
 						correlations.add(entry);
 					}
 				}
 			}
-
-			correlations.setNumFound(cntTarget);
 
 			long end = System.currentTimeMillis();
 			DecimalFormat formatter = new DecimalFormat("#,###");
