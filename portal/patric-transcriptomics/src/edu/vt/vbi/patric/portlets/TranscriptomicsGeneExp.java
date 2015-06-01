@@ -348,25 +348,18 @@ public class TranscriptomicsGeneExp extends GenericPortlet {
 			query.setFilterQueries(
 					"{!correlation fieldId=refseq_locus_tag fieldCondition=pid fieldValue=log_ratio srcId=" + feature.getRefseqLocusTag()
 							+ " filterCutOff=" + cutoffValue + " filterDir=" + cutoffDir.substring(0, 3) + " cost=101}");
-			query.setRows(0);
+			query.setRows(0).set("json.nl", "map");
 
 			LOGGER.trace("[{}] {}", SolrCore.TRANSCRIPTOMICS_GENE.getSolrCoreName(), query.toString());
 			String apiResponse = dataApi.solrQuery(SolrCore.TRANSCRIPTOMICS_GENE, query);
 
 			Map resp = jsonReader.readValue(apiResponse);
-			Map respBody = (Map) resp.get("correlation");
+			List<Map> transcriptomicsGenes = (List) resp.get("correlation");
 
-			numFound = (Integer) respBody.get("numFound");
-			List<Map> transcriptomicsGenes = (List<Map>) respBody.get("docs");
+			numFound = transcriptomicsGenes.size();
 
 			for (Map doc : transcriptomicsGenes) {
-				Map corr = new HashMap<>();
-				corr.put("id", doc.get("id"));
-				corr.put("correlation", doc.get("correlation"));
-				corr.put("conditions", doc.get("conditions"));
-				corr.put("p_value", doc.get("p_value"));
-
-				correlationMap.put(doc.get("id").toString(), corr);
+				correlationMap.put(doc.get("id").toString(), doc);
 			}
 		}
 		catch (IOException e) {
