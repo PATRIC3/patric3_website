@@ -20,6 +20,7 @@ import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.beans.GenomeFeature;
 import edu.vt.vbi.patric.beans.Taxonomy;
 import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -51,6 +52,8 @@ public class DataApiHandler {
 	private String token;
 
 	public final int MAX_ROWS = 100000;
+
+	private final int timeout = 10 * 60 * 1000;
 
 	private ObjectReader jsonParser;
 
@@ -89,7 +92,8 @@ public class DataApiHandler {
 	public String solrQuery(SolrCore core, SolrQuery query) {
 
 		String responseBody = null;
-		try (CloseableHttpClient client = HttpClientBuilder.create().build()) {
+		RequestConfig config = RequestConfig.custom().setSocketTimeout(timeout).setConnectTimeout(timeout).setConnectionRequestTimeout(timeout).build();
+		try (CloseableHttpClient client = HttpClientBuilder.create().setDefaultRequestConfig(config).build()) {
 
 			HttpPost request = new HttpPost(baseUrl + core.getSolrCoreName());
 
