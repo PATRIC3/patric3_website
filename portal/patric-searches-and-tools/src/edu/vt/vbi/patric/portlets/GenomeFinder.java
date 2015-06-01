@@ -493,6 +493,7 @@ public class GenomeFinder extends GenericPortlet {
 		String keyword = request.getParameter("keyword");
 		String facet = request.getParameter("facet");
 		String taxonId = request.getParameter("taxonId");
+		String genomeId = request.getParameter("genomeId");
 
 		Map<String, String> key = new HashMap<>();
 
@@ -511,6 +512,9 @@ public class GenomeFinder extends GenericPortlet {
 		if ((!key.containsKey("taxonId") || key.get("taxonId") == null) && taxonId != null) {
 			key.put("taxonId", taxonId);
 		}
+		if ((!key.containsKey("genomeId") || key.get("genomeId") == null) && genomeId != null) {
+			key.put("filter", "genome_id:(" + genomeId.replaceAll(",", " OR ") + ")");
+		}
 
 		// Pre-processing. Query genome core and get facets and genome_ids for next query on sequence core
 		key.put("fields", "genome_id");
@@ -518,6 +522,7 @@ public class GenomeFinder extends GenericPortlet {
 
 		DataApiHandler dataApi = new DataApiHandler(request);
 
+		LOGGER.debug("key: {}", key);
 		SolrQuery query = dataApi.buildSolrQuery(key, null, facet, 0, -1, false);
 		LOGGER.trace("processSequenceTab: [{}] {}", SolrCore.GENOME.getSolrCoreName(), query.toString());
 

@@ -253,24 +253,6 @@ function ShowSequenceTab(genomeId, genomeName) {
 	createURL();
 }
 
-function getSelectedFeatures() {
-
-	var Page = $Page, property = Page.getPageProperties(), sl = Page.getCheckBox().getSelections(), arr = [];
-
-	if (property.hash.gId) {
-		property.fids.push(property.hash.gId);
-	}
-	else {
-		for (var i = 0; i < sl.length; i++) {
-		    property.fids.push(sl[i].data.genome_id);
-		}
-		for (var i = 0; i < property.fids.length; i++) {
-			(arr.length > 0 && arr.indexOf(property.fids[i]) == -1) ? arr.push(property.fids[i]) : arr.length == 0 ? arr.push(property.fids[i]) : "";
-		}
-		property.fids = arr;
-	}
-}
-
 //Download File
 //BEGIN
 
