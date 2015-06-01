@@ -522,7 +522,6 @@ public class GenomeFinder extends GenericPortlet {
 
 		DataApiHandler dataApi = new DataApiHandler(request);
 
-		LOGGER.debug("key: {}", key);
 		SolrQuery query = dataApi.buildSolrQuery(key, null, facet, 0, -1, false);
 		LOGGER.trace("processSequenceTab: [{}] {}", SolrCore.GENOME.getSolrCoreName(), query.toString());
 
