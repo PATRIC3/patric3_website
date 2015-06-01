@@ -280,7 +280,7 @@ function flashCellsSelected(flashObjectID, columns, rows) {
 					ctCls : 'x-btn-over',
 					handler : function() {
 						selectPop.hide();
-						setSyntenyOrder(idForHeatmap, parseInt(selectGenomes));
+						setSyntenyOrder(idForHeatmap, selectGenomes);
 						Ext.get("sample-layout").mask('Loading...', 'x-mask-loading');
 					}
 				});
