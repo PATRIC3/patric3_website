@@ -512,7 +512,7 @@ public class GenomeFinder extends GenericPortlet {
 		if ((!key.containsKey("taxonId") || key.get("taxonId") == null) && taxonId != null) {
 			key.put("taxonId", taxonId);
 		}
-		if ((!key.containsKey("genomeId") || key.get("genomeId") == null) && genomeId != null) {
+		if ((!key.containsKey("genomeId") || key.get("genomeId") == null) && genomeId != null && !genomeId.equals("")) {
 			key.put("filter", "genome_id:(" + genomeId.replaceAll(",", " OR ") + ")");
 		}
 
