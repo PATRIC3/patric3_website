@@ -444,7 +444,7 @@ public class DataApiHandler {
 		query.setQuery(StringHelper.stripQuoteAndParseSolrKeywordOperator(key.get("keyword")));
 
 		if (key.containsKey("filter") && key.get("filter") != null) {
-			query.setFilterQueries(key.get("filter"));
+			query.addFilterQuery(key.get("filter"));
 		}
 		if (key.containsKey("filter2") && key.get("filter2") != null) {
 			query.addFilterQuery(key.get("filter2"));
@@ -452,7 +452,7 @@ public class DataApiHandler {
 
 		// use SolrJoin if possible
 		if (key.containsKey("join")) {
-			query.setFilterQueries(key.get("join"));
+			query.addFilterQuery(key.get("join"));
 		}
 
 		if (key.containsKey("fields") && !key.get("fields").equals("")) {
