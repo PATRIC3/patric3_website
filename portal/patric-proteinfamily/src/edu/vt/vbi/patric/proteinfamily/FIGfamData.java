@@ -347,7 +347,7 @@ public class FIGfamData {
 			query.addFilterQuery("genome_id:(" + key.get("genomeIds").replaceAll(",", " OR ") + ")");
 		}
 
-		LOGGER.debug("getGenomeDetails(): [{}] {}", SolrCore.GENOME.getSolrCoreName(), query);
+		LOGGER.trace("getGenomeDetails(): [{}] {}", SolrCore.GENOME.getSolrCoreName(), query);
 
 		String apiResponse = dataApi.solrQuery(SolrCore.GENOME, query);
 		Map resp = jsonReader.readValue(apiResponse);
@@ -403,13 +403,13 @@ public class FIGfamData {
 //		LOGGER.debug("genomeIdList: {}", genomeIdList);
 
 		// getting genome counts per figfamID (figfam)
-		// {stat:{field:{field:figfam_id,limit:-1,facet:{min:"min(aa_length)",max:"max(aa_length)",mean:"avg(aa_length)",ss:"sumsq(aa_length)",dist:"percentile(aa_length,50,75,99,99.9)",field:{field:genome_id}}}}}
+		// {stat:{field:{field:figfam_id,limit:-1,facet:{min:"min(aa_length)",max:"max(aa_length)",mean:"avg(aa_length)",ss:"sumsq(aa_length)",sum:"sum(aa_length)",dist:"percentile(aa_length,50,75,99,99.9)",field:{field:genome_id}}}}}
 
 		try {
 			SolrQuery query = new SolrQuery("annotation:PATRIC AND feature_type:CDS");
 			query.addFilterQuery(getSolrQuery(request));
 			query.setRows(0).setFacet(true);
-			query.add("json.facet","{stat:{field:{field:figfam_id,limit:-1,facet:{min:\"min(aa_length)\",max:\"max(aa_length)\",mean:\"avg(aa_length)\",ss:\"sumsq(aa_length)\",dist:\"percentile(aa_length,1,25,50,75,99,99.9)\",field:{field:genome_id}}}}}");
+			query.add("json.facet","{stat:{field:{field:figfam_id,limit:-1,facet:{min:\"min(aa_length)\",max:\"max(aa_length)\",mean:\"avg(aa_length)\",ss:\"sumsq(aa_length)\",sum:\"sum(aa_length)\",dist:\"percentile(aa_length,1,25,50,75,99,99.9)\",field:{field:genome_id}}}}}");
 
 			LOGGER.trace("getGroupStats(): [{}] {}", SolrCore.FEATURE.getSolrCoreName(), query.toString());
 			String apiResponse = dataApi.solrQuery(SolrCore.FEATURE, query);
@@ -437,7 +437,7 @@ public class FIGfamData {
 					genomeIdsStr[index] = hex.length() < 2 ? "0" + hex : hex;
 				}
 
-				double min, max, mean, sumsq;
+				double min, max, mean, sumsq, sum;
 				if (bucket.get("min") instanceof Double) {
 					min = (Double) bucket.get("min");
 				}
@@ -474,14 +474,25 @@ public class FIGfamData {
 				else {
 					sumsq = 0;
 				}
+				if (bucket.get("sum") instanceof Double) {
+					sum = (Double) bucket.get("sum");
+				}
+				else if (bucket.get("sum") instanceof Integer) {
+					sum = ((Integer) bucket.get("sum")).doubleValue();
+				}
+				else {
+					sum = 0;
+				}
 
 //				LOGGER.debug("bucket:{}, sumsq:{}, count: {}", bucket, sumsq, count);
 				double std;
 				if (count > 1 ) {
-					std = Math.sqrt(sumsq / (count - 1));
+					// std = Math.sqrt(sumsq / (count - 1));
+					double realSq = sumsq - (sum * sum)/count;
+					std = Math.sqrt(realSq / (count - 1));
 				}
 				else {
-					std = Math.sqrt(sumsq / (count));
+					std = 0;
 				}
 				JSONObject aaLength = new JSONObject();
 				aaLength.put("min", min);
@@ -516,7 +527,7 @@ public class FIGfamData {
 				SolrQuery query = new SolrQuery("figfam_id:(" + StringUtils.join(figfamIdList, " OR ") + ")");
 				query.addField("figfam_id,figfam_product").setRows(figfams.size());
 
-				LOGGER.debug("getGroupStats() 3/3: [{}] {}", SolrCore.FIGFAM_DIC.getSolrCoreName(), query.toString());
+				LOGGER.trace("getGroupStats() 3/3: [{}] {}", SolrCore.FIGFAM_DIC.getSolrCoreName(), query.toString());
 
 				String apiResponse = dataApi.solrQuery(SolrCore.FIGFAM_DIC, query);
 
