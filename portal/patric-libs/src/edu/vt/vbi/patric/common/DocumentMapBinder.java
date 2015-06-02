@@ -31,6 +31,7 @@ import java.util.regex.Pattern;
 
 public class DocumentMapBinder {
 	private final Map<Class, List<DocField>> infocache = new ConcurrentHashMap<>();
+	public static final String DEFAULT = "#default";
 
 	public DocumentMapBinder() {
 	}
@@ -186,7 +187,7 @@ public class DocumentMapBinder {
 		}
 
 		private void storeName(Field annotation) {
-			if (annotation.value().equals(Field.DEFAULT)) {
+			if (annotation.value().equals(DEFAULT)) {
 				if (field != null) {
 					name = field.getName();
 				}

@@ -26,7 +26,7 @@
 	<packaging>jar</packaging>
 	<description />
     <properties>
-        <solrj.version>4.10.0</solrj.version>
+        <solrj.version>5.1.0</solrj.version>
         <logback.version>1.1.2</logback.version>
         <slf4j.version>1.7.7</slf4j.version>
     </properties>
@@ -121,7 +121,7 @@
 			<artifactId>xmlbeans</artifactId>
 			<version>2.3.0</version>
 		</dependency>
-		<!--  polyomic -->
+		<!--  data api -->
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpcore</artifactId>
@@ -143,7 +143,7 @@
 			<version>1.1.1</version>
 			<scope>provided</scope>
 		</dependency>
-		<!-- end of polyomic -->
+		<!-- end of data api -->
 		<!-- Solrj -->
 		<dependency>
 			<groupId>org.apache.solr</groupId>
