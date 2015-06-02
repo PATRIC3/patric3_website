@@ -53,10 +53,10 @@
 
 		if (request.getParameter("aT").equals("0")) {
 
-			solr.setCurrentInstance(SolrCore.PROTEOMICS_EXPERIMENT);
-			JSONObject object = solr.getData(key, sort, null, 0, -1, false, false, false);
-			JSONObject obj = (JSONObject) object.get("response");
-			_tbl_source = (JSONArray) obj.get("docs");
+//			solr.setCurrentInstance(SolrCore.PROTEOMICS_EXPERIMENT);
+//			JSONObject object = solr.getData(key, sort, null, 0, -1, false, false, false);
+//			JSONObject obj = (JSONObject) object.get("response");
+//			_tbl_source = (JSONArray) obj.get("docs");
 			_tbl_header.addAll(Arrays.asList("Sample Name", "Taxon Name", "Proteins", "Project Name", "Experiment Label", "Experiment Title",
 					"Experiment Type", "Source", "Contact Name", "Institution"));
 
@@ -66,7 +66,7 @@
 		else if (request.getParameter("aT").equals("1")) {
 
 			String solrId = "";
-			solr.setCurrentInstance(SolrCore.PROTEOMICS_PROTEIN);
+//			solr.setCurrentInstance(SolrCore.PROTEOMICS_PROTEIN);
 
 			if (experiment_id != null && !experiment_id.equals("")) {
 				keyword += " AND experiment_id:(" + experiment_id + ")";
@@ -74,9 +74,9 @@
 
 			key.put("keyword", keyword.trim());
 
-			JSONObject object_t = solr.getData(key, null, null, 0, -1, false, false, false);
-			JSONObject obj_t = (JSONObject) object_t.get("response");
-			_tbl_source = (JSONArray) obj_t.get("docs");
+//			JSONObject object_t = solr.getData(key, null, null, 0, -1, false, false, false);
+//			JSONObject obj_t = (JSONObject) object_t.get("response");
+//			_tbl_source = (JSONArray) obj_t.get("docs");
 
 			_tbl_header.addAll(Arrays.asList("Experiment Title", "Experiment Label", "Source", "Genome Name", "Accession", "Locus Tag",
 					"RefSeq Locus Tag", "Gene Symbol", "Description"));

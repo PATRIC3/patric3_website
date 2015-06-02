@@ -32,7 +32,7 @@
 		taxonId = db_shared.getTaxonIdOfGenomeId(cId);
 	}
 	else if(cType.equals("feature")){
-		solr.setCurrentInstance(SolrCore.PROTEOMICS_PROTEIN);
+//		solr.setCurrentInstance(SolrCore.PROTEOMICS_PROTEIN);
 		experimentId = solr.getProteomicsTaxonIdFromFeatureId(cId);
 	}
 	

@@ -7,7 +7,7 @@
 	String cId = request.getParameter("context_id");
 
 	SolrInterface solr = new SolrInterface();
-	solr.setCurrentInstance(SolrCore.PROTEOMICS_PROTEIN);
+//	solr.setCurrentInstance(SolrCore.PROTEOMICS_PROTEIN);
 	String experimentId = solr.getProteomicsTaxonIdFromFeatureId(cId);
 	
 	String keyword = "(*)";
