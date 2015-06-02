@@ -376,7 +376,7 @@ public class FIGfamData {
 
 		JSONObject figfams = new JSONObject();
 		Set<String> figfamIdList = new HashSet<>();
-		List<String> genomeIdList = new ArrayList<>(); // Arrays.asList(request.getParameter("genomeIds").split(","));
+		List<String> genomeIdList = new ArrayList<>();
 
 		// get genome list in order
 		String genomeIds = request.getParameter("genomeIds");
@@ -409,7 +409,8 @@ public class FIGfamData {
 			SolrQuery query = new SolrQuery("annotation:PATRIC AND feature_type:CDS");
 			query.addFilterQuery(getSolrQuery(request));
 			query.setRows(0).setFacet(true);
-			query.add("json.facet","{stat:{field:{field:figfam_id,limit:-1,facet:{min:\"min(aa_length)\",max:\"max(aa_length)\",mean:\"avg(aa_length)\",ss:\"sumsq(aa_length)\",sum:\"sum(aa_length)\",dist:\"percentile(aa_length,1,25,50,75,99,99.9)\",field:{field:genome_id}}}}}");
+//			query.add("json.facet","{stat:{field:{field:figfam_id,limit:-1,facet:{min:\"min(aa_length)\",max:\"max(aa_length)\",mean:\"avg(aa_length)\",ss:\"sumsq(aa_length)\",sum:\"sum(aa_length)\",dist:\"percentile(aa_length,1,25,50,75,99,99.9)\",field:{field:genome_id}}}}}");
+			query.add("json.facet","{stat:{field:{field:figfam_id,limit:-1,facet:{min:\"min(aa_length)\",max:\"max(aa_length)\",mean:\"avg(aa_length)\",ss:\"sumsq(aa_length)\",sum:\"sum(aa_length)\",field:{field:genome_id}}}}}");
 
 			LOGGER.trace("getGroupStats(): [{}] {}", SolrCore.FEATURE.getSolrCoreName(), query.toString());
 			String apiResponse = dataApi.solrQuery(SolrCore.FEATURE, query);
@@ -500,7 +501,7 @@ public class FIGfamData {
 				aaLength.put("mean", mean);
 				aaLength.put("stddev", std);
 
-				List<Double> dist = (List) bucket.get("dist");
+//				List<Double> dist = (List) bucket.get("dist");
 
 				figfamIdList.add(figfamId);
 
@@ -509,7 +510,7 @@ public class FIGfamData {
 				figfam.put("genome_count", genomes.size());
 				figfam.put("feature_count", count);
 				figfam.put("stats", aaLength);
-				figfam.put("dist", dist);
+//				figfam.put("dist", dist);
 
 				figfams.put(figfamId, figfam);
 			}
