@@ -122,7 +122,7 @@ public class CircosGenomeViewerPortlet extends GenericPortlet {
 		Circos circosConf = circosGenerator.createCircosImage(circosData, parameters);
 
 		if (circosConf != null) {
-			String baseUrl = "http://" + request.getServerName();
+			String baseUrl = "https://" + request.getServerName();
 			String redirectUrl = baseUrl + "/portal/portal/patric/CircosGenomeViewer/CircosGenomeViewerWindow?action=b&cacheability=PAGE&imageId="
 					+ circosConf.getUuid() + "&trackList=" + StringUtils.join(circosConf.getTrackList(), ",");
 
