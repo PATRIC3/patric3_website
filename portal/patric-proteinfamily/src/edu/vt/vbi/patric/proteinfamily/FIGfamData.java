@@ -555,8 +555,13 @@ public class FIGfamData {
 	public String getSolrQuery(ResourceRequest request) throws IOException {
 		String keyword = "";
 
-		if (request.getParameter("keyword") != null && !request.getParameter("keyword").equals("")) {
-			keyword += "(" + StringHelper.stripQuoteAndParseSolrKeywordOperator(request.getParameter("keyword")) + ")";
+		String paramKeyword = request.getParameter("keyword");
+		if (paramKeyword != null && !paramKeyword.equals("") && !paramKeyword.equals("null")) {
+			String processedKeyword = StringHelper.stripQuoteAndParseSolrKeywordOperator(paramKeyword);
+
+			if (processedKeyword != null) {
+				keyword += "(" + processedKeyword +")";
+			}
 		}
 
 		String cType = request.getParameter("context_type");
@@ -568,7 +573,7 @@ public class FIGfamData {
 			String listText = request.getParameter("genomeIds");
 
 			if (listText != null) {
-				if (request.getParameter("keyword") != null && !request.getParameter("keyword").equals("")) {
+				if (!keyword.equals("")) {
 					keyword += " AND ";
 				}
 				keyword += "genome_id:(" + listText.replaceAll(",", " OR ") + ")";
