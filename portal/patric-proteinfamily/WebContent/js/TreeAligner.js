@@ -175,8 +175,8 @@ function insertMSAJS(windowID, ajaxHttp) {
     //m.u.file.parseText(test, renderMSA);
     
     //importText.bind(this.m.u.file)(test);
-    this.m.u.file.importFile(nexusData[4]);
-    this.m.u.file.importFile(clustal.join("\n"));
+    m.u.file.importFile(nexusData[4]);
+    m.u.file.importFile(clustal.join("\n"));
     renderMSA();
     function renderMSA() {
 
