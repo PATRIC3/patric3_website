@@ -41,7 +41,8 @@ public class FASTAHelper {
 		query.setRows(featureIds.size());
 
 		DataApiHandler dataApi = new DataApiHandler();
-		String apiResponse = dataApi.solrQuery(SolrCore.TAXONOMY, query);
+		LOGGER.trace("getFASTASequence: [{}] {}", SolrCore.FEATURE.getSolrCoreName(), query);
+		String apiResponse = dataApi.solrQuery(SolrCore.FEATURE, query);
 		Map resp = jsonReader.readValue(apiResponse);
 		Map respBody = (Map) resp.get("response");
 

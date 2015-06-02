@@ -246,7 +246,8 @@ public class FIGfamData {
 		query.addField("genome_name,patric_id,refseq_locus_tag,alt_locus_tag,aa_sequence");
 		query.setRows(featureIds.length);
 
-		String apiResponse = dataApiHandler.solrQuery(SolrCore.GENOME, query);
+		LOGGER.trace("getFeatureSequences: [{}] {}", SolrCore.FEATURE.getSolrCoreName(), query);
+		String apiResponse = dataApiHandler.solrQuery(SolrCore.FEATURE, query);
 		Map resp = jsonReader.readValue(apiResponse);
 		Map respBody = (Map) resp.get("response");
 
