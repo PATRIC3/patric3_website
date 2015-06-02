@@ -116,7 +116,7 @@ function insertMSAJS(windowID, ajaxHttp) {
     opts.zoomer = {
         menuFontsize: "12px",
         autoResize: true,
-        labelNameLength: 130
+        labelNameLength: 150
     };
 
     // init msa
@@ -178,6 +178,7 @@ function insertMSAJS(windowID, ajaxHttp) {
     m.u.file.importFile(nexusData[4]);
     m.u.file.importFile(clustal.join("\n"));
     renderMSA();
+    Ext.get(windowID).unmask();
     function renderMSA() {
 
         // the menu is independent to the MSA container
