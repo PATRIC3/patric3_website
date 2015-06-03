@@ -89,6 +89,7 @@ function insertMSAJS(windowID, ajaxHttp) {
 	toSet.innerHTML = sumText;
 
 	toSet = document.getElementById(windowID + "_forApplet");
+        toSet.style.overflowY="scroll";
     var menuDiv =  document.createElement("div");
     menuDiv.setAttribute("id", "menuDiv");
     var msaDiv = document.createElement("div")
@@ -100,23 +101,28 @@ function insertMSAJS(windowID, ajaxHttp) {
     var msa = require("msa");
         
     var opts = {};
-
     // set your custom properties
-    // @see: https://github.com/greenify/biojs-vis-msa/tree/master/src/g 
+    // @see: https://github.com/greenify/biojs-vis-msa/tree/master/src/g
     opts.el = msaDiv;//document.getElementById("msaDiv");
     opts.bootstrapMenu=false;
     opts.vis = {
         conserv: false,
-        overviewbox: false,
-        seqlogo: true
+        overviewbox: true,
+        seqlogo: true,
+        labelName: false,
+        labelId: false,
     };
     opts.conf = {
         dropImport: true
     };
     opts.zoomer = {
         menuFontsize: "12px",
-        autoResize: true,
-        labelNameLength: 150
+        //autoResize: false,
+        labelNameLength: 150,
+        //alignmentHeight: "auto",
+        //alignmentWidth: 700,
+        residueFont: "12",
+        rowHeight: 14.5
     };
 
     // init msa
@@ -160,12 +166,14 @@ function insertMSAJS(windowID, ajaxHttp) {
         return ([clustal,orgs]);
     }
 
+
     //var defaultURL = "";
     //var defaultURL = "https://cdn.rawgit.com/greenify/msa/master/snippets/data/tree/B2014122194A560KL7I.4.ids.fa";
     //var url = getURLParameter('seq') || defaultURL;
     //m.u.file.importURL(url, renderMSA);
     
     //var nexusData= ["11", "11", "39", "53", "(((fig|1310754.3.peg.2921:0.0,fig|1310727.3.peg.2939:0.0):1.17036,(fig|47716.4.peg.2238:0.11103,fig|66869.3.peg.5501:0.00641):0.99240):2.47910,((fig|1310683.3.peg.2856:0.0,fig|1310905.3.peg.2925:0.0):1.28000,fig|1235820.4.peg.2163:0.69592):2.18740,(((fig|321314.9.peg.37:0.0,fig|476213.4.peg.33:0.0):0.29056,fig|936157.3.peg.4962:0.43338):2.89151,fig|882800.3.peg.6267:0.00016):0.00019);", "fig|1310683.3.peg.2856", "Acinetobacter_baumannii_1566109", "--------MRFLQRYPSYQDFYCRFDVICF-DFPQKIAKTVQQDFSK-FHYDLQWIENVFTLD--", "fig|1310905.3.peg.2925", "Acinetobacter_baumannii_25977_1", "--------MRFLQRYPSYQDFYCRFDVICF-DFPQKIAKTVQQDFSK-FHYDLQWIENVFTLD--", "fig|1235820.4.peg.2163", "Prevotella_oris_JCM_12252", "-----------MKERAIWDDL--RFDLISI-------VGTAPENFK------LEHIVDAFNPLLV", "fig|321314.9.peg.37", "Salmonella_enterica_subsp._enterica_serovar_Choleraesuis_str._SC-B67", "MSSPGNPGKTSDGRHTEVGSF--NYSRAAD-RSNSENVLSSGMTQS-------------------", "fig|476213.4.peg.33", "Salmonella_enterica_subsp._enterica_serovar_Paratyphi_C_strain_RKS4594", "MSSPGNPGKTSDGRHTEVGSF--NYSRAAD-RSNSENVLSSGMTQS-------------------", "fig|936157.3.peg.4962", "Salmonella_enterica_subsp._enterica_serovar_Weltevreden_str._2007-60-3289-1", "-------MIVADGRNTQVGSF--NFSRAAD-RSNSENVLVVWDDPVLARSYLNHWTSR-------", "fig|1310754.3.peg.2921", "Acinetobacter_baumannii_2887", "-----------MLVAQQLGQW--AEQTALK-LLKEQNYEWVASNYHS-RRGEVDLIENAVTN---", "fig|1310727.3.peg.2939", "Acinetobacter_baumannii_836190", "-----------MLVAQQLGQW--AEQTALK-LLKEQNYEWVASNYHS-RRGEVDLIENAVTN---", "fig|882800.3.peg.6267", "Methylobacterium_extorquens_DSM_13060", "-----------MSRAAR--AWLARHPLAADATLRADAVFVAPRRWPR-------HLPNAFEIEGL", "fig|47716.4.peg.2238", "Streptomyces_olivaceus", "-----------MNARSALGRY--GETLAAR-RLADAGMTVLERNWRCGRTGEIDIVARDKQDELH", "fig|66869.3.peg.5501", "Streptomyces_atroolivaceus", "-----------MNARGALGRY--GEDLAAR-LLADAGMTVLDRNWRC-RTGEIDIVARDEQDELH"]
+
     var replacement=[];
     nexusData.forEach(function(item){replacement.push(item.replace(/\|/g, "."));}, this);
     nexusData=replacement;
@@ -173,27 +181,35 @@ function insertMSAJS(windowID, ajaxHttp) {
     var inputData= clustalData(nexusData), clustal=inputData[0], orgs=inputData[1];
 
     //m.u.file.parseText(test, renderMSA);
-    
+
     //importText.bind(this.m.u.file)(test);
     m.u.file.importFile(nexusData[4]);
     m.u.file.importFile(clustal.join("\n"));
+
+    m.g.vis.on("change:treeLoaded", function(){
+        var treeDiv=document.getElementsByClassName("tnt_groupDiv");
+        treeDiv[0].parentElement.setAttribute("style", "padding-top:96px; vertical-align:top; display:inline-block");
+        var msaDiv=document.getElementsByClassName("biojs_msa_stage");
+        msaDiv[0].setAttribute("style", "display:inline-block");
+
+    });
     renderMSA();
-    Ext.get(windowID).unmask();
     function renderMSA() {
+            // the menu is independent to the MSA container
+            var menuOpts = {};
+            menuOpts.el = document.getElementById('menuDiv');
+            var msaDiv = document.getElementById('msaDiv');
+            msaDiv.setAttribute("style", "overflow-x:scroll; white-space: nowrap;");
+            menuOpts.msa = m;
+            var defMenu = new msa.menu.defaultmenu(menuOpts);
 
-        // the menu is independent to the MSA container
-        var menuOpts = {};
-        menuOpts.el = document.getElementById('menuDiv');
-        menuOpts.msa = m;
-        var defMenu = new msa.menu.defaultmenu(menuOpts);
-
-        var noMenu = ["10_import", "15_ordering", "20_filter", "30_selection", "70_extra", "90_help", "95_debug"];
-        noMenu.forEach(function(toRemove){delete defMenu.views[toRemove];});
-        m.addView("menu", defMenu);
-        // call render at the end to display the whole MSA
-        m.render();
-        m.el.parentElement.insertBefore(menuOpts.el, m.el);
-    }
+            var noMenu = ["10_import", "15_ordering", "20_filter", "30_selection", "70_extra", "90_help", "95_debug"];
+            noMenu.forEach(function(toRemove){delete defMenu.views[toRemove];});
+            m.addView("menu", defMenu);
+            // call render at the end to display the whole MSA
+            m.render();
+            m.el.parentElement.insertBefore(menuOpts.el, m.el);
+        }
 }
     
 function insertTreeApplet(windowID, ajaxHttp) {
