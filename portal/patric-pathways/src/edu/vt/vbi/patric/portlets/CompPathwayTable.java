@@ -651,10 +651,10 @@ public class CompPathwayTable extends GenericPortlet {
 			SolrQuery query = new SolrQuery("*:*");
 
 			if (cType != null && cType.equals("taxon")) {
-				query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + cId + " AND genome_status:(complete OR wgs)"));
+				query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + cId));
 			}
 			else if (cType != null && cType.equals("genome")) {
-				query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "genome_id:(" + cId + ") AND genome_status:(complete OR wgs)"));
+				query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "genome_id:(" + cId + ")"));
 			}
 
 			if (map != null && !map.equals("")) {

@@ -254,12 +254,12 @@ public class CompPathwayMap extends GenericPortlet {
 			SolrQuery query = new SolrQuery("pathway_id:" + map + " AND annotation:" + algorithm);
 			if (taxonId != null && !taxonId.equals("")) {
 				query.addFilterQuery(SolrCore.GENOME
-						.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + taxonId + " AND genome_status:(complete OR wgs)"));
+						.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + taxonId));
 			}
 			if (genomeId != null && !genomeId.equals("")) {
 				query.addFilterQuery(
 						SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id",
-								"genome_id:(" + genomeId.replaceAll(",", " OR ") + ") AND genome_status:(complete OR wgs)"));
+								"genome_id:(" + genomeId.replaceAll(",", " OR ") + ")"));
 			}
 			if (key != null && key.containsKey("genomeId") && !key.get("genomeId").equals("")) {
 				query.addFilterQuery("genome_id:(" + key.get("genomeId").replaceAll(",", " OR ") + ")");
@@ -384,10 +384,10 @@ public class CompPathwayMap extends GenericPortlet {
 
 					SolrQuery query = new SolrQuery("pathway_id:" + map + " AND annotation:" + annotation);
 					if (!taxonId.equals("")) {
-						query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + taxonId + " AND genome_status:(complete OR wgs)"));
+						query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + taxonId));
 					}
 					if (!genomeId.equals("")) {
-						query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "genome_id:(" + genomeId.replaceAll(",", " OR ") + ") AND genome_status:(complete OR wgs)"));
+						query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "genome_id:(" + genomeId.replaceAll(",", " OR ") + ")"));
 					}
 					query.setRows(0).setFacet(true);
 
@@ -467,7 +467,7 @@ public class CompPathwayMap extends GenericPortlet {
 
 				SolrQuery query = new SolrQuery("annotation:(" + StringUtils.join(annotations, " OR ") + ")");
 				if (!taxonId.equals("")) {
-					query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + taxonId + " AND genome_status:(complete OR wgs)"));
+					query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + taxonId));
 				}
 				if (!genomeId.equals("")) {
 					query.addFilterQuery("genome_id:(" + genomeId.replaceAll(",", " OR ") + ")");
@@ -690,10 +690,10 @@ public class CompPathwayMap extends GenericPortlet {
 			}
 
 			if (taxonId != null && !taxonId.equals("")) {
-				query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + taxonId + " AND genome_status:(complete OR wgs)"));
+				query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + taxonId));
 			}
 			if (genomeId != null && !genomeId.equals("")) {
-				query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "genome_id:(" + genomeId.replaceAll(",", " OR ") + ") AND genome_status:(complete OR wgs)"));
+				query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "genome_id:(" + genomeId.replaceAll(",", " OR ") + ")"));
 			}
 			query.setRows(dataApi.MAX_ROWS).setFields("genome_id,annotation,ec_number,ec_description").setFacet(true);
 			// {stat:{field:{field:genome_ec,limit:-1,facet:{gene_count:\"unique(feature_id)\"}}}}
@@ -744,10 +744,10 @@ public class CompPathwayMap extends GenericPortlet {
 			SolrQuery query = new SolrQuery("*:*");
 
 			if (taxonId != null && !taxonId.equals("")) {
-				query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + taxonId + " AND genome_status:(complete OR wgs)"));
+				query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + taxonId));
 			}
 			if (genomeId != null && !genomeId.equals("")) {
-				query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "genome_id:(" + genomeId.replaceAll(",", " OR ") + ") AND genome_status:(complete OR wgs)"));
+				query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "genome_id:(" + genomeId.replaceAll(",", " OR ") + ")"));
 			}
 			if (algorithm != null && !algorithm.equals("")) {
 				switch (algorithm) {
