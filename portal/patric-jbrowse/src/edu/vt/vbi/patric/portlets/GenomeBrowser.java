@@ -110,7 +110,8 @@ public class GenomeBrowser extends GenericPortlet {
 			seq.put("length", sequence.getLength());
 			seq.put("name", sequence.getAccession());
 			seq.put("accn", sequence.getAccession());
-			seq.put("sid", sequence.getId());
+//			seq.put("sid", sequence.getId());
+			seq.put("sid", sequence.getGenomeId());
 			seq.put("start", 0);
 			seq.put("end", sequence.getLength());
 			seq.put("seqDir", "");
@@ -128,20 +129,22 @@ public class GenomeBrowser extends GenericPortlet {
 
 		String accession = request.getParameter("accession");
 		String annotation = request.getParameter("annotation");
+		String genomeId = request.getParameter("genomeId");
+//		LOGGER.debug("printTrackInfo: {}", request.getParameterMap().toString());
 
 		if (accession != null && annotation != null) {
 			DataApiHandler dataApi = new DataApiHandler(request);
 
-			JSONArray nclist = new JSONArray();
-			List<Integer> histogram = this.getFeatureCountHistogram(request, accession, annotation);
+			JSONArray ncList = new JSONArray();
+			List<Integer> histogram = this.getFeatureCountHistogram(request);
 			Integer sum = 0;
 			for (Integer hist : histogram) {
 				sum += hist;
 			}
 			double avgCount = sum.doubleValue() / histogram.size();
 
-			SolrQuery query = new SolrQuery("accession:" + accession + " AND annotation:" + annotation + " AND !(feature_type:source)");
-			query.setRows(10000);
+			SolrQuery query = new SolrQuery("genome_id:" + genomeId + " AND accession:" + accession + " AND annotation:" + annotation + " AND !(feature_type:source)");
+			query.setRows(dataApi.MAX_ROWS);
 			query.addSort("start", SolrQuery.ORDER.asc);
 
 			LOGGER.trace("[{}] {}", SolrCore.FEATURE.getSolrCoreName(), query.toString());
@@ -162,7 +165,7 @@ public class GenomeBrowser extends GenericPortlet {
 
 						f.hasGene() ? f.getGene() : "", (f.getFeatureType().equals("CDS") ? 0 : (f.getFeatureType().contains("RNA") ? 1 : 2))));
 
-				nclist.add(alist);
+				ncList.add(alist);
 			}
 
 			//			{
@@ -246,7 +249,7 @@ public class GenomeBrowser extends GenericPortlet {
 			intervals.put("lazyClass", 5);
 			intervals.put("maxEnd", 20000);
 			intervals.put("minStart", 1);
-			intervals.put("nclist", nclist);
+			intervals.put("nclist", ncList);
 			intervals.put("urlTemplate", "lf-{Chunk}.json");
 
 			track.put("histograms", histograms);
@@ -286,15 +289,19 @@ public class GenomeBrowser extends GenericPortlet {
 		String annotation = request.getParameter("annotation");
 
 		if (accession != null && annotation != null) {
-			List<Integer> histogram = getFeatureCountHistogram(request, accession, annotation);
+			List<Integer> histogram = getFeatureCountHistogram(request);
 
 			response.getWriter().write(histogram.toString());
 		}
 	}
 
-	private List<Integer> getFeatureCountHistogram(ResourceRequest request, String accession, String annotation) throws IOException {
+	private List<Integer> getFeatureCountHistogram(ResourceRequest request) throws IOException {
 
-		SolrQuery query = new SolrQuery("accession:" + accession);
+		String accession = request.getParameter("accession");
+		String annotation = request.getParameter("annotation");
+		String genomeId = request.getParameter("genomeId");
+
+		SolrQuery query = new SolrQuery("accession:" + accession + " AND genome_id:" + genomeId);
 		query.setFilterQueries("annotation:" + annotation + " AND !(feature_type:source)");
 		query.setRows(0);
 		query.setFacet(true);

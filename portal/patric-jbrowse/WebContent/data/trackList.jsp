@@ -13,7 +13,7 @@ response.setContentType("application/json");
 		}
 		,{
 			"type": "FeatureTrack",
-			"urlTemplate": "/portal/portal/patric/GenomeBrowser/GBWindow?action=b&cacheability=PAGE&mode=getTrackInfo&accession={refseq}&annotation=PATRIC",
+			"urlTemplate": "/portal/portal/patric/GenomeBrowser/GBWindow?action=b&cacheability=PAGE&mode=getTrackInfo&accession={refseq}&annotation=PATRIC&genomeId={sid}",
 			"storeClass": "JBrowse/Store/SeqFeature/NCList",
 			"key": "PATRIC Annotation",
 			"label": "PATRICGenes",
@@ -32,7 +32,7 @@ response.setContentType("application/json");
 		}
 		, {
 			"type": "FeatureTrack",
-			"urlTemplate": "/portal/portal/patric/GenomeBrowser/GBWindow?action=b&cacheability=PAGE&mode=getTrackInfo&accession={refseq}&annotation=RefSeq",
+			"urlTemplate": "/portal/portal/patric/GenomeBrowser/GBWindow?action=b&cacheability=PAGE&mode=getTrackInfo&accession={refseq}&annotation=RefSeq&genomeId={sid}",
 			"storeClass": "JBrowse/Store/SeqFeature/NCList",
 			"key": "RefSeq Annotation",
 			"label": "RefSeqGenes",
