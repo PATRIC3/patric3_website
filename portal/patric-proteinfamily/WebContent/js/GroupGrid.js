@@ -275,9 +275,9 @@ function pickPanel() {
 					header : 'Std',
 					dataIndex : 'std',
 					flex : 1,
-					align : 'center',
+					align : 'right',
 					sortable : true,
-					renderer : BasicRenderer
+					renderer:Ext.util.Format.numberRenderer('0.00')
 				}],
 				tbar : createToolbar("cart", "", "Feature"),
 				plugins : [this.checkbox],

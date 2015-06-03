@@ -411,7 +411,7 @@ public class FIGfamData {
 			query.addFilterQuery(getSolrQuery(request));
 			query.setRows(0).setFacet(true);
 //			query.add("json.facet","{stat:{field:{field:figfam_id,limit:-1,facet:{min:\"min(aa_length)\",max:\"max(aa_length)\",mean:\"avg(aa_length)\",ss:\"sumsq(aa_length)\",sum:\"sum(aa_length)\",dist:\"percentile(aa_length,1,25,50,75,99,99.9)\",field:{field:genome_id}}}}}");
-			query.add("json.facet","{stat:{field:{field:figfam_id,limit:-1,facet:{min:\"min(aa_length)\",max:\"max(aa_length)\",mean:\"avg(aa_length)\",ss:\"sumsq(aa_length)\",sum:\"sum(aa_length)\",field:{field:genome_id}}}}}");
+			query.add("json.facet","{stat:{field:{field:figfam_id,limit:-1,facet:{min:\"min(aa_length)\",max:\"max(aa_length)\",mean:\"avg(aa_length)\",ss:\"sumsq(aa_length)\",sum:\"sum(aa_length)\",facet:{field:{field:genome_id,limit:-1}}}}}}");
 
 			LOGGER.trace("getGroupStats(): [{}] {}", SolrCore.FEATURE.getSolrCoreName(), query.toString());
 			String apiResponse = dataApi.solrQuery(SolrCore.FEATURE, query);
@@ -429,7 +429,7 @@ public class FIGfamData {
 				String[] genomeIdsStr = new String[genomeIdList.size()];
 				Arrays.fill(genomeIdsStr, "00");
 
-				List<Map> genomes = (List<Map>) ((Map) bucket.get("field")).get("buckets");
+				List<Map> genomes = (List<Map>) ((Map) bucket.get("facet")).get("buckets");
 				for (Map genome : genomes) {
 					String genomeId = (String) genome.get("val");
 					int genomeCount = (Integer) genome.get("count");
