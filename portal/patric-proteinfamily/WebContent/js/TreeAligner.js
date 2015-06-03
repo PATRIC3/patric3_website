@@ -89,7 +89,7 @@ function insertMSAJS(windowID, ajaxHttp) {
 	toSet.innerHTML = sumText;
 
 	toSet = document.getElementById(windowID + "_forApplet");
-        toSet.style.overflowY="scroll";
+        toSet.style.overflowY="visible";
     var menuDiv =  document.createElement("div");
     menuDiv.setAttribute("id", "menuDiv");
     var msaDiv = document.createElement("div")
@@ -119,8 +119,8 @@ function insertMSAJS(windowID, ajaxHttp) {
         menuFontsize: "12px",
         //autoResize: false,
         labelNameLength: 150,
-        alignmentHeight: 1000,
-        //alignmentWidth: 700,
+        alignmentHeight: 4000,
+        alignmentWidth: 2000,
         residueFont: "12",
         rowHeight: 14.5
     };
