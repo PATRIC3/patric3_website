@@ -89,7 +89,7 @@ function insertMSAJS(windowID, ajaxHttp) {
 	toSet.innerHTML = sumText;
 
 	toSet = document.getElementById(windowID + "_forApplet");
-        toSet.style.overflowY="visible";
+        toSet.style.overflowY="scroll";
     var menuDiv =  document.createElement("div");
     menuDiv.setAttribute("id", "menuDiv");
     var msaDiv = document.createElement("div")
