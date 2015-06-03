@@ -208,13 +208,22 @@ function getSelectedFeatures() {"use strict";
 
 function DownloadFile() {"use strict";
 
+	var Page = $Page, property = Page.getPageProperties(), hash = property.hash, form = Ext.getDom("fTableForm");
+
 	if (isOverDownloadLimit()) {
 		return false;
 	}
-	var form = Ext.getDom("fTableForm");
 
-	form.action = "/patric-searches-and-tools/jsp/grid_download_handler.jsp",
-	form.target = "", form.fileformat.value = arguments[0];
+	//form.action = "/patric-searches-and-tools/jsp/grid_download_handler.jsp",
+	form.action = "/portal/portal/patric/GenomicFeature/GenomicFeatureWindow?action=b&cacheability=PAGE&need=download";
+	form.fileformat.value = arguments[0];
+	form.pk.value = hash.key;
+	form.target = "";
 	getHashFieldsToDownload(form);
+
+	var grid = Page.getGrid();
+	var sort = [];
+	sort.push(getSortersInText(grid.store));
+	form.sort.value = JSON.stringify(sort);
 	form.submit();
 }

@@ -147,7 +147,7 @@ function getSelectedFeatures() {"use strict";
 
 function DownloadFile() {"use strict";
 
-	var Page = $Page, property = Page.getPageProperties(), hash = property.hash, tree = property.tree, form = Ext.getDom("fTableForm");
+	var Page = $Page, property = Page.getPageProperties(), hash = property.hash, form = Ext.getDom("fTableForm");
 
 	if (isOverDownloadLimit()) {
 		return false;
