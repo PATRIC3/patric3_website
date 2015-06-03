@@ -119,7 +119,7 @@ function insertMSAJS(windowID, ajaxHttp) {
         menuFontsize: "12px",
         //autoResize: false,
         labelNameLength: 150,
-        //alignmentHeight: "auto",
+        alignmentHeight: "auto",
         //alignmentWidth: 700,
         residueFont: "12",
         rowHeight: 14.5
@@ -194,6 +194,7 @@ function insertMSAJS(windowID, ajaxHttp) {
 
     });
     renderMSA();
+    Ext.get(windowID).unmask();
     function renderMSA() {
             // the menu is independent to the MSA container
             var menuOpts = {};
