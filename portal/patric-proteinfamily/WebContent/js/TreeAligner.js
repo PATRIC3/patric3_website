@@ -107,7 +107,7 @@ function insertMSAJS(windowID, ajaxHttp) {
     opts.bootstrapMenu=false;
     opts.vis = {
         conserv: false,
-        overviewbox: true,
+        overviewbox: false,
         seqlogo: true,
         labelName: false,
         labelId: false,
@@ -119,7 +119,7 @@ function insertMSAJS(windowID, ajaxHttp) {
         menuFontsize: "12px",
         //autoResize: false,
         labelNameLength: 150,
-        alignmentHeight: "auto",
+        alignmentHeight: 1000,
         //alignmentWidth: 700,
         residueFont: "12",
         rowHeight: 14.5
