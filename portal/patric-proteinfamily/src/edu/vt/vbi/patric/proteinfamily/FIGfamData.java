@@ -34,6 +34,7 @@ import javax.portlet.ResourceRequest;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
+import java.util.concurrent.*;
 
 public class FIGfamData {
 
@@ -377,7 +378,7 @@ public class FIGfamData {
 
 		JSONObject figfams = new JSONObject();
 		Set<String> figfamIdList = new HashSet<>();
-		List<String> genomeIdList = new ArrayList<>();
+		List<String> genomeIdList = new LinkedList<>();
 
 		// get genome list in order
 		String genomeIds = request.getParameter("genomeIds");
@@ -407,37 +408,103 @@ public class FIGfamData {
 		// {stat:{field:{field:figfam_id,limit:-1,facet:{min:"min(aa_length)",max:"max(aa_length)",mean:"avg(aa_length)",ss:"sumsq(aa_length)",sum:"sum(aa_length)",dist:"percentile(aa_length,50,75,99,99.9)",field:{field:genome_id}}}}}
 
 		try {
+			long start = System.currentTimeMillis();
 			SolrQuery query = new SolrQuery("annotation:PATRIC AND feature_type:CDS");
 			query.addFilterQuery(getSolrQuery(request));
 			query.setRows(0).setFacet(true);
 //			query.add("json.facet","{stat:{field:{field:figfam_id,limit:-1,facet:{min:\"min(aa_length)\",max:\"max(aa_length)\",mean:\"avg(aa_length)\",ss:\"sumsq(aa_length)\",sum:\"sum(aa_length)\",dist:\"percentile(aa_length,1,25,50,75,99,99.9)\",field:{field:genome_id}}}}}");
-			query.add("json.facet","{stat:{field:{field:figfam_id,limit:-1,facet:{min:\"min(aa_length)\",max:\"max(aa_length)\",mean:\"avg(aa_length)\",ss:\"sumsq(aa_length)\",sum:\"sum(aa_length)\",facet:{field:{field:genome_id,limit:-1}}}}}}");
+//			query.add("json.facet","{stat:{field:{field:figfam_id,limit:-1,facet:{min:\"min(aa_length)\",max:\"max(aa_length)\",mean:\"avg(aa_length)\",ss:\"sumsq(aa_length)\",sum:\"sum(aa_length)\",genomes:{field:{field:genome_id,limit:-1}}}}}}");
+			query.add("json.facet","{stat:{field:{field:figfam_id,limit:-1,facet:{genomes:{field:{field:genome_id,limit:-1}}}}}}");
 
 			LOGGER.trace("getGroupStats(): [{}] {}", SolrCore.FEATURE.getSolrCoreName(), query.toString());
 			String apiResponse = dataApi.solrQuery(SolrCore.FEATURE, query);
+
+			long point = System.currentTimeMillis();
+			LOGGER.debug("1st query: {} ms", (point - start));
+			start = point;
 
 			Map resp = jsonReader.readValue(apiResponse);
 			Map facets = (Map) resp.get("facets");
 			Map stat = (Map) facets.get("stat");
 
+			final Map<String, String> figfamGenomeIdStr = new LinkedHashMap<>();
+			final Map<String, Integer> figfamGenomeCount = new LinkedHashMap<>();
+			final List<String> gIdList = Collections.synchronizedList(genomeIdList);
+
+			List<Map> genomeBuckets = (List<Map>) stat.get("buckets");
+
+			int nThreads = Runtime.getRuntime().availableProcessors();
+			int threadPoolSize;
+			if (nThreads > 2) {
+				threadPoolSize = nThreads - 1;
+			} else {
+				threadPoolSize = nThreads;
+			}
+			LOGGER.debug("{} threads are detected! setting poolsize: {}", nThreads, threadPoolSize);
+			final ExecutorService threadPool = Executors.newFixedThreadPool(threadPoolSize);
+			List<Future<Map>> threadList = new ArrayList<>();
+
+			for (final Map bucket : genomeBuckets) {
+
+				Callable<Map> worker = new Callable<Map>() {
+					@Override public Map call() throws Exception {
+						final String figfamId = (String) bucket.get("val");
+						final List<String> genomeIdsStr = new ArrayList<>(Collections.nCopies(gIdList.size(), "00"));
+						final List<Map> genomes = (List<Map>) ((Map) bucket.get("genomes")).get("buckets");
+						for (final Map genome : genomes) {
+							final String genomeId = (String) genome.get("val");
+							final int genomeCount = (Integer) genome.get("count");
+							final int index = gIdList.indexOf(genomeId);
+							genomeIdsStr.set(index, String.format("%02x", genomeCount));
+						}
+						final Map rtn = new HashMap<>();
+						rtn.put("figfamId", figfamId);
+						rtn.put("genomeIdsStr", StringUtils.join(genomeIdsStr, ""));
+						rtn.put("genomeCount", genomes.size());
+						return rtn;
+					}
+				};
+				Future<Map> submit = threadPool.submit(worker);
+				threadList.add(submit);
+			}
+			threadPool.shutdown();
+			while (!threadPool.isTerminated()) {
+			}
+			for (Future<Map> future : threadList) {
+				try {
+					final Map map = future.get();
+					figfamGenomeIdStr.put(map.get("figfamId").toString(), map.get("genomeIdsStr").toString());
+					figfamGenomeCount.put(map.get("figfamId").toString(), (Integer) map.get("genomeCount"));
+				}
+				catch (InterruptedException | ExecutionException e) {
+					LOGGER.error(e.getMessage(), e);
+				}
+			}
+
+			point = System.currentTimeMillis();
+			LOGGER.debug("1st query process : {} ms, figfamGenomeIdStr:{}, figfamGenomeCount:{}", (point - start), figfamGenomeIdStr.size(), figfamGenomeCount.size());
+			start = point;
+			// 2nd query
+
+			query.set("json.facet",
+					"{stat:{field:{field:figfam_id,limit:-1,facet:{min:\"min(aa_length)\",max:\"max(aa_length)\",mean:\"avg(aa_length)\",ss:\"sumsq(aa_length)\",sum:\"sum(aa_length)\"}}}}");
+
+			LOGGER.trace("getGroupStats(): [{}] {}", SolrCore.FEATURE.getSolrCoreName(), query.toString());
+			apiResponse = dataApi.solrQuery(SolrCore.FEATURE, query);
+
+			point = System.currentTimeMillis();
+			LOGGER.debug("2st query: {} ms", (point - start));
+			start = point;
+
+			resp = jsonReader.readValue(apiResponse);
+			facets = (Map) resp.get("facets");
+			stat = (Map) facets.get("stat");
+
 			List<Map> buckets = (List<Map>) stat.get("buckets");
 
 			for (Map bucket : buckets) {
-				String figfamId = (String) bucket.get("val");
-				int count = (Integer) bucket.get("count");
-
-				String[] genomeIdsStr = new String[genomeIdList.size()];
-				Arrays.fill(genomeIdsStr, "00");
-
-				List<Map> genomes = (List<Map>) ((Map) bucket.get("facet")).get("buckets");
-				for (Map genome : genomes) {
-					String genomeId = (String) genome.get("val");
-					int genomeCount = (Integer) genome.get("count");
-
-					int index = genomeIdList.indexOf(genomeId);
-					String hex = Integer.toHexString(genomeCount);
-					genomeIdsStr[index] = hex.length() < 2 ? "0" + hex : hex;
-				}
+				final String figfamId = (String) bucket.get("val");
+				final int count = (Integer) bucket.get("count");
 
 				double min, max, mean, sumsq, sum;
 				if (bucket.get("min") instanceof Double) {
@@ -490,31 +557,31 @@ public class FIGfamData {
 				double std;
 				if (count > 1 ) {
 					// std = Math.sqrt(sumsq / (count - 1));
-					double realSq = sumsq - (sum * sum)/count;
+					final double realSq = sumsq - (sum * sum)/count;
 					std = Math.sqrt(realSq / (count - 1));
 				}
 				else {
 					std = 0;
 				}
-				JSONObject aaLength = new JSONObject();
+				final JSONObject aaLength = new JSONObject();
 				aaLength.put("min", min);
 				aaLength.put("max", max);
 				aaLength.put("mean", mean);
 				aaLength.put("stddev", std);
 
-//				List<Double> dist = (List) bucket.get("dist");
-
 				figfamIdList.add(figfamId);
 
-				JSONObject figfam = new JSONObject();
-				figfam.put("genomes", StringUtils.join(genomeIdsStr, ""));
-				figfam.put("genome_count", genomes.size());
+				final JSONObject figfam = new JSONObject();
+				figfam.put("genomes", figfamGenomeIdStr.get(figfamId));
+				figfam.put("genome_count", figfamGenomeCount.get(figfamId));
 				figfam.put("feature_count", count);
 				figfam.put("stats", aaLength);
-//				figfam.put("dist", dist);
 
 				figfams.put(figfamId, figfam);
 			}
+
+			point = System.currentTimeMillis();
+			LOGGER.debug("2st query process: {} ms", (point - start));
 		}
 		catch (IOException e) {
 			LOGGER.error(e.getMessage(), e);
