@@ -53,7 +53,7 @@ public class DataApiHandler {
 
 	public final int MAX_ROWS = 100000;
 
-	private final int timeout = 10 * 60 * 1000;
+	private final int timeout = 15 * 60 * 1000;
 
 	private ObjectReader jsonParser;
 
