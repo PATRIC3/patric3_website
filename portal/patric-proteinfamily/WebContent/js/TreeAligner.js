@@ -113,14 +113,15 @@ function insertMSAJS(windowID, ajaxHttp) {
         labelId: false,
     };
     opts.conf = {
-        dropImport: true
+        dropImport: true,
+        debug: false
     };
     opts.zoomer = {
         menuFontsize: "12px",
         //autoResize: false,
         labelNameLength: 150,
         alignmentHeight: 4000,
-        alignmentWidth: 2000,
+        alignmentWidth: 700,
         residueFont: "12",
         rowHeight: 14.5
     };
