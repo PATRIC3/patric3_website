@@ -468,6 +468,38 @@ public class FIGfamData {
 				threadList.add(submit);
 			}
 			threadPool.shutdown();
+//			while (!threadPool.isTerminated()) {
+//			}
+//			for (Future<Map> future : threadList) {
+//				try {
+//					final Map map = future.get();
+//					figfamGenomeIdStr.put(map.get("figfamId").toString(), map.get("genomeIdsStr").toString());
+//					figfamGenomeCount.put(map.get("figfamId").toString(), (Integer) map.get("genomeCount"));
+//				}
+//				catch (InterruptedException | ExecutionException e) {
+//					LOGGER.error(e.getMessage(), e);
+//				}
+//			}
+
+//			point = System.currentTimeMillis();
+//			LOGGER.debug("1st query process : {} ms, figfamGenomeIdStr:{}, figfamGenomeCount:{}", (point - start), figfamGenomeIdStr.size(), figfamGenomeCount.size());
+//			start = point;
+
+			long start2nd = System.currentTimeMillis();
+			// 2nd query
+
+			query.set("json.facet",
+					"{stat:{field:{field:figfam_id,limit:-1,facet:{min:\"min(aa_length)\",max:\"max(aa_length)\",mean:\"avg(aa_length)\",ss:\"sumsq(aa_length)\",sum:\"sum(aa_length)\"}}}}");
+
+			LOGGER.trace("getGroupStats(): [{}] {}", SolrCore.FEATURE.getSolrCoreName(), query.toString());
+			apiResponse = dataApi.solrQuery(SolrCore.FEATURE, query);
+
+			point = System.currentTimeMillis();
+			LOGGER.debug("2st query: {} ms", (point - start2nd));
+			start2nd = point;
+
+/////////////////
+			// overlap 2nd query and thread processing
 			while (!threadPool.isTerminated()) {
 			}
 			for (Future<Map> future : threadList) {
@@ -480,21 +512,9 @@ public class FIGfamData {
 					LOGGER.error(e.getMessage(), e);
 				}
 			}
-
 			point = System.currentTimeMillis();
 			LOGGER.debug("1st query process : {} ms, figfamGenomeIdStr:{}, figfamGenomeCount:{}", (point - start), figfamGenomeIdStr.size(), figfamGenomeCount.size());
-			start = point;
-			// 2nd query
-
-			query.set("json.facet",
-					"{stat:{field:{field:figfam_id,limit:-1,facet:{min:\"min(aa_length)\",max:\"max(aa_length)\",mean:\"avg(aa_length)\",ss:\"sumsq(aa_length)\",sum:\"sum(aa_length)\"}}}}");
-
-			LOGGER.trace("getGroupStats(): [{}] {}", SolrCore.FEATURE.getSolrCoreName(), query.toString());
-			apiResponse = dataApi.solrQuery(SolrCore.FEATURE, query);
-
-			point = System.currentTimeMillis();
-			LOGGER.debug("2st query: {} ms", (point - start));
-			start = point;
+/////////////////
 
 			resp = jsonReader.readValue(apiResponse);
 			facets = (Map) resp.get("facets");
@@ -581,7 +601,7 @@ public class FIGfamData {
 			}
 
 			point = System.currentTimeMillis();
-			LOGGER.debug("2st query process: {} ms", (point - start));
+			LOGGER.debug("2st query process: {} ms", (point - start2nd));
 		}
 		catch (IOException e) {
 			LOGGER.error(e.getMessage(), e);
