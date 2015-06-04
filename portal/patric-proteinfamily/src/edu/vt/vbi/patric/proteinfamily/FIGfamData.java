@@ -429,7 +429,11 @@ public class FIGfamData {
 
 			final Map<String, String> figfamGenomeIdStr = new LinkedHashMap<>();
 			final Map<String, Integer> figfamGenomeCount = new LinkedHashMap<>();
-			final List<String> gIdList = Collections.synchronizedList(genomeIdList);
+			final int genomeTotal = genomeIdList.size();
+			final Map<String, Integer> genomePosMap = new LinkedHashMap<>();
+			for (String genomeId : genomeIdList) {
+				genomePosMap.put(genomeId, genomeIdList.indexOf(genomeId));
+			}
 
 			List<Map> genomeBuckets = (List<Map>) stat.get("buckets");
 
@@ -449,13 +453,12 @@ public class FIGfamData {
 				Callable<Map> worker = new Callable<Map>() {
 					@Override public Map call() throws Exception {
 						final String figfamId = (String) bucket.get("val");
-						final List<String> genomeIdsStr = new ArrayList<>(Collections.nCopies(gIdList.size(), "00"));
+						final List<String> genomeIdsStr = new LinkedList<>(Collections.nCopies(genomeTotal, "00"));
 						final List<Map> genomes = (List<Map>) ((Map) bucket.get("genomes")).get("buckets");
 						for (final Map genome : genomes) {
 							final String genomeId = (String) genome.get("val");
 							final int genomeCount = (Integer) genome.get("count");
-							final int index = gIdList.indexOf(genomeId);
-							genomeIdsStr.set(index, String.format("%02x", genomeCount));
+							genomeIdsStr.set(genomePosMap.get(genomeId), String.format("%02x", genomeCount));
 						}
 						final Map rtn = new HashMap<>();
 						rtn.put("figfamId", figfamId);
@@ -625,8 +628,8 @@ public class FIGfamData {
 
 				List<Map> sdl = (List<Map>) respBody.get("docs");
 
-				for (Map doc : sdl) {
-					JSONObject figfam = (JSONObject) figfams.get(doc.get("figfam_id"));
+				for (final Map doc : sdl) {
+					final JSONObject figfam = (JSONObject) figfams.get(doc.get("figfam_id"));
 					figfam.put("description", doc.get("figfam_product"));
 					figfams.put(doc.get("figfam_id").toString(), figfam);
 				}
