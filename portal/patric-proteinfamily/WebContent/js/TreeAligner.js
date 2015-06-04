@@ -113,7 +113,8 @@ function insertMSAJS(windowID, ajaxHttp) {
         labelId: false,
     };
     opts.conf = {
-        dropImport: true
+        dropImport: true,
+        debug: false
     };
     opts.zoomer = {
         menuFontsize: "12px",
