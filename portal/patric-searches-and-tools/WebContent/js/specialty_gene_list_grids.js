@@ -316,7 +316,7 @@ function renderSourceId(value, metadata, record, rowIndex, colIndex, store) {
 	metadata.tdAttr = 'data-qtip="' + value + '" data-qclass="x-tip"';
 	switch (record.data.source) {
 		case "ARDB":
-			return Ext.String.format('<a href="//ardb.cbcb.umd.edu/cgi/search.cgi?db=R&term={0}" target="_blank">{0}</a>', value);
+			return Ext.String.format('<a href="http://ardb.cbcb.umd.edu/cgi/search.cgi?db=R&term={0}" target="_blank">{0}</a>', value);
 			break;
 		case "DrugBank":
 			return Ext.String.format('<a href="http://v3.drugbank.ca/molecules/{0}" target="_blank">{0}</a>', value);
