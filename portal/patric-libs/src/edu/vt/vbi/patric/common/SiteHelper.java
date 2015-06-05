@@ -63,10 +63,10 @@ public class SiteHelper {
 			link = "//www.ncbi.nlm.nih.gov/nuccore/"; // NC_010067.1 - // nucleotide db
 		}
 		else if (target.equalsIgnoreCase("go_term")) {
-			link = "//amigo.geneontology.org/cgi-bin/amigo/term_details?term="; // GO:0004747
+			link = "http://amigo.geneontology.org/cgi-bin/amigo/term_details?term="; // GO:0004747
 		}
 		else if (target.equalsIgnoreCase("ec_number")) {
-			link = "//enzyme.expasy.org/EC/"; // 2.7.1.15
+			link = "http://enzyme.expasy.org/EC/"; // 2.7.1.15
 		}
 		else if (target.equalsIgnoreCase("kegg_pathwaymap") || target.equalsIgnoreCase("KEGG")) {
 			link = "//www.genome.jp/dbget-bin/www_bget?"; // pathway+map00010
