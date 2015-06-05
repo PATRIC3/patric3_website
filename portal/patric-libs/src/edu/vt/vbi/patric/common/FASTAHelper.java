@@ -23,6 +23,7 @@ import org.codehaus.jackson.map.ObjectReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.portlet.PortletRequest;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -33,14 +34,14 @@ public class FASTAHelper {
 
 	private static ObjectReader jsonReader = (new ObjectMapper()).reader(Map.class);
 
-	public static String getFASTASequence(List<String> featureIds, String type) throws IOException {
+	public static String getFASTASequence(PortletRequest request, List<String> featureIds, String type) throws IOException {
 		StringBuilder fasta = new StringBuilder();
 
 		SolrQuery query = new SolrQuery("feature_id:(" + StringUtils.join(featureIds, " OR ") + ")");
 		query.setFields("feature_id,patric_id,alt_locus_tag,refseq_locus_tag,annotation,gi,product,genome_id,genome_name,na_sequence,aa_sequence");
 		query.setRows(featureIds.size());
 
-		DataApiHandler dataApi = new DataApiHandler();
+		DataApiHandler dataApi = new DataApiHandler(request);
 		LOGGER.trace("getFASTASequence: [{}] {}", SolrCore.FEATURE.getSolrCoreName(), query);
 		String apiResponse = dataApi.solrQuery(SolrCore.FEATURE, query);
 		Map resp = jsonReader.readValue(apiResponse);

@@ -261,7 +261,7 @@ public class ProteomicsListPortlet extends GenericPortlet {
 //				solr.setCurrentInstance(SolrCore.PROTEOMICS_PEPTIDE);
 //				JSONObject object = solr.getData(key, null, facet, 0, -1, false, false, false);
 //				object = (JSONObject) object.get("response");
-				object.put("aa", FASTAHelper.getFASTASequence(Arrays.asList(na_feature_id), "protein"));
+				object.put("aa", FASTAHelper.getFASTASequence(request, Arrays.asList(na_feature_id), "protein"));
 
 				response.setContentType("application/json");
 				PrintWriter writer = response.getWriter();

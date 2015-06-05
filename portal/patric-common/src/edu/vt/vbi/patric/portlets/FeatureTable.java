@@ -124,7 +124,7 @@ public class FeatureTable extends GenericPortlet {
 			response.setContentType("application/octetstream");
 			response.setProperty("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
 
-			String output = FASTAHelper.getFASTASequence(featureIds, fastaType);
+			String output = FASTAHelper.getFASTASequence(request, featureIds, fastaType);
 
 			response.getPortletOutputStream().write(output.getBytes());
 		}
@@ -134,7 +134,7 @@ public class FeatureTable extends GenericPortlet {
 			output.append("<div class=\"fixed-width-font\">\n");
 			output.append("<pre>\n");
 
-			output.append(FASTAHelper.getFASTASequence(featureIds, fastaType));
+			output.append(FASTAHelper.getFASTASequence(request, featureIds, fastaType));
 
 			output.append("</pre>");
 			output.append("</div>");
