@@ -648,7 +648,7 @@ function renderMapTableGene(value, metadata, record, rowIndex, colIndex, store){
 			return Ext.String.format('<a href=\"CompPathwayTable?cType={0}&amp;cId={1}&amp;algorithm={2}&amp;ec_number={3}&amp;map=<%=map%>#aP0=1&aP1=1&aP2=1&aT=2\" target=\"_blank\"><b>{4}</b></a>',Ext.getDom("cType").value, Ext.getDom("cId").value, algo, record.data.ec_number, value);
 		}
 		else {
-			return Ext.String.format('<a href=\"PathwayFinder?cType=taxon&amp;cId=131567&amp;dm=featurelist&amp;pk={0}&amp;algorithm={1}&amp;ec_number={2}&amp;map=<%=map%>\" target=\"_blank\"><b>{3}</b></a>',Ext.getDom("pk").value, algo, record.data.ec_number, value);
+			return Ext.String.format('<a href=\"PathwayFinder?cType=taxon&amp;cId=131567&amp;dm=featurelist&amp;pk={0}&amp;algorithm={1}&amp;ec_number={2}&amp;map=<%=map%>#aP0=1&aP1=1&aP2=1&aT=2\" target=\"_blank\"><b>{3}</b></a>',Ext.getDom("pk").value, algo, record.data.ec_number, value);
 		}
 	}
 	else {
@@ -656,7 +656,7 @@ function renderMapTableGene(value, metadata, record, rowIndex, colIndex, store){
 			return Ext.String.format('<a href=\"CompPathwayTable?cType={0}&amp;cId={1}&amp;algorithm={2}&amp;ec_number={3}&amp;map=<%=map%>#aP0=1&aP1=1&aP2=1&aT=2\" target=\"_blank\">{4}</a>',Ext.getDom("cType").value, Ext.getDom("cId").value, algo, record.data.ec_number, value);
 		}
 		else {
-			return Ext.String.format('<a href=\"PathwayFinder?cType=taxon&amp;cId=131567&amp;dm=featurelist&amp;pk={0}&amp;algorithm={1}&amp;ec_number={2}&amp;map=<%=map%>\" target=\"_blank\">{3}</a>',Ext.getDom("pk").value, algo, record.data.ec_number, value);
+			return Ext.String.format('<a href=\"PathwayFinder?cType=taxon&amp;cId=131567&amp;dm=featurelist&amp;pk={0}&amp;algorithm={1}&amp;ec_number={2}&amp;map=<%=map%>#aP0=1&aP1=1&aP2=1&aT=2\" target=\"_blank\">{3}</a>',Ext.getDom("pk").value, algo, record.data.ec_number, value);
 		}
 	}
 			
