@@ -285,6 +285,7 @@ public class BreadCrumb extends GenericPortlet {
 				else if (cType.equals("feature")) {
 
 					boolean hasPATRICAnnotation = false;
+					boolean isPublicFeature;
 					List<Map<String, Object>> lineage = new ArrayList<>();
 
 					GenomeFeature feature = dataApi.getPATRICFeature(cId);
@@ -293,6 +294,7 @@ public class BreadCrumb extends GenericPortlet {
 					if (feature.getAnnotation().equals("PATRIC")) {
 						hasPATRICAnnotation = true;
 					}
+					isPublicFeature = feature.isPublic();
 
 					Taxonomy taxonomy = dataApi.getTaxonomy(taxonId);
 					List<Integer> taxonIds = taxonomy.getLineageIds();
@@ -311,6 +313,7 @@ public class BreadCrumb extends GenericPortlet {
 
 					request.setAttribute("lineage", lineage);
 					request.setAttribute("hasPATRICAnnotation", hasPATRICAnnotation);
+					request.setAttribute("isPublicFeature", isPublicFeature);
 					request.setAttribute("feature", feature);
 
 					PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/breadcrumb/feature_tabs.jsp");
@@ -321,12 +324,14 @@ public class BreadCrumb extends GenericPortlet {
 					List<Map<String, Object>> lineage = new ArrayList<>();
 					boolean isBelowGenus = false;
 					boolean hasPATRICAnnotation = false;
+					boolean isPublicGenome;
 
 					Genome genome = dataApi.getGenome(cId);
 					int taxonId = genome.getTaxonId();
 					if (genome.getPatricCds() > 0) {
 						hasPATRICAnnotation = true;
 					}
+					isPublicGenome = genome.isPublic();
 
 					Taxonomy taxonomy = dataApi.getTaxonomy(taxonId);
 					// TODO: handle when taxonomy is null
@@ -350,6 +355,7 @@ public class BreadCrumb extends GenericPortlet {
 					request.setAttribute("lineage", lineage);
 					request.setAttribute("isBelowGenus", isBelowGenus);
 					request.setAttribute("hasPATRICAnnotation", hasPATRICAnnotation);
+					request.setAttribute("isPublicGenome", isPublicGenome);
 					request.setAttribute("context", genome);
 
 					PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/breadcrumb/genome_tabs.jsp");

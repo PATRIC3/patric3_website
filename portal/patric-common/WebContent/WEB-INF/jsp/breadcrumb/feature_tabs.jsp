@@ -4,6 +4,7 @@
 
 List<Map<String, Object>> lineage = (List<Map<String, Object>>) request.getAttribute("lineage");
 boolean hasPATRICAnnotation = (Boolean) request.getAttribute("hasPATRICAnnotation");
+boolean isPublicFeature = (Boolean) request.getAttribute("isPublicFeature");
 GenomeFeature feature = (GenomeFeature) request.getAttribute("feature");
 
 String fId = feature.getId();
@@ -65,12 +66,16 @@ if (feature != null) {
 			<li id="tabs_genomebrowser"><a href="<%=gb_link%>"><span>Genome Browser</span></a></li>
 			
 		 	<% if (hasPATRICAnnotation) { %>
+				<% if (isPublicFeature) { %>
 			<li id="tabs_crviewer"><a href="<%=crv_link%>"><span>Compare Region Viewer</span></a></li>
+				<% } %>
 			<li id="tabs_pathways"><a href="PathwayTable?cType=feature&amp;cId=<%=feature.getId() %>"><span>Pathways</span></a></li>
+				<% if (isPublicFeature) { %>
 			<li id="tabs_expression"><a href="TranscriptomicsGeneExp?cType=feature&amp;cId=<%=feature.getId() %>&amp;sampleId=&amp;colId=&amp;log_ratio=&amp;zscore=" title=""><span>Transcriptomics</span></a></li>
 			<%--<li id="tabs_proteomics"><a href="ProteomicsList?cType=feature&amp;cId=<%=feature.getId() %>&amp;kw="><span>Proteomics</span></a></li> --%>
 			<li id="tabs_interaction"><a href="HPITool?dm=tab&amp;cType=feature&amp;cId=<%=fId %>&amp;hpi=false&amp;bm=" title=""><span>Interactions</span></a></li>
 			<li id="tabs_correlated"><a href="TranscriptomicsGeneCorrelated?cType=feature&amp;cId=<%=feature.getId() %>" title=""><span>Correlated Genes</span></a></li>
+				<% } %>
 			<% } %>
 			
 			<li id="tabs_literature"><a href="Literature?cType=feature&amp;cId=<%=fId %>&amp;time=a&amp;kw=none"><span>Literature</span></a></li>

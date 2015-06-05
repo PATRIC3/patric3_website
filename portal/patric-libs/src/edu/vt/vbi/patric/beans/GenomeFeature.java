@@ -123,6 +123,9 @@ public class GenomeFeature {
 	@Field("ids")
 	private List<String> externalId;
 
+	@Field("public")
+	private boolean isPublic;
+
 	public JSONObject toJSONObject() {
 		JSONObject json = new JSONObject();
 		json.put("genome_id", getGenomeId());
@@ -488,5 +491,9 @@ public class GenomeFeature {
 
 	public void setStrand(String strand) {
 		this.strand = strand;
+	}
+
+	public boolean isPublic() {
+		return this.isPublic;
 	}
 }

@@ -4,6 +4,7 @@
 List<Map<String, Object>> lineage = (List<Map<String, Object>>) request.getAttribute("lineage");
 boolean isBelowGenus = (Boolean) request.getAttribute("isBelowGenus");
 boolean hasPATRICAnnotation = (Boolean) request.getAttribute("hasPATRICAnnotation");
+boolean isPublicGenome = (Boolean) request.getAttribute("isPublicGenome");
 Genome context = (Genome) request.getAttribute("context");
 
 String gId = context.getId();
@@ -32,7 +33,9 @@ String flag = "";
 		</ul>
 	</nav>
 	<div id="utilitybox" class="smallest right no-underline-links">
+		<% if (isPublicGenome) { %>
 		<a class="double-arrow-link" href="ftp://ftp.patricbrc.org/patric2/patric3/genomes/<%=context.getId() %>/" target="_blank">Download genome data</a>
+		<% } %>
 	</div>
 	<div class="clear"></div>
 
@@ -49,11 +52,13 @@ String flag = "";
 				title=""><span>Specialty Genes</span></a></li>
 			<li id="tabs_pathways"><a href="CompPathwayTable?cType=genome&amp;cId=<%=gId %>&amp;algorithm=PATRIC&amp;ec_number="><span>Pathways</span></a></li>
 			<li id="tabs_proteinfamilysorter"><a href="FIGfam?cType=genome&amp;cId=<%=gId %>&amp;dm=result&amp;bm=&pk="><span>Protein Families</span></a></li>
+				<% if (isPublicGenome) { %>
 			<li id="tabs_explist"><a href="ExperimentList?cType=genome&amp;cId=<%=gId %>&amp;kw=" 
 				title=""><span>Transcriptomics</span></a></li>
 			<%--<li id="tabs_proteomics"><a href="ProteomicsList?cType=genome&amp;cId=<%=gId %>&amp;kw=" title=""><span>Proteomics</span></a></li>--%>
 			<li id="tabs_interaction"><a href="HPITool?dm=tab&amp;cType=genome&amp;cId=<%=gId %>&amp;hpi=false&amp;bm=" title=""><span>Interactions</span></a></li>
 			<li id="tabs_disease"><a href="DiseaseOverview?cType=genome&amp;cId=<%=gId %>"><span>Diseases</span></a></li>
+				<% } %>
 			<% } %>
 			<li id="tabs_literature"><a href="Literature?cType=genome&amp;cId=<%=gId %>&amp;time=a&amp;kw=none"><span>Literature</span></a></li>
 		</ul>

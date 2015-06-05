@@ -249,6 +249,9 @@ public class Genome {
 	@Field("additional_metadata")
 	private List<String> additionalMetadata;
 
+	@Field("public")
+	private boolean isPublic;
+
 	public JSONObject toJSONObject() {
 		JSONObject json = new JSONObject();
 
@@ -950,5 +953,9 @@ public class Genome {
 
 	public boolean hasIsolationCountry() {
 		return (this.isolationCountry != null);
+	}
+
+	public boolean isPublic() {
+		return this.isPublic;
 	}
 }
