@@ -88,7 +88,7 @@ public class PubMedPanel extends GenericPortlet {
 		StringBuilder sb = new StringBuilder();
 
 		try {
-			String strPubmedQuery = PubMedHelper.getPubmedQueryString(key);
+			String strPubmedQuery = PubMedHelper.getPubmedQueryString(request, key);
 
 			EutilInterface eutil_api = new EutilInterface();
 

@@ -22,6 +22,7 @@ import edu.vt.vbi.patric.common.DataApiHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.portlet.ResourceRequest;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -30,9 +31,9 @@ public class PubMedHelper {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(PubMedHelper.class);
 
-	public static String getTitleString(Map<String, String> key) {
+	public static String getTitleString(ResourceRequest request, Map<String, String> key) {
 
-		DataApiHandler dataApi = new DataApiHandler();
+		DataApiHandler dataApi = new DataApiHandler(request);
 
 		String title = null;
 
@@ -94,8 +95,8 @@ public class PubMedHelper {
 		return title;
 	}
 
-	public static String getPubmedQueryString(Map<String, String> key) throws NullPointerException {
-		String title = getTitleString(key);
+	public static String getPubmedQueryString(ResourceRequest request, Map<String, String> key) throws NullPointerException {
+		String title = getTitleString(request, key);
 		if (title == null || title.equals("")) {
 			throw new NullPointerException("title is not defined");
 		}

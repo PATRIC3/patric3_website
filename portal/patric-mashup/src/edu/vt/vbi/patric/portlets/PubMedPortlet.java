@@ -171,7 +171,7 @@ public class PubMedPortlet extends GenericPortlet {
 			key.put("feature_id", fId);
 			key.put("context", cType);
 
-			String strPubmedQuery = PubMedHelper.getPubmedQueryString(key);
+			String strPubmedQuery = PubMedHelper.getPubmedQueryString(request, key);
 
 			EutilInterface eutil_api = new EutilInterface();
 
