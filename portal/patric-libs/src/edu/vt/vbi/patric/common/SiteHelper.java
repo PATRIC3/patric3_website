@@ -192,6 +192,7 @@ public class SiteHelper {
 		else if (target.equalsIgnoreCase("Human_HOME")) {
 			link = "//www.ncbi.nlm.nih.gov/assembly/GCF_000001405.26";
 		}
+		// edit patric-searches-and-tools/WebContent/js/specialty_gene_list_grids.js as well
 		return link;
 	}
 

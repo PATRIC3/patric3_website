@@ -288,12 +288,13 @@ function renderSource(value, metadata, record, rowIndex, colIndex, store) {
 			return Ext.String.format('<a href="//ardb.cbcb.umd.edu/" target="_blank">{0}</a>', value);
 			break;
 		case "CARD":
-			return Ext.String.format('<a href="//arpcard.mcmaster.ca/" target="_blank">{0}</a>', value);
+			return Ext.String.format('<a href="http://arpcard.mcmaster.ca/" target="_blank">{0}</a>', value);
+			break;
 		case "DrugBank":
-			return Ext.String.format('<a href="//v3.drugbank.ca/" target="_blank">{0}</a>', value);
+			return Ext.String.format('<a href="http://v3.drugbank.ca/" target="_blank">{0}</a>', value);
 			break;
 		case "TDD":
-			return Ext.String.format('<a href="//bidd.nus.edu.sg/group/TTD/ttd.asp" target="_blank">{0}</a>', value);
+			return Ext.String.format('<a href="http://bidd.nus.edu.sg/group/TTD/ttd.asp" target="_blank">{0}</a>', value);
 			break;
 		case "Human":
 			return Ext.String.format('<a href="//www.ncbi.nlm.nih.gov/assembly/GCF_000001405.26" target="_blank">{0}</a>', value);
@@ -302,10 +303,10 @@ function renderSource(value, metadata, record, rowIndex, colIndex, store) {
 			return Ext.String.format('<a href="SpecialtyGeneSource?source={0}&kw=">{0}</a>', value);
 			break;
 		case "VFDB":
-			return Ext.String.format('<a href="//www.mgc.ac.cn/VFs/" target="_blank">{0}</a>', value);
+			return Ext.String.format('<a href="http://www.mgc.ac.cn/VFs/" target="_blank">{0}</a>', value);
 			break;
 		case "Victors":
-			return Ext.String.format('<a href="//www.phidias.us/victors/" target="_blank">{0}</a>', value);
+			return Ext.String.format('<a href="http://www.phidias.us/victors/" target="_blank">{0}</a>', value);
 			break;
 		default:
 			return value;
@@ -318,10 +319,10 @@ function renderSourceId(value, metadata, record, rowIndex, colIndex, store) {
 			return Ext.String.format('<a href="//ardb.cbcb.umd.edu/cgi/search.cgi?db=R&term={0}" target="_blank">{0}</a>', value);
 			break;
 		case "DrugBank":
-			return Ext.String.format('<a href="//v3.drugbank.ca/molecules/{0}" target="_blank">{0}</a>', value);
+			return Ext.String.format('<a href="http://v3.drugbank.ca/molecules/{0}" target="_blank">{0}</a>', value);
 			break;
 		case "TDD":
-			return Ext.String.format('<a href="//bidd.nus.edu.sg/group/TTD/ZFTTDDetail.asp?ID={0}" target="_blank">{0}</a>', value);
+			return Ext.String.format('<a href="http://bidd.nus.edu.sg/group/TTD/ZFTTDDetail.asp?ID={0}" target="_blank">{0}</a>', value);
 			break;
 		case "Human":
 			return Ext.String.format('<a href="//www.ncbi.nlm.nih.gov/protein/{0}" target="_blank">{0}</a>', value);
@@ -330,10 +331,10 @@ function renderSourceId(value, metadata, record, rowIndex, colIndex, store) {
 			return Ext.String.format('<a href="SpecialtyGeneEvidence?source=PATRIC_VF&sourceId={0}">{0}</a>', value);
 			break;
 		case "VFDB":
-			return Ext.String.format('<a href="//www.mgc.ac.cn/cgi-bin/VFs/gene.cgi?GeneID={0}" target="_blank">{0}</a>', value);
+			return Ext.String.format('<a href="http://www.mgc.ac.cn/cgi-bin/VFs/gene.cgi?GeneID={0}" target="_blank">{0}</a>', value);
 			break;
 		case "Victors":
-			return Ext.String.format('<a href="//www.phidias.us/victors/gene_detail.php?c_mc_victor_id={0}" target="_blank">{0}</a>', value);
+			return Ext.String.format('<a href="http://www.phidias.us/victors/gene_detail.php?c_mc_victor_id={0}" target="_blank">{0}</a>', value);
 			break;
 		default: 
 			return value;
