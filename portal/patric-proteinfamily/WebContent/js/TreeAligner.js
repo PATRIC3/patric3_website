@@ -114,7 +114,7 @@ function insertMSAJS(windowID, ajaxHttp) {
     };
     opts.conf = {
         dropImport: true,
-        debug: false
+        debug: true
     };
     opts.zoomer = {
         menuFontsize: "12px",
@@ -133,69 +133,64 @@ function insertMSAJS(windowID, ajaxHttp) {
     function getURLParameter(name) {
         return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [, ""])[1].replace(/\+/g, '%20')) || null;
     }
-
-    function importText(text){
-        var fileName, objs, ref, type;
-        ref = this.parseText(text), objs = ref[0], type = ref[1];
-        if (type === "error") {
-        return "error";
-        }
-        if (type === "seqs") {
-        this.msa.seqs.reset(objs);
-        this.msa.g.config.set("url", "userimport");
-        this.msa.g.trigger("url:userImport");
-        } else if (type === "features") {
-        this.msa.seqs.addFeatures(objs);
-        } else if (type === "newick") {
-        this.msa.u.tree.loadTree((function(_this) {
-            return function() {
-            return _this.msa.u.tree.showTree(file);
-            };
-        })(this));
-        }
-        return
-    }
     //create a clustalw format string that can be passed to biojs msa
-    function clustalData(data){
+    function patricData(data, inputData){
+        var replacement=[];
+        data.forEach(function(item){replacement.push(item.replace(/\|/g, "."));}, this);
+        data=replacement;
         var input=data.slice(5);
         var clustal=["CLUSTAL"];
-        var orgs=[];
+        var orgs={};
+        var org_count=1;
         for (var i = 0; i < input.length-2; i+=3) {
+            org_count+=1;
             clustal.push(input[i]+"\t"+input[i+2]);
-            orgs.push(input[i+1]);
+            orgs[input[i]]=org_count.toString()+"_"+input[i+1];
         }
-        return ([clustal,orgs]);
+        inputData.orgs=orgs;
+        inputData.tree=data[4];
+        inputData.clustal=clustal.join("\n");
     }
-
-
-    //var defaultURL = "";
-    //var defaultURL = "https://cdn.rawgit.com/greenify/msa/master/snippets/data/tree/B2014122194A560KL7I.4.ids.fa";
-    //var url = getURLParameter('seq') || defaultURL;
-    //m.u.file.importURL(url, renderMSA);
-    
+    function switchID(inputData){
+        var replacement=[];
+        if (inputData.currentIDType == "gene"){
+            Object.keys(inputData.orgs).forEach(function(gene){
+                var re = new RegExp(gene,"g");
+                inputData.tree=inputData.tree.replace(re,inputData.orgs[gene]);
+                inputData.clustal=inputData.clustal.replace(re,inputData.orgs[gene]);
+            }, this);
+            inputData.currentIDType="genome";
+        }
+    }
+    //var nexusData =["20", "19", "38", "85", "(fig.509170.6.peg.19:0.03278,((fig.575586.4.peg.3246:0.0,fig.1120929.3.peg.86:0.0):0.00643,fig.981334.4.peg.3118:0.01314):0.06506,((fig.1405803.3.peg.6190:2.30354,((fig.1313303.3.peg.2841:0.0,fig.291331.8.peg.1145:0.0,fig.342109.8.peg.1061:0.0,fig.360094.4.peg.4335:0.0):2.83584,fig.1228988.4.peg.5452:1.00753):1.76172):1.37146,((fig.1392540.3.peg.2502:0.00016,((fig.665944.3.peg.5249:0.00016,(fig.1284812.3.peg.4952:0.02124,fig.665944.3.peg.5052:0.00015):0.04230):1.80493,((fig.1159496.3.peg.81:0.00616,fig.1159560.3.peg.58:0.03605):1.03487,(fig.758829.3.peg.2647:0.00015,(fig.1185418.3.peg.2928:0.00017,fig.1432547.3.peg.8379:0.02325):0.18273):0.65301):1.98034):1.24802):0.12367,fig.1330047.3.peg.969:0.05795):0.04715):0.00011);", "fig.1405803.3.peg.6190", "Pseudomonas_alcaligenes_MRY13-0052", "-----------------MYDFKKYVLDIALKQVNEH-----------TDIIVKVEQHKTGRSITGFSFSFKQKNQPRIQSNLKEIRIR--", "fig.1313303.3.peg.2841", "Xanthomonas_oryzae_ATCC_35933", "--------------MEILDDRVGTRATIITSQLPVEHWHAWL-----QDPTLADAILD-RLVHQAHKLPLKGESLRKRAPPDRPTSAP--", "fig.291331.8.peg.1145", "Xanthomonas_oryzae_pv._oryzae_KACC_10331", "--------------MEILDDRVGTRATIITSQLPVEHWHAWL-----QDPTLADAILD-RLVHQAHKLPLKGESLRKRAPPDRPTSAP--", "fig.342109.8.peg.1061", "Xanthomonas_oryzae_pv._oryzae_MAFF_311018", "--------------MEILDDRVGTRATIITSQLPVEHWHAWL-----QDPTLADAILD-RLVHQAHKLPLKGESLRKRAPPDRPTSAP--", "fig.360094.4.peg.4335", "Xanthomonas_oryzae_pv._oryzae_PXO99A", "--------------MEILDDRVGTRATIITSQLPVEHWHAWL-----QDPTLADAILD-RLVHQAHKLPLKGESLRKRAPPDRPTSAP--", "fig.665944.3.peg.5249", "Klebsiella_sp._4_1_44FAA", "----------------------------MRQQLTREYAT--------GRFRGDKEALKREVERRVQERMLLSR--GNNYTRLATAPL---", "fig.1284812.3.peg.4952", "Klebsiella_pneumoniae_UHKPC81", "----------------------------MRQQLTREYAT--------GRFRGDHEALKREVERRVQERMLLSR--GNNYTRLATVPI---", "fig.665944.3.peg.5052", "Klebsiella_sp._4_1_44FAA", "----------------------------MRQQLTREYAT--------GRFRGDKEALKREVERRVQERMLLSR--GNNYTRLATVPI---", "fig.1228988.4.peg.5452", "Klebsiella_pneumoniae_subsp._pneumoniae_KpMDU1", "-----------------------------------------M-----SEYGVKSDTLELSFVEFVKMCGFNSRRSNKKNARSHQ------", "fig.1392540.3.peg.2502", "Acinetobacter_nectaris_CIP_110549", "-----------------MTDAQRHLFANKMSKMPEM-----------SKYSQGTESYQ-EFATRIAEMLLQPEKFRELYPLLEKNGFKL-", "fig.1330047.3.peg.969", "Acinetobacter_junii_MTCC_11364", "-----------------MTDSQRHLFANKMSEMPEM-----------SKYSQGTESYQ-QFAVRIAEMLLHPEKFKELYPILEKAGFKA-", "fig.509170.6.peg.19", "Acinetobacter_baumannii_SDF", "-----------------MTDAQRHLFANKMSEMPEM-----------SKYSQGTESYQ-QFSIRIADMLLEPEKFRELYPILEKAGFKG-", "fig.575586.4.peg.3246", "Acinetobacter_johnsonii_SH046", "-----------------------------MSEMPEM-----------GKYSQGTESYQ-QFAIRIADMLLEPEKFRELYPILEKSGFQP-", "fig.1120929.3.peg.86", "Acinetobacter_towneri_DSM_14962_=_CIP_107472", "-----------------------------MSEMPEM-----------GKYSQGTESYQ-QFAIRIADMLLEPEKFRELYPILEKSGFQP-", "fig.981334.4.peg.3118", "Acinetobacter_radioresistens_DSM_6976_=_NBRC_102413_=_CIP_103788", "-----------------MTDAQRHLFANKMSEMPEM-----------GKYSQGTESYQ-QFAIRIADMLLEPEKFRELYPILEKSGFNP-", "fig.758829.3.peg.2647", "Escherichia_coli_ECA-0157", "MRKAMEQLRDIGYLDYTEFKRGRATYFSVHYRNPKLISSPVKVPRKEEEEKAPEQNYD-EVIKALKAAGIDPLKLAEALSAMKPEN----", "fig.1185418.3.peg.2928", "Klebsiella_pneumoniae_subsp._pneumoniae_ST512-K30BO", "------------------------------MKVPRKA----------EEEKAPEQNYD-EVIKALKAAGIDPLKLAEALSAMKPEN----", "fig.1432547.3.peg.8379", "Klebsiella_pneumoniae_IS22", "------------------------------MKVPRKE----------EEEKAPEQNYD-EVIKALKAAGIDPLKLAEALSAMKPEN----", "fig.1159496.3.peg.81", "Cronobacter_dublinensis_subsp._lactaridi_LMG_23825", "----MEQLKEIGYLDYSEIKRGRVVYFHIHYRRPKLRPQSLP-----GALPAGEELQT-DNAAAVEEQGEMVMLTKEELALLEKIRKGQI", "fig.1159560.3.peg.58", "Cronobacter_dublinensis_subsp._lausannensis_LMG_23824", "----MEQLKEIGYLDYTEIKRGRVVYFHIHYRRPKLRPQSLP-----GALPAGEELPA-DNAAAVEEQGEMVMLTKEELALLEKIRKGQI"];
     //var nexusData= ["11", "11", "39", "53", "(((fig|1310754.3.peg.2921:0.0,fig|1310727.3.peg.2939:0.0):1.17036,(fig|47716.4.peg.2238:0.11103,fig|66869.3.peg.5501:0.00641):0.99240):2.47910,((fig|1310683.3.peg.2856:0.0,fig|1310905.3.peg.2925:0.0):1.28000,fig|1235820.4.peg.2163:0.69592):2.18740,(((fig|321314.9.peg.37:0.0,fig|476213.4.peg.33:0.0):0.29056,fig|936157.3.peg.4962:0.43338):2.89151,fig|882800.3.peg.6267:0.00016):0.00019);", "fig|1310683.3.peg.2856", "Acinetobacter_baumannii_1566109", "--------MRFLQRYPSYQDFYCRFDVICF-DFPQKIAKTVQQDFSK-FHYDLQWIENVFTLD--", "fig|1310905.3.peg.2925", "Acinetobacter_baumannii_25977_1", "--------MRFLQRYPSYQDFYCRFDVICF-DFPQKIAKTVQQDFSK-FHYDLQWIENVFTLD--", "fig|1235820.4.peg.2163", "Prevotella_oris_JCM_12252", "-----------MKERAIWDDL--RFDLISI-------VGTAPENFK------LEHIVDAFNPLLV", "fig|321314.9.peg.37", "Salmonella_enterica_subsp._enterica_serovar_Choleraesuis_str._SC-B67", "MSSPGNPGKTSDGRHTEVGSF--NYSRAAD-RSNSENVLSSGMTQS-------------------", "fig|476213.4.peg.33", "Salmonella_enterica_subsp._enterica_serovar_Paratyphi_C_strain_RKS4594", "MSSPGNPGKTSDGRHTEVGSF--NYSRAAD-RSNSENVLSSGMTQS-------------------", "fig|936157.3.peg.4962", "Salmonella_enterica_subsp._enterica_serovar_Weltevreden_str._2007-60-3289-1", "-------MIVADGRNTQVGSF--NFSRAAD-RSNSENVLVVWDDPVLARSYLNHWTSR-------", "fig|1310754.3.peg.2921", "Acinetobacter_baumannii_2887", "-----------MLVAQQLGQW--AEQTALK-LLKEQNYEWVASNYHS-RRGEVDLIENAVTN---", "fig|1310727.3.peg.2939", "Acinetobacter_baumannii_836190", "-----------MLVAQQLGQW--AEQTALK-LLKEQNYEWVASNYHS-RRGEVDLIENAVTN---", "fig|882800.3.peg.6267", "Methylobacterium_extorquens_DSM_13060", "-----------MSRAAR--AWLARHPLAADATLRADAVFVAPRRWPR-------HLPNAFEIEGL", "fig|47716.4.peg.2238", "Streptomyces_olivaceus", "-----------MNARSALGRY--GETLAAR-RLADAGMTVLERNWRCGRTGEIDIVARDKQDELH", "fig|66869.3.peg.5501", "Streptomyces_atroolivaceus", "-----------MNARGALGRY--GEDLAAR-LLADAGMTVLDRNWRC-RTGEIDIVARDEQDELH"]
-
-    var replacement=[];
-    nexusData.forEach(function(item){replacement.push(item.replace(/\|/g, "."));}, this);
-    nexusData=replacement;
-    var clustal,orgs;
-    var inputData= clustalData(nexusData), clustal=inputData[0], orgs=inputData[1];
+    var inputData={clustal:"",tree:"",orgs:{},currentIDType:"gene"};
+    patricData(nexusData, inputData);
+    switchID(inputData);
 
     //m.u.file.parseText(test, renderMSA);
 
     //importText.bind(this.m.u.file)(test);
-    m.u.file.importFile(nexusData[4]);
-    m.u.file.importFile(clustal.join("\n"));
-
+    var treeLoaded=false;
     m.g.vis.on("change:treeLoaded", function(){
         var treeDiv=document.getElementsByClassName("tnt_groupDiv");
-        treeDiv[0].parentElement.setAttribute("style", "padding-top:96px; vertical-align:top; display:inline-block");
+        treeDiv[0].parentElement.setAttribute("style", "padding-top:96px; vertical-align:top; width:500px; overflow-x:scroll; display:inline-block");
         var msaDiv=document.getElementsByClassName("biojs_msa_stage");
         msaDiv[0].setAttribute("style", "display:inline-block");
-
+        var alignDiv=document.getElementsByClassName("biojs_msa_albody");
+        alignDiv[0].style.height="100%";
+        treeLoaded=true;
     });
-    renderMSA();
-    Ext.get(windowID).unmask();
+
+
+
+    loadViewer(inputData.tree, inputData.clustal);
+
+    function loadViewer(treeData, clustalData){
+        m.u.file.importFile(treeData);
+        m.u.file.importFile(clustalData);
+        renderMSA();
+    }
     function renderMSA() {
             // the menu is independent to the MSA container
             var menuOpts = {};
@@ -212,6 +207,8 @@ function insertMSAJS(windowID, ajaxHttp) {
             m.render();
             m.el.parentElement.insertBefore(menuOpts.el, m.el);
         }
+
+    Ext.get(windowID).unmask();
 }
     
 function insertTreeApplet(windowID, ajaxHttp) {
