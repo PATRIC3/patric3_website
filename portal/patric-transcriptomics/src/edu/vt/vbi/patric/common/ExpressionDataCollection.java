@@ -26,10 +26,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.patricbrc.Workspace.ObjectMeta;
-import org.patricbrc.Workspace.Workspace_tuple_2;
-import org.patricbrc.Workspace.get_download_url_params;
-import org.patricbrc.Workspace.get_params;
+import org.patricbrc.Workspace.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

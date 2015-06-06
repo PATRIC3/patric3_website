@@ -17,6 +17,7 @@
  */
 package edu.vt.vbi.patric.portlets;
 
+import edu.vt.vbi.patric.beans.GenomeFeature;
 import edu.vt.vbi.patric.common.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -31,6 +32,8 @@ import org.slf4j.LoggerFactory;
 import javax.portlet.*;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.*;
 
 public class TranscriptomicsEnrichment extends GenericPortlet {
@@ -97,6 +100,32 @@ public class TranscriptomicsEnrichment extends GenericPortlet {
 			PrintWriter writer = response.getWriter();
 			writer.write("" + pk);
 			writer.close();
+			break;
+		}
+		case "getFeatureIds": {
+			String pathwayId = request.getParameter("map");
+			String featureList = request.getParameter("featureList");
+			String algorithm = request.getParameter("algorithm");
+
+			DataApiHandler dataApi = new DataApiHandler(request);
+
+			SolrQuery query = new SolrQuery("pathway_id:(" + pathwayId.replaceAll(",", " OR ") + ") AND feature_id:(" + featureList.replaceAll(",", " OR ") + ")" );
+			query.addFilterQuery("annotation:" + algorithm).setRows(dataApi.MAX_ROWS).addField("feature_id");
+
+			LOGGER.trace("getFeatureIds: [{}] {}", SolrCore.PATHWAY.getSolrCoreName(), query);
+			String apiResponse = dataApi.solrQuery(SolrCore.PATHWAY, query);
+
+			Map resp = jsonReader.readValue(apiResponse);
+			Map respBody = (Map) resp.get("response");
+			List<GenomeFeature> features = dataApi.bindDocuments((List<Map>) respBody.get("docs"), GenomeFeature.class);
+
+			JSONArray featureIds = new JSONArray();
+			for (GenomeFeature feature : features) {
+				featureIds.add(feature.getId());
+			}
+
+			response.setContentType("application/json");
+			featureIds.writeJSONString(response.getWriter());
 			break;
 		}
 		case "getGenomeIds": {
@@ -209,13 +238,13 @@ public class TranscriptomicsEnrichment extends GenericPortlet {
 		SolrQuery query = new SolrQuery("feature_id:(" + StringUtils.join(featureIDs, " OR ") + ")");
 		int queryRows = Math.max(300000, (featureIDs.size() * 2));
 		query.addField("pathway_name,pathway_id,genome_id,feature_id").setRows(queryRows);
-		LOGGER.trace("Enrichment 1/3: {}", query.toString());
+		LOGGER.trace("Enrichment 1/3: [{}] {}", SolrCore.PATHWAY.getSolrCoreName(), query);
 
 		String apiResponse = dataApi.solrQuery(SolrCore.PATHWAY, query);
 
 		Map resp = jsonReader.readValue(apiResponse);
 		Map respBody = (Map) resp.get("response");
-		List<Map> pathwayList = (List<Map>) respBody.get("docs");
+		List<Map> pathwayList = (List) respBody.get("docs");
 
 		for (Map doc : pathwayList) {
 			JSONObject pw = new JSONObject();
@@ -235,20 +264,22 @@ public class TranscriptomicsEnrichment extends GenericPortlet {
 		query = new SolrQuery("feature_id:(" + StringUtils.join(featureIDs, " OR ") + ")");
 		query.setRows(0).setFacet(true);
 		query.add("json.facet", "{stat:{field:{field:pathway_id,limit:-1,facet:{gene_count:\"unique(feature_id)\"}}}}");
-		LOGGER.trace("Enrichment 2/3: {}", query.toString());
+		LOGGER.trace("Enrichment 2/3: [{}] {}", SolrCore.PATHWAY.getSolrCoreName(), URLDecoder.decode(query.toString(), "UTF-8"));
 
 		apiResponse = dataApi.solrQuery(SolrCore.PATHWAY, query);
 
 		resp = jsonReader.readValue(apiResponse);
 		Map facets = (Map) resp.get("facets");
-		Map stat = (Map) facets.get("stat");
-		List<Map> buckets = (List) stat.get("buckets");
+		if ((Integer) facets.get("count") > 0) {
+			Map stat = (Map) facets.get("stat");
+			List<Map> buckets = (List) stat.get("buckets");
 
-		for (Map value : buckets) {
-			String aPathwayId = value.get("val").toString();
+			for (Map value : buckets) {
+				String aPathwayId = value.get("val").toString();
 
-			if (pathwayMap.containsKey(aPathwayId)) {
-				pathwayMap.get(aPathwayId).put("ocnt", value.get("gene_count"));
+				if (pathwayMap.containsKey(aPathwayId)) {
+					pathwayMap.get(aPathwayId).put("ocnt", value.get("gene_count"));
+				}
 			}
 		}
 
@@ -266,8 +297,8 @@ public class TranscriptomicsEnrichment extends GenericPortlet {
 
 			resp = jsonReader.readValue(apiResponse);
 			facets = (Map) resp.get("facets");
-			stat = (Map) facets.get("stat");
-			buckets = (List) stat.get("buckets");
+			Map stat = (Map) facets.get("stat");
+			List<Map> buckets = (List) stat.get("buckets");
 
 			for (Map value : buckets) {
 				pathwayMap.get(value.get("val").toString()).put("ecnt", value.get("gene_count"));

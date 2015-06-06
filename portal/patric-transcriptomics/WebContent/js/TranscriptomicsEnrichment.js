@@ -24,17 +24,17 @@ function getSelectedFeatures() {
 		pid.push(sl[i].data.pathway_id);
 
 	Ext.Ajax.request({
-		url : "/patric-pathways/jsp/get_na_feature_ids.json.jsp",
+		//url : "/patric-pathways/jsp/get_na_feature_ids.json.jsp",
+		url : "/portal/portal/patric/TranscriptomicsEnrichment/TranscriptomicsEnrichmentWindow?action=b&cacheability=PAGE&callType=getFeatureIds",
 		method : 'POST',
 		params : {
 			map : pid.join(','),
 			featureList : Ext.getDom("featureList").value,
-			algorithm : "'PATRIC'"
+			algorithm : "PATRIC"
 		},
 		success : function(response, opts) {
 			na_features = Ext.JSON.decode(response.responseText);
-			for ( i = 0; i < na_features.length; i++)
-				property.fids.push(na_features[i]);
+			property.fids.push(na_features);
 		}
 	});
 }
