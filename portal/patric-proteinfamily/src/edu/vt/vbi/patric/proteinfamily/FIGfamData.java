@@ -310,7 +310,7 @@ public class FIGfamData {
 				featureIds.add(feature.getId());
 			}
 
-			writer.write(StringUtils.join(features, ","));
+			writer.write(StringUtils.join(featureIds, ","));
 		}
 		catch (IOException e) {
 			LOGGER.debug(e.getMessage(), e);
