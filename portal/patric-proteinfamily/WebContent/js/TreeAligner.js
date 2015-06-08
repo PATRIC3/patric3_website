@@ -175,7 +175,7 @@ function insertMSAJS(windowID, ajaxHttp) {
     var initialHidden=0;
     m.g.vis.on("change:treeLoaded", function(){
         var treeDiv=document.getElementsByClassName("tnt_groupDiv");
-        treeDiv[0].parentElement.setAttribute("style", "padding-top:96px; width:30%; vertical-align:top; width:500px; overflow-x:scroll; display:inline-block; border-right:1px solid grey;");
+        treeDiv[0].parentElement.setAttribute("style", "padding-top:96px; width:30%; vertical-align:bottom; width:500px; overflow-x:scroll; display:inline-block; border-right:1px solid grey;");
         var treeHeight=parseInt(treeDiv[0].childNodes[0].getAttribute("height"));
         var msaDiv=document.getElementsByClassName("biojs_msa_stage");
         msaDiv[0].style.display="inline-block";
@@ -183,7 +183,7 @@ function insertMSAJS(windowID, ajaxHttp) {
         msaDiv[0].style.overflowX="scroll";
         msaDiv[0].style.overflowY="hidden";
         msaDiv[0].style.verticalAlign="bottom";
-        msaDiv[0].style.height=(treeHeight+108).toString()+"px";
+        msaDiv[0].style.height=(treeHeight+120).toString()+"px";
         var alignDiv=document.getElementsByClassName("biojs_msa_albody");
         alignDiv[0].style.height="100%";
         treeLoaded=true;
