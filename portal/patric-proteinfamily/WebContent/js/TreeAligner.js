@@ -90,6 +90,7 @@ function insertMSAJS(windowID, ajaxHttp) {
 
 	toSet = document.getElementById(windowID + "_forApplet");
         toSet.style.overflowY="scroll";
+        toSet.style.overflowX="hidden";
     var menuDiv =  document.createElement("div");
     menuDiv.setAttribute("id", "menuDiv");
     var msaDiv = document.createElement("div")
@@ -121,7 +122,7 @@ function insertMSAJS(windowID, ajaxHttp) {
         //autoResize: false,
         labelNameLength: 150,
         alignmentHeight: 4000,
-        alignmentWidth: 700,
+        alignmentWidth: 4000,
         residueFont: "12",
         rowHeight: 14.5
     };
@@ -169,17 +170,28 @@ function insertMSAJS(windowID, ajaxHttp) {
     switchID(inputData);
 
     //m.u.file.parseText(test, renderMSA);
-
     //importText.bind(this.m.u.file)(test);
     var treeLoaded=false;
+    var initialHidden=0;
     m.g.vis.on("change:treeLoaded", function(){
         var treeDiv=document.getElementsByClassName("tnt_groupDiv");
-        treeDiv[0].parentElement.setAttribute("style", "padding-top:96px; vertical-align:top; width:500px; overflow-x:scroll; display:inline-block");
+        treeDiv[0].parentElement.setAttribute("style", "padding-top:96px; width:30%; vertical-align:top; width:500px; overflow-x:scroll; display:inline-block; border-right:1px solid grey;");
+        var treeHeight=parseInt(treeDiv[0].childNodes[0].getAttribute("height"));
         var msaDiv=document.getElementsByClassName("biojs_msa_stage");
-        msaDiv[0].setAttribute("style", "display:inline-block");
+        msaDiv[0].style.display="inline-block";
+        msaDiv[0].style.width="69%";
+        msaDiv[0].style.overflowX="scroll";
+        msaDiv[0].style.overflowY="hidden";
+        msaDiv[0].style.verticalAlign="bottom";
+        msaDiv[0].style.height=(treeHeight+108).toString()+"px";
         var alignDiv=document.getElementsByClassName("biojs_msa_albody");
         alignDiv[0].style.height="100%";
         treeLoaded=true;
+        m.g.seqs.models.forEach( function(mdl){
+            if(mdl.attributes.hidden){
+                initialHidden+=1;
+            }
+        },initialHidden);
     });
 
 
@@ -196,7 +208,7 @@ function insertMSAJS(windowID, ajaxHttp) {
             var menuOpts = {};
             menuOpts.el = document.getElementById('menuDiv');
             var msaDiv = document.getElementById('msaDiv');
-            msaDiv.setAttribute("style", "overflow-x:scroll; white-space: nowrap;");
+            msaDiv.setAttribute("style", "white-space: nowrap;");
             menuOpts.msa = m;
             var defMenu = new msa.menu.defaultmenu(menuOpts);
 
