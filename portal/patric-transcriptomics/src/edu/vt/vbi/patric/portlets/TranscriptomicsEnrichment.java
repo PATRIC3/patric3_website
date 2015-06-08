@@ -33,7 +33,6 @@ import javax.portlet.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.util.*;
 
 public class TranscriptomicsEnrichment extends GenericPortlet {
@@ -202,6 +201,7 @@ public class TranscriptomicsEnrichment extends GenericPortlet {
 			String pk = request.getParameter("pk");
 			Map<String, String> key = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
 
+			response.setContentType("application/json");
 			if (key != null && key.containsKey("feature_id")) {
 
 				List<String> featureIDs = Arrays.asList(key.get("feature_id").split(","));
@@ -225,8 +225,6 @@ public class TranscriptomicsEnrichment extends GenericPortlet {
 
 		DataApiHandler dataApi = new DataApiHandler(request);
 
-		LOGGER.trace("# features passed:{}", featureIDs.size());
-
 		// 1. get Pathway ID, Pathway Name & genomeID
 		//solr/pathway/select?q=feature_id:(PATRIC.83332.12.NC_000962.CDS.34.1524.fwd)&fl=pathway_name,pathway_id,gid
 
@@ -236,8 +234,9 @@ public class TranscriptomicsEnrichment extends GenericPortlet {
 		Set<String> listPathwayID = new HashSet<>();
 
 		SolrQuery query = new SolrQuery("feature_id:(" + StringUtils.join(featureIDs, " OR ") + ")");
-		int queryRows = Math.max(300000, (featureIDs.size() * 2));
+		int queryRows = Math.max(dataApi.MAX_ROWS, (featureIDs.size() * 2));
 		query.addField("pathway_name,pathway_id,genome_id,feature_id").setRows(queryRows);
+
 		LOGGER.trace("Enrichment 1/3: [{}] {}", SolrCore.PATHWAY.getSolrCoreName(), query);
 
 		String apiResponse = dataApi.solrQuery(SolrCore.PATHWAY, query);
@@ -264,6 +263,7 @@ public class TranscriptomicsEnrichment extends GenericPortlet {
 		query = new SolrQuery("feature_id:(" + StringUtils.join(featureIDs, " OR ") + ")");
 		query.setRows(0).setFacet(true);
 		query.add("json.facet", "{stat:{field:{field:pathway_id,limit:-1,facet:{gene_count:\"unique(feature_id)\"}}}}");
+
 		LOGGER.trace("Enrichment 2/3: [{}] {}", SolrCore.PATHWAY.getSolrCoreName(), URLDecoder.decode(query.toString(), "UTF-8"));
 
 		apiResponse = dataApi.solrQuery(SolrCore.PATHWAY, query);
@@ -291,6 +291,7 @@ public class TranscriptomicsEnrichment extends GenericPortlet {
 					+ StringUtils.join(listPathwayID, " OR ") + ")");
 			query.setRows(0).setFacet(true).addFilterQuery("annotation:PATRIC");
 			query.add("json.facet", "{stat:{field:{field:pathway_id,limit:-1,facet:{gene_count:\"unique(feature_id)\"}}}}");
+
 			LOGGER.trace("Enrichment 3/3: {}", query.toString());
 
 			apiResponse = dataApi.solrQuery(SolrCore.PATHWAY, query);

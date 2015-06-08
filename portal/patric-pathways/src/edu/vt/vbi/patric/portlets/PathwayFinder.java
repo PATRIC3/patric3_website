@@ -225,7 +225,7 @@ public class PathwayFinder extends GenericPortlet {
 				key.put("algorithm", algorithm);
 			}
 
-			if (feature_id != null && !feature_id.equalsIgnoreCase("")) {
+			if (feature_id != null && !feature_id.equals("")) {
 				key.put("feature_id", feature_id);
 			}
 

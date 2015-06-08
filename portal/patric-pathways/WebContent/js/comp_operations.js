@@ -23,11 +23,11 @@ function Creator(){
 				coordinates = bData.coordinates,
 				algo = getAlgorithm(Ext.getDom("algorithm").value);
 				for(var j in coordinates){
-					if(bData.clicked)
+					if(bData.clicked) {
 						painter.setColor(jg.cC);
-					else if(bData.selected)
+					} else if(bData.selected) {
 						painter.setColor(jg.cS);
-					else{
+					} else {
 						algocount = parseInt(Ext.getDom("taxongenomecount_"+algo.toLowerCase()).value),
 						painter.setColor((bData.genome_count[algo] < algocount)?jg.cNA:jg.cA);
 					}
@@ -113,8 +113,9 @@ function drawMap(type){
 		dm = Ext.getDom("dm").value,
 		passObject = {"map":Ext.getDom("map").value, need:type};	
 	
-	if(type != "all")
+	if (type != "all") {
 		passObject.value = Ext.getDom(type).value;
+	}
 	else{
 		passObject.genomeId = Ext.getDom("genomeId").value;
 		passObject.taxonId = Ext.getDom("taxonId").value;
@@ -130,13 +131,24 @@ function drawMap(type){
 	    success: function(response, opts) {
 	    	var decoded = Ext.JSON.decode(response.responseText);
 	    	if(type != "all"){
-	    		addSelectedtoStructure(decoded),
-	    		createDom(),
-	    		pNS.boxes.paint(),
+	    		addSelectedtoStructure(decoded);
+	    		createDom();
+	    		pNS.boxes.paint();
 	    		Ext.getCmp('kegg-panel').unmask();
-	    	}else{
+	    	}
+			else {
 	    		createStructure(decoded);
-	    		(dm == "feature" || dm == "featurelist")?drawMap("feature_id"):(cType == "ec" || dm == "ec")?drawMap("ec_number"):(createDom(),pNS.boxes.paint(),Ext.getCmp('kegg-panel').unmask());
+	    		if (dm == "feature" || dm == "featurelist") {
+					drawMap("feature_id");
+				}
+				else if(cType == "ec" || dm == "ec") {
+					drawMap("ec_number");
+				}
+				else {
+					createDom();
+					pNS.boxes.paint();
+					Ext.getCmp('kegg-panel').unmask();
+				}
 	    	}
 		}
 	});

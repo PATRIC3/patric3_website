@@ -49,7 +49,7 @@ function DownloadFile() {"use strict";
 }
 
 function renderPathwayEnrichment(value, metadata, record, rowIndex, colIndex, store) {
-	return Ext.String.format("<a href=\"javascript:void(0);\" onclick=\"gotoPathwayMap('" + record.data.pathway_id + "');\"/>" + record.data.pathway_name + "</a>");
+	return Ext.String.format("<a href=\"javascript:void(0);\" onclick=\"gotoPathwayMap('{0}');\"/>{1}</a>", record.data.pathway_id, record.data.pathway_name);
 }
 
 function gotoPathwayMap(map) {

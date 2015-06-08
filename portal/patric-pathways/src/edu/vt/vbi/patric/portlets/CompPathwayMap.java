@@ -120,6 +120,9 @@ public class CompPathwayMap extends GenericPortlet {
 				else if (key != null && key.containsKey("taxonId") && !key.get("taxonId").equals("")) {
 					taxonId = key.get("taxonId");
 				}
+				if (key != null && key.containsKey("feature_id") && !key.get("feature_id").equals("")) {
+					feature_id = key.get("feature_id");
+				}
 			}
 
 			SolrQuery query = new SolrQuery("*:*");
@@ -348,22 +351,37 @@ public class CompPathwayMap extends GenericPortlet {
 		}
 
 		String need = val.get("need").toString();
-		String genomeId = "", taxonId = "", map = "", pk;
+		String genomeId = null, taxonId = null, map = null, pk = null;
+		if (val.containsKey("genomeId") && val.get("genomeId") != null && !val.get("genomeId").equals("")) {
+			genomeId = val.get("genomeId").toString();
+		}
+
+		if (val.containsKey("taxonId") && val.get("taxonId") != null && !val.get("taxonId").equals("")) {
+			taxonId = val.get("taxonId").toString();
+		}
+
+		if (val.containsKey("map") && val.get("map") != null && !val.get("map").equals("")) {
+			map = val.get("map").toString();
+		}
+
+		if (val.containsKey("pk") && val.get("pk") != null && !val.get("pk").equals("")) {
+			pk = val.get("pk").toString();
+		}
 
 		if (need.equals("all")) {
-			if(val.get("genomeId") != null) {
-				key.put("genomeId", val.get("genomeId").toString());
-				genomeId = val.get("genomeId").toString();
+			if(genomeId != null) {
+				key.put("genomeId", genomeId);
 			}
-			if(val.get("taxonId") != null) {
-				key.put("taxonId", val.get("taxonId").toString());
-				taxonId = val.get("taxonId").toString();
+			if(taxonId != null) {
+				key.put("taxonId", taxonId);
 			}
-			key.put("map", val.get("map").toString());
-			map = val.get("map").toString();
-			pk = val.get("pk").toString();
+			if (map != null) {
+				key.put("map", map);
+			}
+
+			Map<String, String> sessKey = null;
 			if (pk != null && !pk.isEmpty()) {
-				Map<String, String> sessKey = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
+				sessKey = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
 				if (sessKey != null && sessKey.containsKey("genomeId") && !sessKey.get("genomeId").equals("")) {
 					genomeId = sessKey.get("genomeId");
 				}
@@ -383,10 +401,10 @@ public class CompPathwayMap extends GenericPortlet {
 					// &rows=0&facet=true&json.facet={stat:{field:{field:ec_number,limit:-1,facet:{genome_count:"unique(genome_id)",gene_count:"unique(feature_id)"}}}}
 
 					SolrQuery query = new SolrQuery("pathway_id:" + map + " AND annotation:" + annotation);
-					if (!taxonId.equals("")) {
+					if (taxonId != null) {
 						query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + taxonId));
 					}
-					if (!genomeId.equals("")) {
+					if (genomeId != null) {
 						query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "genome_id:(" + genomeId.replaceAll(",", " OR ") + ")"));
 					}
 					query.setRows(0).setFacet(true);
@@ -420,7 +438,7 @@ public class CompPathwayMap extends GenericPortlet {
 							query.setFields("ec_number,ec_description,map_location,occurrence");
 							query.setRows(dataApi.MAX_ROWS);
 
-							LOGGER.trace("[{}] {}", SolrCore.PATHWAY_REF.getSolrCoreName(), query);
+							LOGGER.trace("genome_x_y: [{}] {}", SolrCore.PATHWAY_REF.getSolrCoreName(), query);
 
 							apiResponse = dataApi.solrQuery(SolrCore.PATHWAY_REF, query);
 
@@ -466,15 +484,15 @@ public class CompPathwayMap extends GenericPortlet {
 			try {
 
 				SolrQuery query = new SolrQuery("annotation:(" + StringUtils.join(annotations, " OR ") + ")");
-				if (!taxonId.equals("")) {
+				if (taxonId != null) {
 					query.addFilterQuery(SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + taxonId));
 				}
-				if (!genomeId.equals("")) {
+				if (genomeId != null) {
 					query.addFilterQuery("genome_id:(" + genomeId.replaceAll(",", " OR ") + ")");
 				}
 				query.setFields("pathway_id,pathway_name,annotation").setRows(dataApi.MAX_ROWS);
 
-				LOGGER.trace("[{}] {}", SolrCore.PATHWAY.getSolrCoreName(), query);
+				LOGGER.trace("genome_pathway_x_y: [{}] {}", SolrCore.PATHWAY.getSolrCoreName(), query);
 
 				String apiResponse = dataApi.solrQuery(SolrCore.PATHWAY, query);
 
@@ -509,11 +527,12 @@ public class CompPathwayMap extends GenericPortlet {
 				LOGGER.error(e.getMessage(), e);
 			}
 
+			// map_ids_in_map
 			try {
 				SolrQuery query = new SolrQuery("pathway_id:" + map + " AND map_type:path");
-				query.setFields("ec_number,ec_description,map_location").setRows(10000);
+				query.setFields("ec_number,ec_description,map_location").setRows(dataApi.MAX_ROWS);
 
-				LOGGER.trace("[{}] {}", SolrCore.PATHWAY_REF.getSolrCoreName(), query);
+				LOGGER.trace("map_ids_in_map: [{}] {}", SolrCore.PATHWAY_REF.getSolrCoreName(), query);
 
 				String apiResponse = dataApi.solrQuery(SolrCore.PATHWAY_REF, query);
 
@@ -549,9 +568,9 @@ public class CompPathwayMap extends GenericPortlet {
 			// all coordinates
 			try {
 				SolrQuery query = new SolrQuery("pathway_id:" + map + " AND map_type:enzyme");
-				query.setFields("ec_number,ec_description,map_location").setRows(10000);
+				query.setFields("ec_number,ec_description,map_location").setRows(dataApi.MAX_ROWS);
 
-				LOGGER.trace("[{}] {}", SolrCore.PATHWAY_REF.getSolrCoreName(), query);
+				LOGGER.trace("all_coordinates: [{}] {}", SolrCore.PATHWAY_REF.getSolrCoreName(), query);
 
 				String apiResponse = dataApi.solrQuery(SolrCore.PATHWAY_REF, query);
 
@@ -585,13 +604,13 @@ public class CompPathwayMap extends GenericPortlet {
 
 		}
 		else {
-
+			// need: feature_id or ec_number
 			JSONArray coordinates = new JSONArray();
 
 			if (need.equals("ec_number")) {
 				try {
 					SolrQuery query = new SolrQuery("*:*");
-					if (!map.equals("")) {
+					if (map != null) {
 						query.addFilterQuery("pathway_id:(" + map + ")");
 					}
 
@@ -624,16 +643,21 @@ public class CompPathwayMap extends GenericPortlet {
 			}
 			else {
 				// feature
+				String featureIds = null;
+				if (val.containsKey("value") && val.get("value") != null && !val.get("value").equals("")) {
+					featureIds = val.get("value").toString();
+				}
+
 				try {
 					SolrQuery query = new SolrQuery("*:*");
-					if (!map.equals("")) {
+					if (map != null) {
 						query.addFilterQuery("pathway_id:(" + map + ")");
 					}
-					if (!val.get("value").toString().equals("")) {
-						query.addFilterQuery(SolrCore.PATHWAY.getSolrCoreJoin("ec_number", "ec_number", "feature_id:(" + val.get("value").toString() + ")"));
+					if (featureIds != null) {
+						query.addFilterQuery(SolrCore.PATHWAY.getSolrCoreJoin("ec_number", "ec_number", "feature_id:(" + featureIds.replaceAll(",", " OR ") + ")"));
 					}
 
-					LOGGER.trace("[{}] {}", SolrCore.PATHWAY_REF.getSolrCoreName(), query);
+					LOGGER.trace("coordinates: [{}] {}", SolrCore.PATHWAY_REF.getSolrCoreName(), query);
 
 					String apiResponse = dataApi.solrQuery(SolrCore.PATHWAY_REF, query);
 
