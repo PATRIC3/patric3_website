@@ -38,7 +38,7 @@ public class SolrInterface {
 
 	private SimpleDateFormat shortDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-	String solrServerUrl;
+//	String solrServerUrl;
 
 //	LBHttpSolrServer server = null;
 
@@ -50,7 +50,7 @@ public class SolrInterface {
 //		ObjectMapper objectMapper = new ObjectMapper();
 //		jsonMapReader = objectMapper.reader(Map.class);
 
-		solrServerUrl = System.getProperty("solr.serverUrls", "http://localhost:8983");
+//		solrServerUrl = System.getProperty("solr.serverUrls", "http://localhost:8983");
 
 		try {
 			startDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").parse(startDate);
