@@ -227,14 +227,31 @@ public class FIGfamData {
 		query.addField("genome_id");
 		query.setRows(dataApiHandler.MAX_ROWS);
 
+		LOGGER.trace("getGenomeIdsForTaxon: [{}] {}", SolrCore.GENOME.getSolrCoreName(), query);
+
 		String apiResponse = dataApiHandler.solrQuery(SolrCore.GENOME, query);
 		Map resp = jsonReader.readValue(apiResponse);
 		Map respBody = (Map) resp.get("response");
 
 		List<Genome> genomes = dataApiHandler.bindDocuments((List<Map>) respBody.get("docs"), Genome.class);
 
-		for (Genome g : genomes) {
+		for (final Genome g : genomes) {
 			gIds.add(g.getId());
+		}
+
+		// TODO: remove this when data API limit is removed
+		if (gIds.size() == 25000) {
+			query.setStart(25000);
+
+			apiResponse = dataApiHandler.solrQuery(SolrCore.GENOME, query);
+			resp = jsonReader.readValue(apiResponse);
+			respBody = (Map) resp.get("response");
+
+			genomes = dataApiHandler.bindDocuments((List<Map>) respBody.get("docs"), Genome.class);
+
+			for (final Genome g : genomes) {
+				gIds.add(g.getId());
+			}
 		}
 
 		return StringUtils.join(gIds, ",");
@@ -394,8 +411,22 @@ public class FIGfamData {
 
 			List<Genome> genomes = dataApi.bindDocuments((List<Map>) respBody.get("docs"), Genome.class);
 
-			for (Genome genome : genomes) {
+			for (final Genome genome : genomes) {
 				genomeIdList.add(genome.getId());
+			}
+
+			if (genomeIdList.size() == 25000) {
+				query.setStart(25000);
+
+				apiResponse = dataApi.solrQuery(SolrCore.GENOME, query);
+				resp = jsonReader.readValue(apiResponse);
+				respBody = (Map) resp.get("response");
+
+				genomes = dataApi.bindDocuments((List<Map>) respBody.get("docs"), Genome.class);
+
+				for (final Genome genome : genomes) {
+					genomeIdList.add(genome.getId());
+				}
 			}
 		}
 		catch (IOException e) {

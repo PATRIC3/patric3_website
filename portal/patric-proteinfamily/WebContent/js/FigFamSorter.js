@@ -1173,7 +1173,7 @@ function filterOrthoTableData(windowID) {"use strict";
 			nextRow = orthoRows[i];
 			if (AdvancedFilter(nextRow, stateObject)) {
 				filterFlag = true;
-				//if(genomeIds.length <= 500){
+				if(genomeIds.length <= 500){
 					for ( j = 0; j < genomeIds.length; j++) {
 						index = genomeVSfilter[genomeIds[j]].getIndex();
 						if (orthoFilter[index] != ' ') {
@@ -1185,7 +1185,7 @@ function filterOrthoTableData(windowID) {"use strict";
 							}
 						}
 					}
-				//}
+				}
 				if (filterFlag) {
 					tableData[kept] = [nextRow.members, nextRow.species, nextRow.description, nextRow.minLength, nextRow.maxLength, nextRow.mean, nextRow.std, nextRow.groupId, nextRow.intensity, nextRow.order, windowID];
 					kept++;
