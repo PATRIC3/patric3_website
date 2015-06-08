@@ -124,7 +124,7 @@ function insertMSAJS(windowID, ajaxHttp) {
         alignmentHeight: 4000,
         alignmentWidth: 4000,
         residueFont: "12",
-        rowHeight: 14.3
+        rowHeight: 14
     };
 
     // init msa
