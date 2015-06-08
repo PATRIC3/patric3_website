@@ -324,32 +324,34 @@ public class BreadCrumb extends GenericPortlet {
 					List<Map<String, Object>> lineage = new ArrayList<>();
 					boolean isBelowGenus = false;
 					boolean hasPATRICAnnotation = false;
-					boolean isPublicGenome;
+					boolean isPublicGenome = false;
 
 					Genome genome = dataApi.getGenome(cId);
-					int taxonId = genome.getTaxonId();
-					if (genome.getPatricCds() > 0) {
-						hasPATRICAnnotation = true;
-					}
-					isPublicGenome = genome.isPublic();
-
-					Taxonomy taxonomy = dataApi.getTaxonomy(taxonId);
-					// TODO: handle when taxonomy is null
-					List<Integer> txIds = taxonomy.getLineageIds();
-					List<String> txNames = taxonomy.getLineageNames();
-					List<String> txRanks = taxonomy.getLineageRanks();
-
-					for (Integer txId : txIds) {
-						int idx = txIds.indexOf(txId);
-						Map<String, Object> taxon = new HashMap<>();
-						taxon.put("taxonId", txId);
-						taxon.put("name", txNames.get(idx));
-						taxon.put("rank", txRanks.get(idx));
-
-						if (txRanks.get(idx).equals("genus")) {
-							isBelowGenus = true;
+					if (genome != null) {
+						int taxonId = genome.getTaxonId();
+						if (genome.getPatricCds() > 0) {
+							hasPATRICAnnotation = true;
 						}
-						lineage.add(taxon);
+						isPublicGenome = genome.isPublic();
+
+						Taxonomy taxonomy = dataApi.getTaxonomy(taxonId);
+						// TODO: handle when taxonomy is null
+						List<Integer> txIds = taxonomy.getLineageIds();
+						List<String> txNames = taxonomy.getLineageNames();
+						List<String> txRanks = taxonomy.getLineageRanks();
+
+						for (Integer txId : txIds) {
+							int idx = txIds.indexOf(txId);
+							Map<String, Object> taxon = new HashMap<>();
+							taxon.put("taxonId", txId);
+							taxon.put("name", txNames.get(idx));
+							taxon.put("rank", txRanks.get(idx));
+
+							if (txRanks.get(idx).equals("genus")) {
+								isBelowGenus = true;
+							}
+							lineage.add(taxon);
+						}
 					}
 
 					request.setAttribute("lineage", lineage);

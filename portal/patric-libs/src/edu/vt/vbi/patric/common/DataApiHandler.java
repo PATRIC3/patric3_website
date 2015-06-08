@@ -19,6 +19,7 @@ package edu.vt.vbi.patric.common;
 import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.beans.GenomeFeature;
 import edu.vt.vbi.patric.beans.Taxonomy;
+import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -153,6 +154,14 @@ public class DataApiHandler {
 			ResponseHandler<String> responseHandler = new BasicResponseHandler();
 			responseBody = client.execute(request, responseHandler);
 
+		}
+		catch (HttpResponseException e) {
+			if (e.getMessage().equals("Unauthorized")) {
+				// handle unauthorized case
+			}
+			else {
+				LOGGER.error(e.getMessage(), e);
+			}
 		}
 		catch (IOException e) {
 			LOGGER.error(e.getMessage(), e);
