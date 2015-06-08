@@ -65,12 +65,12 @@ public class CircosGenomeViewerPortlet extends GenericPortlet {
 		DataApiHandler dataApi = new DataApiHandler(request);
 
 		String actionUrl = "/portal/portal/patric/CircosGenomeViewer/CircosGenomeViewerWindow?action=1";
-		String polyomicUrl = System.getProperty("polyomic.baseUrl", "https://www.patricbrc.org/oldapi/");
+		String dataApiUrl = System.getProperty("dataapi.url", "https://www.patricbrc.org/api/");
 		String genomeId = request.getParameter("context_id");
 		Genome genome = dataApi.getGenome(genomeId);
 
 		request.setAttribute("actionUrl", actionUrl);
-		request.setAttribute("polyomicUrl", polyomicUrl);
+		request.setAttribute("dataApiUrl", dataApiUrl);
 		request.setAttribute("genome", genome);
 
 		PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/circos_html.jsp");

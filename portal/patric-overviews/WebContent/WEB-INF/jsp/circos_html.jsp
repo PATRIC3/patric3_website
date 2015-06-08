@@ -2,13 +2,13 @@
 %><%@ page import="edu.vt.vbi.patric.beans.Genome"
 %><%
 	String actionUrl = (String) request.getAttribute("actionUrl");
-	String polyomicUrl = (String) request.getAttribute("polyomicUrl");
+	String dataApiUrl = (String) request.getAttribute("dataApiUrl");
 	Genome genome = (Genome) request.getAttribute("genome");
 %>
 <script type="text/javascript">
 var genome_id = '<%=genome.getId()%>';
 var form_url = '<%=actionUrl%>';
-var ds_url = '<%=polyomicUrl%>';
+var data_api_url = '<%=dataApiUrl%>';
 var countSequences = '<%=genome.getSequences()%>';
 </script>
 <script type="text/javascript" src="/patric-overviews/circos/main.js"></script>
