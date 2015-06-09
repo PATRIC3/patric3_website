@@ -127,7 +127,7 @@ function insertMSAJS(windowID, ajaxHttp) {
         //autoResize: false,
         labelNameLength: 150,
         alignmentHeight: 4000,
-        alignmentWidth: parseInt(nexusData[3])*17,
+        alignmentWidth: parseInt(nexusData[3])*19,
         residueFont: "12",
         rowHeight: 14
     };
