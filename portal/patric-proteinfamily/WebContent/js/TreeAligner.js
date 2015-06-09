@@ -152,7 +152,7 @@ function insertMSAJS(windowID, ajaxHttp) {
         for (var i = 0; i < input.length-2; i+=3) {
             org_count+=1;
             clustal.push(input[i]+"\t"+input[i+2]);
-            gblocks.push(input[i]+"&nbsp;&nbsp;&nbsp;&nbsp;"+input[i+1]+"&nbsp;&nbsp;&nbsp;&nbsp;"+input[i+2]);
+            gblocks.push(input[i]+"&nbsp;&nbsp;&nbsp;&nbsp;"+input[i+1]+"<br>"+input[i+2]);
             orgs[input[i]]=org_count.toString()+"_"+input[i+1];
         }
         inputData.orgs=orgs;
