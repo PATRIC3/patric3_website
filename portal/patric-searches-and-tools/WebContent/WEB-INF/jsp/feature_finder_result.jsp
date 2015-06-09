@@ -115,6 +115,7 @@ Ext.onReady(function()
 			{header:'End',					dataIndex:'end_min',			flex:1, align:'center', hidden:true, renderer:BasicRenderer},
 			{header:'Length (NT)',			dataIndex:'na_length',			flex:1, align:'center', hidden:true, renderer:BasicRenderer},
 			{header:'Strand',				dataIndex:'strand',				flex:1, align:'center', hidden:true, renderer:BasicRenderer},
+			{header:'FIGfam ID',			dataIndex:'figfam_id',			orig_hidden_value: true,	flex:1, align:'center', renderer:BasicRenderer},
 			{header:'Protein ID',			dataIndex:'refseq_protein_id',	flex:1, align:'center', hidden:true, renderer:BasicRenderer},
 			{header:'Length (AA)',			dataIndex:'aa_length',			flex:1, align:'center', hidden:true, renderer:BasicRenderer},
 			{header:'Product Description',	dataIndex:'product',			flex:4, renderer:BasicRenderer}

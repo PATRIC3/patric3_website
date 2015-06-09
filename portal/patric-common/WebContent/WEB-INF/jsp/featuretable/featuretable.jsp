@@ -102,6 +102,7 @@ Ext.onReady(function()
 			{text:'End', 				dataIndex:'end', 				orig_hidden_value: true,	hidden: true,	flex:1, align:'right', renderer:BasicRenderer},
 			{text:'Length (NT)',		dataIndex:'na_length',			orig_hidden_value: true,	hidden: true,	flex:1, align:'right', renderer:BasicRenderer},
 			{text:'Strand',				dataIndex:'strand',				orig_hidden_value: true,	hidden: true,	flex:1, align:'right', renderer:BasicRenderer},
+			{text:'FIGfam ID',			dataIndex:'figfam_id',			orig_hidden_value: true,	flex:1, align:'center', renderer:BasicRenderer},
 			{text:'Protein ID',			dataIndex:'protein_id',			orig_hidden_value: true,	hidden: true,	flex:1, align:'right', renderer:BasicRenderer},
 			{text:'Length (AA)',		dataIndex:'aa_length',			orig_hidden_value: true,	hidden: true,	flex:1, align:'right', renderer:BasicRenderer},
 			{text:'Product Description',dataIndex:'product',			orig_hidden_value: false,	flex:4, renderer:BasicRenderer}]],

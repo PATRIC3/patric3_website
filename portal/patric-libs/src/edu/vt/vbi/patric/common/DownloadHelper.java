@@ -22,12 +22,12 @@ public class DownloadHelper {
 
 	public static List<String> getHeaderForFeatures() {
 		return Arrays.asList("Genome", "Accession", "PATRIC ID", "RefSeq Locus Tag", "Alt Locus Tag", "Feature ID",
-				"Annotation", "Feature Type", "Start", "End", "Length", "Strand", "Protein ID", "AA Length", "Gene Symbol", "Product");
+				"Annotation", "Feature Type", "Start", "End", "Length", "Strand", "FIGfam ID", "Protein ID", "AA Length", "Gene Symbol", "Product");
 	}
 
 	public static List<String> getFieldsForFeatures() {
 		return Arrays.asList("genome_name", "accession", "patric_id", "refseq_locus_tag", "alt_locus_tag", "feature_id", "annotation", "feature_type",
-				"start", "end", "na_length", "strand", "protein_id", "aa_length", "gene", "product");
+				"start", "end", "na_length", "strand", "figfam_id", "protein_id", "aa_length", "gene", "product");
 	}
 
 	public static List<String> getHeaderForGenomes() {
