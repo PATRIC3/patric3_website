@@ -69,16 +69,16 @@ public class SiteHelper {
 			link = "http://enzyme.expasy.org/EC/"; // 2.7.1.15
 		}
 		else if (target.equalsIgnoreCase("kegg_pathwaymap") || target.equalsIgnoreCase("KEGG")) {
-			link = "//www.genome.jp/dbget-bin/www_bget?"; // pathway+map00010
+			link = "http://www.genome.jp/dbget-bin/www_bget?"; // pathway+map00010
 		}
 		else if (target.equalsIgnoreCase("UniProtKB-Accession") || target.equalsIgnoreCase("UniProtKB-ID")) {
-			link = "//www.uniprot.org/uniprot/"; // A9MFG0 or ASTD_SALAR
+			link = "http://www.uniprot.org/uniprot/"; // A9MFG0 or ASTD_SALAR
 		}
 		else if (target.equalsIgnoreCase("UniRef100") || target.equalsIgnoreCase("UniRef90") || target.equalsIgnoreCase("UniRef50")) {
-			link = "//www.uniprot.org/uniref/"; // UniRef100_A9MFG0, UniRef90_B5F7J0, or // UniRef50_Q1C8A9
+			link = "http://www.uniprot.org/uniref/"; // UniRef100_A9MFG0, UniRef90_B5F7J0, or // UniRef50_Q1C8A9
 		}
 		else if (target.equalsIgnoreCase("UniParc")) {
-			link = "//www.uniprot.org/uniparc/"; // UPI0001603B3F
+			link = "http://www.uniprot.org/uniparc/"; // UPI0001603B3F
 		}
 		else if (target.equalsIgnoreCase("EMBL") || target.equalsIgnoreCase("EMBL-CDS")) {
 			link = "//www.ebi.ac.uk/ena/data/view/"; // CP000880, ABX21565
@@ -87,62 +87,62 @@ public class SiteHelper {
 			link = "//www.ncbi.nlm.nih.gov/sites/entrez?db=gene&term="; // 5763416;
 		}
 		else if (target.equalsIgnoreCase("GenomeReviews")) {
-			link = "//www.genomereviews.ebi.ac.uk/GR/contigview?chr="; // CP000880_GR
+			link = "http://www.genomereviews.ebi.ac.uk/GR/contigview?chr="; // CP000880_GR
 		}
 		else if (target.equalsIgnoreCase("eggNOG")) {
-			link = "//eggnog.embl.de/cgi_bin/display_multi_clusters.pl?linksource=uniprot&level=0&1="; // Q2YII1 -- uniprot accession
+			link = "http://eggnog.embl.de/cgi_bin/display_multi_clusters.pl?linksource=uniprot&level=0&1="; // Q2YII1 -- uniprot accession
 		}
 		else if (target.equalsIgnoreCase("HOGENOM")) {
-			link = "//pbil.univ-lyon1.fr/cgi-bin/acnuc-ac2tree?db=HOGENOM&query="; // A9MFG0 -- uniprot accession
+			link = "http://pbil.univ-lyon1.fr/cgi-bin/acnuc-ac2tree?db=HOGENOM&query="; // A9MFG0 -- uniprot accession
 		}
 		else if (target.equalsIgnoreCase("OMA")) {
-			link = "//omabrowser.org/cgi-bin/gateway.pl?f=DisplayGroup&p1="; // A9MFG0 -- uniprot accession
+			link = "http://omabrowser.org/cgi-bin/gateway.pl?f=DisplayGroup&p1="; // A9MFG0 -- uniprot accession
 		}
 		else if (target.equalsIgnoreCase("ProtClustDB")) {
 			link = "//www.ncbi.nlm.nih.gov/sites/entrez?Db=proteinclusters&Cmd=DetailsSearch&Term="; // A9MFG0 -- uniprot accession
 		}
 		else if (target.equalsIgnoreCase("BioCyc")) {
-			link = "//biocyc.org/getid?id="; // BMEL359391:BAB2_0179-MONOMER
+			link = "http://biocyc.org/getid?id="; // BMEL359391:BAB2_0179-MONOMER
 		}
 		else if (target.equalsIgnoreCase("NMPDR")) {
 			link = "//www.nmpdr.org/linkin.cgi?id="; // fig|382638.8.peg.1669"
 		}
 		else if (target.equalsIgnoreCase("EnsemblGenome") || target.equalsIgnoreCase("EnsemblGenome_TRS")
 				|| target.equalsIgnoreCase("EnsemblGenome_PRO")) {
-			link = "//www.ensemblgenomes.org/id/"; // EBMYCT00000005579
+			link = "http://www.ensemblgenomes.org/id/"; // EBMYCT00000005579
 		}
 		else if (target.equalsIgnoreCase("BEIR")) {
-			link = "//www.beiresources.org/Catalog/ItemDetails/tabid/522/Default.aspx?Template=Clones&BEINum=";
+			link = "http://www.beiresources.org/Catalog/ItemDetails/tabid/522/Default.aspx?Template=Clones&BEINum=";
 		}
 		else if (target.equalsIgnoreCase("PDB")) {
 			link = "Jmol?structureID=";
 		}
 		else if (target.equalsIgnoreCase("STRING")) { // 204722.BR0001
-			link = "//string.embl.de/newstring_cgi/show_network_section.pl?identifier=";
+			link = "http://string.embl.de/newstring_cgi/show_network_section.pl?identifier=";
 		}
 		else if (target.equalsIgnoreCase("MEROPS")) { // M50.005
-			link = "//merops.sanger.ac.uk/cgi-bin/pepsum?id=";
+			link = "http://merops.sanger.ac.uk/cgi-bin/pepsum?id=";
 		}
 		else if (target.equalsIgnoreCase("PATRIC")) { // 17788255
 			link = "Feature?cType=feature&cId=";
 		}
 		else if (target.equalsIgnoreCase("OrthoDB")) { // EOG689HR1
-			link = "//cegg.unige.ch/orthodb7/results?searchtext=";
+			link = "http://cegg.unige.ch/orthodb7/results?searchtext=";
 		}
 		else if (target.equalsIgnoreCase("NCBI_TaxID")) { // 29461
 			link = "//www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=";
 		}
 		else if (target.equalsIgnoreCase("KO")) { // K04756
-			link = "//www.genome.jp/dbget-bin/www_bget?ko:";
+			link = "http://www.genome.jp/dbget-bin/www_bget?ko:";
 		}
 		else if (target.equalsIgnoreCase("TubercuList")) { // Rv2429
-			link = "//tuberculist.epfl.ch/quicksearch.php?gene+name=";
+			link = "http://tuberculist.epfl.ch/quicksearch.php?gene+name=";
 		}
 		else if (target.equalsIgnoreCase("PeroxiBase")) { // 4558
-			link = "//peroxibase.toulouse.inra.fr/browse/process/view_perox.php?id=";
+			link = "http://peroxibase.toulouse.inra.fr/browse/process/view_perox.php?id=";
 		}
 		else if (target.equalsIgnoreCase("Reactome")) { // REACT_116125
-			link = "//www.reactome.org/cgi-bin/eventbrowser_st_id?ST_ID=";
+			link = "http://www.reactome.org/cgi-bin/eventbrowser_st_id?ST_ID=";
 		}
 		else if (target.equalsIgnoreCase("VFDB")) {
 			link = "http://www.mgc.ac.cn/cgi-bin/VFs/gene.cgi?GeneID="; // VFG1817
