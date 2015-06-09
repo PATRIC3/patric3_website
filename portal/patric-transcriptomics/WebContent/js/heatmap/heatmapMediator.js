@@ -312,8 +312,8 @@ function MediatorDownloadF(columns, type) {
 
 	var toSubmit = document.getElementById("fTableForm_Feature");
 	toSubmit.featureIds.value = columns;
-	toSubmit._fileformat.value = type;
-	toSubmit.action = "/patric-transcriptomics/jsp/GetDetailTable.jsp";
+	toSubmit.fileFormat.value = type;
+	toSubmit.action = "/portal/portal/patric/TranscriptomicsGene/TranscriptomicsGeneWindow?action=b&cacheability=PAGE&callType=downloadFeatures";
 	toSubmit.target = "";
 	toSubmit.submit();
 }

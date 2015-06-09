@@ -441,6 +441,50 @@ public class TranscriptomicsGene extends GenericPortlet {
 				}
 				break;
 			}
+			case "downloadFeatures": {
+				String featureIds = request.getParameter("featureIds");
+				String fileFormat = request.getParameter("fileFormat");
+				String fileName = "Table_Gene";
+
+				List<String> tableHeader = DownloadHelper.getHeaderForFeatures();
+				List<String> tableField = DownloadHelper.getFieldsForFeatures();
+				JSONArray tableSource = new JSONArray();
+
+				DataApiHandler dataApi = new DataApiHandler(request);
+
+				SolrQuery query = new SolrQuery("feature_id:(" + featureIds.replaceAll(",", " OR ") + ")");
+				query.setFields(StringUtils.join(DownloadHelper.getFieldsForFeatures(), ","));
+				query.setRows(dataApi.MAX_ROWS);
+
+				LOGGER.debug("downloadFeatures: [{}] {}", SolrCore.FEATURE.getSolrCoreName(), query);
+
+				final String apiResponse = dataApi.solrQuery(SolrCore.FEATURE, query);
+
+				final Map resp = jsonReader.readValue(apiResponse);
+				final Map respBody = (Map) resp.get("response");
+
+				final List<GenomeFeature> features = (List) dataApi.bindDocuments((List) respBody.get("docs"), GenomeFeature.class);
+
+				for (final GenomeFeature feature : features) {
+					tableSource.add(feature.toJSONObject());
+				}
+
+				final ExcelHelper excel = new ExcelHelper("xssf", tableHeader, tableField, tableSource);
+				excel.buildSpreadsheet();
+
+				if (fileFormat.equalsIgnoreCase("xlsx")) {
+					response.setContentType("application/octetstream");
+					response.addProperty("Content-Disposition", "attachment; filename=\"" + fileName + "." + fileFormat + "\"");
+
+					excel.writeSpreadsheettoBrowser(response.getPortletOutputStream());
+				}
+				else {
+					response.setContentType("application/octetstream");
+					response.addProperty("Content-Disposition", "attachment; filename=\"" + fileName + "." + fileFormat + "\"");
+
+					response.getWriter().write(excel.writeToTextFile());
+				}
+			}
 			}
 		}
 	}

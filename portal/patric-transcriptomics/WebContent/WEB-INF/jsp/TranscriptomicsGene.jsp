@@ -1,6 +1,4 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
-<%@ page import="javax.portlet.PortletSession" %>
-<%@ page import="edu.vt.vbi.patric.dao.ResultType" %>
 <portlet:defineObjects/>
 <%
 String name = "TranscriptomicsGene";
@@ -59,8 +57,7 @@ String keyword = (String) request.getAttribute("keyword");
 <input type="hidden" id="_data" name="_data" value="" />
 </form>
 <form id="fTableForm_Feature" action="#" method="post">
-<input type="hidden" id="_tablesource" name="_tablesource" value="Table_Feature" />
-<input type="hidden" id="_fileformat" name="_fileformat" value="" />
+<input type="hidden" id="fileFormat" name="fileFormat" value="" />
 <input id = "featureIds" name='featureIds' type='hidden' value="" />
 </form>
 
