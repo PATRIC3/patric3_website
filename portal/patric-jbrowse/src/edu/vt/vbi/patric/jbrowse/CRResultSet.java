@@ -63,12 +63,14 @@ public class CRResultSet implements Serializable {
 				for (Object track : tracks) {
 					JSONObject tr = (JSONObject) track;
 
-					CRTrack crTrk = new CRTrack(tr);
-					trackMap.put(crTrk.getRowID(), crTrk);
-					genomeNames.add(crTrk.getGenomeName());
-					genomeIds.add(crTrk.getGenomeID());
-					if (pinGenome.equals(crTrk.getGenomeID())) {
-						pinStrand = crTrk.findFeature(pin).getStrand();
+					if (((JSONArray) tr.get("features")).size() > 0) {
+						CRTrack crTrk = new CRTrack(tr);
+						trackMap.put(crTrk.getRowID(), crTrk);
+						genomeNames.add(crTrk.getGenomeName());
+						genomeIds.add(crTrk.getGenomeID());
+						if (pinGenome.equals(crTrk.getGenomeID())) {
+							pinStrand = crTrk.findFeature(pin).getStrand();
+						}
 					}
 				}
 			}
