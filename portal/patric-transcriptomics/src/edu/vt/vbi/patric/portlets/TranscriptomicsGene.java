@@ -118,10 +118,7 @@ public class TranscriptomicsGene extends GenericPortlet {
 	}
 
 	public void serveResource(ResourceRequest request, ResourceResponse response) throws PortletException, IOException {
-		response.setContentType("text/html");
 		String callType = request.getParameter("callType");
-		PrintWriter writer = response.getWriter();
-		JSONObject jsonResult = new JSONObject();
 
 		if (callType != null) {
 			switch (callType) {
@@ -155,6 +152,9 @@ public class TranscriptomicsGene extends GenericPortlet {
 				if (!keyword.equals("")) {
 					key.put("keyword", keyword);
 				}
+
+				response.setContentType("text/html");
+				PrintWriter writer = response.getWriter();
 
 				if (!sId.equals("")) {
 					key.put("sampleId", sId);
@@ -210,10 +210,8 @@ public class TranscriptomicsGene extends GenericPortlet {
 
 					List<Map> sdl = (List<Map>) respBody.get("docs");
 
-					for (Map doc : sdl) {
-						JSONObject item = new JSONObject();
-						item.putAll(doc);
-
+					for (final Map doc : sdl) {
+						final JSONObject item = new JSONObject(doc);
 						sample.add(item);
 					}
 				}
@@ -239,6 +237,7 @@ public class TranscriptomicsGene extends GenericPortlet {
 					sampleList += "," + ((JSONObject) sample.get(i)).get("pid");
 				}
 
+				JSONObject jsonResult = new JSONObject();
 				jsonResult.put(ExpressionDataCollection.CONTENT_SAMPLE + "Total", sample.size());
 				jsonResult.put(ExpressionDataCollection.CONTENT_SAMPLE, sample);
 				JSONArray expression = new JSONArray();
@@ -270,6 +269,9 @@ public class TranscriptomicsGene extends GenericPortlet {
 					key.put("fields", "pid,refseq_locus_tag,feature_id,log_ratio,z_score");
 
 					SolrQuery query = dataApi.buildSolrQuery(key, null, null, 0, -1, false);
+
+					LOGGER.trace("getTables: [{}] {}", SolrCore.TRANSCRIPTOMICS_GENE.getSolrCoreName(), query);
+
 					String apiResponse = dataApi.solrQuery(SolrCore.TRANSCRIPTOMICS_GENE, query);
 
 					Map resp = jsonReader.readValue(apiResponse);
@@ -277,10 +279,31 @@ public class TranscriptomicsGene extends GenericPortlet {
 
 					List<Map> sdl = (List<Map>) respBody.get("docs");
 
-					for (Map doc : sdl) {
-						JSONObject item = new JSONObject();
-						item.putAll(doc);
+					for (final Map doc : sdl) {
+						final JSONObject item = new JSONObject(doc);
 						expression.add(item);
+					}
+
+					// TODO: re-implement when data API removes limit 25k records
+					int start = 0;
+					int fetchedSize = sdl.size();
+					while (fetchedSize == 25000) {
+						start += 25000;
+						query.setStart(start);
+
+						LOGGER.trace("getTables: [{}] {}", SolrCore.TRANSCRIPTOMICS_GENE.getSolrCoreName(), query);
+
+						final String apiResponseSub = dataApi.solrQuery(SolrCore.TRANSCRIPTOMICS_GENE, query);
+						final Map respSub = jsonReader.readValue(apiResponseSub);
+						final Map respBodySub = (Map) respSub.get("response");
+
+						sdl = (List<Map>) respBodySub.get("docs");
+						fetchedSize = sdl.size();
+
+						for (final Map doc : sdl) {
+							final JSONObject item = new JSONObject(doc);
+							expression.add(item);
+						}
 					}
 				}
 
@@ -299,6 +322,7 @@ public class TranscriptomicsGene extends GenericPortlet {
 				jsonResult.put(ExpressionDataCollection.CONTENT_EXPRESSION, stats);
 
 				response.setContentType("application/json");
+				PrintWriter writer = response.getWriter();
 				jsonResult.writeJSONString(writer);
 				writer.close();
 
@@ -328,6 +352,8 @@ public class TranscriptomicsGene extends GenericPortlet {
 					LOGGER.error(es.getMessage(), es);
 				}
 
+				response.setContentType("text/html");
+				PrintWriter writer = response.getWriter();
 				if (action.equals("Run"))
 					writer.write(doCLustering(filename, output_filename, g, e, m, ge).toString());
 
@@ -374,6 +400,8 @@ public class TranscriptomicsGene extends GenericPortlet {
 				long pk = (new Random()).nextLong();
 				SessionHandler.getInstance().set(SessionHandler.PREFIX + pk, jsonWriter.writeValueAsString(key));
 
+				response.setContentType("text/html");
+				PrintWriter writer = response.getWriter();
 				writer.write("" + pk);
 				writer.close();
 
@@ -407,6 +435,7 @@ public class TranscriptomicsGene extends GenericPortlet {
 					}
 					results.add(a);
 					response.setContentType("application/json");
+					PrintWriter writer = response.getWriter();
 					results.writeJSONString(writer);
 					writer.close();
 				}
@@ -474,10 +503,11 @@ public class TranscriptomicsGene extends GenericPortlet {
 			sample.put(a.get("pid").toString(), a.get("expname").toString());
 		}
 
-		for (Object aData : data) {
+		for (final Object aData : data) {
 
-			JSONObject a = (JSONObject) aData;
+			final JSONObject a = (JSONObject) aData;
 			String id;
+
 			if (a.containsKey("feature_id")) {
 				id = (String) a.get("feature_id");
 			}
@@ -506,9 +536,9 @@ public class TranscriptomicsGene extends GenericPortlet {
 
 		JSONObject temp = new JSONObject();
 
-		for (Map.Entry<String, ExpressionDataGene> entry : genes.entrySet()) {
+		for (final Map.Entry<String, ExpressionDataGene> entry : genes.entrySet()) {
 
-			ExpressionDataGene value = entry.getValue();
+			final ExpressionDataGene value = entry.getValue();
 
 			JSONObject a = new JSONObject();
 
@@ -532,7 +562,7 @@ public class TranscriptomicsGene extends GenericPortlet {
 		featureIdList.remove(null);
 		p2FeatureIdList.remove(null);
 
-		LOGGER.trace("featureIdList[{}]: {}, p2FeatureIdList[{}]: {}", featureIdList.size(), featureIdList, p2FeatureIdList.size(), p2FeatureIdList);
+		LOGGER.trace("featureIdList[{}], p2FeatureIdList[{}]", featureIdList.size(), p2FeatureIdList.size());
 
 		SolrQuery query = new SolrQuery("*:*");
 		if (!featureIdList.isEmpty() && !p2FeatureIdList.isEmpty()) {
@@ -553,19 +583,17 @@ public class TranscriptomicsGene extends GenericPortlet {
 		query.setFields("feature_id,p2_feature_id,strand,product,accession,start,end,patric_id,alt_locus_tag,genome_name,gene");
 		query.setRows(featureIdList.size() + p2FeatureIdList.size());
 
-		LOGGER.trace("getExperimentStats:{}", query.toString());
+		LOGGER.trace("getExperimentStats:[{}] {}", SolrCore.FEATURE.getSolrCoreName(), query);
 
-		String apiResponse = dataApi.solrQuery(SolrCore.FEATURE, query);
+		final String apiResponse = dataApi.solrQuery(SolrCore.FEATURE, query);
 
-		Map resp = jsonReader.readValue(apiResponse);
-		Map respBody = (Map) resp.get("response");
+		final Map resp = jsonReader.readValue(apiResponse);
+		final Map respBody = (Map) resp.get("response");
 
-		List<GenomeFeature> features = dataApi.bindDocuments((List<Map>) respBody.get("docs"), GenomeFeature.class);
+		final List<GenomeFeature> features = dataApi.bindDocuments((List<Map>) respBody.get("docs"), GenomeFeature.class);
 
-		for (GenomeFeature feature : features) {
-			JSONObject json;
-
-			json = (JSONObject) temp.get(feature.getId());
+		for (final GenomeFeature feature : features) {
+			JSONObject json = (JSONObject) temp.get(feature.getId());
 			if (json == null) {
 				json = (JSONObject) temp.get("" + feature.getP2FeatureId());
 			}

@@ -52,7 +52,7 @@ public class DataApiHandler {
 
 	private String token;
 
-	public final int MAX_ROWS = 100000;
+	public final int MAX_ROWS = 1000000;
 
 	private final int timeout = 15 * 60 * 1000;
 
@@ -518,7 +518,7 @@ public class DataApiHandler {
 		query.setStart(start); // setting starting index
 
 		if (end == -1) {
-			query.setRows(500000);
+			query.setRows(this.MAX_ROWS);
 		}
 		else {
 			query.setRows(end);

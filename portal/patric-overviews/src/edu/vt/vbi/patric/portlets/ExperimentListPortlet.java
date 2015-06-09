@@ -373,7 +373,7 @@ public class ExperimentListPortlet extends GenericPortlet {
 
 		SolrQuery query = dataApi.buildSolrQuery(key, sort, facet, start, end, hl);
 
-		LOGGER.debug("[{}] {}", SolrCore.TRANSCRIPTOMICS_EXPERIMENT.getSolrCoreName(), query.toString());
+		LOGGER.trace("processExperimentTab: [{}] {}", SolrCore.TRANSCRIPTOMICS_EXPERIMENT.getSolrCoreName(), query);
 
 		String apiResponse = dataApi.solrQuery(SolrCore.TRANSCRIPTOMICS_EXPERIMENT, query);
 
@@ -425,6 +425,9 @@ public class ExperimentListPortlet extends GenericPortlet {
 			List<String> eIdList = new ArrayList<>();
 
 			SolrQuery query = dataApi.buildSolrQuery(key, null, facet, 0, 10000, false);
+
+			LOGGER.trace("processComparisonTab: [{}] {}", SolrCore.TRANSCRIPTOMICS_EXPERIMENT.getSolrCoreName(), query);
+
 			String apiResponse = dataApi.solrQuery(SolrCore.TRANSCRIPTOMICS_EXPERIMENT, query);
 
 			Map resp = jsonReader.readValue(apiResponse);
@@ -461,6 +464,8 @@ public class ExperimentListPortlet extends GenericPortlet {
 				"eid,expid,accession,pid,samples,expname,release_date,pmid,organism,strain,mutant,timepoint,condition,genes,sig_log_ratio,sig_z_score");
 
 		SolrQuery query = dataApi.buildSolrQuery(key, sort, null, start, end, false);
+
+		LOGGER.trace("processComparisonTab: [{}] {}", SolrCore.TRANSCRIPTOMICS_COMPARISON.getSolrCoreName(), query);
 
 		String apiResponse = dataApi.solrQuery(SolrCore.TRANSCRIPTOMICS_COMPARISON, query);
 
