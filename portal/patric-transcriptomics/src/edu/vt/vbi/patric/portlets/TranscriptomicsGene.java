@@ -456,7 +456,7 @@ public class TranscriptomicsGene extends GenericPortlet {
 				query.setFields(StringUtils.join(DownloadHelper.getFieldsForFeatures(), ","));
 				query.setRows(dataApi.MAX_ROWS);
 
-				LOGGER.debug("downloadFeatures: [{}] {}", SolrCore.FEATURE.getSolrCoreName(), query);
+				LOGGER.trace("downloadFeatures: [{}] {}", SolrCore.FEATURE.getSolrCoreName(), query);
 
 				final String apiResponse = dataApi.solrQuery(SolrCore.FEATURE, query);
 
