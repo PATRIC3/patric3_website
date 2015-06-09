@@ -56,7 +56,7 @@ String ENDPOINT = System.getProperty("polyomic.baseUrl", "https://www.patricbrc.
 			if (feature.hasPathway()) {
 				for (String pw : feature.getPathway()) {
 					String[] items = pw.split("\\|");
-					%><a href="CompPathwayMap?cType=genome&amp;cId=<%=feature.getGenomeId() %>&amp;dm=feature&amp;feature_id=<%=feature.getId() %>&amp;map=<%=items[0] %>&amp;algorithm=<%=feature.getAnnotation() %>&amp;ec_number="><%="KEGG:"+items[0] %></a> <%=items[1] %><br /><%
+					%><a href="CompPathwayMap?cType=genome&amp;cId=<%=feature.getGenomeId() %>&amp;dm=feature&amp;feature_id=<%=feature.getId() %>&amp;map=<%=items[0] %>&amp;algorithm=<%=feature.getAnnotation() %>&amp;ec_number=" target="_blank"><%="KEGG:"+items[0] %></a> <%=items[1] %><br /><%
 				}
 			} else {
 				%>-<%
@@ -205,7 +205,9 @@ function submitFigfam(id) {
 			figfam: id
 		},
 		success: function(rs) {
-			document.location.href = "SingleFIGfam?"+"&cType=taxon&cId=131567&bm=tool&pk="+rs.responseText;
+			var win = window.open("SingleFIGfam?"+"&cType=taxon&cId=131567&bm=tool&pk="+rs.responseText, '_blank');
+			win.focus();
+//			document.location.href = "SingleFIGfam?"+"&cType=taxon&cId=131567&bm=tool&pk="+rs.responseText;
 		}
 	});	
 }
