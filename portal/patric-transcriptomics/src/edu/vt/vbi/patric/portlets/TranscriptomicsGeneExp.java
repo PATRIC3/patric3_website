@@ -200,15 +200,10 @@ public class TranscriptomicsGeneExp extends GenericPortlet {
 			}
 
 			query.setRows(dataApi.MAX_ROWS);
-			query.setFacet(true);
-			query.set("facet.range.other", "before");
-			query.set("facet.range.other", "after");
-			query.addNumericRangeFacet("log_ratio", -2, 2, 0.5);
-			query.addNumericRangeFacet("z_score", -2, 2, 0.5);
-			query.setFacetMinCount(1);
-			query.addFacetField("strain");
-			query.addFacetField("mutant");
-			query.addFacetField("condition");
+			query.setFacet(true).setFacetMinCount(1).set("json.nl", "map");
+			query.set("facet.range.other", "before").add("facet.range.other", "after");
+			query.addNumericRangeFacet("log_ratio", -2, 2, 0.5).addNumericRangeFacet("z_score", -2, 2, 0.5);
+			query.addFacetField("strain").addFacetField("mutant").addFacetField("condition");
 
 			LOGGER.debug("[{}] {}", SolrCore.TRANSCRIPTOMICS_GENE.getSolrCoreName(), query.toString());
 
@@ -253,28 +248,89 @@ public class TranscriptomicsGeneExp extends GenericPortlet {
 			Map facetRanges = (Map) facets.get("facet_ranges");
 
 			if (facetRanges.containsKey("log_ratio")) {
-				List facetLogRatio = (List) ((Map) facetRanges.get("log_ratio")).get("counts");
+				Map facetLogRatio = (Map) facetRanges.get("log_ratio");
+				final int before = (Integer) facetLogRatio.get("before");
+				final int after = (Integer) facetLogRatio.get("after");
+				Map facetRangeLogRatio = (Map) facetLogRatio.get("counts");
+
 				List<JSONObject> list = new ArrayList<>();
-				for (int i = 0; i < facetLogRatio.size(); i = i + 2) {
+
+				for (Map.Entry<String, Integer> entry : (Iterable<Map.Entry>) facetRangeLogRatio.entrySet()) {
 					JSONObject json = new JSONObject();
-					json.put("category", facetLogRatio.get(i));
-					json.put("count", facetLogRatio.get(i+1));
+					json.put("category", entry.getKey());
+					json.put("count", entry.getValue());
 
 					list.add(json);
 				}
+
+				boolean hasMinBucket = false;
+				boolean hasMaxBucket = false;
+				for (JSONObject entry : list) {
+					if (entry.get("category").equals("-2.0")) {
+						entry.put("count", ((Integer) entry.get("count") + before));
+						hasMinBucket = true;
+					}
+					else if (entry.get("category").equals("2.0")) {
+						entry.put("count", ((Integer) entry.get("count") + after));
+						hasMaxBucket = true;
+					}
+				}
+				if (!hasMinBucket) {
+					JSONObject json = new JSONObject();
+					json.put("category", "-2.0");
+					json.put("count", before);
+					list.add(json);
+				}
+				if (!hasMaxBucket) {
+					JSONObject json = new JSONObject();
+					json.put("category", "2.0");
+					json.put("count", after);
+					list.add(json);
+				}
+
 				jsonResult.put("log_ratio", list);
 			}
 
 			if (facetRanges.containsKey("z_score")) {
-				List facetZscore = (List) ((Map) facetRanges.get("z_score")).get("counts");
+				Map facetZscore = (Map) facetRanges.get("z_score");
+				final int before = (Integer) facetZscore.get("before");
+				final int after = (Integer) facetZscore.get("after");
+				Map facetRangeZscore = (Map) facetZscore.get("counts");
+
 				List<JSONObject> list = new ArrayList<>();
-				for (int i = 0; i < facetZscore.size(); i = i + 2) {
+				for (Map.Entry<String, Integer> entry : (Iterable<Map.Entry>) facetRangeZscore.entrySet()) {
 					JSONObject json = new JSONObject();
-					json.put("category", facetZscore.get(i));
-					json.put("count", facetZscore.get(i+1));
+					json.put("category", entry.getKey());
+					json.put("count", entry.getValue());
 
 					list.add(json);
 				}
+
+				boolean hasMinBucket = false;
+				boolean hasMaxBucket = false;
+				for (JSONObject entry : list) {
+					if (entry.get("category").equals("-2.0")) {
+						entry.put("count", ((Integer) entry.get("count") + before));
+						hasMinBucket = true;
+					}
+					else if (entry.get("category").equals("2.0")) {
+						entry.put("count", ((Integer) entry.get("count") + after));
+						hasMaxBucket = true;
+					}
+				}
+				if (!hasMinBucket) {
+					JSONObject json = new JSONObject();
+					json.put("category", "-2.0");
+					json.put("count", before);
+					list.add(json);
+				}
+				if (!hasMaxBucket) {
+					JSONObject json = new JSONObject();
+					json.put("category", "2.0");
+					json.put("count", after);
+					list.add(json);
+				}
+
 				jsonResult.put("z_score", list);
 			}
 
@@ -282,12 +338,12 @@ public class TranscriptomicsGeneExp extends GenericPortlet {
 
 			// strain
 			if (facetFields.containsKey("strain")) {
-				List facetStrain = (List) facetFields.get("strain");
+				Map facetStrain = (Map) facetFields.get("strain");
 				List<JSONObject> list = new ArrayList<>();
-				for (int i = 0; i < facetStrain.size(); i = i + 2) {
+				for (Map.Entry<String, Integer> entry : (Iterable<Map.Entry>) facetStrain.entrySet()) {
 					JSONObject json = new JSONObject();
-					json.put("category", facetStrain.get(i));
-					json.put("count", facetStrain.get(i + 1));
+					json.put("category", entry.getKey());
+					json.put("count", entry.getValue());
 
 					list.add(json);
 				}
@@ -296,12 +352,12 @@ public class TranscriptomicsGeneExp extends GenericPortlet {
 
 			// mutant
 			if (facetFields.containsKey("mutant")) {
-				List facetMutant = (List) facetFields.get("mutant");
+				Map facetMutant = (Map) facetFields.get("mutant");
 				List<JSONObject> list = new ArrayList<>();
-				for (int i = 0; i < facetMutant.size(); i = i + 2) {
+				for (Map.Entry<String, Integer> entry : (Iterable<Map.Entry>) facetMutant.entrySet()) {
 					JSONObject json = new JSONObject();
-					json.put("category", facetMutant.get(i));
-					json.put("count", facetMutant.get(i + 1));
+					json.put("category", entry.getKey());
+					json.put("count", entry.getValue());
 
 					list.add(json);
 				}
@@ -310,12 +366,12 @@ public class TranscriptomicsGeneExp extends GenericPortlet {
 
 			// condition
 			if (facetFields.containsKey("condition")) {
-				List facetCondition = (List) facetFields.get("condition");
+				Map facetCondition = (Map) facetFields.get("condition");
 				List<JSONObject> list = new ArrayList<>();
-				for (int i = 0; i < facetCondition.size(); i = i + 2) {
+				for (Map.Entry<String, Integer> entry : (Iterable<Map.Entry>) facetCondition.entrySet()) {
 					JSONObject json = new JSONObject();
-					json.put("category", facetCondition.get(i));
-					json.put("count", facetCondition.get(i + 1));
+					json.put("category", entry.getKey());
+					json.put("count", entry.getValue());
 
 					list.add(json);
 				}
