@@ -271,7 +271,7 @@ public class FacetHelper {
 			query.setFilterQueries(fq);
 		}
 
-		query.setStart(0).setRows(1).setFacet(true).setFacetMinCount(1);
+		query.setStart(0).setRows(1).setFacet(true).setFacetMinCount(1).set("json.nl", "map");
 
 		for (String facet : facets) {
 			if (!facet.equals("completion_date") && !facet.equals("release_date")) {
@@ -297,7 +297,7 @@ public class FacetHelper {
 	public static JSONObject formatFacetTree(Map facet) {
 		JSONObject result = new JSONObject();
 
-		Map<String, Object> fieldFacets = (Map<String, Object>) facet.get("facet_fields");
+		Map<String, Object> fieldFacets = (Map) facet.get("facet_fields");
 
 		for (Map.Entry fieldFacet : fieldFacets.entrySet()) {
 
@@ -305,21 +305,18 @@ public class FacetHelper {
 			int count = 0;
 			JSONArray attributes = new JSONArray();
 
-			List facetEntries = (ArrayList) fieldFacet.getValue();
+			Map<String, Integer> facetEntries = (Map) fieldFacet.getValue();
 			if (facetEntries != null) {
 
-				// LOGGER.trace("facet_field: {}, entries:{}", fieldFacet.getKey(), facetEntries);
-				for (int i = 0; i < facetEntries.size(); i = i + 2) {
-					String entryName = (String) facetEntries.get(i);
-					Integer entryCount = (Integer) facetEntries.get(i + 1);
+				for (Map.Entry<String, Integer> entry : facetEntries.entrySet()) {
 
 					JSONObject attribute = new JSONObject();
-					attribute.put("text", entryName + " <span>(" + entryCount + ")</span>");
-					attribute.put("value", entryName);
-					attribute.put("count", entryCount);
+					attribute.put("text", entry.getKey() + " <span>(" + entry.getValue() + ")</span>");
+					attribute.put("value", entry.getKey());
+					attribute.put("count", entry.getValue());
 
 					attributes.add(attribute);
-					count += entryCount;
+					count += entry.getValue();
 				}
 			}
 
@@ -340,28 +337,26 @@ public class FacetHelper {
 			int count = 0;
 			JSONArray attributes = new JSONArray();
 
-			List rangeEntries = (ArrayList) ((Map<String, Object>) rangeFacet.getValue()).get("counts");
+			Map<String, Integer> rangeEntries = (Map) ((Map<String, Object>) rangeFacet.getValue()).get("counts");
 			if (rangeEntries != null) {
 
-				// LOGGER.trace("facet_range: {}, entries:{}", rangeFacet.getKey(), rangeEntries);
-				for (int i = 0; i < rangeEntries.size(); i = i + 2) {
+				for (Map.Entry<String, Integer> entry : rangeEntries.entrySet()) {
 					String entryName;
 					if (yearRoundUpFields.contains(rangeFacet.getKey())) {
-						entryName = ((String) rangeEntries.get(i)).substring(0, 4);
+						entryName = (entry.getKey()).substring(0, 4);
 					}
 					else {
-						entryName = (String) rangeEntries.get(i);
+						entryName = entry.getKey();
 					}
-					Integer entryCount = (Integer) rangeEntries.get(i + 1);
 
-					if (entryCount > 0) {
+					if (entry.getValue() > 0) {
 						JSONObject attribute_json = new JSONObject();
-						attribute_json.put("text", entryName + " <span>(" + entryCount + ")</span>");
+						attribute_json.put("text", entryName + " <span>(" + entry.getValue() + ")</span>");
 						attribute_json.put("value", entryName);
-						attribute_json.put("count", entryCount);
+						attribute_json.put("count", entry.getValue());
 
 						attributes.add(attribute_json);
-						count += entryCount;
+						count += entry.getValue();
 					}
 				}
 			}

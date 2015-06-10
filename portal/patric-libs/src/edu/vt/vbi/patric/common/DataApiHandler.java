@@ -52,9 +52,9 @@ public class DataApiHandler {
 
 	private String token;
 
-	public final int MAX_ROWS = 1000000;
+	public static final int MAX_ROWS = 1000000;
 
-	private final int timeout = 15 * 60 * 1000;
+	public static final int timeout = 15 * 60 * 1000;
 
 	private ObjectReader jsonParser;
 
@@ -158,6 +158,7 @@ public class DataApiHandler {
 		catch (HttpResponseException e) {
 			if (e.getMessage().equals("Unauthorized")) {
 				// handle unauthorized case
+				LOGGER.debug(e.getMessage());
 			}
 			else {
 				LOGGER.error(e.getMessage(), e);
@@ -370,7 +371,7 @@ public class DataApiHandler {
 		if (filterParam != null) {
 			query.addFilterQuery(filterParam);
 		}
-		query.setRows(0).setFacet(true).setFacetLimit(-1).setFacetMinCount(1).setFacetSort(FacetParams.FACET_SORT_COUNT);
+		query.setRows(0).setFacet(true).setFacetLimit(-1).setFacetMinCount(1).setFacetSort(FacetParams.FACET_SORT_COUNT).set("json.nl", "map");
 		query.addFacetField(facetFields.split(","));
 
 		List<String> fields = Arrays.asList(facetFields.split(","));
@@ -382,12 +383,11 @@ public class DataApiHandler {
 
 		Map<String, Object> facets = new HashMap<>();
 		for (String field : fields) {
-			List values = (List) facet_fields.get(field);
-
+			Map values = (Map) facet_fields.get(field);
 			Map<String, Integer> facetValues = new LinkedHashMap<>();
 
-			for (int i = 0; i < values.size(); i = i + 2) {
-				facetValues.put(values.get(i).toString(), (Integer) values.get(i + 1));
+			for (Map.Entry<String, Integer> entry : (Iterable<Map.Entry>) values.entrySet()) {
+				facetValues.put(entry.getKey(), entry.getValue());
 			}
 
 			facets.put(field, facetValues);
@@ -423,13 +423,13 @@ public class DataApiHandler {
 		String response = this.solrQuery(core, query);
 		Map<String, Object> resp = jsonParser.readValue(response);
 		Map facet_fields = (Map) ((Map) resp.get("facet_counts")).get("facet_pivot");
-		List<Map> values = (List<Map>) facet_fields.get(facetFields);
+		List<Map> values = (List) facet_fields.get(facetFields);
 
 		Map<String, Object>  facet = new LinkedHashMap<>();
 
-		for (Map<String, Object> value : values) {
+		for (Map value : values) {
 			String localKey = value.get("value").toString();
-			List<Map> localValues = (List<Map>) value.get("pivot");
+			List<Map> localValues = (List) value.get("pivot");
 
 			Map<String, Integer> pivotValues = new LinkedHashMap<>();
 			for (Map local : localValues) {
@@ -485,7 +485,7 @@ public class DataApiHandler {
 
 		// facet conditions
 		if (facets != null && !facets.equals("") && !facets.equals("{}")) {
-			query.setFacet(true).setFacetMinCount(1).setFacetLimit(-1).setFacetSort(FacetParams.FACET_SORT_COUNT);
+			query.setFacet(true).setFacetMinCount(1).setFacetLimit(-1).setFacetSort(FacetParams.FACET_SORT_COUNT).set("json.nl", "map");
 
 			try {
 				JSONObject facetConditions = (JSONObject) new JSONParser().parse(facets);
@@ -518,7 +518,7 @@ public class DataApiHandler {
 		query.setStart(start); // setting starting index
 
 		if (end == -1) {
-			query.setRows(this.MAX_ROWS);
+			query.setRows(MAX_ROWS);
 		}
 		else {
 			query.setRows(end);
