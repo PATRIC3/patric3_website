@@ -53,8 +53,8 @@ Ext.onReady(function () {
 		fields: [
 			{name:'pathway_id',	type:'string'},
 			{name:'pathway_name',	type:'string'},
-			{name:'ocnt',	type:'string'},
-			{name:'ecnt',	type:'string'},
+			{name:'ocnt',	type:'int'},
+			{name:'ecnt',	type:'int'},
 			{name:'percentage',	type:'float'}
 			]
 		});
