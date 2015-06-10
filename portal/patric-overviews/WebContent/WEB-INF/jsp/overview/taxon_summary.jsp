@@ -128,6 +128,7 @@ function AppendData(data){
 		for(var j=0; j < obj.children.length; j++){
 		
 			var text = obj.children[j].text;
+			var value = (obj.children[j].id).split("##")[0];
 			
 			var ind1 = obj.children[j].text.indexOf(">(");
 			var ind2 = obj.children[j].text.indexOf(")</span>");
@@ -135,16 +136,16 @@ function AppendData(data){
 			
 			var count = obj.children[j].text.substring(ind1+2, ind2);
 			
-			var newtext = "<a href=\"javascript:GotoGenomeList('"+obj.id+"', '"+text.substring(0, ind3).trim()+"', '"+text.substring(ind1+2, ind2)+"','single')\">"+count+"</a>";
+			var newText = "<a href=\"javascript:GotoGenomeList('" + obj.id + "', '" + value + "', '" + text.substring(ind1+2, ind2) + "','single')\">" + count + "</a>";
 			
 			if (obj.children.length == 1 && j == 0) {
-				cell1.innerHTML += text.substring(0, ind3)+" ("+newtext+")";
+				cell1.innerHTML += text.substring(0, ind3) + " (" + newText + ")";
 			}
 			else if (j < 2) {
-				cell1.innerHTML += text.substring(0, ind3)+" ("+newtext+")" + ", &nbsp;";
+				cell1.innerHTML += text.substring(0, ind3) + " (" + newText + ")" + ", &nbsp;";
 			}
 			else if (j == 2) {
-				cell1.innerHTML += "<a href=\"javascript:GotoGenomeList('"+obj.id+"', '*', '*','all')\"><u>show all "+obj.text.substring(ind1_parent+4, ind2_parent)+" genomes</u></a>";
+				cell1.innerHTML += "<a href=\"javascript:GotoGenomeList('" + obj.id + "', '*', '*','all')\"><u>show all " + obj.text.substring(ind1_parent+4, ind2_parent) + " genomes</u></a>";
 			}
 			
 			if (obj.children.length == 2 && j == 1) {
@@ -183,7 +184,7 @@ function GotoGenomeList(search_on, keyword, count, type)
 		},
 		success: function(rs) {
 			//relocate to result page
-			document.location.href="GenomeList?cType=taxon&cId="+<%=tId%>+"&displayMode=&dataSource=&pk="+rs.responseText;
+			document.location.href = "GenomeList?cType=taxon&cId=" + <%=tId%> + "&displayMode=&dataSource=&pk=" + rs.responseText;
 		}
 	});
 

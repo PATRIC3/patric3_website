@@ -593,8 +593,8 @@ Ext.define('SpecialtyGeneMapping', {
 
 var configuration = {};
 configuration['Genome'] = {
-	display_facets : ['genome_status', 'reference_genome', 'antimicrobial_resistance', 'antimicrobial_resistance_evidence', 'isolation_country', 'host_name', 'disease', 'collection_date', 'completion_date', 'public'],
-	display_facets_texts : ['Genome Status', 'Reference Genome', 'Antimicrobial Resistance', 'Antimicrobial Resistance Evidence', 'Isolation Country', 'Host Name', 'Disease', 'Collection Date', 'Completion Date', 'Public'],
+	display_facets : ['public', 'genome_status', 'reference_genome', 'antimicrobial_resistance', 'antimicrobial_resistance_evidence', 'isolation_country', 'host_name', 'disease', 'collection_date', 'completion_date'],
+	display_facets_texts : ['Public', 'Genome Status', 'Reference Genome', 'Antimicrobial Resistance', 'Antimicrobial Resistance Evidence', 'Isolation Country', 'Host Name', 'Disease', 'Collection Date', 'Completion Date'],
 	all_facets : ['Keyword', 'genome_status', 'reference_genome', 'antimicrobial_resistance', 'antimicrobial_resistance_evidence', 'isolation_country', 'host_name', 'disease', 'collection_date', 'completion_date', 'public', 'genome_id', 'genome_name', 'annotation', 'taxon_id'],
 	field_facets : ['genome_status', 'reference_genome', 'antimicrobial_resistance', 'antimicrobial_resistance_evidence', 'isolation_country', 'host_name', 'disease', 'collection_date', 'public'],
 	date_range_facets : ['completion_date'],

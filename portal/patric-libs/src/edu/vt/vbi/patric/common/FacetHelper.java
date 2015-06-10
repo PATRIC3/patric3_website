@@ -28,10 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.portlet.PortletException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class FacetHelper {
 
@@ -40,6 +37,18 @@ public class FacetHelper {
 	private static ObjectMapper objectMapper = new ObjectMapper();
 
 	private static ObjectReader jsonMapReader = objectMapper.reader(Map.class);
+
+	// TODO: implement solr query level aliasing. For now we will map the result
+	private static final Map<String, Map> fieldFacetResultMap;
+	static
+	{
+		Map<String, String> fieldPublic = new HashMap<>();
+		fieldPublic.put("true", "Public");
+		fieldPublic.put("false", "Private");
+
+		fieldFacetResultMap = new HashMap<>();
+		fieldFacetResultMap.put("public", fieldPublic);
+	}
 
 	public static JSONArray processStateAndTree(DataApiHandler dataApi, SolrCore core, Map<String, String> key, String need, JSONObject facet_fields,
 			String facet, String state, String fq, int limit) throws PortletException, IOException {
@@ -308,15 +317,32 @@ public class FacetHelper {
 			Map<String, Integer> facetEntries = (Map) fieldFacet.getValue();
 			if (facetEntries != null) {
 
-				for (Map.Entry<String, Integer> entry : facetEntries.entrySet()) {
+				if (fieldFacetResultMap.containsKey(fieldFacet.getKey())) {
+					// use mapping result instead of real value
+					Map<String, String> fieldValue = fieldFacetResultMap.get(fieldFacet.getKey());
 
-					JSONObject attribute = new JSONObject();
-					attribute.put("text", entry.getKey() + " <span>(" + entry.getValue() + ")</span>");
-					attribute.put("value", entry.getKey());
-					attribute.put("count", entry.getValue());
+					for (Map.Entry<String, Integer> entry : facetEntries.entrySet()) {
 
-					attributes.add(attribute);
-					count += entry.getValue();
+						JSONObject attribute = new JSONObject();
+						attribute.put("text", fieldValue.get(entry.getKey()) + " <span>(" + entry.getValue() + ")</span>");
+						attribute.put("value", entry.getKey());
+						attribute.put("count", entry.getValue());
+
+						attributes.add(attribute);
+						count += entry.getValue();
+					}
+				}
+				else {
+					for (Map.Entry<String, Integer> entry : facetEntries.entrySet()) {
+
+						JSONObject attribute = new JSONObject();
+						attribute.put("text", entry.getKey() + " <span>(" + entry.getValue() + ")</span>");
+						attribute.put("value", entry.getKey());
+						attribute.put("count", entry.getValue());
+
+						attributes.add(attribute);
+						count += entry.getValue();
+					}
 				}
 			}
 
