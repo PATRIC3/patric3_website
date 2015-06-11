@@ -30,6 +30,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 public class CorrelationQParserPlugin extends QParserPlugin {
 
@@ -145,6 +147,8 @@ public class CorrelationQParserPlugin extends QParserPlugin {
 
 		private Map<StringKey, Float> data;
 
+		private Map<String, Float> referenceData;
+
 		private Set<String> targets;
 
 		public CorrelationCollector(ResponseBuilder rb, SolrIndexSearcher searcher, String srcId, String filterCutOff, String filterDirection, String fieldId, String fieldCondition, String fieldValue)
@@ -168,8 +172,9 @@ public class CorrelationQParserPlugin extends QParserPlugin {
 
 			this.ids = DocValues.getSorted(searcher.getLeafReader(), this.fieldId);
 
-			this.data = new HashMap<>();
-			this.targets = new HashSet<>();
+			this.data = new ConcurrentHashMap<>();
+			this.referenceData = new ConcurrentHashMap<>();
+			this.targets = new ConcurrentSkipListSet<>();
 		}
 
 		public void doSetNextReader(LeafReaderContext context) throws IOException {
@@ -187,11 +192,15 @@ public class CorrelationQParserPlugin extends QParserPlugin {
 			if (ordId > -1) {
 
 				String id = ids.lookupOrd(ordId).utf8ToString();
+				String strCondition = "" + condition;
 
 //				LOGGER.info("refseq_locus_tag: {}, pid: {}, log_ratio: {}", id, condition, value);
 
 				targets.add(id);
-				data.put(new StringKey(id, "" + condition), value);
+				data.put(new StringKey(id, strCondition), value);
+				if (id.equals(srcId)) {
+					referenceData.put(strCondition, value);
+				}
 			}
 		}
 
@@ -202,28 +211,22 @@ public class CorrelationQParserPlugin extends QParserPlugin {
 
 			long start = System.currentTimeMillis();
 
-			// populate refHash
-			Map<String, Float> refHash = new HashMap<>();
-			for (Map.Entry<StringKey, Float> entry : data.entrySet()) {
-				if (entry.getKey().equalFirstKey(srcId)) {
-					refHash.put(entry.getKey().getSecondKey(), entry.getValue());
-				}
-			}
-
 			// calculate correlations;
 			long cntTarget = 0;
-			int conditionCufOff = (int) Math.round(0.8 * refHash.size());
+			int referenceDataSize = referenceData.size();
+			int conditionCufOff = (int) Math.round(0.8 * referenceDataSize);
+
 			for (String target : targets) {
 
-				RealMatrix matrix = new Array2DRowRealMatrix(refHash.size(), 2);
-				Iterator<String> itKeys = refHash.keySet().iterator();
+				RealMatrix matrix = new Array2DRowRealMatrix(referenceDataSize, 2);
+				Iterator<String> itKeys = referenceData.keySet().iterator();
 				int rows = 0;
 				for (int i = 0; itKeys.hasNext(); i++) {
 					String key = itKeys.next();
 					StringKey strKey = new StringKey(target, key);
 
 					if (data.containsKey(strKey)) {
-						matrix.addToEntry(i, 0, refHash.get(key));
+						matrix.addToEntry(i, 0, referenceData.get(key));
 						matrix.addToEntry(i, 1, data.get(strKey));
 						rows++;
 					}
@@ -265,35 +268,26 @@ public class CorrelationQParserPlugin extends QParserPlugin {
 
 	@SuppressWarnings("CanBeFinal")
 	class StringKey {
-		private String str1;
+		private final String str1;
 
-		private String str2;
+		private final String str2;
 
 		@Override
 		public boolean equals(Object obj) {
-			if (obj != null && obj instanceof StringKey) {
-				StringKey s = (StringKey) obj;
-				return str1.equals(s.str1) && str2.equals(s.str2);
-			}
-			return false;
+			if (obj == null || !(obj instanceof StringKey)) return false;
+
+			StringKey s = (StringKey) obj;
+			return str1.equals(s.str1) && str2.equals(s.str2);
 		}
 
 		@Override
 		public int hashCode() {
-			return (str1 + str2).hashCode();
+			return (str2 + str1).hashCode();
 		}
 
 		public StringKey(String str1, String str2) {
 			this.str1 = str1;
 			this.str2 = str2;
-		}
-
-		public boolean equalFirstKey(String str) {
-			return str1.equalsIgnoreCase(str);
-		}
-
-		public String getSecondKey() {
-			return str2;
 		}
 	}
 }
