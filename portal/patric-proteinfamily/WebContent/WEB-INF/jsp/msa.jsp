@@ -39,6 +39,7 @@ if (key != null) {
 }
 %>
 
+<script type="text/javascript" src="/node_modules/msa-tnt/node_modules/d3/d3.min.js"></script>
 <script type="text/javascript" src="/js/msa/msa.min.js"></script>
 <script type="text/javascript" src="<%=nameSpaceAids%>"></script>
 <script type="text/javascript" src="<%=runBrowser%>"></script>
