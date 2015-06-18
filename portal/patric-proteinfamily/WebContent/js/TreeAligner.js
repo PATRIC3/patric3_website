@@ -167,14 +167,14 @@ function insertMSAJS(windowID, ajaxHttp) {
     msaTree = new mt.adapters.msa({
       model: nodes,
       sel: sel,
-      msa: this.m
+      msa: m
     });
     _.each(nodes.models, function(e) {
       delete e.collection;
       //return Object.setPrototypeOf(e, require("backbone-thin").Model.prototype);
     });
-    this.m.seqs.reset(nodes.models);
-    console.log(this.m.seqs);
+    m.seqs.reset(nodes.models);
+    console.log(m.seqs);
 
     // search in URL for fasta or clustal
     function getURLParameter(name) {
