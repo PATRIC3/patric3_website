@@ -13,7 +13,6 @@ import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.apache.lucene.index.DocValues;
-import org.apache.lucene.index.LeafReaderContext;
 import org.apache.lucene.index.SortedDocValues;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
@@ -30,8 +29,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListSet;
 
 public class CorrelationQParserPlugin extends QParserPlugin {
 
@@ -125,10 +122,6 @@ public class CorrelationQParserPlugin extends QParserPlugin {
 	class CorrelationCollector extends DelegatingCollector {
 		ResponseBuilder rb;
 
-		private int docBase;
-
-		private LeafReaderContext[] contexts;
-
 		private SortedDocValues ids;
 
 		private UninvertingReader uninvertingReader;
@@ -154,8 +147,6 @@ public class CorrelationQParserPlugin extends QParserPlugin {
 		public CorrelationCollector(ResponseBuilder rb, SolrIndexSearcher searcher, String srcId, String filterCutOff, String filterDirection, String fieldId, String fieldCondition, String fieldValue)
 				throws IOException {
 
-			int segments = searcher.getTopReaderContext().leaves().size();
-			this.contexts = new LeafReaderContext[segments];
 			this.rb = rb;
 			this.srcId = srcId;
 			this.filterCutOff = Double.parseDouble(filterCutOff);
@@ -172,26 +163,24 @@ public class CorrelationQParserPlugin extends QParserPlugin {
 
 			this.ids = DocValues.getSorted(searcher.getLeafReader(), this.fieldId);
 
-			this.data = new ConcurrentHashMap<>();
-			this.referenceData = new ConcurrentHashMap<>();
-			this.targets = new ConcurrentSkipListSet<>();
+			this.data = new LinkedHashMap<>();
+			this.referenceData = new HashMap<>();
+			this.targets =  new HashSet<>();
 		}
 
-		public void doSetNextReader(LeafReaderContext context) throws IOException {
-			this.contexts[context.ord] = context;
-			this.docBase = context.docBase;
-		}
-
+		@Override
 		public void collect(int contextDoc) throws IOException {
+
 			int globalDoc = contextDoc + this.docBase;
 
 			int ordId = ids.getOrd(globalDoc);
-			int condition = uninvertingReader.document(globalDoc).getField(fieldCondition).numericValue().intValue();
-			float value = uninvertingReader.document(globalDoc).getField(fieldValue).numericValue().floatValue();
 
 			if (ordId > -1) {
 
 				String id = ids.lookupOrd(ordId).utf8ToString();
+				int condition = uninvertingReader.document(globalDoc).getField(fieldCondition).numericValue().intValue();
+				float value = uninvertingReader.document(globalDoc).getField(fieldValue).numericValue().floatValue();
+
 				String strCondition = "" + condition;
 
 //				LOGGER.info("refseq_locus_tag: {}, pid: {}, log_ratio: {}", id, condition, value);
@@ -204,6 +193,7 @@ public class CorrelationQParserPlugin extends QParserPlugin {
 			}
 		}
 
+		@Override
 		public void finish() throws IOException {
 
 			ArrayList<NamedList> correlations = new ArrayList<>();
@@ -219,15 +209,13 @@ public class CorrelationQParserPlugin extends QParserPlugin {
 			for (String target : targets) {
 
 				RealMatrix matrix = new Array2DRowRealMatrix(referenceDataSize, 2);
-				Iterator<String> itKeys = referenceData.keySet().iterator();
 				int rows = 0;
-				for (int i = 0; itKeys.hasNext(); i++) {
-					String key = itKeys.next();
-					StringKey strKey = new StringKey(target, key);
+				for (Map.Entry<String, Float> entry : referenceData.entrySet()) {
+					StringKey strKey = new StringKey(target, entry.getKey());
 
 					if (data.containsKey(strKey)) {
-						matrix.addToEntry(i, 0, referenceData.get(key));
-						matrix.addToEntry(i, 1, data.get(strKey));
+						matrix.addToEntry(rows, 0, entry.getValue());
+						matrix.addToEntry(rows, 1, data.get(strKey));
 						rows++;
 					}
 				}
@@ -260,9 +248,7 @@ public class CorrelationQParserPlugin extends QParserPlugin {
 			LOGGER.info("{} ms, for {} with conditions >= {}: {} correlations out of {} datapoints",
 					(end - start), srcId, conditionCufOff, cntTarget, formatter.format((long)data.size()));
 
-			if (this.delegate instanceof DelegatingCollector) {
-				((DelegatingCollector) this.delegate).finish();
-			}
+			super.finish();
 		}
 	}
 
@@ -282,7 +268,7 @@ public class CorrelationQParserPlugin extends QParserPlugin {
 
 		@Override
 		public int hashCode() {
-			return (str2 + str1).hashCode();
+			return str2.concat(str1).hashCode();
 		}
 
 		public StringKey(String str1, String str2) {
