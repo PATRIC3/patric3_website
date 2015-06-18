@@ -58,7 +58,7 @@
 				</article>
 			</div>
 			<div class="column has-border">
-				<div class="wrapper">
+				<div class="wrapper"><%--
 					<form>
 						<h2 class="wp-headline light sans-alternate" id="form_headline">BLAST against all Bacteria</h2>
 						<div class="metal-select-container far">
@@ -71,7 +71,7 @@
 						<br /> <input class="button upper smallest bold highlight" type="button" value="Blast" onclick="submitBlast();" />
 						<a href="/portal/portal/patric/Blast?dm=results&amp;pk=">Advanced Blast</a>
 					</form>
-					<hr class="img-hr-third far2x" />
+					<hr class="img-hr-third far2x" />--%>
 					<h3 class="wp-headline light sans-alternate upper close2x"
 						id="word_cloud_headline">What are users viewing now?</h3>
 					<ul id="bacteriaCloud" class="wordcloud inline no-underline-links no-decoration center-text"></ul>
