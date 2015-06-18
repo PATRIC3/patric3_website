@@ -153,7 +153,6 @@ function insertMSAJS(windowID, ajaxHttp) {
     m.g.trigger("url:userImport");
     sel= new mt.selections();
     treeDiv =document.getElementById("treeDiv");
-    this.m.g.vis.set("treeDivLoaded", true); 
     nodes = mt.app({
       seqs: m.seqs.toJSON(),
       tree: msa_models.tree
