@@ -112,6 +112,10 @@ function insertMSAJS(windowID, ajaxHttp) {
 
     // this is a way how you use a bundled file parser
     var msa = require("msa");
+    var msa_models = {
+            seqs: msa.io.clustal.parse(inputData.clustal),
+            tree: newick.parse_newick(inputData.tree)
+    };
         
     var opts = {};
     // set your custom properties
