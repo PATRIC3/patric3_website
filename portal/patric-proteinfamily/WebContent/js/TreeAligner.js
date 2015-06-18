@@ -100,6 +100,7 @@ function insertMSAJS(windowID, ajaxHttp) {
     menuDiv.setAttribute("id", "menuDiv");
     var combineDiv =  document.createElement("div");
     combineDiv.style.width="100%";
+    combineDiv.setAttribute("id", "combineDiv");
     var msaDiv = document.createElement("div")
     msaDiv.setAttribute("id", "msaDiv");
     var treeDiv =  document.createElement("div");
