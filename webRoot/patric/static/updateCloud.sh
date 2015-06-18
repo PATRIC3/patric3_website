@@ -1,5 +1,4 @@
-cd /opt/jboss-patric/jboss-deploy/deploy/jboss-web.deployer/ROOT.war/patric/static
-#cd /Users/hyun/Applications/jboss-epp-4.3/jboss-as/server/patric/deploy/jboss-web.deployer/ROOT.war/patric/static/
+cd /usr/share/jboss_deploy/jboss-as/server/patric/patric_website/webRoot/patric/static
 
 /usr/bin/curl http://enews.patricbrc.org/php/vbi.php > bacteriacloud_data.new.js
 
