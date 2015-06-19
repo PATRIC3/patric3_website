@@ -80,12 +80,12 @@ function insertMSAJS(windowID, ajaxHttp) {
 	sumText += "<b>Max AA Length: </b>" + nexusData[3];
 	sumText += "</td><td width='20%' valign=top style='line-height:150%'>";
 	sumText += "<b>Printable Alignment </b>";
-	sumText += "<a href=\"javascript:getGblocks('" + inputData.gblocks+ "')\" >For all " + rowCount + " members</a>";
+	sumText += "<a href=\"javascript:getGblocks('" + curData.gblocks+ "')\" >For all " + rowCount + " members</a>";
 	//&nbsp; (";
 	//sumText += "<a href=\"javascript:getClustalW('"+ windowID + "')\" >ClustalW</a>)";
 	sumText += "<br /><b>Tree </b>";
 	sumText += "<a href=\"javascript:getPrintableTree()\" >Printable tree members</a>&nbsp; (";
-	sumText += "<a href=\"javascript:getNewickTree('" + inputData.tree + "')\" >Newick File</a>)";
+	sumText += "<a href=\"javascript:getNewickTree('" + curData.tree + "')\" >Newick File</a>)";
 	sumText += "<a href=\"javascript:swapID()\" >&nbsp;Swap IDs</a>";
 
 	sumText += "</td>";
