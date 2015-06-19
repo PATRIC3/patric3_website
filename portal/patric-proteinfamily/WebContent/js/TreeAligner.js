@@ -107,8 +107,8 @@ function insertMSAJS(windowID, ajaxHttp) {
     treeDiv.setAttribute("id", "treeDiv");
     toSet.appendChild(menuDiv);
     toSet.appendChild(combineDiv);
-    combineDiv.appendChild(msaDiv);
     combineDiv.appendChild(treeDiv);
+    combineDiv.appendChild(msaDiv);
     
 
     // this is a way how you use a bundled file parser
@@ -135,6 +135,7 @@ function insertMSAJS(windowID, ajaxHttp) {
     };
     opts.conf = {
         dropImport: true,
+        registerWheelCanvas: false,
         debug: true
     };
     opts.zoomer = {
