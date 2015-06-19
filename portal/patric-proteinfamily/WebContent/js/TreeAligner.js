@@ -79,14 +79,14 @@ function insertMSAJS(windowID, ajaxHttp) {
 	sumText += "<b>Min AA Length: </b>" + nexusData[2] + "<br />";
 	sumText += "<b>Max AA Length: </b>" + nexusData[3];
 	sumText += "</td><td width='20%' valign=top style='line-height:150%'>";
-	sumText += "<b>Printable Alignment </b>";
-	sumText += "<a href=\"javascript:getGblocks('" + curData.gblocks+ "')\" >For all " + rowCount + " members</a>";
+	sumText += "<b>Alignment </b>";
+	sumText += "<a href=\"javascript:getGblocks('" + curData.gblocks+ "')\" >Plain text</a>";
 	//&nbsp; (";
 	//sumText += "<a href=\"javascript:getClustalW('"+ windowID + "')\" >ClustalW</a>)";
 	sumText += "<br /><b>Tree </b>";
-	sumText += "<a href=\"javascript:getPrintableTree()\" >Printable tree members</a>&nbsp; (";
+	sumText += "<a href=\"javascript:getPrintableTree()\" >Printable tree</div>&nbsp; (";
 	sumText += "<a href=\"javascript:getNewickTree('" + curData.tree + "')\" >Newick File</a>)";
-	sumText += "<a href=\"javascript:swapID()\" >&nbsp;Swap IDs</a>";
+	sumText += "<div id='msaSwapId' >&nbsp;&nbsp;Swap IDs</div>";
 
 	sumText += "</td>";
 
@@ -94,6 +94,10 @@ function insertMSAJS(windowID, ajaxHttp) {
 
 	var toSet = document.getElementById(windowID + "_summary");
 	toSet.innerHTML = sumText;
+        //jquery
+        $("#msaSwapId").click(function(){
+            swapID();
+        },this); 
 
 	toSet = document.getElementById(windowID + "_forApplet");
         toSet.style.overflowY="scroll";
