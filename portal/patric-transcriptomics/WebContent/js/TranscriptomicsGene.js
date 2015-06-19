@@ -755,7 +755,7 @@ function filterHeatmapData(windowID) {"use strict";
 		} else {
 			for ( k = 0; k < Pagingstore_items.length; k++) {
 				for ( i = 0; i < transcriptomicsRows.length; i++) {
-					if (transcriptomicsRows[i].alt_locus_tag == Pagingstore_items[k].data.alt_locus_tag) {
+					if (transcriptomicsRows[i].feature_id == Pagingstore_items[k].data.feature_id) {
 						iMax = createColumn(transcriptomicsRows[i], windowID, sampleFilter, samplePIds, ids_order, iMax);
 						break;
 					}
