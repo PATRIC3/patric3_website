@@ -442,12 +442,12 @@ public class FIGfamData {
 			long start = System.currentTimeMillis();
 			SolrQuery query = new SolrQuery("annotation:PATRIC AND feature_type:CDS");
 			query.addFilterQuery(getSolrQuery(request));
-			query.setRows(0).setFacet(true);
+			query.setRows(0).setFacet(true).set("facet.threads", 15);
 //			query.add("json.facet","{stat:{field:{field:figfam_id,limit:-1,facet:{min:\"min(aa_length)\",max:\"max(aa_length)\",mean:\"avg(aa_length)\",ss:\"sumsq(aa_length)\",sum:\"sum(aa_length)\",dist:\"percentile(aa_length,1,25,50,75,99,99.9)\",field:{field:genome_id}}}}}");
 //			query.add("json.facet","{stat:{field:{field:figfam_id,limit:-1,facet:{min:\"min(aa_length)\",max:\"max(aa_length)\",mean:\"avg(aa_length)\",ss:\"sumsq(aa_length)\",sum:\"sum(aa_length)\",genomes:{field:{field:genome_id,limit:-1}}}}}}");
 			query.add("json.facet","{stat:{field:{field:figfam_id,limit:-1,facet:{genomes:{field:{field:genome_id,limit:-1}}}}}}");
 
-			LOGGER.trace("getGroupStats(): [{}] {}", SolrCore.FEATURE.getSolrCoreName(), query.toString());
+			LOGGER.trace("getGroupStats() 1/3: [{}] {}", SolrCore.FEATURE.getSolrCoreName(), query);
 			String apiResponse = dataApi.solrQuery(SolrCore.FEATURE, query);
 
 			long point = System.currentTimeMillis();
@@ -475,7 +475,7 @@ public class FIGfamData {
 			} else {
 				threadPoolSize = nThreads;
 			}
-			LOGGER.debug("{} threads are detected! setting poolsize: {}", nThreads, threadPoolSize);
+			LOGGER.debug("{} threads are detected! setting pool size: {}", nThreads, threadPoolSize);
 			final ExecutorService threadPool = Executors.newFixedThreadPool(threadPoolSize);
 			List<Future<Map>> threadList = new ArrayList<>();
 
@@ -525,7 +525,7 @@ public class FIGfamData {
 			query.set("json.facet",
 					"{stat:{field:{field:figfam_id,limit:-1,facet:{min:\"min(aa_length)\",max:\"max(aa_length)\",mean:\"avg(aa_length)\",ss:\"sumsq(aa_length)\",sum:\"sum(aa_length)\"}}}}");
 
-			LOGGER.trace("getGroupStats(): [{}] {}", SolrCore.FEATURE.getSolrCoreName(), query.toString());
+			LOGGER.trace("getGroupStats() 2/3: [{}] {}", SolrCore.FEATURE.getSolrCoreName(), query);
 			apiResponse = dataApi.solrQuery(SolrCore.FEATURE, query);
 
 			point = System.currentTimeMillis();
@@ -650,7 +650,7 @@ public class FIGfamData {
 				SolrQuery query = new SolrQuery("figfam_id:(" + StringUtils.join(figfamIdList, " OR ") + ")");
 				query.addField("figfam_id,figfam_product").setRows(figfams.size());
 
-				LOGGER.trace("getGroupStats() 3/3: [{}] {}", SolrCore.FIGFAM_DIC.getSolrCoreName(), query.toString());
+				LOGGER.trace("getGroupStats() 3/3: [{}] {}", SolrCore.FIGFAM_DIC.getSolrCoreName(), query);
 
 				String apiResponse = dataApi.solrQuery(SolrCore.FIGFAM_DIC, query);
 
