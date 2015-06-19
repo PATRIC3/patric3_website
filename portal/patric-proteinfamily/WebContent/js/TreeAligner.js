@@ -247,12 +247,12 @@ function insertMSAJS(windowID, ajaxHttp) {
     m.el.parentElement.parentElement.insertBefore(menuOpts.el, document.getElementById("combineDiv"));
     var initialHidden=0;
     var treeDiv2=document.getElementsByClassName("tnt_groupDiv");
-    treeDiv2[0].parentNode.setAttribute("style", "padding-top:96px; width:30%; vertical-align:bottom; overflow-x:scroll; display:inline-block; border-right:1px solid grey;");
+    treeDiv2[0].parentNode.setAttribute("style", "padding-top:96px; width:35%; vertical-align:bottom; overflow-x:scroll; display:inline-block; border-right:1px solid grey;");
     var treeHeight=parseInt(treeDiv2[0].childNodes[0].getAttribute("height"));
     //var msaDiv=document.getElementsByClassName("biojs_msa_stage");
     var msaDiv=document.getElementById("msaDiv");
     msaDiv.style.display="inline-block";
-    msaDiv.style.width="69%";
+    msaDiv.style.width="64%";
     msaDiv.style.overflowX="scroll";
     msaDiv.style.overflowY="hidden";
     msaDiv.style.verticalAlign="bottom";
