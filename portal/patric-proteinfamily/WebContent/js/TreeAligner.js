@@ -176,7 +176,7 @@ function insertMSAJS(windowID, ajaxHttp) {
 	    var opts = {};
 	    // set your custom properties
 	    // @see: https://github.com/greenify/biojs-vis-msa/tree/master/src/g
-	    opts.el = msaDiv;//document.getElementById("msaDiv");
+	    opts.el = document.getElementById("msaDiv");
 	    opts.bootstrapMenu=false;
 	    opts.vis = {
 		conserv: false,
