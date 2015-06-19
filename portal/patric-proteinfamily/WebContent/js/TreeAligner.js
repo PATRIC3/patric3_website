@@ -257,11 +257,6 @@ function insertMSAJS(windowID, ajaxHttp) {
     msaDiv.style.verticalAlign="bottom";
     msaDiv.style.height=(treeHeight+105).toString()+"px";
     treeLoaded=true;
-    m.g.seqs.models.forEach( function(mdl){
-        if(mdl.attributes.hidden){
-            initialHidden+=1;
-        }
-    },initialHidden);
 
     Ext.get(windowID).unmask();
 }
