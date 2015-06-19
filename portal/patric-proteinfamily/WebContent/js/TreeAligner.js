@@ -84,9 +84,8 @@ function insertMSAJS(windowID, ajaxHttp) {
 	//&nbsp; (";
 	//sumText += "<a href=\"javascript:getClustalW('"+ windowID + "')\" >ClustalW</a>)";
 	sumText += "<br /><b>Tree </b>";
-	sumText += "<a href=\"javascript:getPrintableTree()\" >Printable tree</div>&nbsp; (";
-	sumText += "<a href=\"javascript:getNewickTree('" + curData.tree + "')\" >Newick File</a>)";
-	sumText += "<div id='msaSwapId' >&nbsp;&nbsp;Swap IDs</div>";
+	sumText += "<a href=\"javascript:getPrintableTree()\" >Printable tree</div>&nbsp;";
+	sumText += "<a href=\"javascript:getNewickTree('" + curData.tree + "')\" >Newick File</a>";
 
 	sumText += "</td>";
 
@@ -94,10 +93,6 @@ function insertMSAJS(windowID, ajaxHttp) {
 
 	var toSet = document.getElementById(windowID + "_summary");
 	toSet.innerHTML = sumText;
-        //jquery
-        $("#msaSwapId").click(function(){
-            swapID();
-        },this); 
 
 	toSet = document.getElementById(windowID + "_forApplet");
         toSet.style.overflowY="scroll";
@@ -260,7 +255,7 @@ function insertMSAJS(windowID, ajaxHttp) {
 	    menuOpts.msa = m;
 	    var defMenu = new msa.menu.defaultmenu(menuOpts);
 
-	    var noMenu = ["10_import", "15_ordering", "20_filter", "30_selection", "70_extra", "90_help", "95_debug"];
+	    var noMenu = ["10_import", "15_ordering", "20_filter", "30_selection","40_vis", "70_extra", "90_help", "95_debug"];
 	    noMenu.forEach(function(toRemove){delete defMenu.views[toRemove];});
 	    m.addView("menu", defMenu);
 
