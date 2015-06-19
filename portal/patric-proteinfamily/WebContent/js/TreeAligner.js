@@ -136,6 +136,7 @@ function insertMSAJS(windowID, ajaxHttp) {
     opts.conf = {
         dropImport: true,
         registerWheelCanvas: false,
+        registerMouseHover: false,
         debug: true
     };
     opts.zoomer = {
