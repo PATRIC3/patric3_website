@@ -84,8 +84,9 @@ function insertMSAJS(windowID, ajaxHttp) {
 	//&nbsp; (";
 	//sumText += "<a href=\"javascript:getClustalW('"+ windowID + "')\" >ClustalW</a>)";
 	sumText += "<br /><b>Tree </b>";
-	sumText += "<a href=\"javascript:getPrintableTree()\" >Printable tree</div>&nbsp;";
-	sumText += "<a href=\"javascript:getNewickTree('" + curData.tree + "')\" >Newick File</a>";
+	sumText += "<a href=\"javascript:getPrintableTree()\" >Printable tree</a>&nbsp;&nbsp;&nbsp;&nbsp;";
+	sumText += "<a href=\"javascript:getNewickTree('" + curData.tree + "')\" >Newick File</a>&nbsp;&nbsp;&nbsp;&nbsp;";
+	sumText += "<div id='swapTreeID' style='cursor:pointer; display:inline-block; color:#0066cc; text-decoration:underline'>Show Gene IDs</div>";
 
 	sumText += "</td>";
 
@@ -93,6 +94,9 @@ function insertMSAJS(windowID, ajaxHttp) {
 
 	var toSet = document.getElementById(windowID + "_summary");
 	toSet.innerHTML = sumText;
+        $("#swapTreeID").click(function(){
+            swapID();
+        });
 
 	toSet = document.getElementById(windowID + "_forApplet");
         toSet.style.overflowY="scroll";
@@ -156,11 +160,14 @@ function insertMSAJS(windowID, ajaxHttp) {
         }
     }
     function swapID(){
+	var swapButton = document.getElementById("swapTreeID");
         if(curData.currentIDType=="genome"){
             curData=geneData;
+            swapButton.innerHTML="Show Organism Names";
         }
         else{
             curData=genomeData;
+            swapButton.innerHTML="Show Gene IDs";
         }
             createMSA(curData);
     }
@@ -195,7 +202,7 @@ function insertMSAJS(windowID, ajaxHttp) {
 		//autoResize: false,
 		labelNameLength: 150,
 		alignmentHeight: 4000,
-		alignmentWidth: parseInt(nexusData[3])*19,
+		alignmentWidth: parseInt(nexusData[3])*20,
 		residueFont: "12",
 		rowHeight: 14
 	    };
@@ -207,6 +214,7 @@ function insertMSAJS(windowID, ajaxHttp) {
 	    m.g.trigger("url:userImport");
 	    sel= new mt.selections();
 	    treeDiv =document.getElementById("treeDiv");
+            treeDiv.innerHTML="";
 	    nodes = mt.app({
 	      seqs: m.seqs.toJSON(),
 	      tree: msa_models.tree
@@ -243,7 +251,7 @@ function insertMSAJS(windowID, ajaxHttp) {
 		var treeDiv2=document.getElementsByClassName("tnt_groupDiv");
 		var treeHeight=parseInt(treeDiv2[0].childNodes[0].getAttribute("height"));
 		var msaDiv=document.getElementById("msaDiv");
-		msaDiv.style.height=(treeHeight+115).toString()+"px";
+		msaDiv.style.height=(treeHeight+105).toString()+"px";
 		}, 1000);
 	    }
 
@@ -272,7 +280,7 @@ function insertMSAJS(windowID, ajaxHttp) {
 	    msaDiv.style.overflowX="scroll";
 	    msaDiv.style.overflowY="hidden";
 	    msaDiv.style.verticalAlign="bottom";
-	    msaDiv.style.height=(treeHeight+115).toString()+"px";
+	    msaDiv.style.height=(treeHeight+105).toString()+"px";
 	    treeLoaded=true;
 	}
 
