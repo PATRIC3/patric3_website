@@ -141,7 +141,7 @@ function insertMSAJS(windowID, ajaxHttp) {
             org_count+=1;
             clustal.push(input[i]+"\t"+input[i+2]);
             gblocks.push(">"+input[i]+"&nbsp;&nbsp;&nbsp;&nbsp;"+input[i+1]+"<br>"+input[i+2]);
-            orgs[input[i]]=org_count.toString()+"_"+input[i+1];
+            orgs[input[i]]=org_count.toString()+"_"+input[i+1].replace(/[\:\,\(\)]/g,"_");
         }
         inputData.orgs=orgs;
         inputData.tree=data[4];
@@ -202,9 +202,9 @@ function insertMSAJS(windowID, ajaxHttp) {
 		//autoResize: false,
 		labelNameLength: 150,
 		alignmentHeight: 4000,
-		alignmentWidth: parseInt(nexusData[3])*20,
+		alignmentWidth: parseInt(nexusData[3])*30,
 		residueFont: "12",
-		rowHeight: 14
+		rowHeight: 14.04
 	    };
 
 	    // init msa
