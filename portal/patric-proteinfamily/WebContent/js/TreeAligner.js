@@ -251,7 +251,7 @@ function insertMSAJS(windowID, ajaxHttp) {
 		var treeDiv2=document.getElementsByClassName("tnt_groupDiv");
 		var treeHeight=parseInt(treeDiv2[0].childNodes[0].getAttribute("height"));
 		var msaDiv=document.getElementById("msaDiv");
-		msaDiv.style.height=(treeHeight+105).toString()+"px";
+		msaDiv.style.height=(treeHeight+115).toString()+"px";
 		}, 1000);
 	    }
 
@@ -271,7 +271,7 @@ function insertMSAJS(windowID, ajaxHttp) {
 	    m.el.parentElement.parentElement.insertBefore(menuOpts.el, document.getElementById("combineDiv"));
 	    var initialHidden=0;
 	    var treeDiv2=document.getElementsByClassName("tnt_groupDiv");
-	    treeDiv2[0].parentNode.setAttribute("style", "padding-top:96px; width:35%; vertical-align:bottom; overflow-x:scroll; display:inline-block; border-right:1px solid grey;");
+	    treeDiv2[0].parentNode.setAttribute("style", "padding-top:96px; width:35%; vertical-align:top; overflow-x:scroll; display:inline-block; border-right:1px solid grey;");
 	    var treeHeight=parseInt(treeDiv2[0].childNodes[0].getAttribute("height"));
 	    //var msaDiv=document.getElementsByClassName("biojs_msa_stage");
 	    var msaDiv=document.getElementById("msaDiv");
@@ -280,7 +280,7 @@ function insertMSAJS(windowID, ajaxHttp) {
 	    msaDiv.style.overflowX="scroll";
 	    msaDiv.style.overflowY="hidden";
 	    msaDiv.style.verticalAlign="bottom";
-	    msaDiv.style.height=(treeHeight+105).toString()+"px";
+	    msaDiv.style.height=(treeHeight+115).toString()+"px";
 	    treeLoaded=true;
 	}
 
