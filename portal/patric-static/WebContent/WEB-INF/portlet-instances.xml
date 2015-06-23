@@ -30,24 +30,6 @@
 	</deployment>
 	<deployment>
 		<instance>
-			<instance-id>IBRCsInstance</instance-id>
-			<portlet-ref>IBRCs</portlet-ref>
-		</instance>
-	</deployment>
-	<deployment>
-		<instance>
-			<instance-id>RASTInstance</instance-id>
-			<portlet-ref>RAST</portlet-ref>
-		</instance>
-	</deployment>
-	<deployment>
-		<instance>
-			<instance-id>MGRASTInstance</instance-id>
-			<portlet-ref>MGRAST</portlet-ref>
-		</instance>
-	</deployment>
-	<deployment>
-		<instance>
 			<instance-id>TBInstance</instance-id>
 			<portlet-ref>TB</portlet-ref>
 		</instance>

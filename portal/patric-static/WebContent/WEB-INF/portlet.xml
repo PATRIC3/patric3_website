@@ -43,40 +43,6 @@
 		<supported-public-render-parameter>page</supported-public-render-parameter>
 	</portlet>
 	<portlet>
-		<portlet-name>IBRCs</portlet-name>
-		<portlet-class>edu.vt.vbi.patric.portlets.IncumbentBRCs</portlet-class>
-		<supports>
-			<mime-type>text/html</mime-type>
-			<portlet-mode>VIEW</portlet-mode>
-		</supports>
-		<portlet-info>
-			<title>Incumbent BRCs</title>
-		</portlet-info>
-		<supported-public-render-parameter>page</supported-public-render-parameter>
-	</portlet>
-	<portlet>
-		<portlet-name>RAST</portlet-name>
-		<portlet-class>edu.vt.vbi.patric.portlets.RAST</portlet-class>
-		<supports>
-			<mime-type>text/html</mime-type>
-			<portlet-mode>VIEW</portlet-mode>
-		</supports>
-		<portlet-info>
-			<title>Rapid Annotation using Subsustem Technology (RAST)</title>
-		</portlet-info>
-	</portlet>
-	<portlet>
-		<portlet-name>MGRAST</portlet-name>
-		<portlet-class>edu.vt.vbi.patric.portlets.MGRAST</portlet-class>
-		<supports>
-			<mime-type>text/html</mime-type>
-			<portlet-mode>VIEW</portlet-mode>
-		</supports>
-		<portlet-info>
-			<title>Meta Genome Rapid Annotation using Subsustem Technology (MG-RAST)</title>
-		</portlet-info>
-	</portlet>
-	<portlet>
 		<portlet-name>TB</portlet-name>
 		<portlet-class>edu.vt.vbi.patric.portlets.TB</portlet-class>
 		<supports>

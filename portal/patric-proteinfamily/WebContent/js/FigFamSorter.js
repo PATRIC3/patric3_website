@@ -632,7 +632,7 @@ function setSyntenyOrder(windowID, genomeId) {
 			catchSyntenyOrder(windowID, rs);
 		},
 		failure: function(){
-			Ext.MessageBox.alert("Error", "Data is not available now. Please try again later or contact PATRIC team (patric@vbi.vt.edu).");
+			Ext.MessageBox.alert("Error", "Data is not available now. Please try again later or contact PATRIC team (help@patricbrc.org).");
 			Ext.get("sample-layout").unmask();
 		}
 	});
