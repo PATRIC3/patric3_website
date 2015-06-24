@@ -13,10 +13,10 @@ import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.apache.lucene.index.DocValues;
+import org.apache.lucene.index.NumericDocValues;
 import org.apache.lucene.index.SortedDocValues;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.uninverting.UninvertingReader;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.common.params.SolrParams;
 import org.apache.solr.common.util.NamedList;
@@ -124,7 +124,9 @@ public class CorrelationQParserPlugin extends QParserPlugin {
 
 		private SortedDocValues ids;
 
-		private UninvertingReader uninvertingReader;
+		private NumericDocValues conditions;
+
+		private NumericDocValues values;
 
 		private String srcId;
 
@@ -155,13 +157,9 @@ public class CorrelationQParserPlugin extends QParserPlugin {
 			this.fieldCondition = fieldCondition;
 			this.fieldValue = fieldValue;
 
-
-			Map<String, UninvertingReader.Type> mapping = new HashMap<>();
-			mapping.put(fieldCondition, UninvertingReader.Type.INTEGER);
-			mapping.put(fieldValue, UninvertingReader.Type.FLOAT);
-			uninvertingReader = new UninvertingReader(searcher.getLeafReader(), mapping);
-
 			this.ids = DocValues.getSorted(searcher.getLeafReader(), this.fieldId);
+			this.conditions = DocValues.getNumeric(searcher.getLeafReader(), this.fieldCondition);
+			this.values = DocValues.getNumeric(searcher.getLeafReader(), this.fieldValue);
 
 			this.data = new LinkedHashMap<>();
 			this.referenceData = new HashMap<>();
@@ -178,8 +176,8 @@ public class CorrelationQParserPlugin extends QParserPlugin {
 			if (ordId > -1) {
 
 				String id = ids.lookupOrd(ordId).utf8ToString();
-				int condition = uninvertingReader.document(globalDoc).getField(fieldCondition).numericValue().intValue();
-				float value = uninvertingReader.document(globalDoc).getField(fieldValue).numericValue().floatValue();
+				int condition = (int) conditions.get(globalDoc);
+				float value = Float.intBitsToFloat((int) values.get(globalDoc));
 
 				String strCondition = "" + condition;
 
