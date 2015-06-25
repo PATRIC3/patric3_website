@@ -277,11 +277,14 @@ public class DataApiHandler {
 		String response = this.get(SolrCore.GENOME.getSolrCoreName() + "/?eq(p2_genome_id," + p2GenomeId + ")");
 		if (response != null) {
 			try {
-				Map<String, Object> resp = jsonParser.readValue(response);
-				genome = this.bindDocument(resp, Genome.class);
+				List<Map> result = jsonListParser.readValue(response);
+				if (!result.isEmpty()) {
+					Map<String, Object> resp = result.get(0);
+					genome = this.bindDocument(resp, Genome.class);
+				}
 			}
 			catch (IOException e) {
-				LOGGER.error(e.getMessage(), e);
+				LOGGER.error(e.getMessage() + ", while looking up {}", p2GenomeId);
 			}
 		}
 
@@ -300,18 +303,22 @@ public class DataApiHandler {
 		String response = this.get(SolrCore.FEATURE.getSolrCoreName() + "/?eq(p2_feature_id," + p2FeatureId + ")");
 		if (response != null) {
 			try {
-				Map<String, Object> resp = jsonParser.readValue(response);
-				GenomeFeature feature = this.bindDocument(resp, GenomeFeature.class);
+				LOGGER.trace("parsing: {}", response);
+				List<Map> result = jsonListParser.readValue(response);
+				if (!result.isEmpty()) {
+					Map<String, Object> resp = result.get(0);
+					GenomeFeature feature = this.bindDocument(resp, GenomeFeature.class);
 
-				if (feature.getAnnotation().equals("PATRIC")) {
-					patricFeature = feature;
-				}
-				else {
-					patricFeature = this.getPATRICFeature(feature.getId());
+					if (feature.getAnnotation().equals("PATRIC")) {
+						patricFeature = feature;
+					}
+					else {
+						patricFeature = this.getPATRICFeature(feature.getId());
+					}
 				}
 			}
 			catch (IOException e) {
-				LOGGER.error(e.getMessage(), e);
+				LOGGER.error(e.getMessage() + ", while looking up {}", p2FeatureId);
 			}
 		}
 
