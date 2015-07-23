@@ -202,7 +202,7 @@ function insertMSAJS(windowID, ajaxHttp) {
 		//autoResize: false,
 		labelNameLength: 150,
 		alignmentHeight: 4000,
-		alignmentWidth: parseInt(nexusData[3])*30,
+		alignmentWidth: msa_models.seqs[0].seq.length*15.1,
 		residueFont: "12",
 		rowHeight: 14.04
 	    };
