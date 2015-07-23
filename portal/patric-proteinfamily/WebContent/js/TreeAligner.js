@@ -80,7 +80,8 @@ function insertMSAJS(windowID, ajaxHttp) {
 	sumText += "<b>Max AA Length: </b>" + nexusData[3];
 	sumText += "</td><td width='20%' valign=top style='line-height:150%'>";
 	sumText += "<b>Alignment </b>";
-	sumText += "<a href=\"javascript:getGblocks('" + curData.gblocks+ "')\" >Plain text</a>";
+	sumText += "<div id='printMSA' style='cursor:pointer; display:inline-block; color:#0066cc; text-decoration:underline'>Plain text</div>";
+	//sumText += "<a href=\"javascript:getGblocks()\" >Plain text</a>";
 	//&nbsp; (";
 	//sumText += "<a href=\"javascript:getClustalW('"+ windowID + "')\" >ClustalW</a>)";
 	sumText += "<br /><b>Tree </b>";
@@ -98,6 +99,10 @@ function insertMSAJS(windowID, ajaxHttp) {
             swapID();
         });
 
+        $("#printMSA").click(function(){
+            var msaArray = getMSAArray(geneData.msa_objs);
+            getGblocks(msaArray);
+        });
 	toSet = document.getElementById(windowID + "_forApplet");
         toSet.style.overflowY="scroll";
         toSet.style.overflowX="hidden";
@@ -130,23 +135,26 @@ function insertMSAJS(windowID, ajaxHttp) {
     //create a clustalw format string that can be passed to biojs msa
     function patricData(data, inputData){
         var replacement=[];
+        var orig_clustal=data.slice(5);
         data.forEach(function(item){replacement.push(item.replace(/\|/g, "."));}, this);
         data=replacement;
         var input=data.slice(5);
         var clustal=["CLUSTAL"];
         var gblocks=[];
+        var msa_objs=[];
         var orgs={};
         var org_count=1;
         for (var i = 0; i < input.length-2; i+=3) {
             org_count+=1;
             clustal.push(input[i]+"\t"+input[i+2]);
-            gblocks.push(">"+input[i]+"&nbsp;&nbsp;&nbsp;&nbsp;"+input[i+1]+"<br>"+input[i+2]);
+            //gblocks.push(">"+input[i]+"&nbsp;&nbsp;&nbsp;&nbsp;"+input[i+1]+"<br>"+input[i+2]);
+            msa_objs.push({gene:orig_clustal[i],genome:orig_clustal[i+1],seq:orig_clustal[i+2]});
             orgs[input[i]]=org_count.toString()+"_"+input[i+1].replace(/[\:\,\(\)]/g,"_");
         }
         inputData.orgs=orgs;
         inputData.tree=data[4];
         inputData.clustal=clustal.join("\n");
-        inputData.gblocks=gblocks.join("<br>");
+        inputData.msa_objs=msa_objs;
     }
     function switchID(inputData){
         var replacement=[];
@@ -461,7 +469,30 @@ function popRawTree(ajaxHttp, contextPath, ajaxURL, showIn) {
 	toSet.innerHTML = setter;
 }
 
-function getGblocks(msaString) {
+function getMSAArray(msa_objs){
+	var chunk_size=50;
+	var msaRegion=[];
+	var num_chunks= Math.floor(msa_objs[0].seq.length / chunk_size);
+	for(i=0; i< num_chunks; i++){
+	    var chunk="";
+	    msa_objs.forEach(function(record){
+		chunk+=record.gene+"\t"+ record.seq.slice(i*chunk_size, i*chunk_size+chunk_size)+"\n";
+	    });
+	    msaRegion.push(chunk);
+	}
+	var remaining = msa_objs[0].seq.length % chunk_size;
+	if (remaining){
+	    var chunk="";
+	    msa_objs.forEach(function(record){
+		chunk+= record.gene+"\t"+ record.seq.slice(num_chunks*chunk_size, msa_objs[0].seq.length)+"\n";
+	    });
+	    msaRegion.push(chunk);
+	}
+        return msaRegion;
+}
+
+
+function getGblocks(msaArray) {
 	//var stateObject = getStateObject(windowID);
 	var insides = "<!DOCTYPE html PUBLIC " + "\"-//W3C//DTD XHTML 1.0 Transitional//EN\" " + "\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\" >";
 	insides += "<html xmlns=\"http://www.w3.org/1999/xhtml\"><head>";
@@ -473,7 +504,8 @@ function getGblocks(msaString) {
 	insides += "<body id='popup'>\n";
 	insides += "<div id='header'>" + "<div id=\"masthead\">" + "<a href=\"/\">PATRIC" + "<span class=\"sub\">Pathosystems Resouce Integration Center" + "</span></a></div>" + "</div>\n";
 	insides += "<div id=\"toppage\"><div class=\"content\">";
-	insides += "<div id='forGblocks' style='width:500px; overflow-wrap:break-word;'>"+msaString;
+	insides += "<div id='forGblocks'>";
+        insides += '<pre xml:space="preserve">'+msaArray.join("\n")+'</pre>'; 
 	insides += "</div></div></div>";
 	insides += "<div id=\"footer\"> &nbsp</div></body></html>";
 	var showIn = window.open("", "", "width = 1000, height=760, scrollbars = 1");
