@@ -442,9 +442,7 @@ public class FIGfamData {
 			SolrQuery query = new SolrQuery("annotation:PATRIC AND feature_type:CDS");
 			query.addFilterQuery(getSolrQuery(request));
 			query.setRows(0).setFacet(true).set("facet.threads", 15);
-//			query.add("json.facet","{stat:{field:{field:figfam_id,limit:-1,facet:{min:\"min(aa_length)\",max:\"max(aa_length)\",mean:\"avg(aa_length)\",ss:\"sumsq(aa_length)\",sum:\"sum(aa_length)\",dist:\"percentile(aa_length,1,25,50,75,99,99.9)\",field:{field:genome_id}}}}}");
-//			query.add("json.facet","{stat:{field:{field:figfam_id,limit:-1,facet:{min:\"min(aa_length)\",max:\"max(aa_length)\",mean:\"avg(aa_length)\",ss:\"sumsq(aa_length)\",sum:\"sum(aa_length)\",genomes:{field:{field:genome_id,limit:-1}}}}}}");
-			query.add("json.facet","{stat:{type:field,field:figfam_id,limit:-1,facet:{genomes:{type:field,field:genome_id,limit:-1}}}}");
+			query.add("json.facet", "{stat:{type:field,field:genome_id,limit:-1,facet:{figfams:{type:field,field:figfam_id,limit:-1,sort:{index:asc}}}}}");
 
 			LOGGER.trace("getGroupStats() 1/3: [{}] {}", SolrCore.FEATURE.getSolrCoreName(), query);
 			String apiResponse = dataApi.solrQuery(SolrCore.FEATURE, query);
@@ -459,64 +457,55 @@ public class FIGfamData {
 
 			final Map<String, String> figfamGenomeIdStr = new LinkedHashMap<>();
 			final Map<String, Integer> figfamGenomeCount = new LinkedHashMap<>();
+
 			final int genomeTotal = genomeIdList.size();
 			final Map<String, Integer> genomePosMap = new LinkedHashMap<>();
 			for (String genomeId : genomeIdList) {
 				genomePosMap.put(genomeId, genomeIdList.indexOf(genomeId));
 			}
 
-			List<Map> genomeBuckets = (List<Map>) stat.get("buckets");
+			final Map<String,List> figfamGenomeIdCountMap = new ConcurrentHashMap<>();
+			final Map<String,Set> figfamGenomeIdSet = new ConcurrentHashMap<>();
 
-			int nThreads = Runtime.getRuntime().availableProcessors();
-			int threadPoolSize;
-			if (nThreads > 2) {
-				threadPoolSize = nThreads - 1;
-			} else {
-				threadPoolSize = nThreads;
-			}
-			LOGGER.debug("{} threads are detected! setting pool size: {}", nThreads, threadPoolSize);
-			final ExecutorService threadPool = Executors.newFixedThreadPool(threadPoolSize);
-			List<Future<Map>> threadList = new ArrayList<>();
+			List<Map> genomeBuckets = (List<Map>) stat.get("buckets");
 
 			for (final Map bucket : genomeBuckets) {
 
-				Callable<Map> worker = new Callable<Map>() {
-					@Override public Map call() throws Exception {
-						final String figfamId = (String) bucket.get("val");
-						final List<String> genomeIdsStr = new LinkedList<>(Collections.nCopies(genomeTotal, "00"));
-						final List<Map> genomes = (List<Map>) ((Map) bucket.get("genomes")).get("buckets");
-						for (final Map genome : genomes) {
-							final String genomeId = (String) genome.get("val");
-							final int genomeCount = (Integer) genome.get("count");
-							genomeIdsStr.set(genomePosMap.get(genomeId), String.format("%02x", genomeCount));
-						}
-						final Map rtn = new HashMap<>();
-						rtn.put("figfamId", figfamId);
-						rtn.put("genomeIdsStr", StringUtils.join(genomeIdsStr, ""));
-						rtn.put("genomeCount", genomes.size());
-						return rtn;
-					}
-				};
-				Future<Map> submit = threadPool.submit(worker);
-				threadList.add(submit);
-			}
-			threadPool.shutdown();
-//			while (!threadPool.isTerminated()) {
-//			}
-//			for (Future<Map> future : threadList) {
-//				try {
-//					final Map map = future.get();
-//					figfamGenomeIdStr.put(map.get("figfamId").toString(), map.get("genomeIdsStr").toString());
-//					figfamGenomeCount.put(map.get("figfamId").toString(), (Integer) map.get("genomeCount"));
-//				}
-//				catch (InterruptedException | ExecutionException e) {
-//					LOGGER.error(e.getMessage(), e);
-//				}
-//			}
+				final String genomeId = (String) bucket.get("val");
+				final List<Map> figfamBucket = (List<Map>) ((Map) bucket.get("figfams")).get("buckets");
 
-//			point = System.currentTimeMillis();
-//			LOGGER.debug("1st query process : {} ms, figfamGenomeIdStr:{}, figfamGenomeCount:{}", (point - start), figfamGenomeIdStr.size(), figfamGenomeCount.size());
-//			start = point;
+				for (final Map figfam : figfamBucket) {
+					final String figfamId = (String) figfam.get("val");
+					final String genomeCount = String.format("%02x", (Integer) figfam.get("count"));
+
+					if (figfamGenomeIdCountMap.containsKey(figfamId)) {
+						figfamGenomeIdCountMap.get(figfamId).set(genomePosMap.get(genomeId), genomeCount);
+					}
+					else {
+						final List<String> genomeIdCount = new LinkedList<>(Collections.nCopies(genomeTotal, "00"));
+						genomeIdCount.set(genomePosMap.get(genomeId), genomeCount);
+						figfamGenomeIdCountMap.put(figfamId, genomeIdCount);
+					}
+
+					if (figfamGenomeIdSet.containsKey(figfamId)) {
+						figfamGenomeIdSet.get(figfamId).add(genomeId);
+					}
+					else {
+						final Set<String> genomeIdSet = new HashSet<>();
+						genomeIdSet.add(genomeId);
+						figfamGenomeIdSet.put(figfamId, genomeIdSet);
+					}
+				}
+			}
+
+			for (String figfamId : figfamGenomeIdCountMap.keySet()) {
+				final List genomeIdStr = figfamGenomeIdCountMap.get(figfamId);
+				figfamGenomeIdStr.put(figfamId, StringUtils.join(genomeIdStr,""));
+				figfamGenomeCount.put(figfamId, figfamGenomeIdSet.get(figfamId).size());
+			}
+
+			point = System.currentTimeMillis();
+			LOGGER.debug("1st query process : {} ms, figfamGenomeIdStr:{}, figfamGenomeCount:{}", (point - start), figfamGenomeIdStr.size(), figfamGenomeCount.size());
 
 			long start2nd = System.currentTimeMillis();
 			// 2nd query
@@ -530,24 +519,6 @@ public class FIGfamData {
 			point = System.currentTimeMillis();
 			LOGGER.debug("2st query: {} ms", (point - start2nd));
 			start2nd = point;
-
-/////////////////
-			// overlap 2nd query and thread processing
-			while (!threadPool.isTerminated()) {
-			}
-			for (Future<Map> future : threadList) {
-				try {
-					final Map map = future.get();
-					figfamGenomeIdStr.put(map.get("figfamId").toString(), map.get("genomeIdsStr").toString());
-					figfamGenomeCount.put(map.get("figfamId").toString(), (Integer) map.get("genomeCount"));
-				}
-				catch (InterruptedException | ExecutionException e) {
-					LOGGER.error(e.getMessage(), e);
-				}
-			}
-			point = System.currentTimeMillis();
-			LOGGER.debug("1st query process : {} ms, figfamGenomeIdStr:{}, figfamGenomeCount:{}", (point - start), figfamGenomeIdStr.size(), figfamGenomeCount.size());
-/////////////////
 
 			resp = jsonReader.readValue(apiResponse);
 			facets = (Map) resp.get("facets");
