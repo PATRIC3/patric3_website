@@ -81,7 +81,7 @@ public class FIGfamData {
 			solr_query.setFilterQueries("annotation:PATRIC AND feature_type:CDS AND figfam_id:[* TO *]");
 			solr_query.addField("figfam_id");
 
-			solr_query.setRows(dataApi.MAX_ROWS);
+			solr_query.setRows(DataApiHandler.MAX_ROWS);
 			solr_query.addSort("accession", SolrQuery.ORDER.asc);
 			solr_query.addSort("start", SolrQuery.ORDER.asc);
 
@@ -154,7 +154,7 @@ public class FIGfamData {
 			solr_query.setQuery("genome_id:(" + request.getParameter("genomeIds") + ") AND figfam_id:(" + request.getParameter("figfamIds") + ")");
 			solr_query.setFilterQueries("annotation:PATRIC AND feature_type:CDS");
 			solr_query.addField("feature_id,patric_id,refseq_locus_tag,alt_locus_tag");
-			solr_query.setRows(dataApi.MAX_ROWS);
+			solr_query.setRows(DataApiHandler.MAX_ROWS);
 
 			LOGGER.debug("getLocusTags(): [{}] {}", SolrCore.FEATURE.toString(), solr_query);
 
@@ -191,7 +191,7 @@ public class FIGfamData {
 		query.setQuery("genome_id:(" + genomeIds + ") AND figfam_id:(" + figfamIds + ")");
 		query.setFields(StringUtils.join(DownloadHelper.getFieldsForFeatures(), ","));
 		query.setFilterQueries("annotation:PATRIC AND feature_type:CDS");
-		query.setRows(dataApiHandler.MAX_ROWS);
+		query.setRows(DataApiHandler.MAX_ROWS);
 
 		LOGGER.debug("getDetails(): [{}] {}", SolrCore.FEATURE.getSolrCoreName(), query);
 
@@ -225,7 +225,7 @@ public class FIGfamData {
 
 		SolrQuery query = new SolrQuery("patric_cds:[1 TO *] AND taxon_lineage_ids:" + taxon);
 		query.addField("genome_id");
-		query.setRows(dataApiHandler.MAX_ROWS);
+		query.setRows(DataApiHandler.MAX_ROWS);
 
 		LOGGER.trace("getGenomeIdsForTaxon: [{}] {}", SolrCore.GENOME.getSolrCoreName(), query);
 
@@ -300,8 +300,7 @@ public class FIGfamData {
 		LOGGER.debug("getFeatureProteins: {}", featuresString);
 		if (featuresString != null && !featuresString.equals("")) {
 			String[] idList = featuresString.split(",");
-			DataApiHandler dataApi = new DataApiHandler(request);
-			this.dataApiHandler = dataApi;
+			this.dataApiHandler = new DataApiHandler(request);
 			result = getFeatureSequences(idList);
 		}
 		return result;
@@ -313,7 +312,7 @@ public class FIGfamData {
 			DataApiHandler dataApi = new DataApiHandler(request);
 			SolrQuery query = new SolrQuery(keyword);
 			query.addField("feature_id");
-			query.setRows(dataApi.MAX_ROWS);
+			query.setRows(DataApiHandler.MAX_ROWS);
 
 
 			String apiResponse = dataApi.solrQuery(SolrCore.FEATURE, query);
@@ -354,7 +353,7 @@ public class FIGfamData {
 		if (fields != null && !fields.equals("")) {
 			query.addField(fields);
 		}
-		query.setRows(dataApi.MAX_ROWS).addSort("genome_name", SolrQuery.ORDER.asc);
+		query.setRows(DataApiHandler.MAX_ROWS).addSort("genome_name", SolrQuery.ORDER.asc);
 
 		String pk = request.getParameter("param_key");
 		Map<String, String> key = null;
@@ -401,7 +400,7 @@ public class FIGfamData {
 		String genomeIds = request.getParameter("genomeIds");
 		try {
 			SolrQuery query = new SolrQuery("genome_id:(" + genomeIds.replaceAll(",", " OR ") + ")");
-			query.addSort("genome_name", SolrQuery.ORDER.asc).addField("genome_id").setRows(dataApi.MAX_ROWS);
+			query.addSort("genome_name", SolrQuery.ORDER.asc).addField("genome_id").setRows(DataApiHandler.MAX_ROWS);
 
 			LOGGER.trace("[{}] {}", SolrCore.GENOME.getSolrCoreName(), query);
 
@@ -445,7 +444,7 @@ public class FIGfamData {
 			query.setRows(0).setFacet(true).set("facet.threads", 15);
 //			query.add("json.facet","{stat:{field:{field:figfam_id,limit:-1,facet:{min:\"min(aa_length)\",max:\"max(aa_length)\",mean:\"avg(aa_length)\",ss:\"sumsq(aa_length)\",sum:\"sum(aa_length)\",dist:\"percentile(aa_length,1,25,50,75,99,99.9)\",field:{field:genome_id}}}}}");
 //			query.add("json.facet","{stat:{field:{field:figfam_id,limit:-1,facet:{min:\"min(aa_length)\",max:\"max(aa_length)\",mean:\"avg(aa_length)\",ss:\"sumsq(aa_length)\",sum:\"sum(aa_length)\",genomes:{field:{field:genome_id,limit:-1}}}}}}");
-			query.add("json.facet","{stat:{field:{field:figfam_id,limit:-1,facet:{genomes:{field:{field:genome_id,limit:-1}}}}}}");
+			query.add("json.facet","{stat:{type:field,field:figfam_id,limit:-1,facet:{genomes:{type:field,field:genome_id,limit:-1}}}}");
 
 			LOGGER.trace("getGroupStats() 1/3: [{}] {}", SolrCore.FEATURE.getSolrCoreName(), query);
 			String apiResponse = dataApi.solrQuery(SolrCore.FEATURE, query);
@@ -523,7 +522,7 @@ public class FIGfamData {
 			// 2nd query
 
 			query.set("json.facet",
-					"{stat:{field:{field:figfam_id,limit:-1,facet:{min:\"min(aa_length)\",max:\"max(aa_length)\",mean:\"avg(aa_length)\",ss:\"sumsq(aa_length)\",sum:\"sum(aa_length)\"}}}}");
+					"{stat:{type:field,field:figfam_id,limit:-1,facet:{min:\"min(aa_length)\",max:\"max(aa_length)\",mean:\"avg(aa_length)\",ss:\"sumsq(aa_length)\",sum:\"sum(aa_length)\"}}}");
 
 			LOGGER.trace("getGroupStats() 2/3: [{}] {}", SolrCore.FEATURE.getSolrCoreName(), query);
 			apiResponse = dataApi.solrQuery(SolrCore.FEATURE, query);
