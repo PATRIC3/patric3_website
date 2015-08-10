@@ -87,12 +87,16 @@ function search_all_header ()
 	if (Ext.String.trim(Ext.getDom("global_search_keyword").value) == "" || Ext.getDom("global_search_keyword").value == "*") {
 		Ext.Msg.alert('Warning', 'Please enter keyword.');
 	} else {
+		var keyword = Ext.getDom("global_search_keyword").value;
+		if ( ga != undefined) {
+			ga('send', 'pageview', '/portal/portal/patric/GlobalSearch?keyword='+keyword);
+		}
 		Ext.Ajax.request({
 			url:'/portal/portal/patric/GenomicFeature/GenomicFeatureWindow?action=b&cacheability=PAGE',
 			method: 'POST',
 			params: {
 				sraction: "save_params",
-				keyword: EncodeKeyword(Ext.getDom("global_search_keyword").value)
+				keyword: EncodeKeyword(keyword)
 			},
 			success: function(rs) {         
 				// document.location.href="GlobalSearch?cType=taxon&cId=&dm=&pk="+rs.responseText+"#key="+rs.responseText+"&pS=10&aP=1&cat=summary"
