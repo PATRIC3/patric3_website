@@ -363,7 +363,7 @@ function initNicefade() {
 				}
 			});
 			nicefade = $('#nicefade_wrapper .nicefade_container').nicefade({
-				animationDelay: 4000,
+				animationDelay: 30000,
 				afterSlideChange: nicefadeAfter
 			});
 	
