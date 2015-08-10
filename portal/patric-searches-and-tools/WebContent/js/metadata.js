@@ -90,11 +90,19 @@ metadataGenomeSummaryValue['Project_Info'] = [{
 }, {
 	name : 'BioSample Accession',
 	text : 'biosample_accession',
-	style : 'none'
+	style : 'none',
+	link : 'http://www.ncbi.nlm.nih.gov/biosample/{0}',
+	value: 'biosample_accession',
+	linkClass: 'double-arrow-link',
+	cellClass: 'no-underline-links'
 }, {
 	name : 'Assembly Accession',
 	text : 'assembly_accession',
-	style : 'none'
+	style : 'none',
+	link : 'http://www.ncbi.nlm.nih.gov/assembly/{0}',
+	value: 'assembly_accession',
+	linkClass: 'double-arrow-link',
+	cellClass: 'no-underline-links'
 }, {
 /*	name : 'NCBI Project ID',
 	text : 'ncbi_project_id',

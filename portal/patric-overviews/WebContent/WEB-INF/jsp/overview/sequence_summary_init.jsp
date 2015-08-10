@@ -1,9 +1,7 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" 
-%><%@ page import="edu.vt.vbi.patric.dao.DBShared" 
 %><%
 String cType = request.getParameter("context_type");
 String cId = request.getParameter("context_id");
-DBShared dbh_shared = new DBShared();
 
 %>
 <div id="gp_tbl">
