@@ -96,7 +96,7 @@ function search_all_header ()
 			},
 			success: function(rs) {         
 				// document.location.href="GlobalSearch?cType=taxon&cId=&dm=&pk="+rs.responseText+"#key="+rs.responseText+"&pS=10&aP=1&cat=summary"
-				document.location.href="GlobalSearch?cType=taxon&cId=131567&dm=&pk="+rs.responseText;
+				document.location.href="/portal/portal/patric/GlobalSearch?cType=taxon&cId=131567&dm=&pk="+rs.responseText;
 			}
 
 		});
