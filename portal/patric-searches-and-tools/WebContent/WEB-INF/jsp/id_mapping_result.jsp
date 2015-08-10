@@ -1,6 +1,4 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet"
-%><%@ page import="java.util.*"
-%><%@ page import="edu.vt.vbi.patric.dao.ResultType"
 %><%@ page import="edu.vt.vbi.patric.common.SiteHelper"
 %><portlet:defineObjects/><%
 String contextType = (String) request.getAttribute("contextType");
@@ -13,7 +11,7 @@ String from = (String) request.getAttribute("from");
 String fromGroup = (String) request.getAttribute("fromGroup");
 String keyword = (String) request.getAttribute("keyword");
 
-String renderURL = "";
+String renderURL;
 if(to.equals("alt_locus_tag")) {
 	renderURL = SiteHelper.getExternalLinks(from);
 }
@@ -88,10 +86,11 @@ Ext.onReady(function() {
 			{name:'feature_type', type:'string'},
 			{name:'start',	    type:'int'},
 			{name:'end',	type:'int'},
-			{name:'na_length',	type:'string'},
+			{name:'na_length',	type:'int'},
 			{name:'strand',	type:'string'},
+			{name:'figfam_id', type:'string'},
 			{name:'protein_id',	type:'string'},
-			{name:'aa_length',	type:'string'},
+			{name:'aa_length',	type:'int'},
 			{name:'gene',	type:'string'},
 			{name:'product',	type:'string'},
 			{name:'uniprot_id',	type:'string'},

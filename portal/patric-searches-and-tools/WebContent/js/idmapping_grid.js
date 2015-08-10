@@ -75,11 +75,17 @@ function loadFBCD() {
 			    {header:'RefSeq Locus Tag', flex:1, align:'center', dataIndex: 'refseq_locus_tag', renderer:renderLocusTag},
 			    {header:'Alt Locus Tag', flex:1, align:'center', dataIndex: 'alt_locus_tag', renderer:renderLocusTag},
 			    {header: header, flex:1, align:'center', dataIndex: requested_data, renderer:renderURL},
+				{header:'Gene Symbol', flex:1, align:'center', dataIndex: 'gene', renderer:BasicRenderer},
 			    {header:'Genome Browser', flex:1, hidden: true, dataIndex:'feature_id', align:'center', renderer:renderGenomeBrowserByFeatureIDMapping},
+				{header:'Annotation', flex:1, align:'center', hidden:true, dataIndex: 'annotation', renderer:BasicRenderer},
+				{header:'Feature Type', flex:1, align:'center', hidden:true, dataIndex: 'feature_type', renderer:BasicRenderer},
 			    {header:'Start', flex:1, hidden: true, dataIndex:'start', align:'center', renderer:BasicRenderer},
 			    {header:'End', flex:1, hidden: true, dataIndex:'end', align:'center', renderer:BasicRenderer},
 			    {header:'Length (NT)', flex:1, hidden: true, dataIndex:'na_length', align:'center', renderer:BasicRenderer},
 			    {header:'Strand', flex:1, hidden: true, dataIndex:'strand',align:'center', renderer:BasicRenderer},
+				{header:'FIGfam ID', flex:1, align:'center', dataIndex:'figfam_id', renderer:BasicRenderer},
+				{header:'Protein ID', flex:1, align:'center', hidden: true, dataIndex:'protein_id', renderer:BasicRenderer},
+				{header:'Length (AA)', flex:1, align:'center', hidden: true, dataIndex:'aa_length', renderer:BasicRenderer},
 			    {header:'Product', flex:2, dataIndex:'product', renderer:BasicRenderer}]
 	}
 	loadMemStore();
