@@ -19,8 +19,6 @@ package edu.vt.vbi.patric.portlets;
 
 import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.common.*;
-import edu.vt.vbi.patric.dao.DBPathways;
-import edu.vt.vbi.patric.dao.ResultType;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -68,7 +66,7 @@ public class CompPathwayMap extends GenericPortlet {
 		String ec_number = request.getParameter("ec_number") != null ? request.getParameter("ec_number") : "";
 		String feature_id = request.getParameter("feature_id") != null ? request.getParameter("feature_id") : "";
 		String ec_names = "";
-		String occurrences = "";
+		int occurrences = 0;
 		String genomeId = "";
 		String taxonId = "";
 		String pathway_name = "";
@@ -168,19 +166,39 @@ public class CompPathwayMap extends GenericPortlet {
 		// TODO: implement with solr
 		if (dm != null && dm.equals("ec")) {
 
-			List<ResultType> ecAssignments = (new DBPathways()).EC2ECProperties(ec_number, map);
-			for (ResultType item : ecAssignments) {
-				ec_names = item.get("description");
-				occurrences = item.get("occurrence");
+			SolrQuery query = new SolrQuery("ec_number:(" + ec_number + ") AND pathway_id:(" + map + ")");
+
+			LOGGER.debug("[{}]:{}", SolrCore.PATHWAY_REF.getSolrCoreName(), query);
+
+			String apiResponse = dataApi.solrQuery(SolrCore.PATHWAY_REF, query);
+
+			Map resp = jsonReader.readValue(apiResponse);
+			Map respBody = (Map) resp.get("response");
+
+			List<Map> sdl = (List<Map>) respBody.get("docs");
+			for (Map doc : sdl) {
+				ec_names = (String) doc.get("ec_description");
+				occurrences = (Integer) doc.get("occurrence");
 			}
 		}
 		else if (dm != null && dm.equals("feature")) {
 
-			List<ResultType> ecAssignments = (new DBPathways()).aaSequence2ECAssignments(feature_id, map);
-			for (ResultType item : ecAssignments) {
-				ec_number = item.get("ec_number");
-				ec_names = item.get("description");
-				occurrences = item.get("occurrence");
+			// q=pathway_id:00051&fq={!join%20from=ec_number%20to=ec_number%20fromIndex=pathway}feature_id:PATRIC.235.14.JMSA01000002.CDS.537.665.fwd+AND+pathway_id:00051
+			SolrQuery query = new SolrQuery("pathway_id:" + map);
+			query.addFilterQuery(SolrCore.PATHWAY.getSolrCoreJoin("ec_number", "ec_number", "feature_id:(" + feature_id +") AND pathway_id:(" + map + ")"));
+
+			LOGGER.debug("[{}]:{}", SolrCore.PATHWAY_REF.getSolrCoreName(), query);
+
+			String apiResponse = dataApi.solrQuery(SolrCore.PATHWAY_REF, query);
+
+			Map resp = jsonReader.readValue(apiResponse);
+			Map respBody = (Map) resp.get("response");
+
+			List<Map> sdl = (List<Map>) respBody.get("docs");
+			for (Map doc : sdl) {
+				ec_number = (String) doc.get("ec_number");
+				ec_names = (String) doc.get("ec_description");
+				occurrences = (Integer) doc.get("occurrence");
 			}
 		}
 

@@ -14,7 +14,7 @@ String feature_id = (String) request.getAttribute("feature_id");
 
 String ec_number = (String) request.getAttribute("ec_number");
 String ec_names = (String) request.getAttribute("ec_names");
-String occurrences = (String) request.getAttribute("occurrences");
+int occurrences = (Integer) request.getAttribute("occurrences");
 
 int taxongenomecount_patric = (Integer) request.getAttribute("taxongenomecount_patric");
 int taxongenomecount_brc1 = (Integer) request.getAttribute("taxongenomecount_brc1");

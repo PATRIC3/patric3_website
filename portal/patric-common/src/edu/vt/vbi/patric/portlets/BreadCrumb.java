@@ -61,7 +61,6 @@ public class BreadCrumb extends GenericPortlet {
 		String k = "PATRIC_DB.cfg.xml";
 		HibernateHelper.buildSessionFactory(k, k);
 		DBSummary.setSessionFactory(HibernateHelper.getSessionFactory(k));
-		DBPathways.setSessionFactory(HibernateHelper.getSessionFactory(k));
 		DBDisease.setSessionFactory(HibernateHelper.getSessionFactory(k));
 		DBPRC.setSessionFactory(HibernateHelper.getSessionFactory(k));
 		try {
