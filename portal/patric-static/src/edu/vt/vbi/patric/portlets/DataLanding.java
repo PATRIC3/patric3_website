@@ -38,6 +38,8 @@ public class DataLanding extends GenericPortlet {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DataLanding.class);
 
+	private static final String JsonDataRoot = "/patric-common/data/";
+
 	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 
 		response.setContentType("text/html");
@@ -45,7 +47,7 @@ public class DataLanding extends GenericPortlet {
 		PortletRequestDispatcher prd;
 
 		if (windowID.indexOf("Genomes") >= 1) {
-			JSONObject jsonData = readJsonData(request, "/patric-common/data/genomes.json");
+			JSONObject jsonData = readJsonData(request, JsonDataRoot + "genomes.json");
 			request.setAttribute("jsonData", jsonData);
 			request.setAttribute("ftpUrl", ftpUrl);
 
@@ -54,7 +56,7 @@ public class DataLanding extends GenericPortlet {
 			prd.include(request, response);
 		}
 		else if (windowID.indexOf("GenomicFeatures") >= 1) {
-			JSONObject jsonData = readJsonData(request, "/patric-common/data/features.json");
+			JSONObject jsonData = readJsonData(request, JsonDataRoot + "features.json");
 			request.setAttribute("jsonData", jsonData);
 			request.setAttribute("ftpUrl", ftpUrl);
 
@@ -63,7 +65,7 @@ public class DataLanding extends GenericPortlet {
 			prd.include(request, response);
 		}
 		else if (windowID.indexOf("SpecialtyGenes") >= 1) {
-			JSONObject jsonData = readJsonData(request, "/patric-common/data/specialtygenes.json");
+			JSONObject jsonData = readJsonData(request, JsonDataRoot + "specialtygenes.json");
 			request.setAttribute("jsonData", jsonData);
 
 			response.setTitle("Specialty Genes");
@@ -71,7 +73,7 @@ public class DataLanding extends GenericPortlet {
 			prd.include(request, response);
 		}
 		else if (windowID.indexOf("AntibioticResistance") >= 1) {
-			JSONObject jsonData = readJsonData(request, "/patric-common/data/antibioticresistance.json");
+			JSONObject jsonData = readJsonData(request, JsonDataRoot + "antibioticresistance.json");
 			request.setAttribute("jsonData", jsonData);
 
 			response.setTitle("Antibiotic Resistance");
@@ -79,7 +81,7 @@ public class DataLanding extends GenericPortlet {
 			prd.include(request, response);
 		}
 		else if (windowID.indexOf("ProteinFamilies") >= 1) {
-			JSONObject jsonData = readJsonData(request, "/patric-common/data/proteinfamilies.json");
+			JSONObject jsonData = readJsonData(request, JsonDataRoot + "proteinfamilies.json");
 			request.setAttribute("jsonData", jsonData);
 			request.setAttribute("ftpUrl", ftpUrl);
 
@@ -88,7 +90,7 @@ public class DataLanding extends GenericPortlet {
 			prd.include(request, response);
 		}
 		else if (windowID.indexOf("Transcriptomics") >= 1) {
-			JSONObject jsonData = readJsonData(request, "/patric-common/data/transcriptomics.json");
+			JSONObject jsonData = readJsonData(request, JsonDataRoot + "transcriptomics.json");
 			request.setAttribute("jsonData", jsonData);
 
 			response.setTitle("Transcriptomics");
@@ -96,7 +98,7 @@ public class DataLanding extends GenericPortlet {
 			prd.include(request, response);
 		}
 		else if (windowID.indexOf("Proteomics") >= 1) {
-			JSONObject jsonData = readJsonData(request, "/patric-common/data/proteomics.json");
+			JSONObject jsonData = readJsonData(request, JsonDataRoot + "proteomics.json");
 			request.setAttribute("jsonData", jsonData);
 
 			response.setTitle("Proteomics");
@@ -104,7 +106,7 @@ public class DataLanding extends GenericPortlet {
 			prd.include(request, response);
 		}
 		else if (windowID.indexOf("PPInteractions") >= 1) {
-			JSONObject jsonData = readJsonData(request, "/patric-common/data/ppinteractions.json");
+			JSONObject jsonData = readJsonData(request, JsonDataRoot + "ppinteractions.json");
 			request.setAttribute("jsonData", jsonData);
 
 			response.setTitle("Protein Protein Interactions");
@@ -112,7 +114,7 @@ public class DataLanding extends GenericPortlet {
 			prd.include(request, response);
 		}
 		else if (windowID.indexOf("Pathways") >= 1) {
-			JSONObject jsonData = readJsonData(request, "/patric-common/data/pathways.json");
+			JSONObject jsonData = readJsonData(request, JsonDataRoot + "pathways.json");
 			request.setAttribute("jsonData", jsonData);
 			request.setAttribute("ftpUrl", ftpUrl);
 

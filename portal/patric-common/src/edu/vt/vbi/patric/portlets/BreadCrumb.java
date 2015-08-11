@@ -18,6 +18,7 @@ package edu.vt.vbi.patric.portlets;
 import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.beans.GenomeFeature;
 import edu.vt.vbi.patric.beans.Taxonomy;
+import edu.vt.vbi.patric.cache.DataLandingGenerator;
 import edu.vt.vbi.patric.cache.ENewsGenerator;
 import edu.vt.vbi.patric.common.DataApiHandler;
 import edu.vt.vbi.patric.common.OrganismTreeBuilder;
@@ -113,6 +114,67 @@ public class BreadCrumb extends GenericPortlet {
 				}
 				else {
 					LOGGER.error("problem in generating eNews cache");
+				}
+			}
+		}
+		catch (Exception e) {
+			LOGGER.error(e.getMessage(), e);
+		}
+
+		// create cache for DLP
+		try {
+			if (initCache) {
+				DataLandingGenerator cacheGen = new DataLandingGenerator();
+
+				boolean antibioticResistance = cacheGen.createCacheFileAntibioticResistanceGenes(getPortletContext().getRealPath("/data/antibioticresistance.json"));
+				boolean genome = cacheGen.createCacheFileGenomes(getPortletContext().getRealPath("/data/genomes.json"));
+				boolean feature = cacheGen.createCacheFileGenomicFeatures(getPortletContext().getRealPath("/data/features.json"));
+				boolean pathway = cacheGen.createCacheFilePathways(getPortletContext().getRealPath("/data/pathways.json"));
+				boolean proteinFamily = cacheGen.createCacheFileProteinFamilies(getPortletContext().getRealPath("/data/proteinfamilies.json"));
+				boolean spGene = cacheGen.createCacheFileSpecialtyGenes(getPortletContext().getRealPath("/data/specialtygenes.json"));
+				boolean transcriptomics = cacheGen.createCacheFileTranscriptomics(getPortletContext().getRealPath("/data/transcriptomics.json"));
+
+				if (antibioticResistance) {
+					LOGGER.info("AntibioticResistance Landing data is generated");
+				}
+				else {
+					LOGGER.info("AntibioticResistance Landing data is failed");
+				}
+				if (genome) {
+					LOGGER.info("Genome Landing data is generated");
+				}
+				else {
+					LOGGER.info("Genome Landing data is failed");
+				}
+				if (feature) {
+					LOGGER.info("Feature Landing data is generated");
+				}
+				else {
+					LOGGER.info("Feature Landing data is failed");
+				}
+				if (pathway) {
+					LOGGER.info("Pathway Landing data is generated");
+				}
+				else {
+					LOGGER.info("Pathway Landing data is failed");
+				}
+				if (proteinFamily) {
+					LOGGER.info("ProteinFamily Landing data is generated");
+				}
+				else {
+					LOGGER.info("ProteinFamily Landing data is failed");
+				}
+				if (spGene) {
+					LOGGER.info("SpecialtyGene Landing data is generated");
+				}
+				else {
+					LOGGER.info("SpecialtyGene Landing data is failed");
+				}
+				if (transcriptomics) {
+					LOGGER.info("Transcriptomics Landing data is generated");
+				}
+				else {
+					LOGGER.info("Transcriptomics Landing data is failed");
 				}
 			}
 		}
