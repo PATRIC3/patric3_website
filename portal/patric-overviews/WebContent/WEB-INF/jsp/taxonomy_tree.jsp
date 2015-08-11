@@ -1,13 +1,10 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" 
-%><%@ page import="edu.vt.vbi.patric.dao.DBShared" 
-%><%@ page import="edu.vt.vbi.patric.dao.ResultType" 
-%><%@ page import="java.util.List" 
 %><%
 int taxonId = (Integer) request.getAttribute("taxonId");
 
 String txUrlBase = "/portal/portal/patric/TaxonomyTree/TaxonomyTreeWindow?action=b&cacheability=PAGE&mode=txtree&taxonId=";
 String txUrlAll = "/patric-common/txtree-bacteria.js";
-String txUrl = "";
+String txUrl;
 if (taxonId == 2) {
 	txUrl = txUrlAll;
 } else {

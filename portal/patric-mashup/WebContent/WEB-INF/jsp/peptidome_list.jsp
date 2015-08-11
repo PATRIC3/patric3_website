@@ -1,22 +1,20 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
-<%@ page import="java.util.List" %>
-<%@ page import="edu.vt.vbi.patric.dao.DBShared" %>
-<%@ page import="edu.vt.vbi.patric.dao.ResultType" %>
+<%@ page import="edu.vt.vbi.patric.common.DataApiHandler" %>
+<%@ page import="edu.vt.vbi.patric.beans.Taxonomy" %>
+<%@ page import="edu.vt.vbi.patric.beans.Genome" %>
 <%
 String cType = request.getParameter("context_type");
 String cId = request.getParameter("context_id");
 String filter = request.getParameter("filter");
 
-DBShared conn_shared = new DBShared();
+DataApiHandler dataApi = new DataApiHandler();
 String organism_name = "";
 if (cType.equals("taxon")) {
-	List<ResultType> parents = conn_shared.getTaxonParentTree(cId);
-	if (parents.size() > 0) {
-		organism_name = parents.get(0).get("name");
-	}
+	Taxonomy taxon = dataApi.getTaxonomy(Integer.parseInt(cId));
+	organism_name = taxon.getTaxonName();
 } else if (cType.equals("genome")) {
-	ResultType names = conn_shared.getNamesFromGenomeInfoId(cId);
-	organism_name = names.get("genome_name");
+	Genome genome = dataApi.getGenome(cId);
+	organism_name = genome.getGenomeName();
 }
 %>
 

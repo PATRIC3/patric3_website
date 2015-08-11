@@ -17,7 +17,7 @@ package edu.vt.vbi.patric.portlets;
 
 import edu.vt.vbi.patric.cache.DataLandingGenerator;
 import edu.vt.vbi.patric.cache.ENewsGenerator;
-import edu.vt.vbi.patric.dao.DBShared;
+import edu.vt.vbi.patric.dao.DBSummary;
 
 import javax.portlet.GenericPortlet;
 import javax.portlet.PortletException;
@@ -55,7 +55,7 @@ public class P2Management extends GenericPortlet {
 			out.println("</ul>");
 		}
 		else if (mode.equals("checkCurrentDB")) {
-			String db_name = DBShared.getUniqueDBName();
+			String db_name = DBSummary.getUniqueDBName();
 			out.println("<ul>");
 			out.println("<li>Your current db is " + db_name + " .</li>");
 			out.println("</ul>");

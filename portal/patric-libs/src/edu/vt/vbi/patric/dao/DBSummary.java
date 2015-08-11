@@ -44,6 +44,21 @@ public class DBSummary {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DBSummary.class);
 
+	/**
+	 * Retrieves unique database name that this class is connecting to. This is useful to identify database under the failover (dataguard)
+	 * configuration. This is used for system management purpose.
+	 *
+	 * @return database name
+	 */
+	public static String getUniqueDBName() {
+		String sql = "select db_unique_name from v$database";
+		Session session = factory.getCurrentSession();
+		session.beginTransaction();
+		Object obj = session.createSQLQuery(sql).uniqueResult();
+		session.getTransaction().commit();
+
+		return obj.toString();
+	}
 
 	/**
 	 * Return sub-SQL based on taxon_id to build a hierarchical query for a given taxon.

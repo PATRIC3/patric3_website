@@ -21,7 +21,6 @@ import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.beans.GenomeFeature;
 import edu.vt.vbi.patric.common.DataApiHandler;
 import edu.vt.vbi.patric.common.SolrCore;
-import edu.vt.vbi.patric.dao.DBShared;
 import edu.vt.vbi.patric.dao.DBSummary;
 import edu.vt.vbi.patric.dao.ResultType;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -59,7 +58,6 @@ public class FunctionalPropertiesPortlet extends GenericPortlet {
 
 		PortletRequestDispatcher prd;
 
-		DBShared conn_shared = new DBShared();
 		DBSummary conn_summary = new DBSummary();
 
 		GenomeFeature feature = null;
@@ -147,7 +145,7 @@ public class FunctionalPropertiesPortlet extends GenericPortlet {
 				prd.include(request, response);
 			}
 			else if (feature.getFeatureType().equals("misc_feature")) {
-				String comment = conn_shared.getNaFeatureComment("" + feature.getP2FeatureId());
+				String comment = ""; // conn_shared.getNaFeatureComment("" + feature.getP2FeatureId());
 				request.setAttribute("comment", comment);
 				prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/functional_properties/misc_feature.jsp");
 				prd.include(request, response);

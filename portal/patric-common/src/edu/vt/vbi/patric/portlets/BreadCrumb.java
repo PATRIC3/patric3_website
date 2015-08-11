@@ -60,9 +60,7 @@ public class BreadCrumb extends GenericPortlet {
 
 		String k = "PATRIC_DB.cfg.xml";
 		HibernateHelper.buildSessionFactory(k, k);
-		DBShared.setSessionFactory(HibernateHelper.getSessionFactory(k));
 		DBSummary.setSessionFactory(HibernateHelper.getSessionFactory(k));
-		DBSearch.setSessionFactory(HibernateHelper.getSessionFactory(k));
 		DBPathways.setSessionFactory(HibernateHelper.getSessionFactory(k));
 		DBDisease.setSessionFactory(HibernateHelper.getSessionFactory(k));
 		DBPRC.setSessionFactory(HibernateHelper.getSessionFactory(k));
@@ -71,7 +69,7 @@ public class BreadCrumb extends GenericPortlet {
 			MBeanServer server = list.get(0);
 			ObjectName on = new ObjectName("Hibernate:type=statistics,application=PATRIC2");
 			StatisticsService mBean = new StatisticsService();
-			mBean.setSessionFactory(DBShared.getSessionFactory());
+			mBean.setSessionFactory(DBSummary.getSessionFactory());
 			server.registerMBean(mBean, on);
 		}
 		catch (Exception e) {

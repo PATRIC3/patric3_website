@@ -216,21 +216,6 @@
 		<supported-public-render-parameter>context_id</supported-public-render-parameter>
 		<supported-public-render-parameter>keyword</supported-public-render-parameter>
 	</portlet>
-	<!-- KLEIO Interface 
-	<portlet>
-		<portlet-name>KLEIOPortlet</portlet-name>
-		<portlet-class>edu.vt.vbi.patric.portlets.KLEIOPortlet</portlet-class>
-		<supports>
-			<mime-type>text/html</mime-type>
-			<portlet-mode>VIEW</portlet-mode>
-		</supports>
-		<portlet-info>
-			<title>KLEIO</title>
-		</portlet-info>
-		<supported-public-render-parameter>context_type</supported-public-render-parameter>
-		<supported-public-render-parameter>context_id</supported-public-render-parameter>
-		<supported-public-render-parameter>keyword</supported-public-render-parameter>
-	</portlet>-->
 	<!-- 3D Structure Viewer -->
 	<portlet>
 		<portlet-name>JmolPortlet</portlet-name>

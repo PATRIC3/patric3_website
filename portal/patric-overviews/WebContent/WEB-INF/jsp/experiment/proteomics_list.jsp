@@ -1,10 +1,6 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" 
-%><%@ page import="java.util.*" 
-%><%@ page import="edu.vt.vbi.patric.dao.DBShared"
-%><%@ page import="edu.vt.vbi.patric.dao.ResultType"
 %><%@ page import="edu.vt.vbi.patric.common.SolrInterface"
-%><%@ page import="edu.vt.vbi.patric.common.SolrCore"
-%><%
+%><%@ page import="edu.vt.vbi.patric.common.DataApiHandler" %><%
 
 	String cType = request.getParameter("context_type");
 	String cId = request.getParameter("context_id");
@@ -14,25 +10,24 @@
 	if(kw != null && (kw.startsWith("/") || kw.startsWith("#"))){
 		kw = "";
 	}
-	DBShared db_shared = new DBShared();
 	SolrInterface solr = new SolrInterface();
+	DataApiHandler dataApi = new DataApiHandler();
 	
-	ArrayList<ResultType> items = null;
+//	ArrayList<ResultType> items = null;
 	if(cType.equals("taxon")){
-		items = db_shared.getTaxonIdsBelowTaxonIdForProteomics(cId);
-		if(items.size() > 0){
-			taxonId = items.get(0).get("id");
-			for (int i = 1; i < items.size(); i++) {
-				taxonId += "##" + items.get(i).get("id");
-			}
-			
-		}
+//		items = db_shared.getTaxonIdsBelowTaxonIdForProteomics(cId);
+//		if(items.size() > 0){
+//			taxonId = items.get(0).get("id");
+//			for (int i = 1; i < items.size(); i++) {
+//				taxonId += "##" + items.get(i).get("id");
+//			}
+//		}
+		// TODO: implement with solr core
 	}
 	else if(cType.equals("genome")){
-		taxonId = db_shared.getTaxonIdOfGenomeId(cId);
+		taxonId = "" + dataApi.getGenome(cId).getTaxonId();
 	}
 	else if(cType.equals("feature")){
-//		solr.setCurrentInstance(SolrCore.PROTEOMICS_PROTEIN);
 		experimentId = solr.getProteomicsTaxonIdFromFeatureId(cId);
 	}
 	

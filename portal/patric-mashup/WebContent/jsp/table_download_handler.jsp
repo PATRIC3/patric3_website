@@ -1,7 +1,6 @@
 <%@ page import="java.util.ArrayList"%><%@ page
 	import="java.util.Arrays"%><%@ page 
-	import="java.util.List"%><%@ page 
-	import="java.util.Iterator"%><%@ page
+	import="java.util.List"%><%@ page
 	import="org.json.simple.JSONArray"%><%@ page
 	import="org.json.simple.JSONObject"%><%@ page
 	import="edu.vt.vbi.patric.common.ExcelHelper"%><%@ page
@@ -9,12 +8,13 @@
 	import="edu.vt.vbi.patric.mashup.ArrayExpressInterface"%><%@ page
 	import="edu.vt.vbi.patric.mashup.PRIDEInterface"%><%@ page
 	import="edu.vt.vbi.patric.mashup.PSICQUICInterface"%><%@ page
-	import="edu.vt.vbi.patric.common.StringHelper"%><%@ page
-	import="edu.vt.vbi.patric.dao.DBShared"%><%@ page
 	import="edu.vt.vbi.patric.dao.DBSummary"%><%@ page
 	import="edu.vt.vbi.patric.dao.ResultType"%><%@ page
 	import="edu.vt.vbi.patric.dao.DBPRC"%><%@ page
 	import="java.io.OutputStream"%>
+<%@ page import="edu.vt.vbi.patric.common.DataApiHandler" %>
+<%@ page import="edu.vt.vbi.patric.beans.Genome" %>
+<%@ page import="edu.vt.vbi.patric.beans.Taxonomy" %>
 <%
 	String _filename = "";
 	List<String> _tbl_header = new ArrayList<String>();
@@ -88,16 +88,16 @@
 
 		_filename = "ArrayExpress_Data";
 
-		DBShared conn_shared = new DBShared();
+		DataApiHandler dataApi = new DataApiHandler();
 		String species_name = "";
 
 		if (cType.equals("taxon")) {
-			ArrayList<ResultType> parents = conn_shared.getTaxonParentTree(cId);
-			species_name = parents.get(0).get("name");
+			Taxonomy taxon = dataApi.getTaxonomy(Integer.parseInt(cId));
+			species_name = taxon.getTaxonName();
 		}
 		else if (cType.equals("genome")) {
-			ResultType names = conn_shared.getNamesFromGenomeInfoId(cId);
-			species_name = names.get("genome_name");
+			Genome genome = dataApi.getGenome(cId);
+			species_name = genome.getGenomeName();
 		}
 
 		ArrayExpressInterface api = new ArrayExpressInterface();
@@ -132,15 +132,15 @@
 
 		_filename = "ProteomicsResourceCenter_Data";
 
-		DBShared conn_shared = new DBShared();
 		String taxonid = "";
 
 		if (cType.equals("taxon")) {
 			taxonid = cId;
 		}
 		else if (cType.equals("genome")) {
-			ResultType names = conn_shared.getNamesFromGenomeInfoId(cId);
-			taxonid = names.get("ncbi_tax_id");
+			DataApiHandler dataApi = new DataApiHandler();
+			Genome genome = dataApi.getGenome(cId);
+			taxonid = "" + genome.getTaxonId();
 		}
 
 		DBPRC conn_prc = new DBPRC();
@@ -178,9 +178,9 @@
 			tId = cId;
 		}
 		else if (cType.equals("genome")) {
-			DBShared conn_shared = new DBShared();
-			ResultType names = conn_shared.getNamesFromGenomeInfoId(cId);
-			tId = names.get("ncbi_taxon_id");
+			DataApiHandler dataApi = new DataApiHandler();
+			Genome genome = dataApi.getGenome(cId);
+			tId = "" + genome.getTaxonId();
 		}
 
 		String strQueryTerm = "txid" + tId + "[Organism:exp]";
@@ -248,9 +248,9 @@
 		}
 		else if (cType.equals("genome")) {
 			//need to query ncbi_tax_id from DB
-			DBShared conn_shared = new DBShared();
-			ResultType names = conn_shared.getNamesFromGenomeInfoId(cId);
-			tId = names.get("ncbi_taxon_id");
+			DataApiHandler dataApi = new DataApiHandler();
+			Genome genome = dataApi.getGenome(cId);
+			tId = "" + genome.getTaxonId();
 		}
 
 		String strQueryTerm = "txid" + tId + "[Organism:exp]";
@@ -276,15 +276,15 @@
 
 		_filename = "IntAct_Data";
 
-		DBShared conn_shared = new DBShared();
 		String species_name = "";
 
 		if (cType.equals("taxon")) {
 			species_name = "species:" + cId;
 		}
 		else if (cType.equals("genome")) {
-			ResultType names = conn_shared.getNamesFromGenomeInfoId(cId);
-			species_name = "species:" + names.get("ncbi_tax_id");
+			DataApiHandler dataApi = new DataApiHandler();
+			Genome genome = dataApi.getGenome(cId);
+			species_name = "species:" + genome.getTaxonId();
 		}
 
 		PSICQUICInterface api = new PSICQUICInterface();
