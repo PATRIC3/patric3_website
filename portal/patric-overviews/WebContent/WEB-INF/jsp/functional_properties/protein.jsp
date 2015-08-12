@@ -159,7 +159,7 @@ String ENDPOINT = System.getProperty("polyomic.baseUrl", "https://www.patricbrc.
 		<input type="hidden" id="protein_sequence" name="protein_sequence" value="" />
 		<input type="hidden" name="refseq_locus_tag" value="<%=feature.hasRefseqLocusTag()?feature.getRefseqLocusTag():"" %>" />
 		<input type="hidden" name="refseq_protein_id" value="<%=feature.hasProteinId()?feature.getProteinId():"" %>" />
-		<input type="hidden" name="refseq_gi_number" value="<%--=(refseqInfo!=null)?refseqInfo.get("gi_number"):"" --%>" />
+		<input type="hidden" name="refseq_gi_number" value="<%=(feature.getGi() != 0)?feature.getGi():"" %>" />
 		<input type="hidden" name="uniprot_accession" value="<%=uniprotkbAccession %>" />
 	</form>
 	
@@ -189,10 +189,14 @@ function getProteinSequence() {
 function SubmitToStructuralGenomicsCenter(center) {
 	if (center=="ssgcid") {
 		Ext.getDom("sgc_form").action = "https://apps.sbri.org/SSGCIDCommTargReq/Default.aspx";
+		getDNASequence();
 	} else {
-		Ext.getDom("sgc_form").action = "http://www.biochem.ucl.ac.uk/cgi-bin/phil/csgid/submit_CSGID_targets/submit_PATRIC_protein.pl";
+//		Ext.getDom("sgc_form").action = "http://www.biochem.ucl.ac.uk/cgi-bin/phil/csgid/submit_CSGID_targets/submit_PATRIC_protein.pl";
+		var form = Ext.getDom("sgc_form");
+		form.action = "http://csgid-submissions.org/CSGIDSubmissionPortal/?gid=<%=feature.getGi()%>";
+		form.method = "GET";
+		form.submit();
 	}
-	getDNASequence();
 }
 function submitFigfam(id) {
 
