@@ -74,19 +74,41 @@ public class FunctionalPropertiesPortlet extends GenericPortlet {
 
 				// to stuffs to here //
 				// UniprotKBAccession
-				List<String> listUniprotkbAccessions = feature.getUniprotkbAccession();
 				String uniprotkbAccession = null;
-				if (listUniprotkbAccessions != null && listUniprotkbAccessions.size() > 1) {
-					uniprotkbAccession = listUniprotkbAccessions.get(0);
-				}
-				// UniprotIDs (PDBs)
-				List<String> externalIds = feature.getExternalId();
 				List<String> pdbIds = new ArrayList<>();
+				// TODO: read from id_refs using gi number
+				{
+					SolrQuery query = new SolrQuery("id_value:(" + feature.getGi() + ")");
+					query.addFilterQuery("id_type:GI");
 
-				if (externalIds != null) {
-					for (String externalId : externalIds) {
-						if (externalId.contains("PDB|")) {
-							pdbIds.add(externalId.replace("PDB|", ""));
+					LOGGER.debug("[{}] {}", SolrCore.ID_REF.getSolrCoreName(), query);
+
+					String apiResponse = dataApi.solrQuery(SolrCore.ID_REF, query);
+
+					Map resp = jsonReader.readValue(apiResponse);
+					Map respBody = (Map) resp.get("response");
+
+					List<Map<String, String>> docs = (List) respBody.get("docs");
+
+					for (Map<String, String> doc : docs) {
+						uniprotkbAccession = doc.get("uniprotkb_accession");
+					}
+				}
+				{
+					SolrQuery query = new SolrQuery("uniprotkb_accession:(" + uniprotkbAccession + ")");
+					query.setRows(DataApiHandler.MAX_ROWS);
+					LOGGER.debug("[{}] {}", SolrCore.ID_REF.getSolrCoreName(), query);
+
+					String apiResponse = dataApi.solrQuery(SolrCore.ID_REF, query);
+
+					Map resp = jsonReader.readValue(apiResponse);
+					Map respBody = (Map) resp.get("response");
+
+					List<Map<String, String>> docs = (List) respBody.get("docs");
+
+					for (Map<String, String> doc : docs) {
+						if (doc.get("id_type").equals("PDB")) {
+							pdbIds.add(doc.get("id_value"));
 						}
 					}
 				}
