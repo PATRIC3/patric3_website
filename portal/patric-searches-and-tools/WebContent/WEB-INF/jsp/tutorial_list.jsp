@@ -9,7 +9,6 @@
 var rowitems = 3;
 var vt = 0, wt = 0, pt = 0, data, subdata = [], item, id, pass1, pass2;
 var types = ["video_tutorials",
-			"workflow_tutorials",
 			"pdf_tutorials"];
 var labels = {};
 
