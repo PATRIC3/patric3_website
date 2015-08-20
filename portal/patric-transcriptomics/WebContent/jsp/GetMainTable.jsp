@@ -3,13 +3,52 @@
 	import="java.util.ArrayList" %><%@ page 
 	import="java.util.List" %><%@ page 
 	import="edu.vt.vbi.patric.dao.ResultType" %><%@ page 
-	import="java.io.OutputStream" %><%@ page 
-	import="java.io.BufferedReader" %><%@ page 
+	import="java.io.OutputStream" %><%@ page
+	import="java.io.BufferedReader" %><%@ page
+	import="java.io.IOException" %><%@ page
 	import="java.io.StringReader" %><%
 
-	String parameter = request.getParameter("GeneFileName");
-	String fileType = request.getParameter("GeneFileType");
-	String data = request.getParameter("data");
+	String parameter = null; // request.getParameter("GeneFileName");
+	String fileType = null; // request.getParameter("GeneFileType");
+	String data = null; // request.getParameter("data");
+
+	StringBuilder stringBuilder = new StringBuilder();
+	BufferedReader bufferedReader = null;
+	try {
+		bufferedReader = request.getReader();
+		char[] charBuffer = new char[1024];
+		int bytesRead = -1;
+		while ((bytesRead = bufferedReader.read(charBuffer)) > 0) {
+			stringBuilder.append(charBuffer, 0, bytesRead);
+		}
+	}
+	catch (IOException ex) {
+		throw ex;
+	} finally {
+		if (bufferedReader != null) {
+			try {
+				bufferedReader.close();
+			} catch (IOException ex) {
+				throw ex;
+			}
+		}
+	}
+
+	String[] params = stringBuilder.toString().split("&");
+
+	for (String param : params) {
+		if (param.contains("GeneFileName=")) {
+			parameter = param.replace("GeneFileName=", "");
+		}
+		else if (param.contains("GeneFileType=")) {
+			fileType = param.replace("GeneFileType=","");
+		}
+		else if (param.contains("data=")) {
+			data = java.net.URLDecoder.decode(param.replace("data=",""), "UTF-8");
+		}
+	}
+
+//	System.out.println("data: " + data);
 
 	if (fileType.equals("xls") || fileType.equals("xlsx")) {
 		List<String> _tbl_header = new ArrayList<String>();
@@ -43,7 +82,7 @@
 		excel.buildSpreadsheet();
 
 		response.setContentType("application/octetstream");
-		response.setHeader("Content-Disposition", "attachment; filename=\"" + parameter + "." + fileType + "\"");
+		response.setHeader("Content-Disposition", "attachment; filename=\"" + parameter + ".xlsx\"");
 
 		OutputStream outs = response.getOutputStream();
 		excel.writeSpreadsheettoBrowser(outs);
