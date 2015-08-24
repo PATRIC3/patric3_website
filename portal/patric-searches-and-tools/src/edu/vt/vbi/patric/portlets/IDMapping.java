@@ -304,7 +304,7 @@ public class IDMapping extends GenericPortlet {
 				// query to GenomeFeature
 				try {
 					SolrQuery query = new SolrQuery(fromId + ":(" + keyword + ")");
-					query.setRows(10000);
+					query.addFilterQuery("annotation:PATRIC").setRows(10000);
 
 					if (toId.equals("gene_id") || toId.equals("gi")) {
 						query.addFilterQuery(toId + ":[1 TO *]");
@@ -502,7 +502,7 @@ public class IDMapping extends GenericPortlet {
 			if (!giList.isEmpty()) {
 				try {
 					SolrQuery query = new SolrQuery("gi:(" + StringUtils.join(giList, " OR ") + ")");
-					query.setRows(10000);
+					query.addFilterQuery("annotation:PATRIC").setRows(10000);
 
 					LOGGER.trace("Other to PATRIC 3/3: [{}] {}", SolrCore.FEATURE.getSolrCoreName(), query.toString());
 
