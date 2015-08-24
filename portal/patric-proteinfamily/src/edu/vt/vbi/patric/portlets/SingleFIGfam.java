@@ -123,6 +123,7 @@ public class SingleFIGfam extends GenericPortlet {
 				int start = Integer.parseInt(start_id);
 				int end = Integer.parseInt(limit);
 
+				key.put("filter", "annotation:PATRIC AND feature_type:CDS");
 				key.put("fields",
 						"genome_id,genome_name,accession,patric_id,alt_locus_tag,refseq_locus_tag,gene,annotation,feature_type,feature_id,start,end,na_length,strand,protein_id,aa_length,product,figfam_id");
 
