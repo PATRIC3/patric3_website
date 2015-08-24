@@ -1,5 +1,4 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" 
-%><%@ page import="edu.vt.vbi.patric.common.OrganismTreeBuilder"
 %><portlet:defineObjects/><%
 String contextType = (String) request.getAttribute("contextType");
 String contextId = (String) request.getAttribute("contextId");

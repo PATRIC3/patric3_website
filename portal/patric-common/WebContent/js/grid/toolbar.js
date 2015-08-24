@@ -425,6 +425,16 @@ function createToolbar(type, download_option, workspace_type) {
 						callOperation('DoIDMapping', "alt_locus_tag", 'No item(s) are selected. To run id mapping tool, at least one item must be selected.');
 				}
 			}, {
+				text : 'P2 Feature ID',
+				handler : function() {
+					if (Page.exemptList.some(function(element, index, array) {
+							return property.name && property.name == element;
+						}))
+						submitIDMapping(property.name, "p2_feaure_id");
+					else
+						callOperation('DoIDMapping', "p2_feature_id", 'No item(s) are selected. To run id mapping tool, at least one item must be selected.');
+				}
+			}, {
 				text : '<b>RefSeq Identifiers</b>',
 				plain : true
 			}, {

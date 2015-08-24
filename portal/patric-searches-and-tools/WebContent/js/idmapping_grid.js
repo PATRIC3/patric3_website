@@ -28,6 +28,10 @@ function loadFBCD() {
         header = "Alt Locus Tag";
         requested_data = hash.to;
     }
+	else if (hash.to == "p2_feature_id") {
+		header = "P2 Feature ID";
+		requested_data = hash.to;
+	}
 	else if (hash.to == "patric_id") {
 		if (hash.from == "refseq_locus_tag") {
 		    header = "RefSeq Locus Tag";
@@ -56,6 +60,10 @@ function loadFBCD() {
 		else if (hash.from == "patric_id") {
 		    header = "PATRIC ID";
 		    requested_data = hash.from;
+		}
+		else if (hash.from == "p2_feature_id") {
+			header = "P2 Feature ID";
+			requested_data = hash.from;
 		}
 		else {
 		    header = hash.from;

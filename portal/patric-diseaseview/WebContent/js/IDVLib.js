@@ -444,6 +444,12 @@ function mkToolbar_Graph() {
 							handler: function(){
 							callIDMapping_Graph("alt_locus_tag");
 							}
+						}, {
+							text: 'P2 Feature ID',
+							itemCls:'x-menu-item-cstm',
+							handler: function(){
+								callIDMapping_Graph("p2_feature_id");
+							}
 						}]
 					}, {
 						items:['<b class="menu-title">RefSeq Identifiers</b>',

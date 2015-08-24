@@ -136,7 +136,7 @@ public class GenomeFeature {
 		json.put("annotation", getAnnotation());
 		json.put("feature_type", getFeatureType());
 		json.put("feature_id", getId());
-		// p2_feature_id
+		json.put("p2_feature_id", getP2FeatureId());
 		json.put("alt_locus_tag", getAltLocusTag());
 		json.put("patric_id", getPatricId());
 		json.put("refseq_locus_tag", getRefseqLocusTag());

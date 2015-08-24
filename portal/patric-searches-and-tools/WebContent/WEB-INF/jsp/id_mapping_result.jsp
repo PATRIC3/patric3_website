@@ -82,6 +82,7 @@ Ext.onReady(function() {
 			{name:'accession',	type:'string'},
 			{name:'alt_locus_tag',	type:'string'},
 			{name:'feature_id',	type:'string'},
+			{name:'p2_feature_id',	type:'int'},
 			{name:'annotation',	type:'string'},
 			{name:'feature_type', type:'string'},
 			{name:'start',	    type:'int'},
