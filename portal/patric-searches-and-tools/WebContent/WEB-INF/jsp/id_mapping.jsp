@@ -127,7 +127,6 @@ Ext.onReady(function(){
 });
  
 function searchbykeyword() {
-	var genomeId;
 
 	if (Ext.getDom("keyword").value == "") {
 		Ext.MessageBox.alert("Empty Search Box...");
@@ -137,8 +136,9 @@ function searchbykeyword() {
 		var value = Ext.getDom("keyword").value;
 
 		value = value.replace(/,/g,"~");
+		value = value.replace(/\n\n/g,"\n");
 		value = value.replace(/\n/g,"~");
-		
+
 		var size = value.split("~").length;
 	
 		if (size > 5000) {
@@ -151,7 +151,7 @@ function searchbykeyword() {
 				params: {cType: "taxon",
 					cId: "",
 					sraction: "save_params",
-					keyword: Ext.getDom("keyword").value.trim(),
+					keyword: value.replace(/~/g, ' OR '),
 					from: combo.getValue(),
 					fromGroup: combo.valueModels[0].data.group,
 					to: combo2.getValue(),
