@@ -192,6 +192,15 @@ public class SiteHelper {
 		else if (target.equalsIgnoreCase("Human_HOME")) {
 			link = "//www.ncbi.nlm.nih.gov/assembly/GCF_000001405.26";
 		}
+		else if (target.equalsIgnoreCase("bioproject_accession")) {
+			link = "http://www.ncbi.nlm.nih.gov/bioproject/?term=";
+		}
+		else if (target.equalsIgnoreCase("biosample_accession")) {
+			link = "http://www.ncbi.nlm.nih.gov/biosample/";
+		}
+		else if (target.equalsIgnoreCase("assembly_accession")) {
+			link = "http://www.ncbi.nlm.nih.gov/assembly/";
+		}
 		// edit patric-searches-and-tools/WebContent/js/specialty_gene_list_grids.js as well
 		return link;
 	}

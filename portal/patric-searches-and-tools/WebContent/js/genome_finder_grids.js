@@ -244,6 +244,21 @@ function renderCompletionDate(value, metadata, record, rowIndex, colIndex, store
 	return value;
 }
 
+function renderBioProjectAccession(value, metadata, record, rowIndex, colIndex, store) {
+	metadata.tdAttr = 'data-qtip="' + value + '" data-qclass="x-tip"';
+	return Ext.String.format('<a href="http://www.ncbi.nlm.nih.gov/bioproject/?term={0}" target="_blank">{0}</a>', value);
+}
+
+function renderBioSampleAccession(value, metadata, record, rowIndex, colIndex, store) {
+	metadata.tdAttr = 'data-qtip="' + value + '" data-qclass="x-tip"';
+	return Ext.String.format('<a href="http://www.ncbi.nlm.nih.gov/biosample/{0}" target="_blank">{0}</a>', value);
+}
+
+function renderAssemblyAccession(value, metadata, record, rowIndex, colIndex, store) {
+	metadata.tdAttr = 'data-qtip="' + value + '" data-qclass="x-tip"';
+	return Ext.String.format('<a href="http://www.ncbi.nlm.nih.gov/assembly/{0}" target="_blank">{0}</a>', value);
+}
+
 function ShowSequenceTab(genomeId, genomeName) {
 
 	var Page = $Page, property = Page.getPageProperties(), hash = property.hash;
