@@ -19,7 +19,7 @@ String type = request.getParameter("type").split("/")[0];
 <div class="table-container">
 	<div id="grid_result_summary"></div>
 	<p>This table lists human genes that have been shown to have some genetic association with the given infectious disease(s). From this table, you can get more information about the gene from NCBI or GeneCards, 
-	access the original database entry in the Genetic Association Database (GAD), and read the published study that reported the association. For more information, see our <a href="http://enews.patricbrc.org/virulence-and-disease-faqs/" target="_blank">Virulence &amp; Disease FAQs</a>. </p>
+	access the original database entry in the Genetic Association Database (GAD), and read the published study that reported the association. For more information, see our <a href="http://enews.patricbrc.org/virulence-and-disease-faqs/" target="_blank">Virulence &amp; Disease User Guide</a>. </p>
 </div>
 <div id="copy-button" class="x-hidden"></div>
 <div id='PATRICGrid'></div>

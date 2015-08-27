@@ -9,7 +9,7 @@ String zscore = (request.getParameter("zscore")!=null && !request.getParameter("
 <script type="text/javascript" src="/patric/js/vbi/GeneExpression.min.js"></script>
 <p>
 The data below summarizes the transcriptomics data associated with this gene. The list of comparisons (and respective visual summaries) can be filtered by keyword, log ratio and Z-score.  
-To learn more, see <a href=" http://enews.patricbrc.org/faqs/transcriptomics-faqs/gene-page-transcriptomics-faqs/" target=_blank>Gene Page Transcriptomics FAQs</a>.</p>
+To learn more, see <a href=" http://enews.patricbrc.org/faqs/transcriptomics-faqs/gene-page-transcriptomics-faqs/" target=_blank>Gene Page Transcriptomics User Guide</a>.</p>
 <div id="expression_panel"></div>
 <form id="expression_param" action="#" method="post">
 	<input type="hidden" id="featureId" name="featureId" value="<%=cId %>" />

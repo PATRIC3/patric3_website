@@ -47,7 +47,7 @@ String feature_name = (String) request.getAttribute("feature_name");
 <p>PATRIC provides enhanced literature search and text mining techniques to identify 
 	genes, proteins, diseases, drugs, organisms, and other entities of interest.
 	To learn more, please see 
-	<a href="http://enews.patricbrc.org/literature-faqs/" target="_blank">Literature FAQs</a>.
+	<a href="http://enews.patricbrc.org/literature-faqs/" target="_blank">Literature User Guide</a>.
 </p></div>
 
 <div id="grid_result_summary"></div>

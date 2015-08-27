@@ -16,7 +16,7 @@ String type = request.getParameter("type").split("/")[0];
 <div class="table-container">
 	<div id="grid_result_summary"></div>
 		<p>This table lists human genes that have been shown to have some association with the given infectious disease(s) via chemcial treatment or exposure. From this table, you can get more information about the gene from NCBI or GeneCards, access the original database entry in the Comparative Toxicogenomics Database (CTD), 
-		and read the published study that reported the association. For more information, see our <a href="http://enews.patricbrc.org/virulence-and-disease-faqs/"  target="_blank">Virulence &amp; Disease FAQs</a>.</p> 
+		and read the published study that reported the association. For more information, see our <a href="http://enews.patricbrc.org/virulence-and-disease-faqs/"  target="_blank">Virulence &amp; Disease User Guide</a>.</p>
 </div>
 <div id="copy-button" class="x-hidden"></div>
 <div id='PATRICGrid'></div>

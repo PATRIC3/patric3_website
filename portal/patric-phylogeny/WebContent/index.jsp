@@ -19,7 +19,7 @@ if (!orderList.isEmpty()) {
 	<p>Chose an order to view its mulit-gene phylogenetic tree in either phylogram or cladogram format.
 			Use controls above the tree to show or hide support values, and to color the tree according to genus or species.
 			Click on a species name to visit that species overview page.
-			To learn more about interacting with trees and the method used to create them, please see <a href="http://enews.patricbrc.org/phylogeny-faqs/" target="_blank">Phylogeny FAQs</a>.
+			To learn more about interacting with trees and the method used to create them, please see <a href="http://enews.patricbrc.org/phylogeny-faqs/" target="_blank">Phylogeny User Guide</a>.
 	</p>
 
 	<div id="tree_controls">

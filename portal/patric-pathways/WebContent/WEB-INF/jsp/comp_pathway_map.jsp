@@ -78,9 +78,9 @@ String pathway_class = (String) request.getAttribute("pathway_class");
 	<p style="line-height:200%;">
 	 Pathways provide a visual representation of relationships between features.
 	   For a description of what you can do from this Comparative Pathways Map page, please see
-	    <a href="http://enews.patricbrc.org/comparative-pathway-tool-faqs/" target="_blank">Comparative Pathway Tool FAQs</a>.
+	    <a href="http://enews.patricbrc.org/comparative-pathway-tool-faqs/" target="_blank">Comparative Pathway Tool User Guide</a>.
 	      For an explanation of various annotation sources, please see 
-	      <a href="http://enews.patricbrc.org/annotation-faqs/" target="_blank">Annotation FAQs</a>.
+	      <a href="http://enews.patricbrc.org/annotation-faqs/" target="_blank">Annotation User Guide</a>.
 	 </p>
 	</td>
 	</tr>

@@ -6,7 +6,7 @@ String speciesName = (String) request.getAttribute("speciesName");
 	At this time, PATRIC retrieves post-geomic meta-data in real-time from world prominent databases by using taxonomy ID or name as the search term.
 	Actual experimental data and results can be accessed via linkouts to respective databases. 			
 	We categorize the post-genomic metadata into transcriptomics, proteomics, structure and interaction data types. 
-	For further explanation, please see <a href="http://enews.patricbrc.org/post-genomics-faqs/" target="_blank">Experiment Data FAQs</a>.
+	For further explanation, please see <a href="http://enews.patricbrc.org/post-genomics-faqs/" target="_blank">Experiment Data User Guide</a>.
 </p>
 
 <script type="text/javascript">

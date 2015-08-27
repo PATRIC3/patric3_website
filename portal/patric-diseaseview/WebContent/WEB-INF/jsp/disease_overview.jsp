@@ -15,7 +15,7 @@ pathogen and host genes with specific pathogens; the Disease-Pathogen Visualizat
 presents relationships between pathogens, genes, and diseases in an  
 interactive graph; and the Disease Map tab geolocates reports of  
 associated diseases around the globe in real-time. For more  
-information, see our <a href="http://enews.patricbrc.org/virulence-and-disease-faqs/" target="_blank">Virulence &amp; Disease FAQs</a>.
+information, see our <a href="http://enews.patricbrc.org/virulence-and-disease-faqs/" target="_blank">Virulence &amp; Disease User Guide</a>.
 </p></div>
 
 <div id="copy-button"></div>

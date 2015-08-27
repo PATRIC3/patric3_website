@@ -28,7 +28,7 @@ String cType = request.getParameter("context_type");
 <p>
 	The Virulence Genes tab of this table lists bactertial genes that have been shown to play a role in virulence. 
 	From here you can read general information about each gene, access the original entry in the Virulence Factor Database (VFDB), and find PATRIC homologs of a given gene. The Virulence Gene Homologs tab lists homologs of known virulence genes in related PATRIC species (i.e., organisms in the same genus). 
-	From this tab you can access PATRIC features for each gene. For more information, see our <a href="http://enews.patricbrc.org/virulence-and-disease-faqs/" target="_blank">Virulence &amp; Disease FAQs</a>. 
+	From this tab you can access PATRIC features for each gene. For more information, see our <a href="http://enews.patricbrc.org/virulence-and-disease-faqs/" target="_blank">Virulence &amp; Disease User Guide</a>.
 </p>
 </div>
 <div id="grid_result_summary">Loading...</div>

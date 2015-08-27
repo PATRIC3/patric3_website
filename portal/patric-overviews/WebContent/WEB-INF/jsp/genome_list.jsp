@@ -32,7 +32,7 @@
 <div id="copy-button" class="x-hidden"></div>
 <p>
 	The Genome List provides all of the available genomes and associated metadata at this taxonomic level. 
-	To learn more about available metadata, see <a href="http://enews.patricbrc.org/genome-metadata-faqs/" target="_blank">Genome Metadata FAQs</a>.
+	To learn more about available metadata, see <a href="http://enews.patricbrc.org/genome-metadata-faqs/" target="_blank">Genome Metadata User Guide</a>.
 </p>
 <div id="tree-panel" class="left"></div>
 <div id="sample-layout" class="left"></div>

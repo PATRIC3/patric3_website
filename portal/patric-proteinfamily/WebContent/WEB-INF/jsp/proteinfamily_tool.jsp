@@ -13,7 +13,7 @@ boolean isLoggedIn = (Boolean) request.getAttribute("isLoggedIn");
 <div style="padding: 5px;" >
 	<div id="intro" class="searchtool-intro">
 	<p>The Protein Family Sorter tool enables researchers to examine the distribution of specific protein families, known as FIGfams, across different genomes. <i><b>Protein Family Sorter currently supports comparison up to 500 genomes.</b></i> Select genomes using 'Taxonomy Tree' or 'A-Z List' tab below or create custom Genome Groups using <a href="GenomeFinder?cType=taxon&cId=&dm=">Genome Finder</a>. For further explanation, please see 
-	<a href="http://enews.patricbrc.org/protein-family-sorter/">Protein Family Sorter FAQs.</a>
+	<a href="http://enews.patricbrc.org/protein-family-sorter/">Protein Family Sorter User Guide.</a>
 	</p>
 	</div>
 	<div class="left" style="width:480px">

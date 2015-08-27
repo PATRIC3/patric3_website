@@ -992,7 +992,7 @@ function createToolbar(type, download_option, workspace_type) {
 			rowspan : 2,
 			width : 120,
 			iconAlign : 'left',
-			text : 'PATRIC FAQs',
+			text : 'User Guides',
 			style : 'padding-left:5px; padding-right:5px;',
 			icon : '/patric/images/toolbar_faq.png',
 			handler : function() {
@@ -1011,7 +1011,7 @@ function createToolbar(type, download_option, workspace_type) {
 			rowspan : 2,
 			width : 120,
 			iconAlign : 'left',
-			text : 'PATRIC FAQs',
+			text : 'User Guides',
 			style : 'padding-left:5px; padding-right:5px;',
 			icon : '/patric/images/toolbar_faq_small.png',
 			handler : function() {

@@ -55,7 +55,7 @@ function launchTranscriptomicsUploader() {
 	The list below provides all of the available transcriptomics experiments and associated metadata 
 	at this taxonomic level. The list of experiments can be filtered by metadata or keyword. 
 	To learn more about PATRIC's transciptomics data and associated  metadata, 
-	see <a href="http://enews.patricbrc.org/faqs/transcriptomics-faqs/transcriptomics-experiment-and-comparison-list-faqs" target=_blank>Transcriptomics FAQs</a>.
+	see <a href="http://enews.patricbrc.org/faqs/transcriptomics-faqs/transcriptomics-experiment-and-comparison-list-faqs" target=_blank>Transcriptomics User Guide</a>.
 </p>
 
 <div id="tree-panel" style="float:left"></div>

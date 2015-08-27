@@ -8,7 +8,7 @@ int taxonId = (Integer) request.getAttribute("taxonId");
 %>
 	<div id="intro" class="searchtool-intro">
 		<p>To use PATRIC's download tool, select one or more genomes of interest, then one or more annotation sources, followed by the file types.
-		  For further explanation, please see <a href="http://enews.patricbrc.org/download-data-faqs/download-data-tool-faqs/" target="_blank">Download Data Tool FAQs</a>.</p>
+		  For further explanation, please see <a href="http://enews.patricbrc.org/download-data-faqs/download-data-tool-faqs/" target="_blank">Download Data Tool User Guide</a>.</p>
 	</div>
 
 	<div id="result-meta" class="search-results-form-wrapper" style="display:none">

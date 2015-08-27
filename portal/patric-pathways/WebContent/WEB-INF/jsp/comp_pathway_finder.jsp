@@ -10,7 +10,7 @@ boolean isLoggedIn = (Boolean) request.getAttribute("isLoggedIn");
 %>
 <div style="padding:5px">
 <div id="intro" class="searchtool-intro">
-	<p>Comparative Pathway Tool allows you to identify a set of pathways based on taxonomy, EC number, pathway ID, pathway name and/or specific annotation type.  For more information on Comparative Pathway Tool please see our <a href="http://enews.patricbrc.org/comparative-pathway-tool-faqs/" target="_blank">Comparative Pathway Tool FAQs</a>.  For an explanation of various annotation sources, please see <a href="http://enews.patricbrc.org/faqs/annotation-faqs/" target="_blank">Annotation FAQs.</a></p>
+	<p>Comparative Pathway Tool allows you to identify a set of pathways based on taxonomy, EC number, pathway ID, pathway name and/or specific annotation type.  For more information on Comparative Pathway Tool please see our <a href="http://enews.patricbrc.org/comparative-pathway-tool-faqs/" target="_blank">Comparative Pathway Tool User Guide</a>.  For an explanation of various annotation sources, please see <a href="http://enews.patricbrc.org/faqs/annotation-faqs/" target="_blank">Annotation User Guide.</a></p>
 </div>
 
 <div id="result-meta" class="search-results-form-wrapper" style="display:none">

@@ -39,7 +39,7 @@
 	The list below provides all of the available proteomics experiments and associated metadata 
 	for this feature. The list of experiments can be filtered by metadata or keyword. 
 	To learn more about PATRIC's proteomics data and associated  metadata, 
-	see <a href="http://enews.patricbrc.org/faqs/transcriptomics-faqs/transcriptomics-experiment-and-comparison-list-faqs" target=_blank>Transcriptomics FAQs</a>.
+	see <a href="http://enews.patricbrc.org/faqs/transcriptomics-faqs/transcriptomics-experiment-and-comparison-list-faqs" target=_blank>Transcriptomics User Guide</a>.
 </p>
 
 <div id="tree-panel" style="float:left"></div>

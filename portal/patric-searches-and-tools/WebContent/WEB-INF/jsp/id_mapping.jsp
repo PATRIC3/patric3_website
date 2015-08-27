@@ -12,7 +12,7 @@ boolean isLoggedIn = (Boolean) request.getAttribute("isLoggedIn");
 %>
 	<div id="intro" class="searchtool-intro"> 
 		<p>The ID Mapping Tool enables researchers to locate synonymous identifiers across multiple-source databases.  
-		For further explanation, please see <a href="http://enews.patricbrc.org/id-mapping-tool-faqs/">ID Mapping Tool FAQs</a>.</p>
+		For further explanation, please see <a href="http://enews.patricbrc.org/id-mapping-tool-faqs/">ID Mapping Tool User Guide</a>.</p>
 	</div> 
  
 	<div id="result-meta" class="search-results-form-wrapper" style="display:none"> 

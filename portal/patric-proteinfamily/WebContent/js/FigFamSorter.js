@@ -146,7 +146,7 @@ function getGenomeNames(windowID, stateObject) {
 
 	leftHtml += "<div style=\"padding:10px;\">" + option4 + option3 + option1 + option2 + "<br/><div style=\"padding:10px; float:right;\"><input type='button' class='button' style='padding: 2px 8px;' value='Filter' onclick=\"updateOrthoListTable('" + windowID + "');\"/></div>";
 
-	Ext.getDom("information_panel").innerHTML = "<p>For a description of what you can do from this Protein Families (FIGfam) page, please see our " + "<a href='http://enews.patricbrc.org/protein-family-sorter/'>Protein Family Sorter FAQs.</a></p>";
+	Ext.getDom("information_panel").innerHTML = "<p>For a description of what you can do from this Protein Families (FIGfam) page, please see our " + "<a href='http://enews.patricbrc.org/protein-family-sorter/'>Protein Family Sorter User Guide.</a></p>";
 
 	Ext.create('Ext.panel.Panel', {
 		id : 'tabLayout',

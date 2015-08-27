@@ -42,7 +42,7 @@
 <% if (source.equals("PATRIC_VF")) { %>
 	<p>PATRIC_VF is a manually curated virulence factor database, which contains the genes identified as playing a role in 
 		virulence in certain organisms.  Each PATRIC_VF gene is linked to one or more journal articles that establish its 
-		virulence based on experimental evidence. For more details, please see <a href="http://enews.patricbrc.org/faqs/patric-curated-virulence-factors-faqs/" target="_blank">FAQs</a>.</p>
+		virulence based on experimental evidence. For more details, please see <a href="http://enews.patricbrc.org/faqs/patric-curated-virulence-factors-faqs/" target="_blank">User Guide</a>.</p>
 <% } else { %>
 	<p>[Placeholder for Description]</p>
 <% } %>

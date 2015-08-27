@@ -38,7 +38,7 @@ if (map == null) {
 <div id="copy-button" style="display:none"></div>
 <p>
 	For a description of what you can do from this Comparative Pathways page, please see
-	<a href="http://enews.patricbrc.org/comparative-pathway-tool-faqs/" target="_blank">Comparative Pathway Tool FAQs</a>.
+	<a href="http://enews.patricbrc.org/comparative-pathway-tool-faqs/" target="_blank">Comparative Pathway Tool User Guide</a>.
 </p> 
 
 <div id="panelFilter" style="display:block;">

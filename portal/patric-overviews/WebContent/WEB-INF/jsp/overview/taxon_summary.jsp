@@ -37,7 +37,7 @@ if (tId != null) {
 		<td><a href="http://www.immuneepitope.org/sourceOrgId/<%=tId %>" target="_blank">Immune Epitope Database and Analysis Resource</a></td>
 	</tr>
 	<tr>
-		<td colspan="2"><span>Summary Terms - Click on number to view genomes associated with term (<a href="http://enews.patricbrc.org/genome-finder-faqs/" target="_blank">see PATRIC FAQs</a>)</span></td>
+		<td colspan="2"><span>Summary Terms - Click on number to view genomes associated with term (<a href="http://enews.patricbrc.org/genome-finder-faqs/" target="_blank">see User Guides</a>)</span></td>
 	</tr>
 	<tr>
 		<td colspan="2"><img src="/patric/images/loading.gif" alt="Loading Icon"/> Loading...</td>

@@ -29,7 +29,7 @@ String genomeId = (String) request.getAttribute("genomeId");
 	<div id="grid_result_summary"><b>Loading...</b></div>
 	<p>
 	Feature tables contain all of the identified features for all of the genomes in a particular genus.  
-	Tables may be refined to show subsets of features via various user controls, as described in <a href="http://enews.patricbrc.org/faqs/feature-table-faqs/" target="_blank">Feature Table FAQs</a>.
+	Tables may be refined to show subsets of features via various user controls, as described in <a href="http://enews.patricbrc.org/faqs/feature-table-faqs/" target="_blank">Feature Table User Guide</a>.
 	</p>
 </td></tr></table>
 </div>   
