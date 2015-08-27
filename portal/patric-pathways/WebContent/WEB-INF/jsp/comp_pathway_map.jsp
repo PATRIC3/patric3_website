@@ -414,7 +414,7 @@ Ext.onReady(function(){
 			   		 			icon: '/patric/images/99CCFF.png'
 							},{
 								text: 'Selected from EC table',
-								icon: '/patric/images/990000.png'
+								icon: '/patric/images/FF0000.png'
 		   		 			}]
 		   	 		},'->','-',{
            	   	 cls: 'x-btn-text-icon'
