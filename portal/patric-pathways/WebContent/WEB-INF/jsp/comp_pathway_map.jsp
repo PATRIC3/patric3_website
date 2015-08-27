@@ -401,15 +401,20 @@ Ext.onReady(function(){
 			   		text:'Legend', 
 			   		xtype:'splitbutton',
 			   		menu: [{
+								text: 'Not Annotated',
+								icon: '/patric/images/FFFFFF.png'
+							},{
 			   					text: 'Annotated',
 			   					icon: '/patric/images/BEFDBE.png'
-			   		 		}, 
-			   		 		{
-			   		 			text: 'Not annotated',
+							},{
+								text: 'Present in some genomes',
 			   		 			icon: '/patric/images/D5E6D5.png'
 		   		 			},{
 		   		 				text: 'Selected',
 			   		 			icon: '/patric/images/99CCFF.png'
+							},{
+								text: 'Selected from EC table',
+								icon: '/patric/images/990000.png'
 		   		 			}]
 		   	 		},'->','-',{
            	   	 cls: 'x-btn-text-icon'
