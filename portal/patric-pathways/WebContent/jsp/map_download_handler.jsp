@@ -1,17 +1,53 @@
 <%@ page import="edu.vt.vbi.patric.common.ImageBuilder"
 %><%@ page import="javax.servlet.ServletOutputStream"
+%><%@ page import="java.io.BufferedReader"
+%><%@ page import="java.io.IOException"
 %><%
 	int i = 0, j = 0, k=0, left=0, top=0, width=0, height=0, flag=0;
 	String html="", color="";
 	
 	// getting common params
-	String map_id = request.getParameter("map"); 
+	// process post stream
+	String map_id = "", div = "";
+
+	StringBuilder stringBuilder = new StringBuilder();
+	BufferedReader bufferedReader = null;
+	try {
+		bufferedReader = request.getReader();
+		char[] charBuffer = new char[1024];
+		int bytesRead = -1;
+		while ((bytesRead = bufferedReader.read(charBuffer)) > 0) {
+			stringBuilder.append(charBuffer, 0, bytesRead);
+		}
+	}
+	catch (IOException ex) {
+		throw ex;
+	} finally {
+		if (bufferedReader != null) {
+			try {
+				bufferedReader.close();
+			} catch (IOException ex) {
+				throw ex;
+			}
+		}
+	}
+
+	String[] params = stringBuilder.toString().split("&");
+
+	for (String param : params) {
+		if (param.contains("map=")) {
+			map_id = param.replace("map=", "");
+		}
+		else if (param.contains("mapdiv=")) {
+			div = java.net.URLDecoder.decode(param.replace("mapdiv=",""), "UTF-8");
+		}
+	}
+//	System.out.println("map_id: " + map_id);
+//	System.out.println("div: " + div);
+
 	String filename = map_id + "patric.png";
+	String[] div_split = div.split("AA");
 
-	String div = request.getParameter("mapdiv");
-
-	String[] div_split = div.split("AA"); 
-	
 	ImageBuilder img = new ImageBuilder(map_id);
 	
 	response.setContentType("application/octetstream");
