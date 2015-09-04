@@ -2,8 +2,10 @@
 %><portlet:defineObjects /><%
 String contextType = (String) request.getAttribute("contextType");
 String contextId = (String) request.getAttribute("contextId");
-String gid = (String) request.getAttribute("gid");
-String figfam = (String) request.getAttribute("figfam");
+String genomeIds = (String) request.getAttribute("genomeIds");
+String familyIds = (String) request.getAttribute("familyIds");
+String familyType = (String) request.getAttribute("familyType");
+String familyId = (String) request.getAttribute("familyId");
 int length = (Integer) request.getAttribute("length");
 %>
 
@@ -61,7 +63,7 @@ Ext.onReady(function()
 		plugin:true,
 		plugintype:"checkbox",
 		scm:[[checkbox,
-			{text:'ID',		            dataIndex:'figfam_id',		hidden: ('<%=length%>' > 1)?false:true, flex:1,	renderer:BasicRenderer},
+			{text:'ID',		            dataIndex:'<%=familyId%>',		hidden: ('<%=length%>' > 1)?false:true, flex:1,	renderer:BasicRenderer},
 			{text:'Genome Name',		dataIndex:'genome_name',		hidden: false, flex:2,	renderer:renderGenomeName},
 			{text:'Accession',			dataIndex:'accession',			hidden: true,	flex:1, renderer:renderAccession},
 			{text:'PATRIC ID',			dataIndex:'patric_id',			flex:1, renderer:renderSeedId},
@@ -114,11 +116,14 @@ Ext.onReady(function()
 	$Page.doLayout();
 });
 
-function getGID(){
-	return '<%=gid%>';
+function getGenomeIDs(){
+	return '<%=genomeIds%>';
 }
-function getFigFam(){
-	return '<%=figfam%>';
+function getFamilyIds(){
+	return '<%=familyIds%>';
+}
+function getFamilyType(){
+	return '<%=familyType%>';
 }
 //]]>
 </script>

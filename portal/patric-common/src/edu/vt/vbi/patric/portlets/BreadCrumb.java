@@ -127,49 +127,54 @@ public class BreadCrumb extends GenericPortlet {
 				DataLandingGenerator cacheGen = new DataLandingGenerator();
 
 				boolean antibioticResistance = cacheGen.createCacheFileAntibioticResistanceGenes(getPortletContext().getRealPath("/data/antibioticresistance.json"));
-				boolean genome = cacheGen.createCacheFileGenomes(getPortletContext().getRealPath("/data/genomes.json"));
-				boolean feature = cacheGen.createCacheFileGenomicFeatures(getPortletContext().getRealPath("/data/features.json"));
-				boolean pathway = cacheGen.createCacheFilePathways(getPortletContext().getRealPath("/data/pathways.json"));
-				boolean proteinFamily = cacheGen.createCacheFileProteinFamilies(getPortletContext().getRealPath("/data/proteinfamilies.json"));
-				boolean spGene = cacheGen.createCacheFileSpecialtyGenes(getPortletContext().getRealPath("/data/specialtygenes.json"));
-				boolean transcriptomics = cacheGen.createCacheFileTranscriptomics(getPortletContext().getRealPath("/data/transcriptomics.json"));
-
 				if (antibioticResistance) {
 					LOGGER.info("AntibioticResistance Landing data is generated");
 				}
 				else {
 					LOGGER.info("AntibioticResistance Landing data is failed");
 				}
+
+				boolean genome = cacheGen.createCacheFileGenomes(getPortletContext().getRealPath("/data/genomes.json"));
 				if (genome) {
 					LOGGER.info("Genome Landing data is generated");
 				}
 				else {
 					LOGGER.info("Genome Landing data is failed");
 				}
+
+				boolean feature = cacheGen.createCacheFileGenomicFeatures(getPortletContext().getRealPath("/data/features.json"));
 				if (feature) {
 					LOGGER.info("Feature Landing data is generated");
 				}
 				else {
 					LOGGER.info("Feature Landing data is failed");
 				}
+
+				boolean pathway = cacheGen.createCacheFilePathways(getPortletContext().getRealPath("/data/pathways.json"));
 				if (pathway) {
 					LOGGER.info("Pathway Landing data is generated");
 				}
 				else {
 					LOGGER.info("Pathway Landing data is failed");
 				}
+
+				boolean proteinFamily = cacheGen.createCacheFileProteinFamilies(getPortletContext().getRealPath("/data/proteinfamilies.json"));
 				if (proteinFamily) {
 					LOGGER.info("ProteinFamily Landing data is generated");
 				}
 				else {
 					LOGGER.info("ProteinFamily Landing data is failed");
 				}
+
+				boolean spGene = cacheGen.createCacheFileSpecialtyGenes(getPortletContext().getRealPath("/data/specialtygenes.json"));
 				if (spGene) {
 					LOGGER.info("SpecialtyGene Landing data is generated");
 				}
 				else {
 					LOGGER.info("SpecialtyGene Landing data is failed");
 				}
+
+				boolean transcriptomics = cacheGen.createCacheFileTranscriptomics(getPortletContext().getRealPath("/data/transcriptomics.json"));
 				if (transcriptomics) {
 					LOGGER.info("Transcriptomics Landing data is generated");
 				}

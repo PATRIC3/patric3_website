@@ -108,6 +108,12 @@ public class GenomeFeature {
 	@Field("figfam_id")
 	private String figfamId;
 
+	@Field("plfam_id")
+	private String plfamId;
+
+	@Field("pgfam_id")
+	private String pgfamId;
+
 	@Field("ec")
 	private List<String> enzymeClass;
 
@@ -154,6 +160,8 @@ public class GenomeFeature {
 		json.put("gene", getGene());
 		json.put("product", getProduct());
 		json.put("figfam_id", getFigfamId());
+		json.put("plfam_id", getPlfamId());
+		json.put("pgfam_id", getPgfamId());
 		// ec, pathway, go, ids
 
 		return json;
@@ -181,6 +189,14 @@ public class GenomeFeature {
 
 	public String getFigfamId() {
 		return figfamId;
+	}
+
+	public String getPlfamId() {
+		return plfamId;
+	}
+
+	public String getPgfamId() {
+		return pgfamId;
 	}
 
 	public String getGene() {
@@ -240,6 +256,14 @@ public class GenomeFeature {
 
 	public boolean hasFigfamId() {
 		return (this.figfamId != null);
+	}
+
+	public boolean hasPgfamId() {
+		return (this.pgfamId != null);
+	}
+
+	public boolean hasPlfamId() {
+		return (this.plfamId != null);
 	}
 
 	public boolean hasGene() {

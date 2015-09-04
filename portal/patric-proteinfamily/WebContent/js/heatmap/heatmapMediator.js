@@ -74,7 +74,8 @@ function flashCellClicked(flashObjectID, colID, rowID) {
 		timeout : 600000,
 		params : {
 			callType : "getLocusTags",
-			figfamIds : colID,
+			familyIds : colID,
+			familyType : stateObject.familyType,
 			genomeIds : rowID
 		},
 		success : function(rs) {
@@ -86,7 +87,7 @@ function flashCellClicked(flashObjectID, colID, rowID) {
 
 function catchLocusTags(colID, rowID, ajaxHttp) {
 
-	var locusList = Ext.JSON.decode(ajaxHttp.responseText).data, parts = getCellParts(idForHeatmap, colID, rowID), buttonList = [], showDetails = null, putInCart = null, downloadF = null, download = null, discard = null, text = "", i = 0, clickPop = null, memberCount = parts[2];
+	var locusList = Ext.JSON.decode(ajaxHttp.responseText).data, parts = getCellParts(idForHeatmap, colID, rowID), buttonList = [], showDetails = null, putInCart = null, downloadF = null, download = null, discard = null, text = "", i = 0, clickPop = null, memberCount = parseInt(parts[2],16);
 
 	if (0 < memberCount) {
 		download = new Ext.Button({
@@ -161,7 +162,7 @@ function catchLocusTags(colID, rowID, ajaxHttp) {
 
 	buttonList.push(discard);
 
-	text = '<b>Genome: </b> ' + parts[0] + '<br />' + '<b>Product: </b> ' + parts[1] + '<br />' + '<b>Figfam ID: </b> ' + colID + '<br />' + '<b>Members: </b> ' + parts[2];
+	text = '<b>Genome: </b> ' + parts[0] + '<br />' + '<b>Product: </b> ' + parts[1] + '<br />' + '<b>Family ID: </b> ' + colID + '<br />' + '<b>Members: </b> ' + memberCount;
 
 	for ( i = 0; i < locusList.length; i++) {
 		text += "<br />   <a href='Feature?cType=feature&cId=" + locusList[i].feature_id + "' target=_blank>" + locusList[i].patric_id + "</a>";
@@ -305,7 +306,7 @@ function flashCellsSelected(flashObjectID, columns, rows) {
 
 		buttonList.push(discard);
 
-		text = '<b>Genomes selected: </b> ' + rows.length + '<br />' + '<b>Figfams selected: </b> ' + columns.length + '<br />' + '<b>Members: </b> ' + membersCount;
+		text = '<b>Genomes selected: </b> ' + rows.length + '<br />' + '<b>Family selected: </b> ' + columns.length + '<br />' + '<b>Members: </b> ' + membersCount;
 
 		selectPop = new Ext.Window({
 			html : text,
@@ -327,10 +328,12 @@ function flashCellsSelected(flashObjectID, columns, rows) {
 function MediatorDownloadF(selectGenomes, selectFigs, type) {
 
 	var toSubmit = document.getElementById("detailsToFile");
+	var stateObject = getStateObject(idForHeatmap);
 
-	toSubmit.detailsFigfams.value = selectFigs.replace(/,/g, ' OR ');
+	toSubmit.detailsFamilyIds.value = selectFigs.replace(/,/g, ' OR ');
 	toSubmit.detailsGenomes.value = selectGenomes.replace(/,/g, ' OR ');
 	toSubmit.detailsType.value = type;
+	toSubmit.familyType.value = stateObject.familyType;
 	toSubmit.submit();
 }
 

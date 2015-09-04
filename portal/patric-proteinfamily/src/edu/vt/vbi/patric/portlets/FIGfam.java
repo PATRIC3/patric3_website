@@ -106,11 +106,15 @@ public class FIGfam extends GenericPortlet {
 				keyword = key.get("keyword");
 			}
 
+			String familyType = request.getParameter("family_type");
+			if (familyType == null) familyType = "plfam";
+
 			request.setAttribute("contextType", contextType);
 			request.setAttribute("contextId", contextId);
 			request.setAttribute("pk", pk);
 			request.setAttribute("keyword", keyword);
 			request.setAttribute("key", key);
+			request.setAttribute("familyType", familyType);
 
 			prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/proteinfamily_tab.jsp");
 		}
@@ -123,6 +127,8 @@ public class FIGfam extends GenericPortlet {
 
 			String cType = request.getParameter("context_type");
 			String cId = request.getParameter("context_id");
+			String familyType = request.getParameter("family_type");
+			if (familyType == null) familyType = "plfam";
 
 			String taxonName = "";
 			int taxonId = -1;
@@ -148,6 +154,7 @@ public class FIGfam extends GenericPortlet {
 			request.setAttribute("isLoggedIn", isLoggedIn);
 			request.setAttribute("taxonName", taxonName);
 			request.setAttribute("taxonId", taxonId);
+			request.setAttribute("familyType", familyType);
 
 			// Protein Family Sorter Tool Landing Page
 			prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/proteinfamily_tool.jsp");
@@ -218,6 +225,9 @@ public class FIGfam extends GenericPortlet {
 
 				if (request.getParameter("keyword") != null && !request.getParameter("keyword").equals(""))
 					key.put("keyword", request.getParameter("keyword"));
+
+				if (request.getParameter("familyType") != null && !request.getParameter("familyType").equals(""))
+					key.put("familyType", request.getParameter("familyType"));
 
 				getGenomeIds(request, key);
 
@@ -417,8 +427,8 @@ public class FIGfam extends GenericPortlet {
 	}
 
 	private void processDetailFromMain(ResourceRequest request, ResourceResponse response) throws IOException {
-		String genomeIds = request.getParameter("detailsGenomes");
-		String figfamIds = request.getParameter("detailsFigfams");
+		final String familyType = request.getParameter("familyType");
+		final String familyId = familyType + "_id";
 
 		DataApiHandler dataApi = new DataApiHandler(request);
 		FIGfamData figfamData = new FIGfamData(dataApi);
@@ -429,11 +439,11 @@ public class FIGfam extends GenericPortlet {
 		List<String> tableHeader = new ArrayList<>();
 		List<String> tableField = new ArrayList<>();
 
-		JSONArray tableSource = figfamData.getDetails(genomeIds, figfamIds);
+		JSONArray tableSource = figfamData.getDetails(request);
 
 		tableHeader.addAll(Arrays.asList("Group Id", "Genome Name", "Accession", "PATRIC ID", "RefSeq Locus Tag", "Alt Locus Tag", "Start", "End", "Length(NT)", "Strand",
 				"Length(AA)", "Gene Symbol", "Product Description"));
-		tableField.addAll(Arrays.asList("figfam_id", "genome_name", "accession", "patric_id", "refseq_locus_tag", "alt_locus_tag", "start", "end", "na_length", "strand",
+		tableField.addAll(Arrays.asList(familyId, "genome_name", "accession", "patric_id", "refseq_locus_tag", "alt_locus_tag", "start", "end", "na_length", "strand",
 				"aa_length", "gene", "product"));
 
 		ExcelHelper excel = new ExcelHelper("xssf", tableHeader, tableField, tableSource);

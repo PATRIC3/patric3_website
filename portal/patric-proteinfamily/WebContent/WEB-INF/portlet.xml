@@ -32,6 +32,7 @@ version="2.0">
 		<supported-public-render-parameter>context_id</supported-public-render-parameter>
 		<supported-public-render-parameter>display_mode</supported-public-render-parameter>
 		<supported-public-render-parameter>param_key</supported-public-render-parameter>
+		<supported-public-render-parameter>family_type</supported-public-render-parameter>
 	</portlet>
 	<portlet>
 		<portlet-name>SingleFIGfam</portlet-name>
@@ -46,7 +47,7 @@ version="2.0">
 		<supported-public-render-parameter>context_type</supported-public-render-parameter>
 		<supported-public-render-parameter>context_id</supported-public-render-parameter>
 		<supported-public-render-parameter>param_key</supported-public-render-parameter>
-		<!--<supported-public-render-parameter>figfam</supported-public-render-parameter>-->
+		<supported-public-render-parameter>family_type</supported-public-render-parameter>
 	</portlet>
 	<portlet>
 		<portlet-name>MSA</portlet-name>
@@ -99,5 +100,9 @@ version="2.0">
 	<public-render-parameter>
 		<identifier>param_key</identifier>
 		<qname xmlns:x="http://patricbrc.org/params">x:param_key</qname>
+	</public-render-parameter>
+	<public-render-parameter>
+		<identifier>family_type</identifier>
+		<qname xmlns:x="http://patricbrc.org/params">x:FAM_TYPE</qname>
 	</public-render-parameter>
 </portlet-app>

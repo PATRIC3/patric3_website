@@ -76,7 +76,6 @@ public class FunctionalPropertiesPortlet extends GenericPortlet {
 				// UniprotKBAccession
 				String uniprotkbAccession = null;
 				List<String> pdbIds = new ArrayList<>();
-				// TODO: read from id_refs using gi number
 				{
 					SolrQuery query = new SolrQuery("id_value:(" + feature.getGi() + ")");
 					query.addFilterQuery("id_type:GI");

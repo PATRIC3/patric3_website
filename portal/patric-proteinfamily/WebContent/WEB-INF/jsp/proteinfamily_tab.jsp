@@ -28,6 +28,7 @@ String contextId = (String) request.getAttribute("contextId");
 String pk = (String) request.getAttribute("pk");
 String keyword = (String) request.getAttribute("keyword");
 Map<String, String> key = (Map) request.getAttribute("key");
+String familyType = (String) request.getAttribute("familyType");
 %>
 
 <script type="text/javascript" src="<%=nameSpaceAids%>"></script>
@@ -110,10 +111,18 @@ Map<String, String> key = (Map) request.getAttribute("key");
 <form id='detailsToFile' action='/portal/portal/patric/FIGfam/FIGfamWindow?action=b&cacheability=PAGE&callType=DetailsFromMain' method="post">
 	<input name='detailsType' type='hidden' value='' />
 	<input name='detailsGenomes' type='hidden' />
-	<input name='detailsFigfams' type='hidden' />
+	<input name='detailsFamilyIds' type='hidden' />
+	<input name='familyType' type='hidden' />
 </form>
 
 <div id="information_panel"></div>
+<div>
+	<form id="familyType">
+		<input type="radio" id="familyType_plfam" name="famType" value="plfam" <%=(familyType.equals("plfam")?"checked='checked'":"")%> onchange="changeFamilyType('plfam')" /> <label for="familyType_plfam">PATRIC Local Family &nbsp; </label>
+		<input type="radio" id="familyType_pgfam" name="famType" value="pgfam" <%=(familyType.equals("pgfam")?"checked='checked'":"")%> onchange="changeFamilyType('pgfam')" /> <label for="familyType_pgfam">PATRIC Global Family &nbsp; </label>
+		<input type="radio" id="familyType_figfam" name="famType" value="figfam" <%=(familyType.equals("figfam")?"checked='checked'":"")%> onchange="changeFamilyType('figfam')" /> <label for="familyType_figfam">FIGFam &nbsp; </label>
+	</form>
+</div>
 <div id="tree-panel" style="float:left"></div>
 <div id="sample-layout" style="float:left"></div>
 <div class="clear"></div>
@@ -144,7 +153,7 @@ Ext.onReady(function() {
 	Ext.QuickTips.init();
 	SetPageProperties(pageProperties);
 	FigFamSorterOnReady('<%=name%>', '<%=resourceURL%>',
-						'<%=contextPath%>', '<%=contextType%>', '<%=contextId%>', '<%=keyword%>', genomeIds);
+						'<%=contextPath%>', '<%=contextType%>', '<%=contextId%>', '<%=keyword%>', genomeIds, '<%=familyType%>');
 	if (Ext.get("tabs_proteinfamilysorter")!=null) {
 	 	Ext.get("tabs_proteinfamilysorter").addCls("sel");
 	}

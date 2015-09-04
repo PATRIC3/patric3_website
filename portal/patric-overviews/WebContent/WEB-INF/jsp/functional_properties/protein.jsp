@@ -41,16 +41,36 @@ String ENDPOINT = System.getProperty("polyomic.baseUrl", "https://www.patricbrc.
 		%></td> 
 	</tr>
 	<tr>
+		<th scope="row">PATRIC Local Family Assignments</th>
+		<td><%
+			if (feature.hasPlfamId()) {
+		%><a href="javascript:submitFigfam('<%=feature.getPlfamId() %>','plfam')"><%=feature.getPlfamId() %></a><%
+		} else {
+		%>-<%
+			}
+		%></td>
+	</tr>
+	<tr>
+		<th scope="row">PATRIC Global Family Assignments</th>
+		<td><%
+			if (feature.hasPgfamId()) {
+		%><a href="javascript:submitFigfam('<%=feature.getPgfamId() %>','pgfam')"><%=feature.getPgfamId() %></a><%
+		} else {
+		%>-<%
+			}
+		%></td>
+	</tr>
+	<tr>
 		<th scope="row">FIGfam Assignments</th>
 		<td><%
 			if (feature.hasFigfamId()) {
-				%><a href="javascript:submitFigfam('<%=feature.getFigfamId() %>')"><%=feature.getFigfamId() %></a><%
+				%><a href="javascript:submitFigfam('<%=feature.getFigfamId() %>','figfam')"><%=feature.getFigfamId() %></a><%
 			} else {
 				%>-<%
 			}
 		%></td> 
 	</tr>
-	<tr> 
+	<tr>
 		<th scope="row">Pathway Assignments</th>
 		<td><%
 			if (feature.hasPathway()) {
@@ -198,20 +218,20 @@ function SubmitToStructuralGenomicsCenter(center) {
 		form.submit();
 	}
 }
-function submitFigfam(id) {
+function submitFigfam(id, familyType) {
 
 	Ext.Ajax.request({
 		url: '/portal/portal/patric/SingleFIGfam/SingleFIGfamWindow?action=b&cacheability=PAGE',
 		method: 'POST',
 		timeout: 600000,
 		params: {callType: "saveState",
-			gid: '',
-			figfam: id
+			genomeIds: '',
+			familyIds: id,
+			familyType: familyType
 		},
 		success: function(rs) {
 			var win = window.open("SingleFIGfam?"+"&cType=taxon&cId=131567&bm=tool&pk="+rs.responseText, '_blank');
 			win.focus();
-//			document.location.href = "SingleFIGfam?"+"&cType=taxon&cId=131567&bm=tool&pk="+rs.responseText;
 		}
 	});	
 }

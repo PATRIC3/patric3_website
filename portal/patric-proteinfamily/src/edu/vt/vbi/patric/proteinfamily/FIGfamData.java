@@ -69,6 +69,8 @@ public class FIGfamData {
 	// The counting for the number of paralogs occurs in the javascript code (I think)
 	public JSONArray getSyntonyOrder(ResourceRequest request) {
 		String genomeId = request.getParameter("syntonyId");
+		final String familyType = request.getParameter("familyType");
+		final String familyId = familyType + "_id";
 		JSONArray json_arr = null;
 
 		if (genomeId != null) {
@@ -78,8 +80,8 @@ public class FIGfamData {
 
 			SolrQuery solr_query = new SolrQuery("genome_id:" + genomeId);
 			solr_query.setRows(1);
-			solr_query.setFilterQueries("annotation:PATRIC AND feature_type:CDS AND figfam_id:[* TO *]");
-			solr_query.addField("figfam_id");
+			solr_query.setFilterQueries("annotation:PATRIC AND feature_type:CDS AND " + familyId + ":[* TO *]");
+			solr_query.addField(familyId);
 
 			solr_query.setRows(DataApiHandler.MAX_ROWS);
 			solr_query.addSort("accession", SolrQuery.ORDER.asc);
@@ -103,8 +105,16 @@ public class FIGfamData {
 
 				start_ms = System.currentTimeMillis();
 				for (GenomeFeature feature : features) {
-					if (feature.hasFigfamId()) {
+					if (familyType.equals("figfam") && feature.hasFigfamId()) {
 						collect.add(new SyntonyOrder(feature.getFigfamId(), orderSet));
+						++orderSet;
+					}
+					else if (familyType.equals("plfam") && feature.hasPlfamId()) {
+						collect.add(new SyntonyOrder(feature.getPlfamId(), orderSet));
+						++orderSet;
+					}
+					else if (familyType.equals("pgfam") && feature.hasPgfamId()) {
+						collect.add(new SyntonyOrder(feature.getPgfamId(), orderSet));
 						++orderSet;
 					}
 				}
@@ -150,8 +160,11 @@ public class FIGfamData {
 
 		DataApiHandler dataApi = new DataApiHandler(request);
 		try {
+			final String familyType = request.getParameter("familyType");
+			final String familyId = familyType + "_id";
+
 			SolrQuery solr_query = new SolrQuery();
-			solr_query.setQuery("genome_id:(" + request.getParameter("genomeIds") + ") AND figfam_id:(" + request.getParameter("figfamIds") + ")");
+			solr_query.setQuery("genome_id:(" + request.getParameter("genomeIds") + ") AND " + familyId + ":(" + request.getParameter("familyIds") + ")");
 			solr_query.setFilterQueries("annotation:PATRIC AND feature_type:CDS");
 			solr_query.addField("feature_id,patric_id,refseq_locus_tag,alt_locus_tag");
 			solr_query.setRows(DataApiHandler.MAX_ROWS);
@@ -183,12 +196,19 @@ public class FIGfamData {
 	}
 
 	@SuppressWarnings("unchecked")
-	public JSONArray getDetails(String genomeIds, String figfamIds) throws IOException {
+	public JSONArray getDetails(ResourceRequest request) throws IOException {
 
 		JSONArray arr = new JSONArray();
 
+		String genomeIds = request.getParameter("detailsGenomes");
+		String familyIds = request.getParameter("detailsFamilyIds");
+		String familyType = request.getParameter("familyType");
+
+		LOGGER.debug("params for getDetails:{}", request.getParameterMap());
+		final String familyId = familyType + "_id";
+
 		SolrQuery query = new SolrQuery();
-		query.setQuery("genome_id:(" + genomeIds + ") AND figfam_id:(" + figfamIds + ")");
+		query.setQuery("genome_id:(" + genomeIds + ") AND " + familyId + ":(" + familyIds + ")");
 		query.setFields(StringUtils.join(DownloadHelper.getFieldsForFeatures(), ","));
 		query.setFilterQueries("annotation:PATRIC AND feature_type:CDS");
 		query.setRows(DataApiHandler.MAX_ROWS);
@@ -225,6 +245,7 @@ public class FIGfamData {
 
 		SolrQuery query = new SolrQuery("patric_cds:[1 TO *] AND taxon_lineage_ids:" + taxon);
 		query.addField("genome_id");
+		query.setSort("genome_name", SolrQuery.ORDER.asc);
 		query.setRows(DataApiHandler.MAX_ROWS);
 
 		LOGGER.trace("getGenomeIdsForTaxon: [{}] {}", SolrCore.GENOME.getSolrCoreName(), query);
@@ -395,6 +416,9 @@ public class FIGfamData {
 		JSONObject figfams = new JSONObject();
 		Set<String> figfamIdList = new HashSet<>();
 		List<String> genomeIdList = new LinkedList<>();
+		// get family Type
+		final String familyType = request.getParameter("familyType");
+		final String familyId = familyType + "_id";
 
 		// get genome list in order
 		String genomeIds = request.getParameter("genomeIds");
@@ -441,8 +465,9 @@ public class FIGfamData {
 			long start = System.currentTimeMillis();
 			SolrQuery query = new SolrQuery("annotation:PATRIC AND feature_type:CDS");
 			query.addFilterQuery(getSolrQuery(request));
+			query.addFilterQuery("!" + familyId + ":\"\"");
 			query.setRows(0).setFacet(true).set("facet.threads", 15);
-			query.add("json.facet", "{stat:{type:field,field:genome_id,limit:-1,facet:{figfams:{type:field,field:figfam_id,limit:-1,sort:{index:asc}}}}}");
+			query.add("json.facet", "{stat:{type:field,field:genome_id,limit:-1,facet:{figfams:{type:field,field:" + familyId +",limit:-1,sort:{index:asc}}}}}");
 
 			LOGGER.trace("getGroupStats() 1/3: [{}] {}", SolrCore.FEATURE.getSolrCoreName(), query);
 			String apiResponse = dataApi.solrQuery(SolrCore.FEATURE, query);
@@ -511,7 +536,7 @@ public class FIGfamData {
 			// 2nd query
 
 			query.set("json.facet",
-					"{stat:{type:field,field:figfam_id,limit:-1,facet:{min:\"min(aa_length)\",max:\"max(aa_length)\",mean:\"avg(aa_length)\",ss:\"sumsq(aa_length)\",sum:\"sum(aa_length)\"}}}");
+					"{stat:{type:field,field:" + familyId + ",limit:-1,facet:{min:\"min(aa_length)\",max:\"max(aa_length)\",mean:\"avg(aa_length)\",ss:\"sumsq(aa_length)\",sum:\"sum(aa_length)\"}}}");
 
 			LOGGER.trace("getGroupStats() 2/3: [{}] {}", SolrCore.FEATURE.getSolrCoreName(), query);
 			apiResponse = dataApi.solrQuery(SolrCore.FEATURE, query);
@@ -617,8 +642,9 @@ public class FIGfamData {
 			figfamIdList.remove("");
 
 			try {
-				SolrQuery query = new SolrQuery("figfam_id:(" + StringUtils.join(figfamIdList, " OR ") + ")");
-				query.addField("figfam_id,figfam_product").setRows(figfams.size());
+				SolrQuery query = new SolrQuery("family_id:(" + StringUtils.join(figfamIdList, " OR ") + ")");
+				query.addFilterQuery("family_type:" + familyType);
+				query.addField("family_id,family_product").setRows(figfams.size());
 
 				LOGGER.trace("getGroupStats() 3/3: [{}] {}", SolrCore.FIGFAM_DIC.getSolrCoreName(), query);
 
@@ -630,9 +656,9 @@ public class FIGfamData {
 				List<Map> sdl = (List<Map>) respBody.get("docs");
 
 				for (final Map doc : sdl) {
-					final JSONObject figfam = (JSONObject) figfams.get(doc.get("figfam_id"));
-					figfam.put("description", doc.get("figfam_product"));
-					figfams.put(doc.get("figfam_id").toString(), figfam);
+					final JSONObject figfam = (JSONObject) figfams.get(doc.get("family_id"));
+					figfam.put("description", doc.get("family_product"));
+					figfams.put(doc.get("family_id").toString(), figfam);
 				}
 			}
 			catch (IOException e) {

@@ -1,6 +1,6 @@
 var rows = [], cols = [], start, end;
 
-function FigFamSorterStateObject(windowID, serveResource, getContextPath, keyword_search) {
+function FigFamSorterStateObject(windowID, serveResource, getContextPath, keyword_search, familyType) {
 	// save initial values
 	this.windowID = windowID;
 	this.serveURL = serveResource;
@@ -9,7 +9,7 @@ function FigFamSorterStateObject(windowID, serveResource, getContextPath, keywor
 	// set duration at 30 days or desired value
 	this.duration = defaultDuration;
 
-	this.famType = '';
+	this.familyType = familyType;
 
 	this.keyword_search = keyword_search;
 
@@ -81,13 +81,13 @@ function FigFamSorterSaveData(windowID, namespace) {
 function FigFamSorterLoadData(namespace) {
 }
 
-function FigFamSorterOnReady(windowID, resourceURL, contextPath, cType, cId, keyword_search, idText) {
+function FigFamSorterOnReady(windowID, resourceURL, contextPath, cType, cId, keyword_search, idText, familyType) {
 	// register windowID to insure that state values gets stored to a cookie
 	//   on page exits or refreshes
 	addWindowID(windowID);
 	// create a default state object with the critical values
 	//   provided by the server
-	var stateObject = new FigFamSorterStateObject(windowID, resourceURL, contextPath, keyword_search);
+	var stateObject = new FigFamSorterStateObject(windowID, resourceURL, contextPath, keyword_search, familyType);
 
 	//  try to get other state values that might have been saved in a cookie
 	loadStateObject(windowID, stateObject);
@@ -358,7 +358,8 @@ function doAjaxNames(windowID, stateObject) {"use strict";
 						params : {
 							callType : "getGroupStats",
 							genomeIds : stateObject.genomeIds.join(","),
-							keyword : stateObject.keyword_search
+							keyword : stateObject.keyword_search,
+							familyType : stateObject.familyType
 						},
 						success : function(rs) {
 							catchGroupStats(windowID, rs);
@@ -557,16 +558,16 @@ function catchGroupStats(windowID, ajaxHttp) {"use strict";
 		rowData = Ext.JSON.decode(ajaxHttp.responseText);
 		
 		for(var key in rowData) {
-            var figfamId = key.split("FIG")[1];
-            if (figfamId != undefined) {
-                ordered.push(figfamId);
+			var familyId = key;
+            if (familyId != undefined) {
+                ordered.push(familyId);
             }
 		}
 		
 		ordered.sort(function(a, b) { return a - b;});
 		
 		for(j=0; j<ordered.length; j++){
-			key = "FIG"+padNum(ordered[j], 8);
+			key = ordered[j];
 			
 			if(genomeIds.length <= 500){
 				distribution = "";
@@ -625,7 +626,7 @@ function setSyntenyOrder(windowID, genomeId) {
 		method : 'GET',
 		params : {
 			callType : "getSyntonyOrder",
-			// FAM_TYPE : stateObject.famType,
+			familyType : stateObject.familyType,
 			syntonyId : genomeId
 		},
 		success : function(rs) {
@@ -879,10 +880,10 @@ function checkAddClick(windowID) {
 
 function addRectangleToGroup(windowID, figfamNames, genomeList) {
 
-	var stateObject = getStateObject(windowID), object = {};
+	var stateObject = getStateObject(windowID), object = {}, familyType = stateObject.familyType, familyId = familyType + '_id';
 
 	object["genome_id"] = genomeList.replace(/,/g, '##');
-	object["figfam_id"] = figfamNames.replace(/,/g, '##');
+	object[familyId] = figfamNames.replace(/,/g, '##');
 
 	Ext.Ajax.request({
 		url : stateObject.serveURL,
@@ -1120,44 +1121,47 @@ function getCellParts(windowID, groupId, genomeId) {
 	return result;
 }
 
-function getRectangleCount(windowID, figfamIds, ids) {
+function getRectangleCount(windowID, familyIds, ids) {
 	var depths = [];
 	var stateObject = getStateObject(windowID);
 	var genomeIds = stateObject.genomeIds;
 	var found = ids.length;
-	for (var i = 0; i < genomeIds.length; i++) {
-		var iId = genomeIds[i];
-		for (var j = 0; j < ids.length; j++) {
-			if (iId == ids[j]) {
-				j = ids.length;
+	for (var i=0, genomeIdsCount=genomeIds.length; i < genomeIdsCount; i++) {
+		var currentGenomeId=genomeIds[i];
+		for (var j=0, idsCount=ids.length; j < idsCount; j++) {
+			if (currentGenomeId === ids[j]) {
+				j = idsCount;
 				depths.push(2 * i); --found;
 				if (found == 0) {
-					i = genomeIds.length;
+					i = genomeIdsCount;
 				}
 			}
 		}
 	}
 	var orthoRows = getScratchObject(windowID + "_groupRows");
-	var sorted = figfamIds.slice(0);
+	var sorted = familyIds.slice(0);
+	var sortedCount = sorted.length;
+	var depthsCount = depths.length;
 	sorted.sort();
 	var sortAt = 1;
 	var toFind = sorted[0];
 	var result = 0;
 	//  logic depends on current state where server sorts data by
 	//    groupId
-	for (var i = 0; i < orthoRows.length; i++) {
+	for (var i=0, orthoRowsCount=orthoRows.length; i < orthoRowsCount; i++) {
 		var nextRow = orthoRows[i];
 		if (nextRow.groupId == toFind) {
 			var counts = nextRow.intensity;
-			for (var j = 0; j < depths.length; j++) {
+			for (var j = 0; j < depthsCount; j++) {
 				var bump = counts.substr(depths[j], 2);
 				bump = parseInt(bump, 16);
 				result += bump;
 			}
-			if (sortAt < sorted.length) {
+			if (sortAt < sortedCount) {
 				toFind = sorted[sortAt]; ++sortAt;
+				i = 0;
 			} else {
-				i = orthoRows.length;
+				i = orthoRowsCount;
 			}
 		}
 	}
@@ -1566,11 +1570,11 @@ function submitFigfam(windowID, groupId) {
 		timeout : 600000,
 		params : {
 			callType : "saveState",
-			gid : stateObject.genomeIds.join('##'),
-			figfam : groupId
+			genomeIds : stateObject.genomeIds.join('##'),
+			familyIds : groupId,
+			familyType : stateObject.familyType
 		},
 		success : function(rs) {
-			//document.location.href = "FIGfamViewer" + ((!stateObject.cType) ? "" : "B") + "?cType=" + stateObject.cType + "&cId=" + stateObject.cId + "&pk=" + rs.responseText;
 			document.location.href = "SingleFIGfam?cType=" + stateObject.cType + "&cId=" + stateObject.cId + "&pk=" + rs.responseText;
 		}
 	});
@@ -1584,11 +1588,11 @@ function submitDetails(windowID, groupIds, genomeIds) {
 		timeout : 600000,
 		params : {
 			callType : "saveState",
-			gid : genomeIds.replace(/,/g, '##'),
-			figfam : groupIds.replace(/,/g, '##')
+			genomeIds : genomeIds.replace(/,/g, '##'),
+			familyIds : groupIds.replace(/,/g, '##'),
+			familyType : stateObject.familyType
 		},
 		success : function(rs) {
-			//open_in_new_tab("FIGfamViewer" + ((!stateObject.cType) ? "" : "B") + "?cType=" + stateObject.cType + "&cId=" + stateObject.cId + "&pk=" + rs.responseText);
 			open_in_new_tab("SingleFIGfam?cType=" + stateObject.cType + "&cId=" + stateObject.cId + "&pk=" + rs.responseText);
 		}
 	});
@@ -1600,7 +1604,7 @@ function launchDetails(submitId, groupIds, genomeIds) {
 	toSubmit.genome_ids.value = genomeIds;
 	toSubmit.submit();
 }
-
+/*
 function OrthoDetails(genomeName, locus, length, description) {
 	this.genomeName = genomeName;
 	this.length = length;
@@ -1625,7 +1629,7 @@ function getOrthoAlignment(windowID, groupID) {
 		}
 	});
 
-}
+}*/
 
 function setAllDetails(windowID, fileType) {
 	var tableData = filterOrthoTableData(windowID);
@@ -1702,16 +1706,15 @@ function setGroupPopup(windowID) {
 }
 
 function getSelectedFeatures(windowID, actiontype, showdownload, fastatype, to) {
-	var gridObject = getScratchObject(windowID), stateObject = getStateObject(windowID), sl = gridObject.checkbox.getSelections(), object = {
-		'figfam_id' : []
-	};
+	var gridObject = getScratchObject(windowID), stateObject = getStateObject(windowID), sl = gridObject.checkbox.getSelections(), familyType = stateObject.familyType, familyId = familyType + "_id";
+	var familyIds = [], object = [];
 
 	for (var i = 0; i < sl.length; i++) {
-		object["figfam_id"].push((sl[i]).get('groupId'));
+		familyIds.push((sl[i]).get('groupId'));
 	}
 
 	object["genome_id"] = stateObject.genomeIds.join('##');
-	object["figfam_id"] = object["figfam_id"].join("##");
+	object[familyId] = familyIds.join("##");
 
 	Ext.Ajax.request({
 		url : stateObject.serveURL,
@@ -1857,4 +1860,10 @@ function catchAlignIds(figfamCount, serveURL, hrefBase, ajaxHttp) {
 function DownloadHeatmap(windowID) {
 	document.getElementById(windowID + '_HeatmapData_form').data.value = JSON.stringify(currentData);
 	document.getElementById(windowID + '_HeatmapData_form').submit();
+}
+
+function changeFamilyType(target) {
+	var newHref = document.location.href.replace(/famType=(.)*/, "famType=" + target);
+	console.log(newHref);
+	document.location.href = newHref;
 }

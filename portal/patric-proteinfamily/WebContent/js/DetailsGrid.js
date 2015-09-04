@@ -17,9 +17,11 @@ function getExtraParams() {
 
 	var object = {}, Page = $Page, property = Page.getPageProperties(), hash = property.hash;
 
-	object["genome_id"] = getGID();
+	object["genome_id"] = getGenomeIDs();
 	object["Keyword"] = (!hash.kW) ? '(*)' : "(" + hash.kW + ")";
-	object["figfam_id"] = getFigFam();
+	var familyType = getFamilyType();
+	var familyId = familyType + "_id";
+	object[familyId] = getFamilyIds();
 
 	Ext.getDom("download_keyword").value = constructKeyword(object, property.name);
 
@@ -37,10 +39,10 @@ function CallBack() {
 
 	Ext.getDom("grid_result_summary").innerHTML = Page.getStore(which).getTotalCount() + ' features found in ';
 
-	if (getFigFam().split("##").length == 1)
-		Ext.getDom("grid_result_summary").innerHTML += getFigFam();
+	if (getFamilyIds().split("##").length == 1)
+		Ext.getDom("grid_result_summary").innerHTML += getFamilyIds();
 	else
-		Ext.getDom("grid_result_summary").innerHTML += getFigFam().split("##").length + " protein families";
+		Ext.getDom("grid_result_summary").innerHTML += getFamilyIds().split("##").length + " protein families";
 
 	temp_string += "<b>";
 	temp_string += Ext.getDom("grid_result_summary").innerHTML + "</b>";

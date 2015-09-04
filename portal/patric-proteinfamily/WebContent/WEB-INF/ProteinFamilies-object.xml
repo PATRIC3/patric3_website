@@ -70,7 +70,7 @@
 						<qname>{http://patricbrc.org/params}figfam_names</qname>
 					</alias-binding>
 					<alias-binding>
-						<id>FAM_TYPE</id>
+						<id>famType</id>
 						<qname>{http://patricbrc.org/params}FAM_TYPE</qname>
 					</alias-binding>
 					<alias-binding>

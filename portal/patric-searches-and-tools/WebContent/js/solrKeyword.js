@@ -59,6 +59,12 @@ Ext.define('Feature', {
 	}, {
 		name : 'figfam_id',
 		type : 'string'
+	}, {
+		name : 'plfam_id',
+		type : 'string'
+	}, {
+		name : 'pgfam_id',
+		type : 'string'
 	}]
 });
 
@@ -638,7 +644,7 @@ configuration['Sequence'] = {
 configuration['Feature'] = {
 	display_facets : [],
 	display_facets_texts : [],
-	all_facets : ['Keyword', 'feature_type', 'annotation', 'genome_id', 'go', 'ec', 'pathway', 'figfam_id'],
+	all_facets : ['Keyword', 'feature_type', 'annotation', 'genome_id', 'go', 'ec', 'pathway', 'figfam_id', 'plfam_id', 'pgfam_id'],
 	field_facets : [],
 	date_range_facets : [],
 	search_fields : [{

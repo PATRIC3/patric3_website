@@ -21,13 +21,13 @@ import java.util.List;
 public class DownloadHelper {
 
 	public static List<String> getHeaderForFeatures() {
-		return Arrays.asList("Genome", "Accession", "PATRIC ID", "RefSeq Locus Tag", "Alt Locus Tag", "Feature ID",
-				"Annotation", "Feature Type", "Start", "End", "Length", "Strand", "FIGfam ID", "Protein ID", "AA Length", "Gene Symbol", "Product");
+		return Arrays.asList("Genome", "Genome ID", "Accession", "PATRIC ID", "RefSeq Locus Tag", "Alt Locus Tag", "Feature ID",
+				"Annotation", "Feature Type", "Start", "End", "Length", "Strand", "FIGfam ID", "PATRIC Local Family", "PATRIC Global Family", "Protein ID", "AA Length", "Gene Symbol", "Product");
 	}
 
 	public static List<String> getFieldsForFeatures() {
-		return Arrays.asList("genome_name", "accession", "patric_id", "refseq_locus_tag", "alt_locus_tag", "feature_id", "annotation", "feature_type",
-				"start", "end", "na_length", "strand", "figfam_id", "protein_id", "aa_length", "gene", "product");
+		return Arrays.asList("genome_name", "genome_id", "accession", "patric_id", "refseq_locus_tag", "alt_locus_tag", "feature_id", "annotation", "feature_type",
+				"start", "end", "na_length", "strand", "figfam_id", "plfam_id", "pgfam_id", "protein_id", "aa_length", "gene", "product");
 	}
 
 	public static List<String> getHeaderForGenomes() {

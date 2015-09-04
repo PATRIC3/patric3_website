@@ -5,6 +5,7 @@
 String resourceURL = (renderResponse.createResourceURL()).toString();
 String taxonName = (String) request.getAttribute("taxonName");
 int taxonId = (Integer) request.getAttribute("taxonId");
+String familyType = (String) request.getAttribute("familyType");
 String expander = ((taxonId != 131567)?"<div style='float:right'><div class='searchtool-inside'><h2 align='center'>Want to make comparisons not limited to " + taxonName + "?</h2><br />Use PATRIC's <a href='FIGfam?cType=taxon&cId=131567&dm='>Protein Family Sorter</a> located in Searches & Tools.<br/><b><br/>* Any genome selections you have made will be discarded!<b/></div></div>":"");
 
 boolean isLoggedIn = (Boolean) request.getAttribute("isLoggedIn");
@@ -25,24 +26,22 @@ boolean isLoggedIn = (Boolean) request.getAttribute("isLoggedIn");
 		<h3><img src="/patric/images/number2.gif" alt="2" height="14" width="14" border="0" />
 		Enter keyword</h3><br />
 		<form action="#" onsubmit="return false;">
-		<table border="0" cellspacing="0" cellpadding="0">
-		<tbody>
-		<tr>
-			<td class="first">Keyword </td>
-			<td class="last"><div id="keyword"></div>
-			</td>
-		</tr>
-		<tr>
-			<td class="right" colspan="2"><div style="padding-top:5px;"><input class="button" type="submit" value="Search" onclick="checkGenomes()"></div></td>
-		</tr>
-		</tbody>
-		</table><br/>
+
+		<label class="left" for="family_type">Family Type:</label>
+		<select class="right far" id="family_type" name="family_type" size="1">
+			<option value="plfam" <%=familyType.equals("plfam")?"selected=\"selected\"":"" %>>PATRIC Local Family</option>
+			<option value="pgfam" <%=familyType.equals("pgfam")?"selected=\"selected\"":"" %>>PATRIC Global Family</option>
+			<option value="figfam" <%=familyType.equals("figfam")?"selected=\"selected\"":"" %>>FIGFam</option>
+		</select>
+		<div class="clear"></div>
+
+		<label class="left" for="keyword">Keyword:</label>
+		<div class="right" id="keyword"></div>
+		<div class="clear"></div>
+
+		<input class="right button rightarrow" type="submit" value="Search" onclick="checkGenomes()" />
 		
-		<table>
-		<tr>
-			<td><%=expander %></td>
-		</tr>
-		</table>
+		<%=expander %>
 		</form>
 	</div>
 	<div class="clear"></div>
@@ -115,6 +114,8 @@ function submitToFigFamSorter(idList) {
 	var value = Ext.getCmp("tb").getValue().trim().toLowerCase();
 	value = value.replace(/,/g,"~").replace(/\n/g,"~");
 	value = value.split("~");
+
+	var familyType = Ext.getDom("family_type").value;
 	
 	for(var i=0; i<value.length; i++){
 		value[i] = value[i].trim();
@@ -124,9 +125,9 @@ function submitToFigFamSorter(idList) {
 		url: '<%=resourceURL%>',
 		method: 'POST',
 		timeout: 600000,
-		params: {callType: "toSorter", genomeIds: idList, keyword:EncodeKeyword(value.join(" OR "))},
+		params: {callType: "toSorter", genomeIds: idList, keyword:EncodeKeyword(value.join(" OR ")), familyType:familyType},
 		success: function(rs) {
-			document.location.href = "FIGfam?cType=taxon&cId=131567&dm=result&pk=" + rs.responseText + "#gs_0=0";
+			document.location.href = "FIGfam?cType=taxon&cId=131567&dm=result&pk=" + rs.responseText + "&famType=" + familyType + "#gs_0=0";
 		}
 	});
 }

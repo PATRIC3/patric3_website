@@ -92,6 +92,12 @@ public class ProteinFeatureSummaryPortlet extends GenericPortlet {
 			facets = dataApi.getFieldFacets(SolrCore.FEATURE, "figfam_id:[* TO *]", filterParam, "annotation");
 			Map<String, Integer> figfamAssignedProteins = (Map) ((Map) facets.get("facets")).get("annotation");
 
+			facets = dataApi.getFieldFacets(SolrCore.FEATURE, "plfam_id:[* TO *]", filterParam, "annotation");
+			Map<String, Integer> plfamAssignedProteins = (Map) ((Map) facets.get("facets")).get("annotation");
+
+			facets = dataApi.getFieldFacets(SolrCore.FEATURE, "pgfam_id:[* TO *]", filterParam, "annotation");
+			Map<String, Integer> pgfamAssignedProteins = (Map) ((Map) facets.get("facets")).get("annotation");
+
 			request.setAttribute("contextType", contextType);
 			request.setAttribute("contextId", contextId);
 
@@ -101,6 +107,8 @@ public class ProteinFeatureSummaryPortlet extends GenericPortlet {
 			request.setAttribute("goAssignedProteins", goAssignedProteins);
 			request.setAttribute("pathwayAssignedProteins", pathwayAssignedProteins);
 			request.setAttribute("figfamAssignedProteins", figfamAssignedProteins);
+			request.setAttribute("plfamAssignedProteins", plfamAssignedProteins);
+			request.setAttribute("pgfamAssignedProteins", pgfamAssignedProteins);
 
 			response.setContentType("text/html");
 			PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/overview/protein_feature_summary.jsp");

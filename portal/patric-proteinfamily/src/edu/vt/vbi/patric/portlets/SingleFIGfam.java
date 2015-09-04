@@ -17,8 +17,10 @@
  */
 package edu.vt.vbi.patric.portlets;
 
+import com.ctc.wstx.util.StringUtil;
 import edu.vt.vbi.patric.beans.GenomeFeature;
 import edu.vt.vbi.patric.common.*;
+import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.ObjectReader;
@@ -61,26 +63,35 @@ public class SingleFIGfam extends GenericPortlet {
 		String contextType = request.getParameter("context_type");
 		String contextId = request.getParameter("context_id");
 
-		String gid = "";
-		String figfam = "";
+		String genomeIds = "";
+		String familyIds = "";
+		String familyType = "";
+		String familyId = "";
 
 		int length = 1;
 
 		Map<String, String> key = jsonReader.readValue(SessionHandler.getInstance().get(SessionHandler.PREFIX + pk));
 
-		if (key != null && key.containsKey("gid")) {
-			gid = key.get("gid");
+		if (key != null && key.containsKey("genomeIds")) {
+			genomeIds = key.get("genomeIds");
 		}
 
-		if (key != null && key.containsKey("figfam")) {
-			figfam = key.get("figfam");
-			length = figfam.split("##").length;
+		if (key != null && key.containsKey("familyIds")) {
+			familyIds = key.get("familyIds");
+			length = familyIds.split("##").length;
+		}
+
+		if (key != null && key.containsKey("familyType")) {
+			familyType = key.get("familyType");
+			familyId = familyType + "_id";
 		}
 
 		request.setAttribute("contextType", contextType);
 		request.setAttribute("contextId", contextId);
-		request.setAttribute("gid", gid);
-		request.setAttribute("figfam", figfam);
+		request.setAttribute("genomeIds", genomeIds);
+		request.setAttribute("familyIds", familyIds);
+		request.setAttribute("familyType", familyType);
+		request.setAttribute("familyId", familyId);
 		request.setAttribute("length", length);
 
 		PortletRequestDispatcher reqDispatcher = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/single.jsp");
@@ -94,11 +105,13 @@ public class SingleFIGfam extends GenericPortlet {
 		if (callType != null) {
 			Map<String, String> key = new HashMap<>();
 			if (callType.equals("saveState")) {
-				String gid = request.getParameter("gid");
-				String figfam = request.getParameter("figfam");
+				String genomeIds = request.getParameter("genomeIds");
+				String familyIds = request.getParameter("familyIds");
+				String familyType = request.getParameter("familyType");
 
-				key.put("gid", gid);
-				key.put("figfam", figfam);
+				key.put("genomeIds", genomeIds);
+				key.put("familyIds", familyIds);
+				key.put("familyType", familyType);
 
 				Random g = new Random();
 				long pk = g.nextLong();
@@ -124,8 +137,7 @@ public class SingleFIGfam extends GenericPortlet {
 				int end = Integer.parseInt(limit);
 
 				key.put("filter", "annotation:PATRIC AND feature_type:CDS");
-				key.put("fields",
-						"genome_id,genome_name,accession,patric_id,alt_locus_tag,refseq_locus_tag,gene,annotation,feature_type,feature_id,start,end,na_length,strand,protein_id,aa_length,product,figfam_id");
+				key.put("fields", StringUtils.join(DownloadHelper.getFieldsForFeatures(),","));
 
 				SolrQuery query = dataApi.buildSolrQuery(key, sort, null, start, end, false);
 

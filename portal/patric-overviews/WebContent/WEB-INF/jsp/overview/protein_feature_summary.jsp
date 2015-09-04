@@ -8,6 +8,8 @@
     Map<String, Integer> goAssignedProteins = (Map) request.getAttribute("goAssignedProteins");
     Map<String, Integer> pathwayAssignedProteins = (Map) request.getAttribute("pathwayAssignedProteins");
     Map<String, Integer> figfamAssignedProteins = (Map) request.getAttribute("figfamAssignedProteins");
+	Map<String, Integer> plfamAssignedProteins = (Map) request.getAttribute("plfamAssignedProteins");
+	Map<String, Integer> pgfamAssignedProteins = (Map) request.getAttribute("pgfamAssignedProteins");
 %>
 <table class="basic stripe far2x">
 <thead>
@@ -101,6 +103,40 @@
 		<% } else { %>
 			0
 		<% } %>
+		</td>
+	</tr>
+	<tr>
+		<th scope="row">Proteins with PATRIC Local Family assignments</th>
+		<td class="right-align-text">
+			<% if (plfamAssignedProteins != null && plfamAssignedProteins.containsKey("PATRIC")) { %>
+			<a href="FeatureTable?cType=<%=contextType%>&amp;cId=<%=contextId%>&amp;featuretype=CDS&amp;annotation=PATRIC&amp;filtertype=plfam_id"><%=plfamAssignedProteins.get("PATRIC") %></a>
+			<% } else { %>
+			0
+			<% } %>
+		</td>
+		<td class="right-align-text last">
+			<% if (plfamAssignedProteins != null && plfamAssignedProteins.containsKey("RefSeq")) { %>
+			<a href="FeatureTable?cType=<%=contextType%>&amp;cId=<%=contextId%>&amp;featuretype=CDS&amp;annotation=RefSeq&amp;filtertype=plfam_id"><%=plfamAssignedProteins.get("RefSeq")%></a>
+			<% } else { %>
+			0
+			<% } %>
+		</td>
+	</tr>
+	<tr>
+		<th scope="row">Proteins with PATRIC Global Family assignments</th>
+		<td class="right-align-text">
+			<% if (pgfamAssignedProteins != null && pgfamAssignedProteins.containsKey("PATRIC")) { %>
+			<a href="FeatureTable?cType=<%=contextType%>&amp;cId=<%=contextId%>&amp;featuretype=CDS&amp;annotation=PATRIC&amp;filtertype=pgfam_id"><%=pgfamAssignedProteins.get("PATRIC") %></a>
+			<% } else { %>
+			0
+			<% } %>
+		</td>
+		<td class="right-align-text last">
+			<% if (pgfamAssignedProteins != null && pgfamAssignedProteins.containsKey("RefSeq")) { %>
+			<a href="FeatureTable?cType=<%=contextType%>&amp;cId=<%=contextId%>&amp;featuretype=CDS&amp;annotation=RefSeq&amp;filtertype=pgfam_id"><%=pgfamAssignedProteins.get("RefSeq")%></a>
+			<% } else { %>
+			0
+			<% } %>
 		</td>
 	</tr>
 	<tr>
