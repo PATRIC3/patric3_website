@@ -1410,7 +1410,7 @@ a.button {
   color: #666666;
   font-weight: bold;
   font-size: 12px; 
-  width: 87%; }
+  /*width: 87%;*/ width: 62%; }
   .breadcrumbs a {
     padding-right: 7px;
     background: transparent url(/patric/images/arrow-slate-e.png) scroll no-repeat right center;

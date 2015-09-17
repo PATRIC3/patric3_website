@@ -2,6 +2,8 @@
 %><%
 String cType = request.getParameter("context_type");
 String cId = request.getParameter("context_id");
+String genomeFilter = request.getParameter("genome_filter");
+if (genomeFilter == null) genomeFilter = "";
 %>
 <div id="gf_tbl">
 	<span class="right">Retrieving data...&nbsp;
@@ -18,7 +20,7 @@ function showShortList() {
 	Ext.Ajax.request({
 		url: '<portlet:resourceURL />',
 		method: 'GET',
-		params: {context_type:'<%=cType%>',context_id:'<%=cId%>',view:''},
+		params: {context_type:'<%=cType%>',context_id:'<%=cId%>',genome_filter:'<%=genomeFilter%>',view:''},
 		success: function(rs) {
 			Ext.getDom("gf_tbl").innerHTML = rs.responseText;
 		},
@@ -31,7 +33,7 @@ function showFullList() {
 	Ext.Ajax.request({
 		url: '<portlet:resourceURL />',
 		method: 'GET',
-		params: {context_type:'<%=cType%>',context_id:'<%=cId%>',view:'full'},
+		params: {context_type:'<%=cType%>',context_id:'<%=cId%>',genome_filter:'<%=genomeFilter%>',view:'full'},
 		success: function(rs) {
 			Ext.getDom("gf_tbl").innerHTML = rs.responseText;
 		},

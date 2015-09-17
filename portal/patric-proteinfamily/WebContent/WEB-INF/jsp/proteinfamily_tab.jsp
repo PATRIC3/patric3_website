@@ -29,6 +29,7 @@ String pk = (String) request.getAttribute("pk");
 String keyword = (String) request.getAttribute("keyword");
 Map<String, String> key = (Map) request.getAttribute("key");
 String familyType = (String) request.getAttribute("familyType");
+String genomeFilter = (String) request.getAttribute("genomeFilter");
 %>
 
 <script type="text/javascript" src="<%=nameSpaceAids%>"></script>
@@ -153,7 +154,7 @@ Ext.onReady(function() {
 	Ext.QuickTips.init();
 	SetPageProperties(pageProperties);
 	FigFamSorterOnReady('<%=name%>', '<%=resourceURL%>',
-						'<%=contextPath%>', '<%=contextType%>', '<%=contextId%>', '<%=keyword%>', genomeIds, '<%=familyType%>');
+						'<%=contextPath%>', '<%=contextType%>', '<%=contextId%>', '<%=keyword%>', genomeIds, '<%=familyType%>','<%=genomeFilter%>');
 	if (Ext.get("tabs_proteinfamilysorter")!=null) {
 	 	Ext.get("tabs_proteinfamilysorter").addCls("sel");
 	}

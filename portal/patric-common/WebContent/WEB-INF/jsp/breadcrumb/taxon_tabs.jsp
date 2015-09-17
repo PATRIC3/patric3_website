@@ -5,6 +5,7 @@ int taxonId = Integer.parseInt(tId);
 
 List<Map<String, Object>> lineage = (List<Map<String, Object>>) request.getAttribute("lineage");
 boolean isBelowGenus = (Boolean) request.getAttribute("isBelowGenus");
+String genomeFilter = (String) request.getAttribute("genomeFilter");
 
 if (!lineage.isEmpty()) {
 
@@ -50,12 +51,13 @@ if (!lineage.isEmpty()) {
 		%>
 		</ul>
 	</nav>
+<%--	<input type="checkbox" id="genome_filter_toggle" <%=(genomeFilter.equals("reference_genome:*"))?"checked":""%> data-toggle="toggle" data-on="Reference Genome Only" data-off="All Genomes" />--%>
 	<div id="utilitybox" class="smallest right no-underline-links">
 		<a class="double-arrow-link" href="http://enews.patricbrc.org/patric-data-organization-overview/" target="_blank">Data Overview Tutorial</a>
 		<br/><a class="double-arrow-link" href="Downloads?cType=taxon&amp;cId=<%=tId %>" target="_blank">Download genome data</a>
 	</div>
 	<div class="clear"></div>
-	
+
 	<article class="tabs">
 		<ul class="tab-headers no-decoration"> 
 			<li id="tabs_taxonoverview"><a href="Taxon?cType=taxon&amp;cId=<%=tId %>"><span>Overview</span></a></li>
@@ -68,7 +70,7 @@ if (!lineage.isEmpty()) {
 			<li id="tabs_specialtygenes"><a href="SpecialtyGeneList?cType=taxon&amp;cId=<%=tId %>&amp;kw="
 				title=""><span>Specialty Genes</span></a></li>
 			<% if (isBelowGenus) { %>
-			<li id="tabs_proteinfamilysorter"><a href="FIGfam?cType=taxon&amp;cId=<%=tId %>&amp;dm=result&amp;bm=&pk=&famType=plfam"><span>Protein Families</span></a></li>
+			<li id="tabs_proteinfamilysorter"><a href="FIGfam?cType=taxon&amp;cId=<%=tId %>&amp;dm=result&amp;bm=&pk=&famType=plfam<%=(!genomeFilter.equals(""))?"&genomeFilter=" + genomeFilter:""%>"><span>Protein Families</span></a></li>
 			<% } %>
 			<li id="tabs_pathways"><a href="CompPathwayTable?cType=taxon&amp;cId=<%=tId %>&amp;algorithm=PATRIC&amp;ec_number="><span>Pathways</span></a></li>
 			<li id="tabs_explist"><a href="ExperimentList?cType=taxon&amp;cId=<%=tId %>&amp;kw=" 

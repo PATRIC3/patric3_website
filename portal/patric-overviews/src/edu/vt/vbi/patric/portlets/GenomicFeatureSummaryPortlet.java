@@ -52,6 +52,7 @@ public class GenomicFeatureSummaryPortlet extends GenericPortlet {
 
 		String contextType = request.getParameter("context_type");
 		String contextId = request.getParameter("context_id");
+		String genomeFilter = request.getParameter("genome_filter");
 		String viewOption = request.getParameter("view");
 
 		if (contextType != null && contextId != null) {
@@ -75,7 +76,13 @@ public class GenomicFeatureSummaryPortlet extends GenericPortlet {
 				else {
 					queryParam = "*:*";
 				}
-				filterParam = SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + contextId);
+
+				String genomeFilterCondition = "";
+				if (genomeFilter != null && !genomeFilter.equals("")) {
+					genomeFilterCondition += " AND (" + genomeFilter + ")";
+				}
+
+				filterParam = SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + contextId + genomeFilterCondition);
 			}
 			else {
 				if (!viewOption.equals("full")) {

@@ -240,10 +240,15 @@ public class FIGfamData {
 		return result;
 	}
 
-	public String getGenomeIdsForTaxon(String taxon) throws IOException {
+	public String getGenomeIdsForTaxon(ResourceRequest request) throws IOException {
+		String taxon = request.getParameter("taxonId");
+		String genomeFilter = request.getParameter("genomeFilter");
 		List<String> gIds = new ArrayList<>();
 
 		SolrQuery query = new SolrQuery("patric_cds:[1 TO *] AND taxon_lineage_ids:" + taxon);
+		if (genomeFilter != null && !genomeFilter.equals("")) {
+			query.addFilterQuery(genomeFilter);
+		}
 		query.addField("genome_id");
 		query.setSort("genome_name", SolrQuery.ORDER.asc);
 		query.setRows(DataApiHandler.MAX_ROWS);

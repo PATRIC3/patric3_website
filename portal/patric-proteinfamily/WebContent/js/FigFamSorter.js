@@ -81,7 +81,7 @@ function FigFamSorterSaveData(windowID, namespace) {
 function FigFamSorterLoadData(namespace) {
 }
 
-function FigFamSorterOnReady(windowID, resourceURL, contextPath, cType, cId, keyword_search, idText, familyType) {
+function FigFamSorterOnReady(windowID, resourceURL, contextPath, cType, cId, keyword_search, idText, familyType, genomeFilter) {
 	// register windowID to insure that state values gets stored to a cookie
 	//   on page exits or refreshes
 	addWindowID(windowID);
@@ -113,7 +113,8 @@ function FigFamSorterOnReady(windowID, resourceURL, contextPath, cType, cId, key
 			timeout : 600000,
 			params : {
 				callType : "getTaxonIds",
-				taxonId : cId
+				taxonId : cId,
+				genomeFilter : genomeFilter
 			},
 			success : function(rs) {
 				catchTaxonIds(windowID, stateObject, rs);

@@ -108,6 +108,8 @@ public class FIGfam extends GenericPortlet {
 
 			String familyType = request.getParameter("family_type");
 			if (familyType == null) familyType = "plfam";
+			String genomeFilter = request.getParameter("genome_filter");
+			if (genomeFilter == null) genomeFilter = "";
 
 			request.setAttribute("contextType", contextType);
 			request.setAttribute("contextId", contextId);
@@ -115,6 +117,7 @@ public class FIGfam extends GenericPortlet {
 			request.setAttribute("keyword", keyword);
 			request.setAttribute("key", key);
 			request.setAttribute("familyType", familyType);
+			request.setAttribute("genomeFilter", genomeFilter);
 
 			prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/proteinfamily_tab.jsp");
 		}
@@ -177,7 +180,7 @@ public class FIGfam extends GenericPortlet {
 				if (cId == null || cId.equals("")) {
 					cId = "2";
 				}
-				result = access.getGenomeIdsForTaxon(cId);
+				result = access.getGenomeIdsForTaxon(request);
 				Taxonomy taxonomy = dataApi.getTaxonomy(Integer.parseInt(cId));
 				key.put("genera", taxonomy.getTaxonName());
 				// key.put("genera", access.getTaxonName(cId));
@@ -191,7 +194,7 @@ public class FIGfam extends GenericPortlet {
 		if ((cId != null) && (0 < cId.length())) {
 			DataApiHandler dataApi = new DataApiHandler(request);
 			FIGfamData access = new FIGfamData(dataApi);
-			writer.write(access.getGenomeIdsForTaxon(cId));
+			writer.write(access.getGenomeIdsForTaxon(request));
 		}
 	}
 

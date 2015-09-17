@@ -125,6 +125,10 @@
 						<id>cId</id>
 						<qname>{http://patricbrc.org/params}context_id</qname>
 					</alias-binding>
+					<alias-binding>
+						<id>genomeFilter</id>
+						<qname>{http://patricbrc.org/params}genome_filter</qname>
+					</alias-binding>
 				</bindings>
 			</coordination>
 		</page>

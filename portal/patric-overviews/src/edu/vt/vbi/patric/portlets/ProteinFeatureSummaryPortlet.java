@@ -52,6 +52,7 @@ public class ProteinFeatureSummaryPortlet extends GenericPortlet {
 
 		String contextType = request.getParameter("context_type");
 		String contextId = request.getParameter("context_id");
+		String genomeFilter = request.getParameter("genome_filter");
 
 		if (contextType != null && contextId != null) {
 
@@ -61,7 +62,11 @@ public class ProteinFeatureSummaryPortlet extends GenericPortlet {
 			// set default params
 			String filterParam;
 			if (contextType.equals("taxon")) {
-				filterParam = SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + contextId);
+				String genomeFilterCondition = "";
+				if (genomeFilter != null && !genomeFilter.equals("")) {
+					genomeFilterCondition += " AND (" + genomeFilter + ")";
+				}
+				filterParam = SolrCore.GENOME.getSolrCoreJoin("genome_id", "genome_id", "taxon_lineage_ids:" + contextId + genomeFilterCondition);
 			}
 			else { // genome
 				filterParam = "genome_id:" + contextId;

@@ -62,6 +62,7 @@ public class SequenceSummaryPortlet extends GenericPortlet {
 
 		String contextType = request.getParameter("context_type");
 		String contextId = request.getParameter("context_id");
+		String genomeFilter = request.getParameter("genome_filter");
 
 		DataApiHandler dataApi = new DataApiHandler(request);
 
@@ -99,6 +100,10 @@ public class SequenceSummaryPortlet extends GenericPortlet {
 					default:
 						queryParam = "*:*";
 						break;
+					}
+
+					if (genomeFilter != null && !genomeFilter.equals("")) {
+						queryParam += " AND (" + genomeFilter + ")";
 					}
 
 					Map counts = dataApi.getFieldFacets(SolrCore.GENOME, queryParam, "taxon_lineage_ids:" + contextId, "genome_status");

@@ -205,6 +205,11 @@ public class BreadCrumb extends GenericPortlet {
 
 		String cType = request.getParameter("context_type");
 		String cId = request.getParameter("context_id");
+		String genomeFilter = request.getParameter("genome_filter");
+		if (genomeFilter == null) {
+			genomeFilter = "";
+		}
+		LOGGER.info("request param map: {}", request.getParameterMap());
 		String bm = request.getParameter("breadcrumb_mode");
 		if (bm == null) {
 			bm = "";
@@ -453,6 +458,7 @@ public class BreadCrumb extends GenericPortlet {
 
 					request.setAttribute("lineage", lineage);
 					request.setAttribute("isBelowGenus", isBelowGenus);
+					request.setAttribute("genomeFilter", genomeFilter);
 
 					PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/breadcrumb/taxon_tabs.jsp");
 					prd.include(request, response);

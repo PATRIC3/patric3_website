@@ -32,6 +32,7 @@
 		<supported-public-render-parameter>context_type</supported-public-render-parameter>
 		<supported-public-render-parameter>context_id</supported-public-render-parameter>
 		<supported-public-render-parameter>breadcrumb_mode</supported-public-render-parameter>
+		<supported-public-render-parameter>genome_filter</supported-public-render-parameter>
 	</portlet>
 	<portlet>
 		<portlet-name>P2Management</portlet-name>
@@ -149,5 +150,9 @@
 	<public-render-parameter>
 		<identifier>breadcrumb_mode</identifier>
 		<qname xmlns:x="http://patricbrc.org/params">x:breadcrumb_mode</qname>
+	</public-render-parameter>
+	<public-render-parameter>
+		<identifier>genome_filter</identifier>
+		<qname xmlns:x="http://patricbrc.org/params">x:genome_filter</qname>
 	</public-render-parameter>
 </portlet-app>

@@ -89,6 +89,10 @@
 						<id>bm</id>
 						<qname>{http://patricbrc.org/params}breadcrumb_mode</qname>
 					</alias-binding>
+					<alias-binding>
+						<id>genomeFilter</id>
+						<qname>{http://patricbrc.org/params}genome_filter</qname>
+					</alias-binding>
 				</bindings>
 			</coordination>
 		</page>

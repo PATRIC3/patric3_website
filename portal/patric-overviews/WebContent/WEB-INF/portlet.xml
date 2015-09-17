@@ -61,6 +61,7 @@
 		</portlet-info>
 		<supported-public-render-parameter>context_type</supported-public-render-parameter>
 		<supported-public-render-parameter>context_id</supported-public-render-parameter>
+		<supported-public-render-parameter>genome_filter</supported-public-render-parameter>
 	</portlet>
 	<portlet>
 		<portlet-name>GenomicFeatureSummaryPortlet</portlet-name>
@@ -74,6 +75,7 @@
 		</portlet-info>
 		<supported-public-render-parameter>context_type</supported-public-render-parameter>
 		<supported-public-render-parameter>context_id</supported-public-render-parameter>
+		<supported-public-render-parameter>genome_filter</supported-public-render-parameter>
 	</portlet>
 	<portlet>
 		<portlet-name>ProteinFeatureSummaryPortlet</portlet-name>
@@ -87,6 +89,7 @@
 		</portlet-info>
 		<supported-public-render-parameter>context_type</supported-public-render-parameter>
 		<supported-public-render-parameter>context_id</supported-public-render-parameter>
+		<supported-public-render-parameter>genome_filter</supported-public-render-parameter>
 	</portlet>
 	<portlet>
 		<portlet-name>SpecialtyGeneSummaryPortlet</portlet-name>
@@ -100,6 +103,7 @@
 		</portlet-info>
 		<supported-public-render-parameter>context_type</supported-public-render-parameter>
 		<supported-public-render-parameter>context_id</supported-public-render-parameter>
+		<supported-public-render-parameter>genome_filter</supported-public-render-parameter>
 	</portlet>
 	<!-- feature overview portlets -->
 	<portlet>
@@ -306,5 +310,9 @@
 	<public-render-parameter>
 		<identifier>sp_source_id</identifier>
 		<qname xmlns:x="http://patricbrc.org/params">x:sp_source_id</qname>
+	</public-render-parameter>
+	<public-render-parameter>
+		<identifier>genome_filter</identifier>
+		<qname xmlns:x="http://patricbrc.org/params">x:genome_filter</qname>
 	</public-render-parameter>
 </portlet-app>
