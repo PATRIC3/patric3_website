@@ -354,30 +354,34 @@ public class BreadCrumb extends GenericPortlet {
 				else if (cType.equals("feature")) {
 
 					boolean hasPATRICAnnotation = false;
-					boolean isPublicFeature;
+					boolean isPublicFeature = false;
 					List<Map<String, Object>> lineage = new ArrayList<>();
 
 					GenomeFeature feature = dataApi.getPATRICFeature(cId);
-					int taxonId = feature.getTaxonId();
+					if (feature != null) {
+						int taxonId = feature.getTaxonId();
 
-					if (feature.getAnnotation().equals("PATRIC")) {
-						hasPATRICAnnotation = true;
-					}
-					isPublicFeature = feature.isPublic();
+						if (feature.getAnnotation().equals("PATRIC")) {
+							hasPATRICAnnotation = true;
+						}
+						isPublicFeature = feature.isPublic();
 
-					Taxonomy taxonomy = dataApi.getTaxonomy(taxonId);
-					List<Integer> taxonIds = taxonomy.getLineageIds();
-					List<String> txNames = taxonomy.getLineageNames();
-					List<String> txRanks = taxonomy.getLineageRanks();
+						Taxonomy taxonomy = dataApi.getTaxonomy(taxonId);
+						if (taxonomy != null) {
+							List<Integer> taxonIds = taxonomy.getLineageIds();
+							List<String> txNames = taxonomy.getLineageNames();
+							List<String> txRanks = taxonomy.getLineageRanks();
 
-					for (Integer txId : taxonIds) {
-						int idx = taxonIds.indexOf(txId);
-						Map<String, Object> taxon = new HashMap<>();
-						taxon.put("taxonId", txId);
-						taxon.put("name", txNames.get(idx));
-						taxon.put("rank", txRanks.get(idx));
+							for (Integer txId : taxonIds) {
+								int idx = taxonIds.indexOf(txId);
+								Map<String, Object> taxon = new HashMap<>();
+								taxon.put("taxonId", txId);
+								taxon.put("name", txNames.get(idx));
+								taxon.put("rank", txRanks.get(idx));
 
-						lineage.add(taxon);
+								lineage.add(taxon);
+							}
+						}
 					}
 
 					request.setAttribute("lineage", lineage);
@@ -404,22 +408,23 @@ public class BreadCrumb extends GenericPortlet {
 						isPublicGenome = genome.isPublic();
 
 						Taxonomy taxonomy = dataApi.getTaxonomy(taxonId);
-						// TODO: handle when taxonomy is null
-						List<Integer> txIds = taxonomy.getLineageIds();
-						List<String> txNames = taxonomy.getLineageNames();
-						List<String> txRanks = taxonomy.getLineageRanks();
+						if (taxonomy != null) {
+							List<Integer> txIds = taxonomy.getLineageIds();
+							List<String> txNames = taxonomy.getLineageNames();
+							List<String> txRanks = taxonomy.getLineageRanks();
 
-						for (Integer txId : txIds) {
-							int idx = txIds.indexOf(txId);
-							Map<String, Object> taxon = new HashMap<>();
-							taxon.put("taxonId", txId);
-							taxon.put("name", txNames.get(idx));
-							taxon.put("rank", txRanks.get(idx));
+							for (Integer txId : txIds) {
+								int idx = txIds.indexOf(txId);
+								Map<String, Object> taxon = new HashMap<>();
+								taxon.put("taxonId", txId);
+								taxon.put("name", txNames.get(idx));
+								taxon.put("rank", txRanks.get(idx));
 
-							if (txRanks.get(idx).equals("genus")) {
-								isBelowGenus = true;
+								if (txRanks.get(idx).equals("genus")) {
+									isBelowGenus = true;
+								}
+								lineage.add(taxon);
 							}
-							lineage.add(taxon);
 						}
 					}
 
