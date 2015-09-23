@@ -160,6 +160,9 @@ public class DataApiHandler {
 				// handle unauthorized case
 				LOGGER.debug(e.getMessage());
 			}
+			else if (e.getMessage().equals("Not Found")) {
+				LOGGER.debug("{} - request url: {}", e.getMessage(), url);
+			}
 			else {
 				LOGGER.error(e.getMessage(), e);
 			}
