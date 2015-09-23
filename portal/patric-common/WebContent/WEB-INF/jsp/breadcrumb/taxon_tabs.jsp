@@ -51,7 +51,7 @@ if (!lineage.isEmpty()) {
 		%>
 		</ul>
 	</nav>
-<%--	<input type="checkbox" id="genome_filter_toggle" <%=(genomeFilter.equals("reference_genome:*"))?"checked":""%> data-toggle="toggle" data-on="Reference Genome Only" data-off="All Genomes" />--%>
+<%--	<input type="checkbox" id="genome_filter_toggle" <%=(genomeFilter != null && genomeFilter.equals("reference_genome:*"))?"checked":""%> data-toggle="toggle" data-on="Reference Genome Only" data-off="All Genomes" />--%>
 	<div id="utilitybox" class="smallest right no-underline-links">
 		<a class="double-arrow-link" href="http://enews.patricbrc.org/patric-data-organization-overview/" target="_blank">Data Overview Tutorial</a>
 		<br/><a class="double-arrow-link" href="Downloads?cType=taxon&amp;cId=<%=tId %>" target="_blank">Download genome data</a>
