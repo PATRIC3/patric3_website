@@ -106,7 +106,7 @@
 		</td>
 	</tr>
 	<tr>
-		<th scope="row">Proteins with PATRIC Local Family assignments</th>
+		<th scope="row">Proteins with PATRIC Genus Specific Family assignments</th>
 		<td class="right-align-text">
 			<% if (plfamAssignedProteins != null && plfamAssignedProteins.containsKey("PATRIC")) { %>
 			<a href="FeatureTable?cType=<%=contextType%>&amp;cId=<%=contextId%>&amp;featuretype=CDS&amp;annotation=PATRIC&amp;filtertype=plfam_id"><%=plfamAssignedProteins.get("PATRIC") %></a>

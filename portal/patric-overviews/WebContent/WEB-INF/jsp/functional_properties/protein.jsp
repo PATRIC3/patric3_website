@@ -41,7 +41,7 @@ String ENDPOINT = System.getProperty("polyomic.baseUrl", "https://www.patricbrc.
 		%></td> 
 	</tr>
 	<tr>
-		<th scope="row">PATRIC Local Family Assignments</th>
+		<th scope="row">PATRIC Genus Specific Family Assignments</th>
 		<td><%
 			if (feature.hasPlfamId()) {
 		%><a href="javascript:submitFigfam('<%=feature.getPlfamId() %>','plfam')"><%=feature.getPlfamId() %></a><%

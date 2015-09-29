@@ -119,7 +119,7 @@ String genomeFilter = (String) request.getAttribute("genomeFilter");
 <div id="information_panel"></div>
 <div>
 	<form id="familyType">
-		<input type="radio" id="familyType_plfam" name="famType" value="plfam" <%=(familyType.equals("plfam")?"checked='checked'":"")%> onchange="changeFamilyType('plfam')" /> <label for="familyType_plfam">PATRIC Local Family &nbsp; </label>
+		<input type="radio" id="familyType_plfam" name="famType" value="plfam" <%=(familyType.equals("plfam")?"checked='checked'":"")%> onchange="changeFamilyType('plfam')" /> <label for="familyType_plfam">PATRIC Genus Specific Family &nbsp; </label>
 		<input type="radio" id="familyType_pgfam" name="famType" value="pgfam" <%=(familyType.equals("pgfam")?"checked='checked'":"")%> onchange="changeFamilyType('pgfam')" /> <label for="familyType_pgfam">PATRIC Global Family &nbsp; </label>
 		<input type="radio" id="familyType_figfam" name="famType" value="figfam" <%=(familyType.equals("figfam")?"checked='checked'":"")%> onchange="changeFamilyType('figfam')" /> <label for="familyType_figfam">FIGFam &nbsp; </label>
 	</form>
