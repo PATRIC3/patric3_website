@@ -5,3 +5,5 @@ RemoteSystemsTempFiles
 .metadata
 *.iml
 .idea
+build.sh
+transfer.sh
