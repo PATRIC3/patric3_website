@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.portlet.ResourceRequest;
+import javax.swing.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
@@ -649,9 +650,9 @@ public class FIGfamData {
 			try {
 				SolrQuery query = new SolrQuery("family_id:(" + StringUtils.join(figfamIdList, " OR ") + ")");
 				query.addFilterQuery("family_type:" + familyType);
-				query.addField("family_id,family_product").setRows(figfams.size());
+				query.addField("family_id,family_product").setRows(figfamIdList.size());
 
-				LOGGER.trace("getGroupStats() 3/3: [{}] {}", SolrCore.FIGFAM_DIC.getSolrCoreName(), query);
+				LOGGER.debug("getGroupStats() 3/3: [{}] {}", SolrCore.FIGFAM_DIC.getSolrCoreName(), query);
 
 				String apiResponse = dataApi.solrQuery(SolrCore.FIGFAM_DIC, query);
 
@@ -664,6 +665,24 @@ public class FIGfamData {
 					final JSONObject figfam = (JSONObject) figfams.get(doc.get("family_id"));
 					figfam.put("description", doc.get("family_product"));
 					figfams.put(doc.get("family_id").toString(), figfam);
+				}
+
+				int i = 1;
+				while (sdl.size() == 25000) {
+					query.setStart(25000 * i);
+
+					apiResponse = dataApi.solrQuery(SolrCore.FIGFAM_DIC, query);
+					resp = jsonReader.readValue(apiResponse);
+					respBody = (Map) resp.get("response");
+
+					sdl = (List<Map>) respBody.get("docs");
+
+					for (final Map doc : sdl) {
+						final JSONObject figfam = (JSONObject) figfams.get(doc.get("family_id"));
+						figfam.put("description", doc.get("family_product"));
+						figfams.put(doc.get("family_id").toString(), figfam);
+					}
+					i++;
 				}
 			}
 			catch (IOException e) {

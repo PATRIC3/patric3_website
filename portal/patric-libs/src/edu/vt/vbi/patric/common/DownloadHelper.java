@@ -22,7 +22,7 @@ public class DownloadHelper {
 
 	public static List<String> getHeaderForFeatures() {
 		return Arrays.asList("Genome", "Genome ID", "Accession", "PATRIC ID", "RefSeq Locus Tag", "Alt Locus Tag", "Feature ID",
-				"Annotation", "Feature Type", "Start", "End", "Length", "Strand", "FIGfam ID", "PATRIC Genus Specific Family", "PATRIC Global Family", "Protein ID", "AA Length", "Gene Symbol", "Product");
+				"Annotation", "Feature Type", "Start", "End", "Length", "Strand", "FIGfam ID", "PATRIC genus-specific families (PLfams)", "PATRIC cross-genus families (PGfams)", "Protein ID", "AA Length", "Gene Symbol", "Product");
 	}
 
 	public static List<String> getFieldsForFeatures() {

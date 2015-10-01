@@ -29,8 +29,8 @@ boolean isLoggedIn = (Boolean) request.getAttribute("isLoggedIn");
 
 		<label class="left" for="family_type">Family Type:</label>
 		<select class="right far" id="family_type" name="family_type" size="1">
-			<option value="plfam" <%=familyType.equals("plfam")?"selected=\"selected\"":"" %>>PATRIC Genus Specific Family</option>
-			<option value="pgfam" <%=familyType.equals("pgfam")?"selected=\"selected\"":"" %>>PATRIC Global Family</option>
+			<option value="plfam" <%=familyType.equals("plfam")?"selected=\"selected\"":"" %>>PATRIC genus-specific families (PLfams)</option>
+			<option value="pgfam" <%=familyType.equals("pgfam")?"selected=\"selected\"":"" %>>PATRIC cross-genus families (PGfams)</option>
 			<option value="figfam" <%=familyType.equals("figfam")?"selected=\"selected\"":"" %>>FIGFam</option>
 		</select>
 		<div class="clear"></div>

@@ -41,7 +41,7 @@ String ENDPOINT = System.getProperty("polyomic.baseUrl", "https://www.patricbrc.
 		%></td> 
 	</tr>
 	<tr>
-		<th scope="row">PATRIC Genus Specific Family Assignments</th>
+		<th scope="row">PATRIC genus-specific families (PLfams) Assignments</th>
 		<td><%
 			if (feature.hasPlfamId()) {
 		%><a href="javascript:submitFigfam('<%=feature.getPlfamId() %>','plfam')"><%=feature.getPlfamId() %></a><%
@@ -51,7 +51,7 @@ String ENDPOINT = System.getProperty("polyomic.baseUrl", "https://www.patricbrc.
 		%></td>
 	</tr>
 	<tr>
-		<th scope="row">PATRIC Global Family Assignments</th>
+		<th scope="row">PATRIC cross-genus families (PGfams) Assignments</th>
 		<td><%
 			if (feature.hasPgfamId()) {
 		%><a href="javascript:submitFigfam('<%=feature.getPgfamId() %>','pgfam')"><%=feature.getPgfamId() %></a><%
