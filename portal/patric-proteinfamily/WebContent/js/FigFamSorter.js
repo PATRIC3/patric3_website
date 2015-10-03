@@ -1644,7 +1644,8 @@ function setAllDetails(windowID, fileType) {
 		for (var i = 1; i < tableData.length; i++) {
 			figList += ' OR ' + tableData[i][7];
 		}
-		toSet.detailsFigfams.value = figList;
+		toSet.detailsFamilyIds.value = figList;
+		toSet.familyType.value = document.getElementById("familyType").elements["famType"].value;
 		toSet.submit();
 	}
 }
@@ -1653,7 +1654,7 @@ function setTopOrtho(windowID, fileType) {
 	// get the data for the table
 	var tableData = filterOrthoTableData(windowID);
 
-	var tablePass = "Id\tMembers\tSpecies\tProduct Description\tMin\tMax\tMean\tStd\n";
+	var tablePass = "Id\tProteins\tGenomes\tProduct Description\tMin\tMax\tMean\tStd\n";
 
 	var column_order = [7, 0, 1, 2, 3, 4, 5, 6];
 
