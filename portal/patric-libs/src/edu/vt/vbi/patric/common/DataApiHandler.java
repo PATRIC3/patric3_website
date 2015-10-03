@@ -339,6 +339,8 @@ public class DataApiHandler {
 
 		GenomeFeature feature = this.getFeature(featureId);
 
+		if (feature == null) return null;
+
 		if (feature.getAnnotation().equals("PATRIC")) {
 			patricFeature = feature;
 		}
