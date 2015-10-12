@@ -17,7 +17,6 @@
  */
 package edu.vt.vbi.patric.portlets;
 
-import com.ctc.wstx.util.StringUtil;
 import edu.vt.vbi.patric.beans.GenomeFeature;
 import edu.vt.vbi.patric.common.*;
 import org.apache.commons.lang.StringUtils;
@@ -33,10 +32,7 @@ import org.slf4j.LoggerFactory;
 import javax.portlet.*;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class SingleFIGfam extends GenericPortlet {
 
@@ -46,8 +42,7 @@ public class SingleFIGfam extends GenericPortlet {
 
 	ObjectWriter jsonWriter;
 
-	@Override
-	public void init() throws PortletException {
+	@Override public void init() throws PortletException {
 		super.init();
 
 		ObjectMapper objectMapper = new ObjectMapper();
@@ -93,13 +88,14 @@ public class SingleFIGfam extends GenericPortlet {
 		request.setAttribute("familyType", familyType);
 		request.setAttribute("familyId", familyId);
 		request.setAttribute("length", length);
+		request.setAttribute("pk", pk);
 
 		PortletRequestDispatcher reqDispatcher = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/single.jsp");
 		reqDispatcher.include(request, response);
 	}
 
-	@SuppressWarnings("unchecked")
-	public void serveResource(ResourceRequest request, ResourceResponse response) throws PortletException, IOException {
+	@SuppressWarnings("unchecked") public void serveResource(ResourceRequest request, ResourceResponse response)
+			throws PortletException, IOException {
 		String callType = request.getParameter("callType");
 
 		if (callType != null) {
@@ -124,30 +120,10 @@ public class SingleFIGfam extends GenericPortlet {
 
 			}
 			else if (callType.equals("getData")) {
-				String keyword = request.getParameter("keyword");
-				String sort = request.getParameter("sort");
 
-				key.put("keyword", keyword);
-
-				DataApiHandler dataApi = new DataApiHandler(request);
-
-				String start_id = request.getParameter("start");
-				String limit = request.getParameter("limit");
-				int start = Integer.parseInt(start_id);
-				int end = Integer.parseInt(limit);
-
-				key.put("filter", "annotation:PATRIC AND feature_type:CDS");
-				key.put("fields", StringUtils.join(DownloadHelper.getFieldsForFeatures(),","));
-
-				SolrQuery query = dataApi.buildSolrQuery(key, sort, null, start, end, false);
-
-				String apiResponse = dataApi.solrQuery(SolrCore.FEATURE, query);
-
-				Map resp = jsonReader.readValue(apiResponse);
-				Map respBody = (Map) resp.get("response");
-
-				int numFound = (Integer) respBody.get("numFound");
-				List<GenomeFeature> features = dataApi.bindDocuments((List<Map>) respBody.get("docs"), GenomeFeature.class);
+				Map data = processFeatureTab(request);
+				int numFound = (Integer) data.get("numFound");
+				List<GenomeFeature> features = (List<GenomeFeature>) data.get("features");
 
 				JSONArray docs = new JSONArray();
 				for (GenomeFeature feature : features) {
@@ -163,6 +139,91 @@ public class SingleFIGfam extends GenericPortlet {
 				jsonResult.writeJSONString(writer);
 				writer.close();
 			}
+			else if (callType.equals("download")) {
+
+				List<String> tableHeader = new ArrayList<>();
+				List<String> tableField = new ArrayList<>();
+				JSONArray tableSource = new JSONArray();
+
+				String fileName = "FeatureTable";
+				String fileFormat = request.getParameter("fileformat");
+
+				// features
+				Map data = processFeatureTab(request);
+				List<GenomeFeature> features = (List<GenomeFeature>) data.get("features");
+
+				for (GenomeFeature feature : features) {
+					tableSource.add(feature.toJSONObject());
+				}
+
+				tableHeader.addAll(DownloadHelper.getHeaderForFeatures());
+				tableField.addAll(DownloadHelper.getFieldsForFeatures());
+
+				ExcelHelper excel = new ExcelHelper("xssf", tableHeader, tableField, tableSource);
+				excel.buildSpreadsheet();
+
+				if (fileFormat.equalsIgnoreCase("xlsx")) {
+					response.setContentType("application/octetstream");
+					response.addProperty("Content-Disposition", "attachment; filename=\"" + fileName + "." + fileFormat + "\"");
+
+					excel.writeSpreadsheettoBrowser(response.getPortletOutputStream());
+				}
+				else if (fileFormat.equalsIgnoreCase("txt")) {
+
+					response.setContentType("application/octetstream");
+					response.addProperty("Content-Disposition", "attachment; filename=\"" + fileName + "." + fileFormat + "\"");
+
+					response.getPortletOutputStream().write(excel.writeToTextFile().getBytes());
+				}
+			}
 		}
+	}
+
+	private Map processFeatureTab(ResourceRequest request) throws IOException {
+
+//		LOGGER.debug("params: {}", request.getParameterMap());
+
+		String keyword = request.getParameter("keyword");
+		String sort = request.getParameter("sort");
+
+		if (request.getParameter("callType").equals("download")) {
+			keyword = request.getParameter("download_keyword");
+		}
+
+		Map<String, String> key = new HashMap<>();
+
+		key.put("keyword", keyword);
+
+		DataApiHandler dataApi = new DataApiHandler(request);
+
+		String start_id = request.getParameter("start");
+		String limit = request.getParameter("limit");
+		int start = 0;
+		int end = -1;
+
+		if (start_id != null)
+			start = Integer.parseInt(start_id);
+		if (limit != null)
+			end = Integer.parseInt(limit);
+
+		key.put("filter", "annotation:PATRIC AND feature_type:CDS");
+		key.put("fields", StringUtils.join(DownloadHelper.getFieldsForFeatures(), ","));
+
+		SolrQuery query = dataApi.buildSolrQuery(key, sort, null, start, end, false);
+
+		String apiResponse = dataApi.solrQuery(SolrCore.FEATURE, query);
+
+		Map resp = jsonReader.readValue(apiResponse);
+		Map respBody = (Map) resp.get("response");
+
+		int numFound = (Integer) respBody.get("numFound");
+		List<GenomeFeature> features = dataApi.bindDocuments((List<Map>) respBody.get("docs"), GenomeFeature.class);
+
+		Map response = new HashMap();
+		response.put("key", key);
+		response.put("numFound", numFound);
+		response.put("features", features);
+
+		return response;
 	}
 }

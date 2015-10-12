@@ -59,9 +59,17 @@ function getSelectedFeatures() {"use strict";
 
 function DownloadFile() {"use strict";
 
-	var form = Ext.getDom("fTableForm");
+	var Page = $Page, property = Page.getPageProperties(), hash = property.hash, form = Ext.getDom("fTableForm");
 
-	form.action = "/patric-searches-and-tools/jsp/grid_download_handler.jsp", form.target = "", form.fileformat.value = arguments[0];
+	form.action = "/portal/portal/patric/SingleFIGfam/SingleFIGfamWindow?action=b&cacheability=PAGE&callType=download";
+	form.target = "";
+	form.fileformat.value = arguments[0];
+	form.pk.value = hash.key;
+
 	getHashFieldsToDownload(form);
+	var grid = Page.getGrid();
+	var sort = [];
+	sort.push(getSortersInText(grid.store));
+	form.sort.value = JSON.stringify(sort);
 	form.submit();
 }

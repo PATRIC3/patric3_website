@@ -7,6 +7,7 @@ String familyIds = (String) request.getAttribute("familyIds");
 String familyType = (String) request.getAttribute("familyType");
 String familyId = (String) request.getAttribute("familyId");
 int length = (Integer) request.getAttribute("length");
+String pk = (String) request.getAttribute("pk");
 %>
 
 <form id="fTableForm" action="#" method="post">
@@ -15,6 +16,8 @@ int length = (Integer) request.getAttribute("length");
 <input type="hidden" id="fileformat" name="fileformat" value="" />
 <input type="hidden" id="cType" name="cType" value="<%=contextType%>" />
 <input type="hidden" id="cId" name="cId" value="<%=contextId%>" />
+<input type="hidden" id="pk" name="pk" value="" />
+<input type="hidden" id="sort" name="sort" value="" />
 <!-- fasta download specific param -->
 <input type="hidden" id="fastaaction" name="fastaaction" value="" />
 <input type="hidden" id="fastatype" name="fastatype" value="" />
@@ -91,7 +94,8 @@ Ext.onReady(function()
 		}]],
 		hash:{
 			aP: [1],
-			kW: ''
+			kW: '',
+			pk: '<%=pk%>'
 		},
 		reconfigure:true,
 		remoteSort:true,
