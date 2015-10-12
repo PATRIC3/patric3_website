@@ -107,7 +107,7 @@ public class FIGfam extends GenericPortlet {
 			}
 
 			String familyType = request.getParameter("family_type");
-			if (familyType == null) familyType = "plfam";
+			if (familyType == null) familyType = "figfam"; // TODO: change to plfam later
 			String genomeFilter = request.getParameter("genome_filter");
 			if (genomeFilter == null) genomeFilter = "";
 

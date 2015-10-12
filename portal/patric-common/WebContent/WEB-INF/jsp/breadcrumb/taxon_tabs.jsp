@@ -70,7 +70,7 @@ if (!lineage.isEmpty()) {
 			<li id="tabs_specialtygenes"><a href="SpecialtyGeneList?cType=taxon&amp;cId=<%=tId %>&amp;kw="
 				title=""><span>Specialty Genes</span></a></li>
 			<% if (isBelowGenus) { %>
-			<li id="tabs_proteinfamilysorter"><a href="FIGfam?cType=taxon&amp;cId=<%=tId %>&amp;dm=result&amp;bm=&pk=&famType=plfam<%=(!genomeFilter.equals(""))?"&genomeFilter=" + genomeFilter:""%>"><span>Protein Families</span></a></li>
+			<li id="tabs_proteinfamilysorter"><a href="FIGfam?cType=taxon&amp;cId=<%=tId %>&amp;dm=result&amp;bm=&pk=&famType=figfam<%=(!genomeFilter.equals(""))?"&genomeFilter=" + genomeFilter:""%>"><span>Protein Families</span></a></li>
 			<% } %>
 			<li id="tabs_pathways"><a href="CompPathwayTable?cType=taxon&amp;cId=<%=tId %>&amp;algorithm=PATRIC&amp;ec_number="><span>Pathways</span></a></li>
 			<li id="tabs_explist"><a href="ExperimentList?cType=taxon&amp;cId=<%=tId %>&amp;kw=" 
