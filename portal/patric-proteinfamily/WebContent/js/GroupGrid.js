@@ -415,7 +415,7 @@ function pickPanel() {
 			}
 
 		} else {
-			this.isHeatMapLoaded = false;
+			//this.isHeatMapLoaded = false;
 			Ext.getDom('grid_result_summary').innerHTML = "<b>0 families found</b>";
 			Ext.get("sample-layout").unmask();
 		}
