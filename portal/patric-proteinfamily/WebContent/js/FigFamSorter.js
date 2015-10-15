@@ -582,7 +582,7 @@ function catchGroupStats(windowID, ajaxHttp) {"use strict";
 					rowData[key].genomes, rowData[key].feature_count, 
 					rowData[key].genome_count, 
 					rowData[key].stats.min, rowData[key].stats.max, 
-					rowData[key].stats.mean, rowData[key].stats.stddev, rowData[key].description));
+					rowData[key].stats.mean, rowData[key].stats.stddev, rowData[key].description, j));
 		}
 	}
 	
@@ -647,22 +647,20 @@ function catchSyntenyOrder(windowID, rs) {"use strict";
 		adjust,
 		endAid,
 		orderAt,
-		i,
-		nextRow,
-		bumper,
-		emptySpot,
-		j,
 		gridObject = getScratchObject(windowID),
 		stateObject = getStateObject(windowID);
 
 	
 	if (0 < orderPairs.length) {
-		adjust = -(orderPairs.length * 2);
-		adjust /= 2;
+		//adjust = -(orderPairs.length * 2);
+		//adjust /= 2;
+		adjust = -orderPairs.length;
 		orderAt = 0;
 		endAid = [];
-		for (i = 0; i < orthoRows.length; i++) {
-			nextRow = orthoRows[i];
+		//for (i = 0, len = orthoRows.length; i < len; i++) {
+		//	nextRow = orthoRows[i];
+		orthoRows.sort(function(a, b) { return a.groupId.localeCompare(b.groupId); });
+		orthoRows.forEach(function(nextRow) {
 			if (orderPairs[orderAt] && nextRow.groupId == orderPairs[orderAt].groupId) {
 				nextRow.order = orderPairs[orderAt].syntonyAt; 
 				++orderAt;
@@ -670,35 +668,40 @@ function catchSyntenyOrder(windowID, rs) {"use strict";
 				nextRow.order -= adjust;
 				endAid.push(nextRow.order);
 			}
-		}
+		});
 		if (0 < endAid.length) {
 			adjust = -adjust;
 			endAid.sort(sortNumber);
-			bumper = [];
-			for (i = 0; i < endAid.length; i++) {
-				bumper[endAid[i]] = adjust; 
+			var bumper = [];
+			//for (i = 0, len = endAid.length; i < len; i++) {
+			//	bumper[endAid[i]] = adjust;
+			endAid.forEach(function(el) {
+				bumper[el] = adjust;
 				++adjust;
-			}
-			for (i = 0; i < orthoRows.length; i++) {
-				nextRow = orthoRows[i];
+			});
+			//for (i = 0, len = orthoRows.length; i < len; i++) {
+			//	nextRow = orthoRows[i];
+			orthoRows.forEach(function(nextRow){
 				if (bumper[nextRow.order] != null) {
 					nextRow.order = bumper[nextRow.order];
 				}
-			}
+			});
 		}
-		emptySpot = 0;
-		for (j = 0; j < orthoRows.length; j++) {
-			if (colOrder[parseInt(orthoRows[j].order)] != null) {
-				for (i = 0; i < colOrder.length; i++) {
+		var emptySpot = 0;
+		//for (j = 0; j < orthoRows.length; j++) {
+		//if (colOrder[parseInt(orthoRows[j].order)] != null) {
+		orthoRows.forEach(function(el) {
+			if (colOrder[parseInt(el.order)] != null) {
+				for (var i = 0; i < colOrder.length; i++) {
 					if (colOrder[i] == null) {
 						emptySpot = i;
 					}
 				}
 				colOrder[emptySpot] = orthoRows[j].groupId;
 			} else {
-				colOrder[parseInt(orthoRows[j].order)] = orthoRows[j].groupId;
+				colOrder[parseInt(el.order)] = el.groupId;
 			}
-		}
+		});
 		filterOrthoTableData(windowID);
 
 		if (stateObject.heatmapAxis != "Transpose") {

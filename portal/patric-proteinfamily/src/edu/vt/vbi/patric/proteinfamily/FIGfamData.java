@@ -80,13 +80,12 @@ public class FIGfamData {
 			long end_ms, start_ms = System.currentTimeMillis();
 
 			SolrQuery solr_query = new SolrQuery("genome_id:" + genomeId);
-			solr_query.setRows(1);
-			solr_query.setFilterQueries("annotation:PATRIC AND feature_type:CDS AND " + familyId + ":[* TO *]");
+//			solr_query.addFilterQuery("end:[3200 TO 4300] OR end:[4400 TO 4490] OR end:[4990 TO 4999]");
+			solr_query.addFilterQuery("annotation:PATRIC AND feature_type:CDS AND " + familyId + ":[* TO *]");
 			solr_query.addField(familyId);
 
 			solr_query.setRows(DataApiHandler.MAX_ROWS);
-			solr_query.addSort("accession", SolrQuery.ORDER.asc);
-			solr_query.addSort("start", SolrQuery.ORDER.asc);
+			solr_query.addSort(familyId, SolrQuery.ORDER.asc);
 
 			LOGGER.debug("getSyntonyOrder() [{}] {}", SolrCore.FEATURE.getSolrCoreName(), solr_query);
 
@@ -470,6 +469,7 @@ public class FIGfamData {
 		try {
 			long start = System.currentTimeMillis();
 			SolrQuery query = new SolrQuery("annotation:PATRIC AND feature_type:CDS");
+//			query.addFilterQuery("end:[3200 TO 4300] OR end:[4400 TO 4490] OR end:[4990 TO 4999]");
 			query.addFilterQuery(getSolrQuery(request));
 			query.addFilterQuery("!" + familyId + ":\"\"");
 			query.setRows(0).setFacet(true).set("facet.threads", 15);
