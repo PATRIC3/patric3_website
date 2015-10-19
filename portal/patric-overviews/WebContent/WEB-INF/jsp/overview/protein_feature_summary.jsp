@@ -106,7 +106,7 @@
 		</td>
 	</tr>
 	<tr>
-		<th scope="row">Proteins with PATRIC genus-specific families (PLfams) assignments</th>
+		<th scope="row">Proteins with PATRIC genus-specific family (PLfam) assignments</th>
 		<td class="right-align-text">
 			<% if (plfamAssignedProteins != null && plfamAssignedProteins.containsKey("PATRIC")) { %>
 			<a href="FeatureTable?cType=<%=contextType%>&amp;cId=<%=contextId%>&amp;featuretype=CDS&amp;annotation=PATRIC&amp;filtertype=plfam_id"><%=plfamAssignedProteins.get("PATRIC") %></a>
@@ -123,7 +123,7 @@
 		</td>
 	</tr>
 	<tr>
-		<th scope="row">Proteins with PATRIC cross-genus families (PGfams) assignments</th>
+		<th scope="row">Proteins with PATRIC cross-genus family (PGfam) assignments</th>
 		<td class="right-align-text">
 			<% if (pgfamAssignedProteins != null && pgfamAssignedProteins.containsKey("PATRIC")) { %>
 			<a href="FeatureTable?cType=<%=contextType%>&amp;cId=<%=contextId%>&amp;featuretype=CDS&amp;annotation=PATRIC&amp;filtertype=pgfam_id"><%=pgfamAssignedProteins.get("PATRIC") %></a>
