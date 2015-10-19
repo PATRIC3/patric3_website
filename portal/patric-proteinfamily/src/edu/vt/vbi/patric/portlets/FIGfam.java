@@ -131,7 +131,7 @@ public class FIGfam extends GenericPortlet {
 			String cType = request.getParameter("context_type");
 			String cId = request.getParameter("context_id");
 			String familyType = request.getParameter("family_type");
-			if (familyType == null) familyType = "plfam";
+			if (familyType == null) familyType = "figfam";
 
 			String taxonName = "";
 			int taxonId = -1;
