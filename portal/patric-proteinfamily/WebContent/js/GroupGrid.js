@@ -387,7 +387,7 @@ function pickPanel() {
 		
 		this.familyCount = filterHeatmapData(this.stateObject, this.store, this.gridId);
 
-		if (0 < this.familyCount) {
+		//if (0 < this.familyCount) {
 			Ext.getDom('grid_result_summary').innerHTML = "<b>" + this.familyCount + " families found</b><br/>";
 			Ext.get("sample-layout").unmask();
 			
@@ -414,10 +414,10 @@ function pickPanel() {
 				Ext.getDom("FIGfamSorter_4heatmap").innerHTML = "Your Flash player is either disabled or not installed. Please install using this <a target=\"blank\" href=\"http://get.adobe.com/flashplayer\">link</a>.";
 			}
 
-		} else {
-			//this.isHeatMapLoaded = false;
-			Ext.getDom('grid_result_summary').innerHTML = "<b>0 families found</b>";
-			Ext.get("sample-layout").unmask();
-		}
+		//} else {
+		//	//this.isHeatMapLoaded = false;
+		//	Ext.getDom('grid_result_summary').innerHTML = "<b>0 families found</b>";
+		//	Ext.get("sample-layout").unmask();
+		//}
 	}
 }
