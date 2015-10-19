@@ -85,12 +85,12 @@ Ext.onReady(function()
 			{text:'Product Description',	dataIndex:'product',	flex:3, renderer:BasicRenderer}]],
 		extraParams:getExtraParams,
 		callBackFn:CallBack,
-		sort:[[/*{
-			property: 'alt_locus_tag',
-			direction: 'ASC'
-		},*/{
-			property: 'na_length',
-			direction: 'ASC'
+		sort:[[{
+			property: 'accession',
+			direction:'ASC'
+		},{
+			property: 'start',
+			direction:'ASC'
 		}]],
 		hash:{
 			aP: [1],

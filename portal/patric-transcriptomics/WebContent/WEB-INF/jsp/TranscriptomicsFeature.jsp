@@ -106,6 +106,12 @@ Ext.onReady(function()
 		sort: [[{
 			property: 'genome_name',
 			direction: 'ASC'
+		}, {
+			property: 'accession',
+			direction:'ASC'
+		},{
+			property: 'start',
+			direction:'ASC'
 		}]],
 		hash:{
 			aP: [1]

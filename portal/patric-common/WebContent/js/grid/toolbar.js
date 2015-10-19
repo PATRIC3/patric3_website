@@ -27,7 +27,8 @@ function createToolbar(type, download_option, workspace_type) {
 						url: url,
 						method: 'GET',
 						success: function(response, opts) {
-							console.log("resetColumnState");
+							// console.log("resetColumnState");
+							document.location.reload();
 						}
 					});
 				}
@@ -61,7 +62,8 @@ function createToolbar(type, download_option, workspace_type) {
 						url: url,
 						method: 'GET',
 						success: function(response, opts) {
-							console.log("resetColumnState");
+							// console.log("resetColumnState");
+							document.location.reload();
 						}
 					});
 				}

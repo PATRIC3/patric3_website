@@ -78,7 +78,6 @@ var $Page;
 Ext.onReady(function()
 {
 	var checkbox = createCheckBox("Feature");
-	var all_hidden = ["refseq_protein_id", "aa_length", "gene", "anticodon", "bound_moeity", "product"];
 	var random = '<%=pk %>';
 	var pageProperties = {
 		name: "Feature",
@@ -106,30 +105,18 @@ Ext.onReady(function()
 			{text:'Protein ID',			dataIndex:'protein_id',			orig_hidden_value: true,	hidden: true,	flex:1, align:'right', renderer:BasicRenderer},
 			{text:'Length (AA)',		dataIndex:'aa_length',			orig_hidden_value: true,	hidden: true,	flex:1, align:'right', renderer:BasicRenderer},
 			{text:'Product Description',dataIndex:'product',			orig_hidden_value: false,	flex:4, renderer:BasicRenderer}]],
-/*		featureHiddenCols:{"CDS":[],
-			"misc_RNA":["protein_id","aa_length","gene"],
-			"misc_binding":["protein_id","aa_length","gene"],
-			"misc_feature":["protein_id","aa_length","gene"],
-			"misc_signal":["protein_id","aa_length","gene"],
-			"ncRNA":["protein_id","aa_length"],
-			"pseudogene":all_hidden,
-			"rRNA":["protein_id","aa_length"],
-			"region":all_hidden,
-			"repeat_region":all_hidden,
-			"source":all_hidden,
-			"tRNA":["protein_id","aa_length","gene"],
-			"tmRNA":all_hidden,
-			"transcript":[],
-			"ALL":["protein_id","aa_length"]}, */
 		extraParams:getExtraParams,
 		callBackFn:CallBack,
 		sort: [[{
 			property: 'genome_name',
 			direction:'ASC'
-			}/*,{
-			property: 'patric_id',
-			direction:'ASC'
-		}*/]],
+			},{
+				property: 'accession',
+				direction:'ASC'
+			},{
+				property: 'start',
+				direction:'ASC'
+		}]],
 		hash:{
 			aP: [1],
 			fT: '<%=featuretype%>',
@@ -165,9 +152,5 @@ Ext.onReady(function()
 function getContext() {
 	return {type:"<%=cType%>", id:'<%=cId%>'};
 }
-/*
-function getGID(){
-	return '<%=genomeId %>';
-}*/
 //]]
 </script>

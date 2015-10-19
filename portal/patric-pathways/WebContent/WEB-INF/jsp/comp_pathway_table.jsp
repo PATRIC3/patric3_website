@@ -105,7 +105,7 @@ Ext.onReady(function()
 						{header:'Description',		dataIndex:'ec_name',		flex:2, renderer:BasicRenderer},
 						{header:'Genome Count',		dataIndex:'genome_count',	flex:1, align:'center', renderer:BasicRenderer},
 						{header:'Unique GeneCount',	dataIndex:'gene_count',		flex:1, align:'center', renderer:renderGeneCountEc}
-				],[checkbox, {header:'Feature ID',		dataIndex:'na_feature_id', 	flex:1, hidden:true, renderer:BasicRenderer},  
+				],[checkbox, {header:'Feature ID',		dataIndex:'feature_id', 	flex:1, hidden:true, renderer:BasicRenderer},
 			          {header:'Genome Name',	dataIndex:'genome_name', 	flex:1, renderer:renderGenomeName},
 			    	  {header:'Accession',		dataIndex:'accession', 		flex:1, hidden: true, renderer:renderAccession},
                         {header:'PATRIC ID',		dataIndex:'patric_id', 		flex:2, renderer:renderSeedId},
@@ -130,6 +130,9 @@ Ext.onReady(function()
 		}],[{
 			property: 'genome_name',
 			direction: 'ASC'
+		},{
+			property: 'patric_id',
+			direction:'ASC'
 		}]],
 		hash:{
 			aP: [1, 1, 1],

@@ -84,10 +84,13 @@ Ext.onReady(function()
 		sort: [[{
 			property: 'genome_name',
 			direction:'ASC'
-		}/*,{
-			property: 'alt_locus_tag',
+		},{
+			property: 'accession',
 			direction:'ASC'
-		}*/]],
+		},{
+			property: 'start',
+			direction:'ASC'
+		}]],
 		hash:{
 			aP: [1],
 			pS : [20],
