@@ -167,9 +167,7 @@ function DownloadFile(type){
 	getHashFieldsToDownload(form);
 
 	var grid = Page.getGrid();
-	var sort = [];
-	sort.push(getSortersInText(grid.store));
-	form.sort.value = JSON.stringify(sort);
+	form.sort.value = JSON.stringify(grid.store.sorters.items);
 	form.submit();
 }
 

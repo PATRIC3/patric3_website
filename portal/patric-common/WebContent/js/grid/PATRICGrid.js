@@ -285,15 +285,3 @@ function createCopyBox() {
 	Ext.getCmp('copy_popup').hide();
 }
 
-function getSortersInText(store) {
-	var sorter = store.sorters.items, obj = {}, i;
-
-	obj.property = sorter[0].property;
-	obj.direction = sorter[0].direction;
-
-	for ( i = 1; i < sorter.length; i++) {
-		obj.property += "," + sorter[i].property;
-	}
-
-	return obj;
-}
