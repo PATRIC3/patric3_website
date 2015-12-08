@@ -46,7 +46,7 @@ public class DownloadHelper {
 				"AntiMicrobial Resistance", "AntiMicrobial Resistance Evidence",
 				"Gram Stain", "Cell Shape", "Motility", "Sporulation", "Temperature Range", "Optimal Temperature", "Salinity", "Oxygen Requirement",
 				"Habitat",
-				"Disease", "Comments", "Additional Metadata");
+				"Disease", "Comments", "Additional Metadata", "Date Inserted", "Date Modified");
 	}
 
 	public static List<String> getFieldsForGenomes() {
@@ -65,7 +65,7 @@ public class DownloadHelper {
 				"antimicrobial_resistance", "antimicrobial_resistance_evidence",
 				"gram_stain", "cell_shape", "motility", "sporulation", "temperature_range", "optimal_temperature", "salinity", "oxygen_requirement",
 				"habitat",
-				"disease", "comments", "additional_metadata");
+				"disease", "comments", "additional_metadata", "date_inserted", "date_modified");
 	}
 
 	public static List<String> getHeaderForGenomeSequence() {

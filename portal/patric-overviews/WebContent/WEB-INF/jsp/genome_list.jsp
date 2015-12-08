@@ -292,7 +292,9 @@ Ext.onReady(function () {
 			{header:'Oxygen Requirement',	dataIndex:'oxygen_requirement',	flex:1, align:'center', hidden:true},
 			{header:'Habitat',				dataIndex:'habitat',			flex:1, align:'center', hidden:true},
 			{header:'Comments',				dataIndex:'comments',			flex:1, align:'center', renderer:BasicRenderer, hidden:true},
-			{header:'Additional Metadata',	dataIndex:'additional_metadata', flex:1, align:'center', renderer:BasicRenderer, hidden:true}
+			{header:'Additional Metadata',	dataIndex:'additional_metadata', flex:1, align:'center', renderer:BasicRenderer, hidden:true},
+			{header:'Date Inserted',		dataIndex:'date_inserted',		flex:1, align:'center', hidden:true},
+			{header:'Date Modified',		dataIndex:'date_modified',		flex:1, align:'center', hidden:true}
 		],
 			[checkbox,
 			{header:"Genome Name",		dataIndex:'genome_name', 		flex:3, renderer:renderGenomeName},

@@ -252,6 +252,12 @@ public class Genome {
 	@Field("public")
 	private boolean isPublic;
 
+	@Field("date_inserted")
+	private Date dateInserted;
+
+	@Field("date_modified")
+	private Date dateModified;
+
 	public JSONObject toJSONObject() {
 		JSONObject json = new JSONObject();
 
@@ -343,6 +349,8 @@ public class Genome {
 
 		json.put("additional_metadata", getAdditionalMetadata());
 
+		json.put("date_inserted", getDateInserted());
+		json.put("date_modified", getDateModified());
 		return json;
 	}
 
@@ -957,5 +965,31 @@ public class Genome {
 
 	public boolean isPublic() {
 		return this.isPublic;
+	}
+
+	public String getDateInserted() {
+		if (dateInserted != null) {
+			return dfCompletionDate.format(dateInserted);
+		}
+		else {
+			return null;
+		}
+	}
+
+	public void setDateInserted(Date dateInserted) {
+		this.dateInserted = dateInserted;
+	}
+
+	public String getDateModified() {
+		if (dateModified != null) {
+			return dfCompletionDate.format(dateModified);
+		}
+		else {
+			return null;
+		}
+	}
+
+	public void setDateModified(Date dateModified) {
+		this.dateModified = dateModified;
 	}
 }

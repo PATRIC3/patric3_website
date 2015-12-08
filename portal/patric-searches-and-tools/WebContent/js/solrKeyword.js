@@ -284,6 +284,12 @@ Ext.define('Genome', {
 		name : 'additional_metadata',
 		type : 'string'
 	}, {
+		name : 'date_inserted',
+		type : 'string'
+	}, {
+		name : 'date_modified',
+		type : 'string'
+	}, {
 		name : 'highlight'
 	}]
 });
