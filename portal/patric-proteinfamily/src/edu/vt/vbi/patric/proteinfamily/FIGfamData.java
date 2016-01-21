@@ -85,7 +85,8 @@ public class FIGfamData {
 			solr_query.addField(familyId);
 
 			solr_query.setRows(DataApiHandler.MAX_ROWS);
-			solr_query.addSort(familyId, SolrQuery.ORDER.asc);
+			solr_query.addSort("accession", SolrQuery.ORDER.asc);
+			solr_query.addSort("start", SolrQuery.ORDER.asc);
 
 			LOGGER.debug("getSyntonyOrder() [{}] {}", SolrCore.FEATURE.getSolrCoreName(), solr_query);
 
