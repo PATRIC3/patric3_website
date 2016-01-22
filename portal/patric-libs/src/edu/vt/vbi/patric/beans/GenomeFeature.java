@@ -255,15 +255,15 @@ public class GenomeFeature {
 	}
 
 	public boolean hasFigfamId() {
-		return (this.figfamId != null);
+		return (this.figfamId != null && !this.figfamId.equals(""));
 	}
 
 	public boolean hasPgfamId() {
-		return (this.pgfamId != null);
+		return (this.pgfamId != null && !this.pgfamId.equals(""));
 	}
 
 	public boolean hasPlfamId() {
-		return (this.plfamId != null);
+		return (this.plfamId != null && !this.plfamId.equals(""));
 	}
 
 	public boolean hasGene() {
