@@ -87,8 +87,6 @@ public class DBSummary {
 		SQLQuery q = session.createSQLQuery(sql);
 		q.setString(0, id);
 
-		session.getTransaction().commit();
-
 		ResultType result = new ResultType();
 		for (Object aRset : q.list()) {
 			Object[] obj = (Object[]) aRset;
