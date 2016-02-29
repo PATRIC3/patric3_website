@@ -866,7 +866,7 @@ function getSelectedFeatures() {"use strict";
 function DownloadFile() {
 	var Page = $Page, property = Page.getPageProperties(), hash = property.hash, which = parseInt(hash.cat), name = property.name[which], tree = property.tree, form = Ext.getDom("fTableForm");
 
-	if (tree.getSelectedTerms()["Keyword"] == null) {
+	if (tree !== undefined && tree.getSelectedTerms()["Keyword"] == null) {
 		tree.selectedTerm["Keyword"] = Ext.getDom("keyword").value;
 	}
 
