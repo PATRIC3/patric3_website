@@ -446,25 +446,33 @@ public class IDMapping extends GenericPortlet {
 			Set<Long> giList = new HashSet<>();
 			List<Map<Long, String>> giTargetList = new LinkedList<>();
 
-			try {
-				SolrQuery query = new SolrQuery("id_value:(" + keyword + ")");
-				query.addFilterQuery("id_type:" + fromId).setRows(10000).addField("uniprotkb_accession,id_value");
-
-				LOGGER.trace("Other to PATRIC 1/3: [{}] {}", SolrCore.ID_REF.getSolrCoreName(), query.toString());
-
-				String apiResponse = dataApi.solrQuery(SolrCore.ID_REF, query);
-
-				Map resp = jsonReader.readValue(apiResponse);
-				Map respBody = (Map) resp.get("response");
-
-				List<Map> accessions = (List<Map>) respBody.get("docs");
-
-				for (Map doc : accessions) {
-					accessionTargetMap.put(doc.get("uniprotkb_accession").toString(), doc.get("id_value").toString());
+			if (fromId.equals("UniProtKB-Accession")) {
+				// we have treat this as a special case, since UniProtKB-Accession is stored in a separate field, named 'uniprotkb_accession'
+				for (String accession : keyword.split(" OR ")) {
+					accessionTargetMap.put(accession, accession);
 				}
 			}
-			catch (IOException e) {
-				LOGGER.error(e.getMessage(), e);
+			else {
+				try {
+					SolrQuery query = new SolrQuery("id_value:(" + keyword + ")");
+					query.addFilterQuery("id_type:" + fromId).setRows(10000).addField("uniprotkb_accession,id_value");
+
+					LOGGER.trace("Other to PATRIC 1/3: [{}] {}", SolrCore.ID_REF.getSolrCoreName(), query.toString());
+
+					String apiResponse = dataApi.solrQuery(SolrCore.ID_REF, query);
+
+					Map resp = jsonReader.readValue(apiResponse);
+					Map respBody = (Map) resp.get("response");
+
+					List<Map> accessions = (List<Map>) respBody.get("docs");
+
+					for (Map doc : accessions) {
+						accessionTargetMap.put(doc.get("uniprotkb_accession").toString(), doc.get("id_value").toString());
+					}
+				}
+				catch (IOException e) {
+					LOGGER.error(e.getMessage(), e);
+				}
 			}
 
 			if (!accessionTargetMap.isEmpty()) {
