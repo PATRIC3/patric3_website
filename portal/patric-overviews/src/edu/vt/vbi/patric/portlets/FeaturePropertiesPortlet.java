@@ -64,8 +64,8 @@ public class FeaturePropertiesPortlet extends GenericPortlet {
 			GenomeFeature feature = dataApi.getPATRICFeature(cId);
 
 			if (feature != null) {
-				List<GenomeFeature> listReleateFeatures = null;
-				List<String> listUniprotkbAccessions = feature.getUniprotkbAccession();
+				List<GenomeFeature> listReleateFeatures;
+				List<String> listUniprotkbAccessions = null;
 				List<Map<String, String>> listUniprotIds = null;
 				String refseqLink = null;
 				String refseqLocusTag = null;
@@ -80,6 +80,27 @@ public class FeaturePropertiesPortlet extends GenericPortlet {
 				Map respBody = (Map) resp.get("response");
 
 				listReleateFeatures = dataApi.bindDocuments((List<Map>) respBody.get("docs"), GenomeFeature.class);
+
+				// build listUniprotkbAccessions based on GI number
+				if (feature.getGi() > 0) {
+					query = new SolrQuery("id_value:(" + feature.getGi() + ")");
+					query.addFilterQuery("id_type:GI").setRows(dataApi.MAX_ROWS);
+
+					apiResponse = dataApi.solrQuery(SolrCore.ID_REF, query);
+
+					resp = jsonReader.readValue(apiResponse);
+					respBody = (Map) resp.get("response");
+
+					List<Map> uniprotList = (List<Map>) respBody.get("docs");
+
+					if (uniprotList.size() > 0) {
+						listUniprotkbAccessions = new ArrayList<>();
+					}
+
+					for (Map doc : uniprotList) {
+						listUniprotkbAccessions.add(doc.get("uniprotkb_accession").toString());
+					}
+				}
 
 				if (listUniprotkbAccessions != null) {
 					query = new SolrQuery("uniprotkb_accession:(" + StringUtils.join(listUniprotkbAccessions, " OR ") + ")");
