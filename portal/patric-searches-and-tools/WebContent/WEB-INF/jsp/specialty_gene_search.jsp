@@ -14,7 +14,7 @@ boolean isLoggedIn = (Boolean) request.getAttribute("isLoggedIn");
 		<p>Specialty Genes refer to the genes that are of particular interest to the infectious disease researchers, such as virulence factors, 
 		antibiotic resistance genes, drug targets, and human homologs. This search tool allows researchers to find specialty genes in their organisms of interest 
 		based on taxonomy, special property class, and keyword search. 
-		For more details, please see <a href="http://enews.patricbrc.org/faqs/specialty-gene-faqs/" target="_blank">Specialty Gene User Guide</a>.</p>
+		For more details, please see <a href="http://enews.patricbrc.org/faqs/genome-feature-data-and-tools/specialty-genes-faqs/" target="_blank">Specialty Gene User Guide</a>.</p>
 	</div>
 
 	<div class="left" style="width:480px">

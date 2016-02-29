@@ -37,7 +37,7 @@ String exactSearchTerm = (String) request.getAttribute("exactSearchTerm");
 The list below provides Specialty Genes, i.e. genes that are of particular interest to the infectious disease researches, 
 such as virulence factors, antibiotic resistance genes, drug targets, and human homologs. 
 <b>Genes with the designation "Literature" in the Evidence field have been experimentally verified. Those with Evidence designated as "BLASTP" are identified based on sequence homology.</b>
-For more details, see <a href="http://enews.patricbrc.org/faqs/specialty-genes-faqs/" target="_blank">Specialty Genes User Guide</a>.
+For more details, see <a href="http://enews.patricbrc.org/faqs/genome-feature-data-and-tools/specialty-genes-faqs/" target="_blank">Specialty Genes User Guide</a>.
 </div>
 <div id="tree-panel" style="float:left"></div>
 <div id="sample-layout" style="float:left"></div>
