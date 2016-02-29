@@ -13,7 +13,11 @@ metadataGenomeSummaryValue['Organism_Info'] = [{
 }, {
 	name : 'NCBI Taxon ID',
 	text : 'taxon_id',
-	style : 'none'
+	style : 'none',
+	link : 'http://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id={0}',
+	value: 'taxon_id',
+	linkClass: 'double-arrow-link',
+	cellClass: 'no-underline-links'
 }, {
 	name : 'Genome Status',
 	text : 'genome_status',
