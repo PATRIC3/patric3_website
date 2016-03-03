@@ -83,6 +83,7 @@ public class GenomeBrowser extends GenericPortlet {
 		String contextType = request.getParameter("cType");
 		String contextId = request.getParameter("cId");
 
+		DataApiHandler dataApi = new DataApiHandler(request);
 		SolrQuery query = new SolrQuery();
 
 		if (contextType.equals("genome")) {
@@ -91,11 +92,9 @@ public class GenomeBrowser extends GenericPortlet {
 		else if (contextType.equals("feature")) {
 			query.setQuery(SolrCore.FEATURE.getSolrCoreJoin("genome_id", "genome_id", "feature_id:" + contextId));
 		}
-		query.setRows(1000).addSort("accession", SolrQuery.ORDER.asc);
+		query.setRows(dataApi.MAX_ROWS).addSort("accession", SolrQuery.ORDER.asc);
 
 		JSONArray jsonResult = new JSONArray();
-
-		DataApiHandler dataApi = new DataApiHandler(request);
 
 		LOGGER.trace("[{}] {}", SolrCore.SEQUENCE.getSolrCoreName(), query.toString());
 		String apiResponse = dataApi.solrQuery(SolrCore.SEQUENCE, query);
@@ -118,6 +117,34 @@ public class GenomeBrowser extends GenericPortlet {
 			seq.put("seqChunkSize", sequence.getLength());
 
 			jsonResult.add(seq);
+		}
+
+		// TODO: remove this when data API limit is removed
+		int i = 1;
+		while (sequences.size() == 25000) {
+			query.setStart(25000 * i);
+
+			apiResponse = dataApi.solrQuery(SolrCore.SEQUENCE, query);
+			resp = jsonReader.readValue(apiResponse);
+			respBody = (Map) resp.get("response");
+
+			sequences = dataApi.bindDocuments((List<Map>) respBody.get("docs"), GenomeSequence.class);
+
+			for (GenomeSequence sequence : sequences) {
+
+				JSONObject seq = new JSONObject();
+				seq.put("length", sequence.getLength());
+				seq.put("name", sequence.getAccession());
+				seq.put("accn", sequence.getAccession());
+				seq.put("sid", sequence.getGenomeId());
+				seq.put("start", 0);
+				seq.put("end", sequence.getLength());
+				seq.put("seqDir", "");
+				seq.put("seqChunkSize", sequence.getLength());
+
+				jsonResult.add(seq);
+			}
+			i++;
 		}
 
 		response.setContentType("application/json");
