@@ -45,6 +45,7 @@ String urlRoot = "/patric-jbrowse/jbrowse/";
 				makeFullViewURL: function( browser ) {
 					return browser.makeCurrentViewURL({ nav: 1, tracklist: 1, overview: 1 });
 				},
+				refSeqSelectorMaxSize: 100000,
 				updateBrowserURL: true
 			};
 
