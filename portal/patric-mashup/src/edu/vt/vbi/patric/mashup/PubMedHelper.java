@@ -31,7 +31,7 @@ public class PubMedHelper {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(PubMedHelper.class);
 
-	public static String getTitleString(ResourceRequest request, Map<String, String> key) {
+	public static String getTitleString(ResourceRequest request, Map<String, String> key) throws NullPointerException {
 
 		DataApiHandler dataApi = new DataApiHandler(request);
 
@@ -59,7 +59,7 @@ public class PubMedHelper {
 			else {
 				// default, feature level
 
-				int offset1 = feature.getGenomeName().indexOf(" ");
+				int offset1 = feature.getGenomeName().indexOf(" "); // this may throw NullPointerException when feature is null
 				int offset2 = feature.getGenomeName().indexOf(" ", offset1 + 1);
 
 				String org;
