@@ -65,8 +65,12 @@ public class SessionHandler {
 				int timeout = Integer.parseInt(prop.getProperty("timeout", "60"));
 				String password = prop.getProperty("password");
 				int database = Integer.parseInt(prop.getProperty("database", "0"));
+				int poolSize = Integer.parseInt(prop.getProperty("poolsize", "32"));
 
-				pool = new JedisPool(new JedisPoolConfig(), host, port, timeout, password, database);
+				JedisPoolConfig poolConfig = new JedisPoolConfig();
+				poolConfig.setMaxActive(poolSize);
+
+				pool = new JedisPool(poolConfig, host, port, timeout, password, database);
 				LOGGER.debug("connecting Redis Server: {},{},{},{},{}", host, port, timeout, password, database);
 			}
 		}
