@@ -122,7 +122,7 @@
 			<% } %>
 		</td>
 	</tr>
-	<tr>
+	<tr class="alt">
 		<th scope="row">Proteins with PATRIC cross-genus family (PGfam) assignments</th>
 		<td class="right-align-text">
 			<% if (pgfamAssignedProteins != null && pgfamAssignedProteins.containsKey("PATRIC")) { %>
