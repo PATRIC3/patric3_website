@@ -8,7 +8,7 @@ public enum SolrCore {
 	TRANSCRIPTOMICS_EXPERIMENT("transcriptomics_experiment"), TRANSCRIPTOMICS_COMPARISON("transcriptomics_sample"),
 	TRANSCRIPTOMICS_GENE("transcriptomics_gene"),
 	PROTEOMICS_EXPERIMENT("proteomics_experiment"), PROTEOMICS_PROTEIN("proteomics_protein"), PROTEOMICS_PEPTIDE("proteomics_peptide"),
-	ID_REF("id_ref");
+	ID_REF("id_ref"), GENOME_AMR("genome_amr");
 
 	private String coreName;
 

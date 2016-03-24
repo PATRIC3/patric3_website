@@ -1,5 +1,6 @@
 <%@ page import="java.util.Map" %>
 <%@ page import="edu.vt.vbi.patric.beans.Genome" %>
+<%@ page import="java.util.List" %>
 <%
 String cType = request.getParameter("context_type");
 String cId = request.getParameter("context_id");
@@ -7,6 +8,8 @@ String cId = request.getParameter("context_id");
 if (cType.equals("genome")) {
 
     Genome genome = (Genome) request.getAttribute("genome");
+	List<Map> amr = (List<Map>) request.getAttribute("amr");
+	boolean isAlter = true;
 
 	%>
 	<input type="button" class="button right" title="Add Genome to Workspace" value="Add Genome to Workspace" onclick="saveGenome()" />
@@ -25,6 +28,45 @@ if (cType.equals("genome")) {
 		<td class="no-underline-links" colspan="3" id="click_for_more"></td>
 	</tr>
 	</table>
+
+	<% if (amr != null && amr.size() > 0) { %>
+	<table class="basic stripe far2x">
+	<thead>
+		<tr>
+			<th rowspan="2">Antibiotic</th>										<%-- antibiotic --%>
+			<th rowspan="2">Resistance phenotype</th>							<%-- resistant_phenotype --%>
+			<th colspan="3">Measurement</th>
+			<th colspan="4">Laboratory typing</th>
+			<th rowspan="2">Testing standard</th>								<%-- testing_standard --%>
+		</tr>
+		<tr>
+			<th>sign</th>								<%-- measurement_sign --%>
+			<th>value</th>									<%-- measurement_value --%>
+			<th>units</th>								<%-- measurement_unit --%>
+			<th>method</th>						<%-- laboratory_typing_method --%>
+			<th>platform</th>						<%-- laboratory_typing_platform --%>
+			<th>Vendor</th>											<%-- vendor --%>
+			<th>method version or reagent</th>	<%-- laboratory_typing_method_version --%>
+		</tr>
+	</thead>
+	<tbody>
+		<% for (Map row : amr) { %>
+		<tr <%=(isAlter)?" class=\"alt\"":""%><% isAlter = !isAlter; %>>
+			<td><%=(row.containsKey("antibiotic"))?row.get("antibiotic"):"&nbsp;"%></td>
+			<td><%=(row.containsKey("resistant_phenotype"))?row.get("resistant_phenotype"):"&nbsp;"%></td>
+			<td><%=(row.containsKey("measurement_sign"))?row.get("measurement_sign"):"&nbsp;"%></td>
+			<td><%=(row.containsKey("measurement_value"))?row.get("measurement_value"):"&nbsp;"%></td>
+			<td><%=(row.containsKey("measurement_unit"))?row.get("measurement_unit"):"&nbsp;"%></td>
+			<td><%=(row.containsKey("laboratory_typing_method"))?row.get("laboratory_typing_method"):"&nbsp;"%></td>
+			<td><%=(row.containsKey("laboratory_typing_platform"))?row.get("laboratory_typing_platform"):"&nbsp;"%></td>
+			<td><%=(row.containsKey("vendor"))?row.get("vendor"):"&nbsp;"%></td>
+			<td><%=(row.containsKey("laboratory_typing_method_version"))?row.get("laboratory_typing_method_version"):"&nbsp;"%></td>
+			<td><%=(row.containsKey("testing_standard"))?row.get("testing_standard"):"&nbsp;"%></td>
+		</tr>
+		<% } %>
+	</tbody>
+	</table>
+	<% } %>
 <%
 } else if (cType.equals("taxon")) {
 

@@ -21,6 +21,9 @@ import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.common.DataApiHandler;
 import edu.vt.vbi.patric.common.SiteHelper;
 import edu.vt.vbi.patric.common.SolrCore;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +37,16 @@ import java.util.Map;
 public class SequenceSummaryPortlet extends GenericPortlet {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SequenceSummaryPortlet.class);
+
+	private ObjectReader jsonReader;
+
+	@Override
+	public void init() throws PortletException {
+		super.init();
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		jsonReader = objectMapper.reader(Map.class);
+	}
 
 	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 
@@ -74,7 +87,18 @@ public class SequenceSummaryPortlet extends GenericPortlet {
 
 				if (genome != null) {
 
+					// check genome_amr data is available.
+					SolrQuery query = new SolrQuery("genome_id:" + genome.getId());
+					dataApi = new DataApiHandler(request);
+					String apiResponse = dataApi.solrQuery(SolrCore.GENOME_AMR, query);
+
+					Map resp = jsonReader.readValue(apiResponse);
+					Map respBody = (Map) resp.get("response");
+
+					List<Map> amr = (List<Map>) respBody.get("docs");
+
 					request.setAttribute("genome", genome);
+					request.setAttribute("amr", amr);
 
 					response.setContentType("text/html");
 					PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/overview/sequence_summary.jsp");
