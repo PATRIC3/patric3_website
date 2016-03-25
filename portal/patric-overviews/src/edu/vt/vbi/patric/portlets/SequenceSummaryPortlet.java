@@ -89,6 +89,7 @@ public class SequenceSummaryPortlet extends GenericPortlet {
 
 					// check genome_amr data is available.
 					SolrQuery query = new SolrQuery("genome_id:" + genome.getId());
+					query.setRows(dataApi.MAX_ROWS);
 					dataApi = new DataApiHandler(request);
 					String apiResponse = dataApi.solrQuery(SolrCore.GENOME_AMR, query);
 
