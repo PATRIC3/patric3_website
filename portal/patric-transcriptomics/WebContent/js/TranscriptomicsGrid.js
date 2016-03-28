@@ -60,7 +60,10 @@ function TranscriptomicsGrid(gridId, stateObject, instance) {
 		}, {
             name : 'patric_id',
             type : 'string'
-        }]
+		}, {
+			name : 'accession_start',
+			type : 'string'
+		}]
 	});
 
 	this.headerReader = new Ext.data.reader.Array({

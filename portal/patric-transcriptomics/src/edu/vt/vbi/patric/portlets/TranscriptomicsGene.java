@@ -653,6 +653,9 @@ public class TranscriptomicsGene extends GenericPortlet {
 			json.put("genome_name", feature.getGenomeName());
 			json.put("gene", feature.getGene());
 
+			// for default sorting
+			json.put("accession_start", feature.getAccession() + "_" + String.format("%08d", feature.getStart()));
+
 			results.add(json);
 		}
 
