@@ -88,7 +88,7 @@ Ext.onReady(function() {
 		name: "<%=name%>", 
 		stateId: ['TRfeaturelist'],
 		pagingBarMsg: ['Displaying genes {0} - {1} of {2}'],
-		sort: (state && state.sort)?state.sort:[{property:'genome_name',
+		sort: (state && state.sort)?state.sort:[{property:'accession_start',
 			direction:'ASC'
 		}],
 		hash:{
