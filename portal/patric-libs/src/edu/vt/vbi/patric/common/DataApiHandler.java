@@ -347,6 +347,7 @@ public class DataApiHandler {
 		else {
 			String query = "/?and(eq(pos_group," + feature.getPosGroupEncoded() + "),eq(feature_type," + feature.getFeatureType()
 					+ "),eq(annotation,PATRIC))";
+			LOGGER.debug("getPATRICFeature: [{}] {}", SolrCore.FEATURE.getSolrCoreName(), query.toString());
 			String response = this.get(SolrCore.FEATURE.getSolrCoreName() + query);
 			if (response != null) {
 				try {
