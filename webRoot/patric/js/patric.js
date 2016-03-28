@@ -88,7 +88,7 @@ function search_all_header ()
 		Ext.Msg.alert('Warning', 'Please enter keyword.');
 	} else {
 		var keyword = Ext.getDom("global_search_keyword").value;
-		if ( ga != undefined) {
+		if (typeof ga != "undefined") {
 			ga('send', 'pageview', '/portal/portal/patric/GlobalSearch?keyword='+keyword);
 		}
 		Ext.Ajax.request({
