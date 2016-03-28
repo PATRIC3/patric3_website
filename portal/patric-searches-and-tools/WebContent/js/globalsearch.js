@@ -866,14 +866,14 @@ function getSelectedFeatures() {"use strict";
 function DownloadFile() {
 	var Page = $Page, property = Page.getPageProperties(), hash = property.hash, which = parseInt(hash.cat), name = property.name[which], tree = property.tree, form = Ext.getDom("fTableForm");
 
-	if (tree !== undefined && tree.getSelectedTerms()["Keyword"] == null) {
+	if (tree !== null && tree.getSelectedTerms()["Keyword"] == null) {
 		tree.selectedTerm["Keyword"] = Ext.getDom("keyword").value;
 	}
 
 	form.action = "/portal/portal/patric/GlobalSearch/GlobalSearchWindow?action=b&cacheability=PAGE&need=download";
 	form.target = "";
 	form.fileformat.value = arguments[0];
-	form.download_keyword.value = constructKeyword(tree.getSelectedTerms(), name);
+	form.download_keyword.value = constructKeyword((tree)?tree.getSelectedTerms():{}, name);
 	getHashFieldsToDownload(form);
 	form.submit();
 
