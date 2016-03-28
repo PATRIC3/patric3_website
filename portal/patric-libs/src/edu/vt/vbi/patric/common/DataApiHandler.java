@@ -515,7 +515,7 @@ public class DataApiHandler {
 					query.addFacetField(fieldFacets);
 				}
 
-				if (facetConditions.containsKey("date_range_facets")) {
+				if (facetConditions.containsKey("date_range_facets") && !facetConditions.get("date_range_facets").equals("")) {
 					String[] dateRangeFacets = facetConditions.get("date_range_facets").toString().split(",");
 					for (String field : dateRangeFacets) {
 						query.addDateRangeFacet(field, solr.getRangeStartDate(), solr.getRangeEndDate(), solr.getRangeDate());
