@@ -154,6 +154,7 @@ public class GlobalTaxonomy extends GenericPortlet {
 
 				SolrQuery query = dataApi.buildSolrQuery(key, sort, facet, start, end, hl);
 
+				LOGGER.trace("GlobalTaxonomy: [{}] {}", SolrCore.TAXONOMY.getSolrCoreName(), query);
 				String apiResponse = dataApi.solrQuery(SolrCore.TAXONOMY, query);
 
 				Map resp = jsonReader.readValue(apiResponse);
