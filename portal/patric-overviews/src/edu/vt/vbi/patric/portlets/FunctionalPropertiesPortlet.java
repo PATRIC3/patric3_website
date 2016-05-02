@@ -115,8 +115,9 @@ public class FunctionalPropertiesPortlet extends GenericPortlet {
 				// Structure Center related
 				List<Map> listStructure = null;
 
-				SolrQuery query = new SolrQuery("gene_symbol_collection:\"PATRIC_ID:" + feature.getP2FeatureId() + "\"");
+				SolrQuery query = new SolrQuery("gene_symbol_collection:\"PATRIC_ID:" + feature.getPatricId() + "\"");
 				query.addField("target_id,target_status,has_clones,has_proteins,selection_criteria");
+				LOGGER.trace("[{}] {}", SolrCore.STRUCTURE, query);
 
 				String apiResponse = dataApi.solrQuery(SolrCore.STRUCTURE, query);
 

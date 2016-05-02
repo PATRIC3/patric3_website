@@ -153,9 +153,9 @@ String ENDPOINT = System.getProperty("polyomic.baseUrl", "https://www.patricbrc.
 		<tr>
 			<td><a href="http://www.ssgcid.org" target="_blank">SSGCID</a></td>
 			<td><a href="https://apps.sbri.org/SSGCIDTargetStatus/Target/<%=structural.get("target_id") %>" target="_blank"><%=structural.get("target_id") %></a></td>
-			<td><%=structural.get("selection_criteria") %></td>
-			<td><%=structural.get("target_status") %> 
-				<% if (structural.get("target_status").equals("in PDB") && pdbIds.size() > 0) { %>
+			<td><%=(structural.containsKey("selection_criteria"))? structural.get("selection_criteria") : "&nbsp;" %></td>
+			<td><%=(structural.containsKey("target_status"))? structural.get("target_status") : "&nbsp;" %>
+				<% if (structural.containsKey("target_status") && structural.get("target_status").equals("in PDB") && pdbIds.size() > 0) { %>
 					<br/>
 					<% for (String pdbId: pdbIds) { %>
 					<a href="Jmol?structureID=<%=pdbId %>"><%=pdbId %></a>&nbsp;
