@@ -402,13 +402,33 @@ public class CompPathwayTable extends GenericPortlet {
 				listFeatureIds.add(doc.get("feature_id").toString());
 			}
 
+			int i = 1;
+			while (sdl.size() == 25000) {
+				query.setStart(25000 * i);
+
+				LOGGER.trace("[{}] {}, iter={}", SolrCore.PATHWAY.getSolrCoreName(), query, i);
+
+				apiResponse = dataApi.solrQuery(SolrCore.PATHWAY, query);
+				resp = jsonReader.readValue(apiResponse);
+				respBody = (Map) resp.get("response");
+
+				sdl = (List<Map>) respBody.get("docs");
+
+				for (Map doc : sdl) {
+
+					mapStat.put(doc.get("feature_id").toString(), doc);
+					listFeatureIds.add(doc.get("feature_id").toString());
+				}
+				i++;
+			}
+
 			// get pathway list
 			if (!listFeatureIds.isEmpty()) {
 				SolrQuery featureQuery = new SolrQuery("feature_id:(" + StringUtils.join(listFeatureIds, " OR ") + ")");
 				featureQuery.setFields("genome_name,genome_id,accession,alt_locus_tag,refseq_locus_tag,patric_id,feature_id,gene,product");
 				featureQuery.setRows(Math.max(dataApi.MAX_ROWS, listFeatureIds.size()));
 
-				LOGGER.trace("[{}] {}", SolrCore.FEATURE.getSolrCoreName(), featureQuery);
+				LOGGER.trace("[{}] {}, {}", SolrCore.FEATURE.getSolrCoreName(), featureQuery, listFeatureIds.size());
 
 				apiResponse = dataApi.solrQuery(SolrCore.FEATURE, featureQuery);
 				resp = jsonReader.readValue(apiResponse);
@@ -439,6 +459,45 @@ public class CompPathwayTable extends GenericPortlet {
 
 					items.add(item);
 				}
+
+				i = 1;
+				while (features.size() == 25000) {
+					featureQuery.setStart(25000 * i);
+
+					LOGGER.trace("[{}] {}, iter={}", SolrCore.FEATURE.getSolrCoreName(), featureQuery, i);
+
+					apiResponse = dataApi.solrQuery(SolrCore.FEATURE, featureQuery);
+					resp = jsonReader.readValue(apiResponse);
+					respBody = (Map) resp.get("response");
+
+					features = dataApi.bindDocuments((List<Map>) respBody.get("docs"), GenomeFeature.class);
+
+					for (GenomeFeature feature : features) {
+						String featureId = feature.getId();
+						Map stat = mapStat.get(featureId);
+
+						JSONObject item = new JSONObject();
+						item.put("genome_name", feature.getGenomeName());
+						item.put("genome_id", feature.getGenomeId());
+						item.put("accession", feature.getAccession());
+						item.put("feature_id", feature.getId());
+						item.put("alt_locus_tag", feature.getAltLocusTag());
+						item.put("refseq_locus_tag", feature.getRefseqLocusTag());
+						item.put("algorithm", annotation);
+						item.put("patric_id", feature.getPatricId());
+						item.put("gene", feature.getGene());
+						item.put("product", feature.getProduct());
+
+						item.put("ec_name", stat.get("ec_description"));
+						item.put("ec_number", stat.get("ec_number"));
+						item.put("pathway_id", stat.get("pathway_id"));
+						item.put("pathway_name", stat.get("pathway_name"));
+
+						items.add(item);
+					}
+					i++;
+				}
+
 				count_total = items.size();
 				count_unique = count_total;
 			}
