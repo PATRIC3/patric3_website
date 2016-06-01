@@ -52,16 +52,16 @@ if (cType.equals("genome")) {
 	<tbody>
 		<% for (Map row : amr) { %>
 		<tr <%=(isAlter)?" class=\"alt\"":""%><% isAlter = !isAlter; %>>
-			<td><%=(row.containsKey("antibiotic"))?row.get("antibiotic"):"&nbsp;"%></td>
-			<td><%=(row.containsKey("resistant_phenotype"))?row.get("resistant_phenotype"):"&nbsp;"%></td>
-			<td><%=(row.containsKey("measurement_sign"))?row.get("measurement_sign"):"&nbsp;"%></td>
-			<td><%=(row.containsKey("measurement_value"))?row.get("measurement_value"):"&nbsp;"%></td>
-			<td><%=(row.containsKey("measurement_unit"))?row.get("measurement_unit"):"&nbsp;"%></td>
-			<td><%=(row.containsKey("laboratory_typing_method"))?row.get("laboratory_typing_method"):"&nbsp;"%></td>
-			<td><%=(row.containsKey("laboratory_typing_platform"))?row.get("laboratory_typing_platform"):"&nbsp;"%></td>
-			<td><%=(row.containsKey("vendor"))?row.get("vendor"):"&nbsp;"%></td>
-			<td><%=(row.containsKey("laboratory_typing_method_version"))?row.get("laboratory_typing_method_version"):"&nbsp;"%></td>
-			<td><%=(row.containsKey("testing_standard"))?row.get("testing_standard"):"&nbsp;"%></td>
+			<td><%=(row.containsKey("antibiotic"))?row.get("antibiotic"):"&nbsp;"%>&nbsp;</td>
+			<td><%=(row.containsKey("resistant_phenotype"))?row.get("resistant_phenotype"):"&nbsp;"%>&nbsp;</td>
+			<td><%=(row.containsKey("measurement_sign"))?row.get("measurement_sign"):"&nbsp;"%>&nbsp;</td>
+			<td><%=(row.containsKey("measurement_value"))?row.get("measurement_value"):"&nbsp;"%>&nbsp;</td>
+			<td><%=(row.containsKey("measurement_unit"))?row.get("measurement_unit"):"&nbsp;"%>&nbsp;</td>
+			<td><%=(row.containsKey("laboratory_typing_method"))?row.get("laboratory_typing_method"):"&nbsp;"%>&nbsp;</td>
+			<td><%=(row.containsKey("laboratory_typing_platform"))?row.get("laboratory_typing_platform"):"&nbsp;"%>&nbsp;</td>
+			<td><%=(row.containsKey("vendor"))?row.get("vendor"):"&nbsp;"%>&nbsp;</td>
+			<td><%=(row.containsKey("laboratory_typing_method_version"))?row.get("laboratory_typing_method_version"):"&nbsp;"%>&nbsp;</td>
+			<td><%=(row.containsKey("testing_standard"))?row.get("testing_standard"):"&nbsp;"%>&nbsp;</td>
 		</tr>
 		<% } %>
 	</tbody>
