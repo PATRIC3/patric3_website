@@ -190,6 +190,10 @@ public class WorkspacePortlet extends GenericPortlet {
 
 							List<ObjectMeta> groupList = resp.get(pathGenomeGroup);
 
+							// sort by name
+							Comparator comparator = new GenomeGroupNameComparator();
+							Collections.sort(groupList, comparator);
+
 							JSONParser jsonParser = new JSONParser();
 
 							for (ObjectMeta group : groupList) {
@@ -212,49 +216,56 @@ public class WorkspacePortlet extends GenericPortlet {
 									gp.adminmode = 0;
 
 									LOGGER.trace("requesting.. {}", group.e_3 + group.e_1);
-									List<Workspace_tuple_2> r = serviceWS.get(gp);
 
-									for (Workspace_tuple_2 item : r) {
-										if (item.e_2 != null) {
+									try {
+										List<Workspace_tuple_2> r = serviceWS.get(gp);
 
-											JSONObject groupInfo = (JSONObject) jsonParser.parse(item.e_2); // objectMeta
-											List<String> genomeIdList = (List<String>) ((JSONObject) groupInfo.get("id_list")).get("genome_id");
-											Set<String> genomeIdSet = new HashSet<>(genomeIdList);
-											genomeIdSet.remove("");
+										for (Workspace_tuple_2 item : r) {
+											if (item.e_2 != null) {
 
-											SolrQuery query = new SolrQuery("genome_id:(" + StringUtils.join(genomeIdSet, " OR ") + ")");
-											query.setRows(10000).addField("genome_id,genome_name,taxon_id");
+												JSONObject groupInfo = (JSONObject) jsonParser.parse(item.e_2); // objectMeta
+												List<String> genomeIdList = (List<String>) ((JSONObject) groupInfo.get("id_list")).get("genome_id");
+												Set<String> genomeIdSet = new HashSet<>(genomeIdList);
+												genomeIdSet.remove("");
 
-											String apiResponse = dataApi.solrQuery(SolrCore.GENOME, query);
-											Map respApi = jsonReader.readValue(apiResponse);
-											Map respBody = (Map) respApi.get("response");
-											List<Genome> genomes = dataApi.bindDocuments((List<Map>) respBody.get("docs"), Genome.class);
+												SolrQuery query = new SolrQuery("genome_id:(" + StringUtils.join(genomeIdSet, " OR ") + ")");
+												query.setRows(10000).addField("genome_id,genome_name,taxon_id");
 
-//											QueryResponse qr = solr.getSolrServer(SolrCore.GENOME).query(query, SolrRequest.METHOD.POST);
-//											List<Genome> genomes = qr.getBeans(Genome.class);
-											Map<String, Genome> genomeHash = new LinkedHashMap<>();
-											for (Genome g : genomes) {
-												genomeHash.put(g.getId(), g);
-											}
+												LOGGER.trace("[{}] {}", SolrCore.GENOME.getSolrCoreName(), query);
+												String apiResponse = dataApi.solrQuery(SolrCore.GENOME, query);
+												Map respApi = jsonReader.readValue(apiResponse);
+												Map respBody = (Map) respApi.get("response");
+												List<Genome> genomes = dataApi.bindDocuments((List<Map>) respBody.get("docs"), Genome.class);
 
-											for (String genomeId : genomeIdSet) {
-												Genome genome = genomeHash.get(genomeId);
+												Map<String, Genome> genomeHash = new LinkedHashMap<>();
+												for (Genome g : genomes) {
+													genomeHash.put(g.getId(), g);
+												}
 
-												JSONObject leafGenome = new JSONObject();
-												leafGenome.put("id", genomeId);
-												leafGenome.put("parentID", genomeGroupId);
-												leafGenome.put("name", genome.getGenomeName());
-												leafGenome.put("leaf", true);
-												leafGenome.put("genome_id", genomeId);
-												leafGenome.put("taxon_id", genome.getTaxonId());
+												for (String genomeId : genomeIdSet) {
+													Genome genome = genomeHash.get(genomeId);
 
-												children.add(leafGenome);
+													if (genome != null) {
+														JSONObject leafGenome = new JSONObject();
+														leafGenome.put("id", genomeId);
+														leafGenome.put("parentID", genomeGroupId);
+														leafGenome.put("name", genome.getGenomeName());
+														leafGenome.put("leaf", true);
+														leafGenome.put("genome_id", genomeId);
+														leafGenome.put("taxon_id", genome.getTaxonId());
+
+														children.add(leafGenome);
+													}
+												}
 											}
 										}
-									}
 
-									grp.put("children", children);
-									res.add(grp);
+										grp.put("children", children);
+										res.add(grp);
+									}
+									catch (Exception ex) {
+										LOGGER.error(ex.getMessage(), ex);
+									}
 								}
 							}
 						}
