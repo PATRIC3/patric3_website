@@ -491,6 +491,9 @@ function getSelectedFeatures(actiontype, showdownload, fastatype, to){
 		if(Ext.getDom("ecN").value)
 	    	ecid.push(Ext.getDom("ecN").value);
 
+		if(Ext.getCmp("cb_ecN").value)
+			ecid.push(Ext.getCmp("cb_ecN").value);
+
 		Ext.Ajax.request({
 		    url: "/portal/portal/patric/CompPathwayTable/CompPathwayTableWindow?action=b&cacheability=PAGE&need=getFeatureIds",
 		    method: 'POST',
