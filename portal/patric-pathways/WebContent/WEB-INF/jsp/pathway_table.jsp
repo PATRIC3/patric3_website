@@ -14,7 +14,7 @@ String cId = request.getParameter("context_id");
 <table>
 <tr><td>
 	<div id="grid_result_summary"></div>
-	To learn how to filer, sort, manipulate, refine, and save data within PATRIC feature tables, 
+	To learn how to filter, sort, manipulate, refine, and save data within PATRIC feature tables,
 	please see <a href="http://enews.patricbrc.org/feature-table-faqs/" target="_blank">Feature Table User Guide</a>.
 	Click on a pathway name to view a pathway map. 
 

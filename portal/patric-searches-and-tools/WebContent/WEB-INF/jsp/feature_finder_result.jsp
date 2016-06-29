@@ -38,7 +38,7 @@ String featureType = (String) request.getAttribute("featureType");
 </div>
 <div id="SearchSummary">
 	<div id="grid_result_summary"></div>
-	To learn how to filer, sort, manipulate, refine, and save data within PATRIC feature tables, 
+	To learn how to filter, sort, manipulate, refine, and save data within PATRIC feature tables,
 	please see <a href="http://enews.patricbrc.org/feature-table-faqs/" target="_blank">Feature Table User Guide</a>
 </div>
 <div id="tree-panel" style="float:left"></div>
