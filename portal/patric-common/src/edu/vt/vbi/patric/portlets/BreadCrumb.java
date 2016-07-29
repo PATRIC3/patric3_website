@@ -46,7 +46,7 @@ import java.util.Map;
 
 public class BreadCrumb extends GenericPortlet {
 
-	private final boolean initCache = false;
+	private final boolean initCache = true;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(BreadCrumb.class);
 
@@ -59,20 +59,20 @@ public class BreadCrumb extends GenericPortlet {
 		ObjectMapper objectMapper = new ObjectMapper();
 		jsonListParser = objectMapper.reader(List.class);
 
-		String k = "PATRIC_DB.cfg.xml";
-		HibernateHelper.buildSessionFactory(k, k);
-		DBSummary.setSessionFactory(HibernateHelper.getSessionFactory(k));
-		try {
-			List<MBeanServer> list = MBeanServerFactory.findMBeanServer(null);
-			MBeanServer server = list.get(0);
-			ObjectName on = new ObjectName("Hibernate:type=statistics,application=PATRIC2");
-			StatisticsService mBean = new StatisticsService();
-			mBean.setSessionFactory(DBSummary.getSessionFactory());
-			server.registerMBean(mBean, on);
-		}
-		catch (Exception e) {
-			LOGGER.error(e.getMessage(), e);
-		}
+//		String k = "PATRIC_DB.cfg.xml";
+//		HibernateHelper.buildSessionFactory(k, k);
+//		DBSummary.setSessionFactory(HibernateHelper.getSessionFactory(k));
+//		try {
+//			List<MBeanServer> list = MBeanServerFactory.findMBeanServer(null);
+//			MBeanServer server = list.get(0);
+//			ObjectName on = new ObjectName("Hibernate:type=statistics,application=PATRIC2");
+//			StatisticsService mBean = new StatisticsService();
+//			mBean.setSessionFactory(DBSummary.getSessionFactory());
+//			server.registerMBean(mBean, on);
+//		}
+//		catch (Exception e) {
+//			LOGGER.error(e.getMessage(), e);
+//		}
 
 		// create cache for Genome Selector (all bacteria level)
 		if (initCache) {
