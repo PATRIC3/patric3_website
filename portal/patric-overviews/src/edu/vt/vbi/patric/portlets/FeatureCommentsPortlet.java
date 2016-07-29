@@ -19,18 +19,32 @@ package edu.vt.vbi.patric.portlets;
 
 import edu.vt.vbi.patric.beans.GenomeFeature;
 import edu.vt.vbi.patric.common.DataApiHandler;
-import edu.vt.vbi.patric.dao.DBSummary;
+import edu.vt.vbi.patric.common.SolrCore;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectReader;
 import org.slf4j.LoggerFactory;
 
 import javax.portlet.*;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 public class FeatureCommentsPortlet extends GenericPortlet {
 
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(FeatureCommentsPortlet.class);
+
+	private ObjectReader jsonReader;
+
+	@Override
+	public void init() throws PortletException {
+		super.init();
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		jsonReader = objectMapper.reader(Map.class);
+	}
 
 	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 
@@ -40,21 +54,41 @@ public class FeatureCommentsPortlet extends GenericPortlet {
 
 		if (cType != null && cId != null && cType.equals("feature")) {
 
-			List<Map<String, Object>> listAnnotation = null;
+			List<Map> listAnnotation = new LinkedList<>();
 			DataApiHandler dataApi = new DataApiHandler(request);
 
 			GenomeFeature feature = dataApi.getPATRICFeature(cId);
 
 			if (feature != null) {
 
-				DBSummary conn_summary = new DBSummary();
-				String refseqLocusTag = feature.getRefseqLocusTag();
+				if (feature.hasRefseqLocusTag()) {
+					SolrQuery query = new SolrQuery("refseq_locus_tag:" + feature.getRefseqLocusTag());
+					query.addFilterQuery("!property:Interaction");
+					query.addSort("property", SolrQuery.ORDER.asc).addSort("evidence_code", SolrQuery.ORDER.asc);
+					query.setRows(dataApi.MAX_ROWS);
 
-				if (refseqLocusTag != null) {
-					listAnnotation = conn_summary.getTBAnnotation(refseqLocusTag);
+					LOGGER.debug("[{}]: {}", SolrCore.STRUCTURED_ASSERTION.getSolrCoreName(), query);
+					String apiResponse = dataApi.solrQuery(SolrCore.STRUCTURED_ASSERTION, query);
+
+					Map resp = jsonReader.readValue(apiResponse);
+					Map respBody = (Map) resp.get("response");
+
+					listAnnotation.addAll((List<Map>) respBody.get("docs"));
+
+
+					query.setFilterQueries("property:Interaction");
+					query.setSort("value", SolrQuery.ORDER.asc).addSort("evidence_code", SolrQuery.ORDER.asc);
+
+					LOGGER.debug("[{}]: {}", SolrCore.STRUCTURED_ASSERTION.getSolrCoreName(), query);
+					apiResponse = dataApi.solrQuery(SolrCore.STRUCTURED_ASSERTION, query);
+
+					resp = jsonReader.readValue(apiResponse);
+					respBody = (Map) resp.get("response");
+
+					listAnnotation.addAll((List<Map>) respBody.get("docs"));
 				}
 
-				if (listAnnotation != null && !listAnnotation.isEmpty()) {
+				if (!listAnnotation.isEmpty()) {
 
 					request.setAttribute("listAnnotation", listAnnotation);
 

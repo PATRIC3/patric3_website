@@ -20,7 +20,7 @@ List<Map<String, Object>> listAnnotation = (List<Map<String, Object>>) request.g
 			<td><%=an.get("source") %>&nbsp;</td>
 			<td><%=an.get("property") %>&nbsp;</td>
 			<td><%=an.get("value") %>&nbsp;</td>
-			<td><%=an.get("evidencecode") %>&nbsp;</td>
+			<td><%=an.get("evidence_code") %>&nbsp;</td>
 			<td><%=(an.get("comment")!=null)?an.get("comment").toString().replaceAll("\"\"","\""):"" %>&nbsp;</td>
 		</tr>
 	<% } %>
