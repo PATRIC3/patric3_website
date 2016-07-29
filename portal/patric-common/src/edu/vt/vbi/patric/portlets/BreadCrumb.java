@@ -186,17 +186,17 @@ public class BreadCrumb extends GenericPortlet {
 		}
 	}
 
-	public void destroy() {
-		try {
-			ArrayList<MBeanServer> list = MBeanServerFactory.findMBeanServer(null);
-			MBeanServer server = list.get(0);
-			ObjectName on = new ObjectName("Hibernate:type=statistics,application=PATRIC2");
-			server.unregisterMBean(on);
-		}
-		catch (Exception e) {
-			LOGGER.error(e.getMessage(), e);
-		}
-	}
+//	public void destroy() {
+//		try {
+//			ArrayList<MBeanServer> list = MBeanServerFactory.findMBeanServer(null);
+//			MBeanServer server = list.get(0);
+//			ObjectName on = new ObjectName("Hibernate:type=statistics,application=PATRIC2");
+//			server.unregisterMBean(on);
+//		}
+//		catch (Exception e) {
+//			LOGGER.error(e.getMessage(), e);
+//		}
+//	}
 
 	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 		response.setContentType("text/html");
