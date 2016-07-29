@@ -19,11 +19,8 @@ package edu.vt.vbi.patric.portlets;
 
 import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.common.DataApiHandler;
-import edu.vt.vbi.patric.dao.DBPRC;
-import edu.vt.vbi.patric.dao.DBSummary;
 import edu.vt.vbi.patric.mashup.ArrayExpressInterface;
 import edu.vt.vbi.patric.mashup.EutilInterface;
-import edu.vt.vbi.patric.mashup.PRIDEInterface;
 import edu.vt.vbi.patric.mashup.PSICQUICInterface;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
@@ -73,17 +70,12 @@ public class ExperimentSummaryPortlet extends GenericPortlet {
 
 			String species_name = ExperimentDataPortlet.getSpeciesName(contextType, contextId);
 			String psicquic_species_name = "";
-			String pride_species_name = "";
-
-			DBSummary conn_summary = new DBSummary();
-			DBPRC conn_prc = new DBPRC();
 
 			if (contextType.equals("taxon")) {
 
 				taxonId = dataApi.getTaxonomy(Integer.parseInt(contextId)).getId();
 
 				psicquic_species_name = "species:" + taxonId;
-				pride_species_name = conn_summary.getPRIDESpecies("" + taxonId);
 
 			}
 			else if (contextType.equals("genome")) {
@@ -91,7 +83,6 @@ public class ExperimentSummaryPortlet extends GenericPortlet {
 				Genome genome = dataApi.getGenome(contextId);
 
 				psicquic_species_name = "species:" + genome.getTaxonId();
-				pride_species_name = conn_summary.getPRIDESpecies("" + taxonId);
 			}
 			// Transcriptomics
 			// GEO
@@ -110,8 +101,6 @@ public class ExperimentSummaryPortlet extends GenericPortlet {
 			JSONObject arex_keyword = api.getResults(species_name, "");
 
 			// Proteomics
-			PRIDEInterface pride_api = new PRIDEInterface();
-			JSONObject proteomics_result = pride_api.getResults(pride_species_name);
 
 			// Structure
 			strQueryTerm = "txid" + taxonId + "[Organism:exp]";
@@ -126,7 +115,6 @@ public class ExperimentSummaryPortlet extends GenericPortlet {
 			// Protein Protein Interaction
 			PSICQUICInterface psicquic_api = new PSICQUICInterface();
 			String result = psicquic_api.getCounts("intact", psicquic_species_name);
-			int result_pi = conn_prc.getPRCCount("" + taxonId, "PI");
 
 			// passing attributes
 			request.setAttribute("cType", contextType);
@@ -134,10 +122,8 @@ public class ExperimentSummaryPortlet extends GenericPortlet {
 			request.setAttribute("errorMsg", "Data is not available temporarily");
 			request.setAttribute("gds_taxon", gds_taxon); // Map<String, String>
 			request.setAttribute("arex_keyword", arex_keyword); // JSONObject
-			request.setAttribute("proteomics_result", proteomics_result); // JSONObject
 			request.setAttribute("st", st); // Map<String, String>
 			request.setAttribute("result", result); // String
-			request.setAttribute("result_pi", result_pi); // result_pi
 			request.setAttribute("species_name", species_name);
 
 			PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/summary_experiment_tab.jsp");

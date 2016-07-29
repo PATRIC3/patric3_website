@@ -20,8 +20,6 @@ package edu.vt.vbi.patric.portlets;
 import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.beans.Taxonomy;
 import edu.vt.vbi.patric.common.DataApiHandler;
-import edu.vt.vbi.patric.dao.DBPRC;
-import edu.vt.vbi.patric.mashup.PRIDEInterface;
 import org.json.simple.JSONObject;
 
 import javax.portlet.*;
@@ -57,31 +55,27 @@ public class ProteomicsSummary extends GenericPortlet {
 
 		if (contextType != null) {
 
-			int taxonId = -1;
 			String contextId = request.getParameter("cId");
 			String speciesName = "";
 			String errorMsg = "Data is not available temporarily";
 
-			DBPRC conn_prc = new DBPRC();
 			DataApiHandler dataApi = new DataApiHandler(request);
 
 			if (contextType.equals("taxon")) {
 				Taxonomy taxonomy = dataApi.getTaxonomy(Integer.parseInt(contextId));
 				speciesName = taxonomy.getTaxonName();
-				taxonId = taxonomy.getId();
 			}
 			else if (contextType.equals("genome")) {
 				Genome genome = dataApi.getGenome(contextId);
 				speciesName = genome.getGenomeName();
-				taxonId = genome.getTaxonId();
 			}
 
 			//PRIDE
-			PRIDEInterface api = new PRIDEInterface();
-			JSONObject result = api.getResults(speciesName);
+			JSONObject result = new JSONObject();
+			result.put("hasData", false);
 
 			//PRC
-			int result_ms = conn_prc.getPRCCount("" + taxonId, "MS");
+			int result_ms = 0;// conn_prc.getPRCCount("" + taxonId, "MS");
 
 			// pass attributes through request
 			request.setAttribute("contextType", contextType);

@@ -21,7 +21,6 @@ import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.beans.GenomeFeature;
 import edu.vt.vbi.patric.common.DataApiHandler;
 import edu.vt.vbi.patric.common.SolrCore;
-import edu.vt.vbi.patric.dao.DBSummary;
 import edu.vt.vbi.patric.dao.ResultType;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -57,8 +56,6 @@ public class FunctionalPropertiesPortlet extends GenericPortlet {
 		String cId = request.getParameter("context_id");
 
 		PortletRequestDispatcher prd;
-
-		DBSummary conn_summary = new DBSummary();
 
 		GenomeFeature feature = null;
 
@@ -147,22 +144,23 @@ public class FunctionalPropertiesPortlet extends GenericPortlet {
 				prd.include(request, response);
 			}
 			else if (feature.getFeatureType().contains("RNA")) {
-				ResultType rnaInfo = conn_summary.getRNAInfo("" + feature.getP2FeatureId());
-
-				if (rnaInfo.containsKey("comment_string") && rnaInfo.get("comment_string").contains("structure:")) {
-					String[] tmp = rnaInfo.get("comment_string").split("structure:");
-					if (tmp[0] != null) {
-						rnaInfo.put("comment", tmp[0]);
-					}
-					if (tmp[1] != null) {
-						rnaInfo.put("structure", tmp[1]);
-					}
-				}
-				else if (rnaInfo.containsKey("comment_string")) {
-					rnaInfo.put("comment", rnaInfo.get("comment_string"));
-				}
-
-				request.setAttribute("rna", rnaInfo);
+//				ResultType rnaInfo = conn_summary.getRNAInfo("" + feature.getP2FeatureId());
+//
+//				if (rnaInfo.containsKey("comment_string") && rnaInfo.get("comment_string").contains("structure:")) {
+//					String[] tmp = rnaInfo.get("comment_string").split("structure:");
+//					if (tmp[0] != null) {
+//						rnaInfo.put("comment", tmp[0]);
+//					}
+//					if (tmp[1] != null) {
+//						rnaInfo.put("structure", tmp[1]);
+//					}
+//				}
+//				else if (rnaInfo.containsKey("comment_string")) {
+//					rnaInfo.put("comment", rnaInfo.get("comment_string"));
+//				}
+//
+//				request.setAttribute("rna", rnaInfo);
+				request.setAttribute("rna", new ResultType());
 				prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/functional_properties/rna.jsp");
 				prd.include(request, response);
 			}

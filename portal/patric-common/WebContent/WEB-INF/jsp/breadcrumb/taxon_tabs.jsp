@@ -77,7 +77,7 @@ if (!lineage.isEmpty()) {
 				title=""><span>Transcriptomics</span></a></li>
 			<%--<li id="tabs_proteomics"><a href="ProteomicsList?cType=taxon&amp;cId=<%=tId %>&amp;kw=" title=""><span>Proteomics</span></a></li>--%>
 			<li id="tabs_interaction"><a href="HPITool?dm=tab&amp;cType=taxon&amp;cId=<%=tId %>&amp;hpi=false&amp;bm=" title=""><span>Interactions</span></a></li>
-			<li id="tabs_disease"><a href="DiseaseOverview?cType=taxon&amp;cId=<%=tId %>"><span>Diseases</span></a></li>
+			<%--<li id="tabs_disease"><a href="DiseaseOverview?cType=taxon&amp;cId=<%=tId %>"><span>Diseases</span></a></li>--%>
 			<li id="tabs_literature"><a href="Literature?cType=taxon&amp;cId=<%=tId %>&amp;time=a&amp;kw=none"><span>Literature</span></a></li>
 		</ul>
 	</article>

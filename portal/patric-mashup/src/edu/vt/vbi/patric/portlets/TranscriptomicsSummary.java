@@ -20,7 +20,6 @@ package edu.vt.vbi.patric.portlets;
 import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.beans.Taxonomy;
 import edu.vt.vbi.patric.common.DataApiHandler;
-import edu.vt.vbi.patric.dao.DBPRC;
 import edu.vt.vbi.patric.mashup.ArrayExpressInterface;
 import edu.vt.vbi.patric.mashup.EutilInterface;
 import org.json.simple.JSONObject;
@@ -67,8 +66,6 @@ public class TranscriptomicsSummary extends GenericPortlet {
 			String contextId = request.getParameter("cId");
 			String errorMsg = "Data is not available temporarily";
 
-			DBPRC conn_prc = new DBPRC();
-
 			DataApiHandler dataApi = new DataApiHandler(request);
 			String speciesName = "";
 
@@ -103,7 +100,7 @@ public class TranscriptomicsSummary extends GenericPortlet {
 			JSONObject arex_keyword = api.getResults(speciesName, "");
 
 			// PRC
-			int prc_ma = conn_prc.getPRCCount("" + taxonId, "MA");
+			int prc_ma = 0;// conn_prc.getPRCCount("" + taxonId, "MA");
 
 			// pass attributes through request
 			request.setAttribute("contextType", contextType);

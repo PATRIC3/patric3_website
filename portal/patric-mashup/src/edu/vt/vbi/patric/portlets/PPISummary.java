@@ -20,7 +20,6 @@ package edu.vt.vbi.patric.portlets;
 import edu.vt.vbi.patric.beans.Genome;
 import edu.vt.vbi.patric.beans.Taxonomy;
 import edu.vt.vbi.patric.common.DataApiHandler;
-import edu.vt.vbi.patric.dao.DBPRC;
 import edu.vt.vbi.patric.mashup.PSICQUICInterface;
 
 import javax.portlet.*;
@@ -62,7 +61,6 @@ public class PPISummary extends GenericPortlet {
 			String errorMsg = "Data is not available temporarily";
 			String contextId = request.getParameter("cId");
 
-			DBPRC conn_prc = new DBPRC();
 			DataApiHandler dataApi = new DataApiHandler(request);
 
 			switch (contextType) {
@@ -86,14 +84,13 @@ public class PPISummary extends GenericPortlet {
 			if (!psicquicSpeciesName.equals("")) {
 				PSICQUICInterface api = new PSICQUICInterface();
 				String result = api.getCounts("intact", psicquicSpeciesName);
-				int result_pi = conn_prc.getPRCCount("" + taxonId, "PI");
+				int result_pi = 0; // conn_prc.getPRCCount("" + taxonId, "PI");
 
 				// pass attributes through request
 				request.setAttribute("contextType", contextType);
 				request.setAttribute("contextId", contextId);
 				request.setAttribute("speciesName", speciesName);
 				request.setAttribute("result", result);
-				request.setAttribute("result_pi", result_pi); // int
 				request.setAttribute("errorMsg", errorMsg);
 			}
 

@@ -46,7 +46,7 @@ import java.util.Map;
 
 public class BreadCrumb extends GenericPortlet {
 
-	private final boolean initCache = true;
+	private final boolean initCache = false;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(BreadCrumb.class);
 
@@ -62,8 +62,6 @@ public class BreadCrumb extends GenericPortlet {
 		String k = "PATRIC_DB.cfg.xml";
 		HibernateHelper.buildSessionFactory(k, k);
 		DBSummary.setSessionFactory(HibernateHelper.getSessionFactory(k));
-		DBDisease.setSessionFactory(HibernateHelper.getSessionFactory(k));
-		DBPRC.setSessionFactory(HibernateHelper.getSessionFactory(k));
 		try {
 			List<MBeanServer> list = MBeanServerFactory.findMBeanServer(null);
 			MBeanServer server = list.get(0);

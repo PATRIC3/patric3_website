@@ -9,8 +9,6 @@
 	import="edu.vt.vbi.patric.mashup.PRIDEInterface"%><%@ page
 	import="edu.vt.vbi.patric.mashup.PSICQUICInterface"%><%@ page
 	import="edu.vt.vbi.patric.dao.DBSummary"%><%@ page
-	import="edu.vt.vbi.patric.dao.ResultType"%><%@ page
-	import="edu.vt.vbi.patric.dao.DBPRC"%><%@ page
 	import="java.io.OutputStream"%>
 <%@ page import="edu.vt.vbi.patric.common.DataApiHandler" %>
 <%@ page import="edu.vt.vbi.patric.beans.Genome" %>
@@ -111,53 +109,6 @@
 				"releasedate", "description", "experimentdesign"));
 
 		_filename = "PATRIC_ArrayExpress";
-	}
-	else if (_tablesource.equalsIgnoreCase("PRC")) {
-		String filter = "", sort = "", dir = "";
-		if (request.getParameter("context_type") != null) {
-			cType = request.getParameter("context_type");
-		}
-		if (request.getParameter("context_id") != null && !request.getParameter("context_id").equals("")) {
-			cId = request.getParameter("context_id");
-		}
-		if (request.getParameter("filter") != null) {
-			filter = request.getParameter("filter");
-		}
-		if (request.getParameter("sort") != null) {
-			sort = request.getParameter("sort");
-		}
-		if (request.getParameter("dir") != null) {
-			dir = request.getParameter("dir");
-		}
-
-		_filename = "ProteomicsResourceCenter_Data";
-
-		String taxonid = "";
-
-		if (cType.equals("taxon")) {
-			taxonid = cId;
-		}
-		else if (cType.equals("genome")) {
-			DataApiHandler dataApi = new DataApiHandler();
-			Genome genome = dataApi.getGenome(cId);
-			taxonid = "" + genome.getTaxonId();
-		}
-
-		DBPRC conn_prc = new DBPRC();
-		ArrayList<ResultType> _tbl_source_ = conn_prc.getPRCData(taxonid, filter, 0, -1, sort, dir);
-
-		_tbl_source = new JSONArray();
-		JSONObject object = null;
-		for (ResultType obj : _tbl_source_) {
-			object = new JSONObject();
-			object.putAll(obj);
-			_tbl_source.add(object);
-		}
-
-		_tbl_header.addAll(Arrays.asList("ID", "Description", "Organism", "Type", "Samples", "Publication", "Summary"));
-		_tbl_field.addAll(Arrays.asList("expid", "description", "speciesname", "experimenttype", "samples", "pubmed_id", "summary"));
-
-		_filename = "PATRIC_PRC";
 	}
 	else if (_tablesource.equalsIgnoreCase("Peptidome")) {
 		String filter = "";

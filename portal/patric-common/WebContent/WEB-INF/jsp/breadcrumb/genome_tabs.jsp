@@ -57,7 +57,7 @@ String flag = "";
 				title=""><span>Transcriptomics</span></a></li>
 			<%--<li id="tabs_proteomics"><a href="ProteomicsList?cType=genome&amp;cId=<%=gId %>&amp;kw=" title=""><span>Proteomics</span></a></li>--%>
 			<li id="tabs_interaction"><a href="HPITool?dm=tab&amp;cType=genome&amp;cId=<%=gId %>&amp;hpi=false&amp;bm=" title=""><span>Interactions</span></a></li>
-			<li id="tabs_disease"><a href="DiseaseOverview?cType=genome&amp;cId=<%=gId %>"><span>Diseases</span></a></li>
+			<%--<li id="tabs_disease"><a href="DiseaseOverview?cType=genome&amp;cId=<%=gId %>"><span>Diseases</span></a></li>--%>
 				<% } %>
 			<% } %>
 			<li id="tabs_literature"><a href="Literature?cType=genome&amp;cId=<%=gId %>&amp;time=a&amp;kw=none"><span>Literature</span></a></li>

@@ -7,10 +7,8 @@ String cId = (String) request.getAttribute("cId");
 String errorMsg = (String) request.getAttribute("errorMsg");
 Map<String, String> gds_taxon = (Map) request.getAttribute("gds_taxon");
 JSONObject arex_keyword = (JSONObject) request.getAttribute("arex_keyword");
-JSONObject proteomics_result = (JSONObject) request.getAttribute("proteomics_result");
 Map<String, String> st = (Map) request.getAttribute("st");
 String result = (String) request.getAttribute("result");
-int result_pi = (Integer) request.getAttribute("result_pi");
 String species_name = (String) request.getAttribute("species_name");
 
 %>
@@ -43,21 +41,6 @@ String species_name = (String) request.getAttribute("species_name");
 				%><a href="ArrayExpress?cType=<%=cType%>&amp;cId=<%=cId%>&amp;kw=<%=species_name%>"><%=arex_keyword.get("total") %></a><%
 			}%>
 		</td>
-	</tr>
-	<tr>
-		<th scope="row">Proteomics from PRIDE</th>
-		<td class="right-align-text"><!-- PRIDE/Species -->
-			<%
-			if (proteomics_result.get("hasData").equals(false)) {
-				%><%=errorMsg%><%
-			}
-			else if (proteomics_result.get("total").equals(0)) {
-				%>0<%
-			} else {
-				%><a href="PRIDE?cType=<%=cType%>&amp;cId=<%=cId%>"><%=proteomics_result.get("total") %></a><%
-			}
-			%>
-		</td>	
 	</tr>
 	<tr>
 		<th scope="row">Structure from NCBI</th>
