@@ -113,8 +113,8 @@ public class ExperimentSummaryPortlet extends GenericPortlet {
 			}
 
 			// Protein Protein Interaction
-			PSICQUICInterface psicquic_api = new PSICQUICInterface();
-			String result = psicquic_api.getCounts("intact", psicquic_species_name);
+//			PSICQUICInterface psicquic_api = new PSICQUICInterface();
+//			String result = psicquic_api.getCounts("intact", psicquic_species_name);
 
 			// passing attributes
 			request.setAttribute("cType", contextType);
@@ -123,7 +123,7 @@ public class ExperimentSummaryPortlet extends GenericPortlet {
 			request.setAttribute("gds_taxon", gds_taxon); // Map<String, String>
 			request.setAttribute("arex_keyword", arex_keyword); // JSONObject
 			request.setAttribute("st", st); // Map<String, String>
-			request.setAttribute("result", result); // String
+//			request.setAttribute("result", result); // String
 			request.setAttribute("species_name", species_name);
 
 			PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/summary_experiment_tab.jsp");

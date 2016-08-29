@@ -78,7 +78,7 @@
 				<region>center</region>
 				<height>3</height>
 			</window>
-			<window>
+<!--			<window>
 				<window-name>PPISummaryWindow</window-name>
 				<content>
 					<content-type>portlet</content-type>
@@ -86,7 +86,7 @@
 				</content>
 				<region>center</region>
 				<height>4</height>
-			</window>
+			</window>-->
 			<window>
 				<window-name>PubMedPanelWindow?keyword=Experiment%20Data</window-name>
 				<content>

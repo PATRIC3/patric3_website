@@ -6,7 +6,7 @@ String cType = (String) request.getAttribute("cType");
 String cId = (String) request.getAttribute("cId");
 String errorMsg = (String) request.getAttribute("errorMsg");
 Map<String, String> gds_taxon = (Map) request.getAttribute("gds_taxon");
-//JSONObject arex_keyword = (JSONObject) request.getAttribute("arex_keyword");
+JSONObject arex_keyword = (JSONObject) request.getAttribute("arex_keyword");
 Map<String, String> st = (Map) request.getAttribute("st");
 //String result = (String) request.getAttribute("result");
 String species_name = (String) request.getAttribute("species_name");
@@ -27,7 +27,7 @@ String species_name = (String) request.getAttribute("species_name");
 				%><a href="GEO?cType=<%=cType %>&amp;cId=<%=cId%>&amp;filter=&amp;keyword="><%=gds_taxon.get("Count") %></a><%
 			} %>
 		</td>
-	</tr><%--
+	</tr>
 	<tr>
 		<th scope="row">Transcriptomics from ArrayExpress</th>
 		<td class="right-align-text"><!-- ArrayExpress/Keyword -->
@@ -41,7 +41,7 @@ String species_name = (String) request.getAttribute("species_name");
 				%><a href="ArrayExpress?cType=<%=cType%>&amp;cId=<%=cId%>&amp;kw=<%=species_name%>"><%=arex_keyword.get("total") %></a><%
 			}%>
 		</td>
-	</tr>--%>
+	</tr>
 	<tr>
 		<th scope="row">Structure from NCBI</th>
 		<td class="right-align-text"><% 
