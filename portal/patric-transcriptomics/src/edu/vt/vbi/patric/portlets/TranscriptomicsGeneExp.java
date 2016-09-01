@@ -427,8 +427,8 @@ public class TranscriptomicsGeneExp extends GenericPortlet {
 
 		if (!correlationMap.isEmpty()) {
 			try {
-				SolrQuery query = new SolrQuery("refseq_locus_tag:(" + StringUtils.join(correlationMap.keySet(), " OR ") + ")");
-				query.setFilterQueries("annotation:PATRIC");
+				SolrQuery query = new SolrQuery("refseq_locus_tag:(" + StringUtils.join(correlationMap.keySet(), " OR ") + ") AND genome_id:" + feature.getGenomeId());
+				query.setFilterQueries("annotation:PATRIC AND feature_type:CDS");
 				query.setFields(
 						"genome_id,genome_name,accession,feature_id,start,end,strand,feature_type,annotation,alt_locus_tag,refseq_locus_tag,patric_id,na_length,aa_length,protein_id,gene,product");
 				query.setRows(numFound);
