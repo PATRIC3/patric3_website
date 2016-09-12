@@ -11,6 +11,7 @@ List<Map<String, Object>> listAnnotation = (List<Map<String, Object>>) request.g
 			<th scope="col">Property</th>
 			<th scope="col">Value</th>
 			<th scope="col">Evidence Code</th>
+			<th scope="col">PubMed</th>
 			<th scope="col">Comment</th>
 		</tr>
 	</thead>
@@ -19,8 +20,9 @@ List<Map<String, Object>> listAnnotation = (List<Map<String, Object>>) request.g
 		<tr>
 			<td><%=an.get("source") %>&nbsp;</td>
 			<td><%=an.get("property") %>&nbsp;</td>
-			<td><%=an.get("value") %>&nbsp;</td>
+			<td><%=(an.get("value")!=null)?an.get("value"):"" %>&nbsp;</td>
 			<td><%=an.get("evidence_code") %>&nbsp;</td>
+			<td><%=(an.get("pmid")!=null)?"<a href='//view.ncbi.nlm.nih.gov/pubmed/" + an.get("pmid") + "' target='_blank'>" + an.get("pmid") + "</a>":"" %>&nbsp;</td>
 			<td><%=(an.get("comment")!=null)?an.get("comment").toString().replaceAll("\"\"","\""):"" %>&nbsp;</td>
 		</tr>
 	<% } %>
